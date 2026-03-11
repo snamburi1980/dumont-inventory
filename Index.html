@@ -9,21 +9,21 @@
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
--–cream: #FDF6EC;
--–caramel: #C8843A;
-–-dark: #1A1209;
-–-mocha: #3D2B1F;
-–-rose: #E8A598;
-–-mint: #7BBFA5;
-–-gold: #D4A843;
-–-red-alert: #C0392B;
-–-amber-alert: #E67E22;
-–-green-ok: #27AE60;
-–-card-bg: #FFFDF8;
-–-border: #EDE0CC;
-}
+    --cream: #FDF6EC;
+    --caramel: #C8843A;
+    --dark: #1A1209;
+    --mocha: #3D2B1F;
+    --rose: #E8A598;
+    --mint: #7BBFA5;
+    --gold: #D4A843;
+    --red-alert: #C0392B;
+    --amber-alert: #E67E22;
+    --green-ok: #27AE60;
+    --card-bg: #FFFDF8;
+    --border: #EDE0CC;
+  }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+- { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
 font-family: ‘DM Sans’, -apple-system, BlinkMacSystemFont, ‘Segoe UI’, sans-serif;
@@ -1226,8 +1226,7 @@ function adjustStock(id, delta) {
   const item = inventory.find(i => i.id === id);
   if (item) {
     item.stock = Math.max(0, item.stock + delta);
-    const input = document.getElementById(`stock-${id}`);
-    if (input) input.value = item.stock;
+    updateRowInPlace(item);
     saveInventory();
     renderDashboard();
     if (currentTab === 'orders') renderOrders();
@@ -1239,9 +1238,30 @@ function setStock(id, val) {
   const item = inventory.find(i => i.id === id);
   if (item) {
     item.stock = Math.max(0, val);
+    updateRowInPlace(item);
     saveInventory();
     renderDashboard();
   }
+}
+
+function updateRowInPlace(item) {
+  const status = getStatus(item);
+  const pct = Math.min(100, (item.stock / (item.par * 2)) * 100);
+  const cls = status === 'ok' ? 'fill-green' : status === 'low' ? 'fill-amber' : 'fill-red';
+  const input = document.getElementById(`stock-${item.id}`);
+  if (!input) return;
+  const row = input.closest('tr');
+  if (!row) return;
+  // Update stock bar
+  const bar = row.querySelector('.stock-bar-fill');
+  if (bar) { bar.style.width = pct + '%'; bar.className = `stock-bar-fill ${cls}`; }
+  // Update stock label
+  const label = row.querySelector('.stock-bar + div');
+  if (label) label.textContent = `${item.stock} / par ${item.par}`;
+  // Update status pill
+  if (row.cells[4]) row.cells[4].innerHTML = getStatusPill(status);
+  // Update input value
+  input.value = item.stock;
 }
 
 function setCategoryFilter(cat, el) {
