@@ -981,96 +981,114 @@ let deliveryHistory = [];
 // RECIPE ENGINE — Key menu items mapped to ingredient deductions
 // (per unit sold, deduct from stock in fractional units)
 // ============================================================
+// Recipe engine — deductions per unit sold (fractional units of inventory)
 const recipes = {
-  "Taro Milk Tea": [
-    { id: 27, amount: 0.005 }, // Taro Powder
-    { id: 7, amount: 0.008 },  // NDC
-    { id: 12, amount: 0.01 },  // Fructose
-    { id: 1, amount: 0.02 },   // Boba Pearls
-    { id: 65, amount: 0.01 },  // 24oz Cup
-  ],
-  "Matcha Milk Tea": [
-    { id: 26, amount: 0.005 }, // Matcha Powder
-    { id: 28, amount: 0.008 }, // Vanilla Powder
-    { id: 7, amount: 0.008 },  // NDC
-    { id: 12, amount: 0.01 },  // Fructose
-    { id: 65, amount: 0.01 },  // 24oz Cup
-  ],
-  "Horchata Milk Tea": [
-    { id: 30, amount: 0.008 }, // Horchata Powder
-    { id: 7, amount: 0.008 },  // NDC
-    { id: 12, amount: 0.01 },  // Fructose
-    { id: 65, amount: 0.01 },
-  ],
-  "Tiger Stripes": [
-    { id: 5, amount: 0.02 },  // Thai Tea
-    { id: 34, amount: 0.025 }, // Coffee Jelly
-    { id: 65, amount: 0.01 },
-  ],
-  "Mangoficient": [
-    { id: 17, amount: 0.02 }, // Mango Syrup
-    { id: 33, amount: 0.02 }, // Rainbow Jelly
-    { id: 35, amount: 0.015 }, // Mango Popping Pearls
-    { id: 2, amount: 0.02 },  // Green Tea
-    { id: 65, amount: 0.01 },
-  ],
-  "Pink Lips": [
-    { id: 20, amount: 0.02 }, // Strawberry Syrup
-    { id: 33, amount: 0.02 }, // Rainbow Jelly
-    { id: 36, amount: 0.015 }, // Strawberry Popping Pearls
-    { id: 4, amount: 0.02 },  // Black Tea
-    { id: 65, amount: 0.01 },
-  ],
-  "Passionate Love": [
-    { id: 18, amount: 0.02 }, // Passion Fruit Syrup
-    { id: 33, amount: 0.02 },
-    { id: 37, amount: 0.015 }, // Passion Popping Pearls
-    { id: 2, amount: 0.02 },
-    { id: 65, amount: 0.01 },
-  ],
-  "Lychee Lust": [
-    { id: 16, amount: 0.02 }, // Lychee Syrup
-    { id: 32, amount: 0.02 }, // Lychee Coconut Jelly
-    { id: 36, amount: 0.015 },
-    { id: 4, amount: 0.02 },
-    { id: 65, amount: 0.01 },
-  ],
-  "Mango Market Lemonade": [
-    { id: 17, amount: 0.02 },
-    { id: 12, amount: 0.01 },
-    { id: 2, amount: 0.015 },
-    { id: 84, amount: 0.07 }, // Lemons
-    { id: 85, amount: 0.005 }, // Mint
-  ],
-  "Taro Smoothie": [
-    { id: 27, amount: 0.007 },
-    { id: 12, amount: 0.01 },
-    { id: 65, amount: 0.01 },
-  ],
-  "Matcha Smoothie": [
-    { id: 26, amount: 0.005 },
-    { id: 28, amount: 0.006 },
-    { id: 65, amount: 0.01 },
-  ],
-  "Iced Latte": [
-    { id: 51, amount: 0.015 }, // Coffee beans
-    { id: 87, amount: 0.025 }, // Oat Milk
-    { id: 68, amount: 0.01 },  // 12oz cups
-  ],
-  "Latte": [
-    { id: 51, amount: 0.015 },
-    { id: 68, amount: 0.01 },
-  ],
-  "Dark Chocolate Mocha": [
-    { id: 51, amount: 0.015 },
-    { id: 42, amount: 0.015 }, // Dark Mocha Sauce
-    { id: 43, amount: 0.008 }, // Vanilla Syrup
-    { id: 68, amount: 0.01 },
-  ],
-  "Milkshake": [
-    { id: 110, amount: 0.04 }, // Vanilla Bean
-    { id: 66, amount: 0.01 },  // 16oz milkshake cup
-  ],
+  // MILK TEAS
+  "Taro Milk Tea":      [{ id:27,amount:0.005 },{ id:7,amount:0.008 },{ id:12,amount:0.01 },{ id:1,amount:0.02 },{ id:65,amount:0.01 }],
+  "Matcha Milk Tea":    [{ id:26,amount:0.005 },{ id:28,amount:0.008 },{ id:7,amount:0.008 },{ id:12,amount:0.01 },{ id:65,amount:0.01 }],
+  "Horchata Milk Tea":  [{ id:30,amount:0.008 },{ id:7,amount:0.008 },{ id:12,amount:0.01 },{ id:65,amount:0.01 }],
+  "Tiger Stripes":      [{ id:5,amount:0.02 },{ id:34,amount:0.025 },{ id:7,amount:0.008 },{ id:65,amount:0.01 }],
+  "Thai Milk Tea":      [{ id:5,amount:0.02 },{ id:7,amount:0.008 },{ id:10,amount:0.01 },{ id:65,amount:0.01 }],
+  "Thai Mlik Tea":      [{ id:5,amount:0.02 },{ id:7,amount:0.008 },{ id:10,amount:0.01 },{ id:65,amount:0.01 }],
+  "Classic Milk Tea":   [{ id:4,amount:0.02 },{ id:7,amount:0.008 },{ id:12,amount:0.01 },{ id:65,amount:0.01 }],
+  "Dirty Mad Tea":      [{ id:4,amount:0.02 },{ id:7,amount:0.008 },{ id:51,amount:0.01 },{ id:65,amount:0.01 }],
+
+  // FRUIT TEAS
+  "Mangoficient":       [{ id:17,amount:0.02 },{ id:33,amount:0.02 },{ id:35,amount:0.015 },{ id:2,amount:0.02 },{ id:65,amount:0.01 }],
+  "Pink Lips":          [{ id:20,amount:0.02 },{ id:33,amount:0.02 },{ id:36,amount:0.015 },{ id:4,amount:0.02 },{ id:65,amount:0.01 }],
+  "Passionate Love":    [{ id:18,amount:0.02 },{ id:33,amount:0.02 },{ id:37,amount:0.015 },{ id:2,amount:0.02 },{ id:65,amount:0.01 }],
+  "Lychee Lust":        [{ id:16,amount:0.02 },{ id:32,amount:0.02 },{ id:36,amount:0.015 },{ id:4,amount:0.02 },{ id:65,amount:0.01 }],
+
+  // SLUSHIES
+  "Strawberry Burst":   [{ id:20,amount:0.025 },{ id:36,amount:0.02 },{ id:65,amount:0.01 }],
+  "Mangonada":          [{ id:17,amount:0.025 },{ id:82,amount:0.02 },{ id:83,amount:0.015 },{ id:65,amount:0.01 }],
+
+  // LEMONADES
+  "Mango Market Lemonade":     [{ id:17,amount:0.02 },{ id:12,amount:0.01 },{ id:84,amount:0.07 },{ id:85,amount:0.005 }],
+  "Pineapple Island Lemonade": [{ id:19,amount:0.02 },{ id:12,amount:0.01 },{ id:84,amount:0.07 }],
+  "Passion World Lemonade":    [{ id:18,amount:0.02 },{ id:12,amount:0.01 },{ id:84,amount:0.07 }],
+
+  // SMOOTHIES
+  "Taro Smoothie":      [{ id:27,amount:0.007 },{ id:12,amount:0.01 },{ id:65,amount:0.01 }],
+  "Matcha Smoothie":    [{ id:26,amount:0.005 },{ id:28,amount:0.006 },{ id:65,amount:0.01 }],
+  "Purple Patch":       [{ id:38,amount:0.02 },{ id:12,amount:0.01 },{ id:65,amount:0.01 }],
+
+  // COFFEE
+  "Latte Hot":                  [{ id:51,amount:0.015 },{ id:68,amount:0.01 }],
+  "Latte Iced":                 [{ id:51,amount:0.015 },{ id:68,amount:0.01 }],
+  "Iced Latte":                 [{ id:51,amount:0.015 },{ id:87,amount:0.025 },{ id:68,amount:0.01 }],
+  "Cappuccino Hot":             [{ id:51,amount:0.015 },{ id:68,amount:0.01 }],
+  "Americano Hot":              [{ id:51,amount:0.012 },{ id:68,amount:0.01 }],
+  "Flat white":                 [{ id:51,amount:0.015 },{ id:68,amount:0.01 }],
+  "Double shot espresso":       [{ id:51,amount:0.012 },{ id:68,amount:0.005 }],
+  "Dark Chocolate Mocha Hot":   [{ id:51,amount:0.015 },{ id:42,amount:0.015 },{ id:43,amount:0.008 },{ id:68,amount:0.01 }],
+  "Dark Chocolate Mocha Iced":  [{ id:51,amount:0.015 },{ id:42,amount:0.015 },{ id:43,amount:0.008 },{ id:68,amount:0.01 }],
+  "White Chocolate Mocha Hot":  [{ id:51,amount:0.015 },{ id:41,amount:0.015 },{ id:68,amount:0.01 }],
+  "White Chocolate Mocha Iced": [{ id:51,amount:0.015 },{ id:41,amount:0.015 },{ id:68,amount:0.01 }],
+  "Pistachio White Mocha Hot":  [{ id:51,amount:0.015 },{ id:41,amount:0.015 },{ id:46,amount:0.01 },{ id:68,amount:0.01 }],
+  "Pistachio White Mocha Iced": [{ id:51,amount:0.015 },{ id:41,amount:0.015 },{ id:46,amount:0.01 },{ id:68,amount:0.01 }],
+  "Blackberry White Mocha Iced":[{ id:51,amount:0.015 },{ id:41,amount:0.015 },{ id:47,amount:0.01 },{ id:68,amount:0.01 }],
+  "Date Cardamom Latte Hot":    [{ id:51,amount:0.015 },{ id:92,amount:0.005 },{ id:91,amount:0.01 },{ id:68,amount:0.01 }],
+  "Date Cardamom Latte Iced":   [{ id:51,amount:0.015 },{ id:92,amount:0.005 },{ id:91,amount:0.01 },{ id:68,amount:0.01 }],
+  "Lavender Latte Hot":         [{ id:51,amount:0.015 },{ id:68,amount:0.01 }],
+  "OG Cold Coffee":             [{ id:51,amount:0.018 },{ id:86,amount:0.015 },{ id:68,amount:0.01 }],
+  "Affogato Single shot":       [{ id:51,amount:0.012 },{ id:110,amount:0.03 }],
+  "Affogato Double Shot":       [{ id:51,amount:0.02 },{ id:110,amount:0.03 }],
+  "Matcha Affogato":            [{ id:26,amount:0.005 },{ id:110,amount:0.03 }],
+  "Straberry Matcha Latte Iced":[{ id:26,amount:0.005 },{ id:48,amount:0.01 },{ id:51,amount:0.01 },{ id:68,amount:0.01 }],
+
+  // MILKSHAKES (any flavor uses a scoop of that ice cream)
+  "Kheer Milkshake":                [{ id:121,amount:0.06 },{ id:66,amount:0.01 }],
+  "Raspberry Mascarpone Milkshake": [{ id:110,amount:0.06 },{ id:66,amount:0.01 }],
+  "Strawberry Chunks Milkshake":    [{ id:113,amount:0.06 },{ id:66,amount:0.01 }],
+  "Pistachio Milkshake":            [{ id:115,amount:0.06 },{ id:66,amount:0.01 }],
+
+  // ICE CREAM SCOOPS — each scoop deducts from the relevant tub
+  // Kids = 1 scoop, Regular = 2 scoops, Hand Packed Happiness = ~4 scoops
+  "Vanilla Bean kids":          [{ id:110,amount:0.025 },{ id:60,amount:0.01 }],
+  "Vanilla Bean Regular":       [{ id:110,amount:0.04 },{ id:61,amount:0.01 }],
+  "Classic Chocolate kids":     [{ id:111,amount:0.025 },{ id:60,amount:0.01 }],
+  "Classic Chocolate Regular":  [{ id:111,amount:0.04 },{ id:61,amount:0.01 }],
+  "Butterscotch kids":          [{ id:112,amount:0.025 },{ id:60,amount:0.01 }],
+  "Butterscotch Regular":       [{ id:112,amount:0.04 },{ id:61,amount:0.01 }],
+  "Strawberry Chunks kids":     [{ id:113,amount:0.025 },{ id:60,amount:0.01 }],
+  "Pistachio kids":             [{ id:115,amount:0.025 },{ id:60,amount:0.01 }],
+  "Pistachio Regular":          [{ id:115,amount:0.04 },{ id:61,amount:0.01 }],
+  "Kheer kids":                 [{ id:121,amount:0.025 },{ id:60,amount:0.01 }],
+  "Kheer Regular":              [{ id:121,amount:0.04 },{ id:61,amount:0.01 }],
+  "Filter Coffee kids":         [{ id:122,amount:0.025 },{ id:60,amount:0.01 }],
+  "Filter Coffee Regular":      [{ id:122,amount:0.04 },{ id:61,amount:0.01 }],
+  "Mint Chocolate Chip Regular":[{ id:123,amount:0.04 },{ id:61,amount:0.01 }],
+  "La Ferrero kids":            [{ id:124,amount:0.025 },{ id:60,amount:0.01 }],
+  "La Ferrero Regular":         [{ id:124,amount:0.04 },{ id:61,amount:0.01 }],
+  "Biscoff kids":               [{ id:125,amount:0.025 },{ id:60,amount:0.01 }],
+  "Biscoff Regular":            [{ id:125,amount:0.04 },{ id:61,amount:0.01 }],
+  "Oreo Caramel Fudge kids":    [{ id:117,amount:0.025 },{ id:60,amount:0.01 }],
+  "Oreo Caramel Fudge Regular": [{ id:117,amount:0.04 },{ id:61,amount:0.01 }],
+  "Salted Caramel kids":        [{ id:118,amount:0.025 },{ id:60,amount:0.01 }],
+  "Salted Caramel Regular":     [{ id:118,amount:0.04 },{ id:61,amount:0.01 }],
+  "Mango kids":                 [{ id:120,amount:0.025 },{ id:60,amount:0.01 }],
+  "Mango Regular":              [{ id:120,amount:0.04 },{ id:61,amount:0.01 }],
+  "Hazelnut Brownie kids":      [{ id:110,amount:0.025 },{ id:60,amount:0.01 }],
+  "Hazelnut Brownie Regular":   [{ id:110,amount:0.04 },{ id:61,amount:0.01 }],
+  "Birthday Cake kids":         [{ id:110,amount:0.025 },{ id:60,amount:0.01 }],
+  "Birthday Cake Regular":      [{ id:110,amount:0.04 },{ id:61,amount:0.01 }],
+  "Hokey Pokey kids":           [{ id:110,amount:0.025 },{ id:60,amount:0.01 }],
+  "Salty Little Secret Kids":   [{ id:118,amount:0.025 },{ id:60,amount:0.01 }],
+  "Mint Basil Sorbet kids":     [{ id:123,amount:0.025 },{ id:60,amount:0.01 }],
+  "Mint Basil Sorbet Regular":  [{ id:123,amount:0.04 },{ id:61,amount:0.01 }],
+  "Raspberry Mascarpone kids":  [{ id:110,amount:0.025 },{ id:60,amount:0.01 }],
+  "Chocolate Mudslide Kids":    [{ id:111,amount:0.025 },{ id:60,amount:0.01 }],
+  "Chocolate Mudslide Regular": [{ id:111,amount:0.04 },{ id:61,amount:0.01 }],
+  "Jamaican Rum Regular":       [{ id:110,amount:0.04 },{ id:61,amount:0.01 }],
+  "Lucky Charms kids":          [{ id:110,amount:0.025 },{ id:60,amount:0.01 }],
+  "Festive Cake kids":          [{ id:110,amount:0.025 },{ id:60,amount:0.01 }],
+  "Regular Scoop (Double) Mix and Match": [{ id:110,amount:0.04 },{ id:61,amount:0.01 }],
+  // Hand Packed Happiness
+  "Birthday Cake Hand Packed Happiness":      [{ id:110,amount:0.1 },{ id:63,amount:0.01 }],
+  "Biscoff Hand Packed Happiness":            [{ id:125,amount:0.1 },{ id:63,amount:0.01 }],
+  "Chocolate Mudslide Hand packed Happiness": [{ id:111,amount:0.1 },{ id:63,amount:0.01 }],
+  "Kheer Hand Packed Happiness":              [{ id:121,amount:0.1 },{ id:63,amount:0.01 }],
 };
 
 // ============================================================
@@ -1424,8 +1442,12 @@ function handleFileUpload(event) {
 
   const preview = document.getElementById('scan-preview');
   const img = document.getElementById('preview-img');
+  const ext = file.name.split('.').pop().toLowerCase();
 
-  if (file.type.startsWith('image/')) {
+  if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
+    // Parse Excel directly
+    parseExcelSales(file);
+  } else if (file.type.startsWith('image/')) {
     const reader = new FileReader();
     reader.onload = (e) => {
       img.src = e.target.result;
@@ -1435,6 +1457,88 @@ function handleFileUpload(event) {
     reader.readAsDataURL(file);
   } else {
     processImageWithAI(null, file.type);
+  }
+}
+
+async function parseExcelSales(file) {
+  const processing = document.getElementById('ai-processing');
+  processing.style.display = 'block';
+
+  try {
+    // Load SheetJS from CDN
+    if (!window.XLSX) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+
+        // Parse Clover format: find header row, extract Category/Item + Sold columns
+        const sales = [];
+        let itemCol = -1, soldCol = -1, catCol = -1;
+        let currentCat = '';
+
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          if (!row) continue;
+
+          // Find header row
+          if (row.includes('Sold') && row.includes('Category/Item')) {
+            catCol = row.indexOf('Category/Item');
+            soldCol = row.indexOf('Sold');
+            continue;
+          }
+
+          if (soldCol === -1) continue;
+
+          const categoryCell = row[0];
+          const itemCell = row[catCol];
+          const soldCell = row[soldCol];
+
+          // Skip total row
+          if (categoryCell === 'Total') continue;
+
+          // Category header row (has value in col 0, no item name in catCol or same)
+          if (categoryCell && categoryCell !== itemCell && typeof soldCell !== 'number') {
+            currentCat = categoryCell;
+            continue;
+          }
+
+          // Item row
+          if (itemCell && typeof soldCell === 'number' && soldCell > 0 && itemCell !== 'Total') {
+            sales.push({ item: itemCell.trim(), qty: soldCell });
+          }
+        }
+
+        processing.style.display = 'none';
+        if (sales.length > 0) {
+          applySalesData(sales);
+        } else {
+          showToast('Could not read sales data. Try manual entry.');
+          showManualEntry();
+        }
+      } catch(err) {
+        processing.style.display = 'none';
+        showToast('Error reading file. Try manual entry.');
+        showManualEntry();
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } catch(err) {
+    processing.style.display = 'none';
+    showToast('Could not load Excel reader. Try manual entry.');
+    showManualEntry();
   }
 }
 
