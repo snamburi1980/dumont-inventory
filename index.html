@@ -292,6 +292,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
     <button class="tab-btn" onclick="showTab('orders')">🛒 Orders</button>
     <button class="tab-btn" onclick="showTab('scan')">📷 Sales</button>
     <button class="tab-btn" onclick="showTab('delivery')">🚚 Delivery</button>
+    <button class="tab-btn" id="adminTabBtn" style="display:none" onclick="showTab('admin')">⚙️ Admin</button>
   </div>
 
   <div class="main-content">
@@ -358,6 +359,43 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
         </div>
       </div>
 
+      <!-- ADMIN PANEL (owner only) -->
+      <div id="tab-admin" style="display:none">
+        <div class="delivery-form" style="margin-bottom:20px">
+          <h3 style="margin-bottom:4px">➕ Add New Store</h3>
+          <p style="font-size:12px;color:#8B7355;margin-bottom:14px">Creates the store in the app. Then add the manager user below.</p>
+          <div class="form-row">
+            <input type="text" id="newStoreId" placeholder="Store ID (e.g. plano)" style="text-transform:lowercase">
+            <input type="text" id="newStoreName" placeholder="Display name (e.g. Plano)">
+          </div>
+          <div class="form-row">
+            <input type="text" id="newStoreCity" placeholder="City, State (e.g. Plano, TX)">
+          </div>
+          <button class="btn-log" onclick="adminAddStore()">+ Add Store</button>
+        </div>
+
+        <div class="delivery-form" style="margin-bottom:20px">
+          <h3 style="margin-bottom:4px">👤 Add Manager Account</h3>
+          <p style="font-size:12px;color:#8B7355;margin-bottom:14px">Creates login credentials. Share email + temp password with your manager via WhatsApp.</p>
+          <div class="form-row">
+            <input type="email" id="newUserEmail" placeholder="Manager email">
+          </div>
+          <div class="form-row">
+            <input type="password" id="newUserPassword" placeholder="Temp password (min 6 chars)">
+            <select id="newUserStore">
+              <option value="">— Assign to store —</option>
+            </select>
+          </div>
+          <button class="btn-log" onclick="adminAddUser()">+ Create Account</button>
+          <div id="adminUserMsg" style="font-size:13px;margin-top:10px;min-height:18px;"></div>
+        </div>
+
+        <div class="delivery-form">
+          <h3 style="margin-bottom:14px">🏪 Current Stores & Managers</h3>
+          <div id="adminStoreList"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -367,7 +405,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 <!-- Firebase SDKs -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword }
   from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
@@ -614,9 +652,14 @@ onAuthStateChanged(auth, async (user) => {
     viewingStore = cfg.store;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('storeBadge').textContent = cfg.role === 'owner' ? '👑 Owner' : (STORES[cfg.store]?.name || cfg.store);
     if (cfg.role === 'owner') {
+      document.getElementById('storeBadge').textContent = '👑 Owner';
       document.getElementById('ownerBar').style.display = 'flex';
+      document.getElementById('adminTabBtn').style.display = 'block';
+    } else {
+      document.getElementById('storeBadge').textContent = STORES[cfg.store]?.name || cfg.store;
+      document.getElementById('ownerBar').style.display = 'none';
+      document.getElementById('adminTabBtn').style.display = 'none';
     }
     await initStore(cfg.store);
     populateDelivSelect();
@@ -788,6 +831,7 @@ window.showTab = function(tab) {
   if (tab==='inventory') renderInventory();
   if (tab==='orders') renderOrders();
   if (tab==='delivery') renderDelivery();
+  if (tab==='admin') loadAdminStores();
 };
 
 // ── DASHBOARD ──
@@ -1026,6 +1070,112 @@ window.logDelivery = async function() {
   document.getElementById('delivNote').value = '';
   renderDashboard(); renderInventory(); renderOrders(); renderDelivery();
   showToast(`✅ +${qty} ${item.uom} of ${item.name} logged`);
+};
+
+
+// ── ADMIN PANEL ──
+
+// Dynamic stores list (starts with hardcoded, can be extended via Firestore)
+let allStores = { ...STORES };
+
+async function loadAdminStores() {
+  // Load any extra stores saved to Firestore
+  try {
+    const snap = await getDoc(doc(db, 'config', 'stores'));
+    if (snap.exists()) {
+      const extra = snap.data();
+      Object.assign(allStores, extra);
+      // Merge into STORES and USERS store switcher
+      Object.keys(extra).forEach(sid => {
+        if (!STORES[sid]) STORES[sid] = extra[sid];
+      });
+    }
+  } catch(e) {}
+  renderAdminStoreList();
+  populateAdminStoreSelect();
+}
+
+function populateAdminStoreSelect() {
+  const sel = document.getElementById('newUserStore');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Assign to store —</option>' +
+    Object.keys(allStores).map(sid => `<option value="${sid}">${allStores[sid].name}</option>`).join('');
+}
+
+function renderAdminStoreList() {
+  const el = document.getElementById('adminStoreList');
+  if (!el) return;
+  const rows = Object.keys(allStores).map(sid => {
+    const managers = Object.entries(USERS).filter(([email, cfg]) => cfg.store === sid && cfg.role === 'manager');
+    const managerText = managers.length ? managers.map(([email]) => email).join(', ') : '<span style="color:#aaa">No manager assigned</span>';
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="font-weight:600;font-size:14px">${allStores[sid].name} <span style="font-size:11px;color:#8B7355;font-weight:400">${allStores[sid].city||''}</span></div>
+      <div style="font-size:12px;color:#8B7355;margin-top:3px">Manager: ${managerText}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML = rows || '<div style="color:#8B7355;font-size:13px;">No stores configured.</div>';
+}
+
+window.adminAddStore = async function() {
+  const sid = document.getElementById('newStoreId').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const name = document.getElementById('newStoreName').value.trim();
+  const city = document.getElementById('newStoreCity').value.trim();
+  if (!sid || !name) { showToast('⚠️ Store ID and name required'); return; }
+  if (allStores[sid]) { showToast('⚠️ Store ID already exists'); return; }
+  const newStore = { name, city };
+  allStores[sid] = newStore;
+  STORES[sid] = newStore;
+  // Save to Firestore config
+  try {
+    const snap = await getDoc(doc(db, 'config', 'stores'));
+    const existing = snap.exists() ? snap.data() : {};
+    existing[sid] = newStore;
+    await setDoc(doc(db, 'config', 'stores'), existing);
+  } catch(e) {}
+  // Add to owner switcher bar
+  const bar = document.getElementById('ownerBar');
+  const btn = document.createElement('button');
+  btn.className = 'store-tab-btn';
+  btn.textContent = name;
+  btn.onclick = () => window.switchViewStore(sid);
+  bar.appendChild(btn);
+  document.getElementById('newStoreId').value = '';
+  document.getElementById('newStoreName').value = '';
+  document.getElementById('newStoreCity').value = '';
+  populateAdminStoreSelect();
+  renderAdminStoreList();
+  showToast(`✅ Store "${name}" added!`);
+};
+
+window.adminAddUser = async function() {
+  const email = document.getElementById('newUserEmail').value.trim();
+  const password = document.getElementById('newUserPassword').value;
+  const storeId = document.getElementById('newUserStore').value;
+  const msgEl = document.getElementById('adminUserMsg');
+  msgEl.textContent = '';
+  if (!email || !password || !storeId) { msgEl.style.color='#C0392B'; msgEl.textContent = '⚠️ All fields required'; return; }
+  if (password.length < 6) { msgEl.style.color='#C0392B'; msgEl.textContent = '⚠️ Password must be at least 6 characters'; return; }
+  try {
+    msgEl.style.color = '#8B7355';
+    msgEl.textContent = '⏳ Creating account...';
+    // Create user in Firebase Auth
+    await createUserWithEmailAndPassword(auth, email, password);
+    // Save manager config to Firestore
+    await setDoc(doc(db, 'users', email.replace(/\./g,'_')), { email, store: storeId, role: 'manager' });
+    // Add to local USERS map
+    USERS[email] = { store: storeId, role: 'manager', name: email.split('@')[0] };
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserPassword').value = '';
+    document.getElementById('newUserStore').value = '';
+    msgEl.style.color = '#27AE60';
+    msgEl.textContent = `✅ Account created! Share with manager: ${email} / [temp password]`;
+    renderAdminStoreList();
+    // Sign back in as owner (creating a user signs you in as them)
+    showToast('✅ Manager account created!');
+  } catch(e) {
+    msgEl.style.color = '#C0392B';
+    msgEl.textContent = e.code === 'auth/email-already-in-use' ? '⚠️ Email already exists' : e.message;
+  }
 };
 
 </script>
