@@ -247,6 +247,54 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 /* Search bar */
 .search-bar { width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--card-bg); font-family:inherit; font-size:14px; outline:none; margin-bottom:12px; }
 
+
+
+
+/* ── STOCK VALUE BANNER ── */
+.stock-val-card { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:10px 14px; min-width:120px; flex-shrink:0; }
+.stock-val-cat { font-size:10px; color:#8B7355; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+.stock-val-amt { font-family:"Playfair Display",serif; font-size:18px; font-weight:700; color:var(--caramel); }
+.stock-val-count { font-size:10px; color:#8B7355; margin-top:1px; }
+
+/* ── COGS ── */
+.cogs-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; padding:14px 16px; }
+.cogs-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.cogs-name { font-size:14px; font-weight:600; flex:1; }
+.cogs-pct { font-size:18px; font-weight:700; font-family:"Playfair Display",serif; min-width:60px; text-align:right; }
+.cogs-pct.good { color:var(--green-ok); }
+.cogs-pct.warn { color:var(--amber-alert); }
+.cogs-pct.bad  { color:var(--red-alert); }
+.cogs-bar { background:#E8E0D5; border-radius:4px; height:6px; margin-bottom:10px; }
+.cogs-bar-fill { height:6px; border-radius:4px; transition:width 0.4s; }
+.cogs-details { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+.cogs-detail-item { font-size:12px; color:#8B7355; }
+.cogs-detail-val { font-weight:600; color:var(--dark); }
+.cogs-price-input { width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); background:var(--cream); font-family:inherit; font-size:13px; text-align:right; outline:none; }
+.cogs-price-input:focus { border-color:var(--caramel); }
+.margin-bar-good { background:var(--green-ok); }
+.margin-bar-warn { background:var(--amber-alert); }
+.margin-bar-bad  { background:var(--red-alert); }
+
+/* ── SCHEDULE ── */
+.week-grid-th { background:var(--mocha); color:var(--gold); font-size:11px; font-weight:600; padding:8px 6px; text-align:center; white-space:nowrap; }
+.week-grid-name { padding:8px 10px; font-size:13px; font-weight:600; background:var(--card-bg); border-bottom:1px solid var(--border); border-right:1px solid var(--border); white-space:nowrap; min-width:90px; }
+.week-cell { padding:4px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); vertical-align:top; min-width:80px; }
+.shift-chip { border-radius:6px; padding:4px 6px; font-size:11px; font-weight:600; margin-bottom:3px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:4px; }
+.shift-chip-time { font-size:10px; font-weight:400; opacity:0.85; }
+.day-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; overflow:hidden; }
+.day-card-header { background:var(--mocha); color:var(--gold); padding:10px 16px; font-size:13px; font-weight:700; }
+.day-shift-row { padding:10px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.day-shift-row:last-child { border-bottom:none; }
+.swap-card { background:var(--card-bg); border-radius:10px; border:1px solid var(--border); padding:12px 16px; margin-bottom:8px; }
+.btn-approve { background:rgba(39,174,96,0.12); color:var(--green-ok); border:1px solid rgba(39,174,96,0.3); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-decline { background:rgba(192,57,43,0.1); color:var(--red-alert); border:1px solid rgba(192,57,43,0.2); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.modal-title { font-size:16px; font-weight:700; margin-bottom:16px; }
+.modal-label { font-size:12px; font-weight:600; color:#8B7355; margin-bottom:4px; margin-top:12px; }
+.modal-input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--cream); font-family:inherit; font-size:14px; outline:none; }
+.modal-btn { width:100%; padding:12px; border-radius:10px; border:none; background:var(--mocha); color:var(--gold); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:16px; }
+.modal-close { float:right; background:none; border:none; font-size:20px; cursor:pointer; color:#8B7355; margin-top:-4px; }
+.color-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:6px; }
+
 @media(min-width:600px){
   .stat-grid { grid-template-columns:repeat(3,1fr); }
   .tabs { position:sticky; }
@@ -292,6 +340,8 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
     <button class="tab-btn" onclick="showTab('orders')">🛒 Orders</button>
     <button class="tab-btn" onclick="showTab('scan')">📷 Sales</button>
     <button class="tab-btn" onclick="showTab('delivery')">🚚 Delivery</button>
+    <button class="tab-btn" onclick="showTab('cogs')">💰 COGS</button>
+    <button class="tab-btn" id="schedTabBtn" onclick="showTab('schedule')">📅 Schedule</button>
     <button class="tab-btn" id="adminTabBtn" style="display:none" onclick="showTab('admin')">⚙️ Admin</button>
   </div>
 
@@ -317,7 +367,17 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
       <!-- INVENTORY -->
       <div id="tab-inventory" style="display:none">
-        <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search items..." oninput="renderInventory()">
+
+        <!-- Stock Value Banner -->
+        <div id="stockValueBanner" style="display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px"></div>
+
+        <!-- Toolbar -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search items..." oninput="renderInventory()" style="flex:1;margin-bottom:0;min-width:160px">
+          <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap" onclick="openAddItem()">+ Add Item</button>
+          <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap;background:var(--caramel)" onclick="openAddCategory()">+ Category</button>
+        </div>
+
         <div class="filter-bar" id="filterBar"></div>
         <div id="inventoryList"></div>
       </div>
@@ -357,6 +417,90 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
           <h3>Delivery Log</h3>
           <div id="deliveryList"></div>
         </div>
+      </div>
+
+
+
+      <!-- COGS TAB -->
+      <div id="tab-cogs" style="display:none">
+
+        <!-- Summary cards -->
+        <div class="stat-grid" style="margin-bottom:16px">
+          <div class="stat-card">
+            <div class="stat-num" id="cogsAvgPct" style="color:var(--caramel)">—</div>
+            <div class="stat-label">Avg COGS %</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num green" id="cogsBestItem" style="font-size:16px;padding-top:4px">—</div>
+            <div class="stat-label">Best Margin Item</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num red" id="cogsWorstItem" style="font-size:16px;padding-top:4px">—</div>
+            <div class="stat-label">Lowest Margin Item</div>
+          </div>
+        </div>
+
+        <!-- Menu price input notice -->
+        <div class="sync-info" style="margin-bottom:16px">
+          💡 Enter your Clover menu prices below to calculate COGS % per item. Prices are saved automatically.
+        </div>
+
+        <!-- Category filter -->
+        <div class="filter-bar" id="cogsCatFilter" style="margin-bottom:12px"></div>
+
+        <!-- COGS table -->
+        <div id="cogsTable"></div>
+
+      </div>
+
+      <!-- SCHEDULE TAB -->
+      <div id="tab-schedule" style="display:none">
+
+        <!-- Schedule Sub-nav -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          <div style="display:flex;gap:8px">
+            <button class="cat-btn active" id="schedViewWeek" onclick="setSchedView('week')">📅 Weekly</button>
+            <button class="cat-btn" id="schedViewDay" onclick="setSchedView('day')">📆 Daily</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-adj" onclick="schedNav(-1)">‹</button>
+            <span id="schedTitle" style="font-size:13px;font-weight:600;min-width:140px;text-align:center"></span>
+            <button class="btn-adj" onclick="schedNav(1)">›</button>
+          </div>
+        </div>
+
+        <!-- Manager controls -->
+        <div id="schedManagerTools" style="display:none;margin-bottom:16px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px" onclick="openAddStaff()">👤 Manage Staff</button>
+            <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px" onclick="openAddShift()">+ Add Shift</button>
+            <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px;background:var(--caramel)" onclick="publishSchedule()">📤 Publish Schedule</button>
+          </div>
+        </div>
+
+        <!-- Weekly Grid -->
+        <div id="schedWeekView">
+          <div style="overflow-x:auto">
+            <table id="weekGrid" style="width:100%;border-collapse:collapse;min-width:600px"></table>
+          </div>
+        </div>
+
+        <!-- Daily View -->
+        <div id="schedDayView" style="display:none">
+          <div id="dayList"></div>
+        </div>
+
+        <!-- Swap Requests -->
+        <div id="swapSection" style="margin-top:20px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:10px">🔄 Swap Requests</div>
+          <div id="swapList"></div>
+        </div>
+
+      </div>
+
+      <!-- MODALS -->
+      <div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px">
+        <div id="modalBox" style="background:var(--card-bg);border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto"></div>
       </div>
 
       <!-- ADMIN PANEL (owner only) -->
@@ -427,8 +571,8 @@ const db = getFirestore(fbApp);
 // Map email → { store, role }
 // Add more users here as you create them in Firebase Auth console
 const USERS = {
-  "snamburi1980@gmail.com":      { store: "coppell", role: "owner", name: "Sasikanth" },
-  "coppell@dumont.com":          { store: "coppell", role: "manager", name: "Coppell Manager" },
+  "dumonttexas@gmail.com":        { store: "coppell", role: "owner", name: "Sasikanth" },
+  "txccpointwest@gmail.com":     { store: "coppell", role: "manager", name: "Coppell Manager" },
   "frisco@dumont.com":           { store: "frisco",  role: "manager", name: "Frisco Manager" },
   "cedarpark@dumont.com":        { store: "cedar-park", role: "manager", name: "Cedar Park Manager" },
   "sanjose@dumont.com":          { store: "san-jose", role: "manager", name: "San Jose Manager" },
@@ -443,113 +587,113 @@ const STORES = {
 
 // ── DEFAULT INVENTORY ──
 const DEFAULT_INVENTORY = [
-  { id:1,  name:"Chewy Tapioca Pearls",      code:"A2000",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:2,  name:"Jasmine Green Tea",         code:"T1022",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:3,  name:"Golden Milk Tea",           code:"T1025",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:4,  name:"Black Tea",                 code:"T1030",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:5,  name:"Thai Tea",                  code:"T1035",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:6,  name:"White Peach Tea",           code:"T2001",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:7,  name:"NDC (Creamer)",             code:"P1020",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:8,  name:"Granulated Sugar",          code:"S1030",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:2,  order_qty:"1 BAG" },
-  { id:9,  name:"Demerara Cane Sugar",       code:"S1020",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG" },
-  { id:10, name:"Dark Brown Sugar",          code:"S1005",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:11, name:"Longan Honey",              code:"S1015",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:12, name:"Fructose",                  code:"S1013",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE" },
-  { id:13, name:"Dark Brown Sugar Syrup",    code:"S1006",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE" },
-  { id:14, name:"Con Dark Brown Sugar Syrup",code:"S1007",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:15, name:"Grapefruit Syrup",          code:"J1015",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:16, name:"Lychee Syrup",             code:"J1040",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:17, name:"Mango Syrup",              code:"J1045",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:18, name:"Passion Fruit Syrup",      code:"J1060",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:19, name:"Pineapple Syrup",          code:"J1071",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:20, name:"Strawberry Syrup",         code:"J1090",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:21, name:"Winter Melon Syrup",       code:"J1095",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:22, name:"Passion Fruit Puree",      code:"J1095-P",      cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:23, name:"Strawberry Fruit Puree",   code:"H-PUREE-STR",  cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:24, name:"Mango Fruit Puree",        code:"H-PUREE-MNG",  cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:25, name:"Sea Salt Caramel Powder",  code:"P1044",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG" },
-  { id:26, name:"Matcha Green Tea Powder",  code:"P1046",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:2,  order_qty:"1 BAG" },
-  { id:27, name:"Taro Powder",              code:"P0065",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:28, name:"Vanilla Powder",           code:"P1068",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:29, name:"Yoggi Powder",             code:"P2000",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG" },
-  { id:30, name:"Horchata Powder",          code:"P6071",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG" },
-  { id:31, name:"Chocolate Popping Pearls", code:"B2071",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR" },
-  { id:32, name:"Lychee Coconut Jelly",     code:"B2005",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR" },
-  { id:33, name:"Assorted Jelly (Rainbow)", code:"B2020",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:2,  order_qty:"1 JAR" },
-  { id:34, name:"Coffee Jelly",             code:"B2025",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR" },
-  { id:35, name:"Mango Popping Pearls",     code:"B2051",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR" },
-  { id:36, name:"Strawberry Popping Pearls",code:"B2053",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR" },
-  { id:37, name:"Passion Popping Pearls",   code:"B2055",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR" },
-  { id:38, name:"Blueberry Popping Pearls", code:"B2056",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR" },
-  { id:40, name:"Monin Caramel Sauce 1.69L",code:"H-CARAMEL-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:41, name:"Monin White Mocha Sauce",  code:"H-CHOCOLATE-WMS",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE" },
-  { id:42, name:"Monin Dark Mocha Sauce",   code:"H-CHOCOLATE-S",  cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:43, name:"Monin Vanilla Syrup 750ml",code:"H-VANILLA",    cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE" },
-  { id:44, name:"Monin Caramel Syrup 750ml",code:"H-CARAMEL",    cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:45, name:"Monin Hazelnut Syrup",     code:"H-HAZELNUT",   cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:46, name:"Monin Pistachio Syrup",    code:"H-PISTACHIO",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:47, name:"Monin Blackberry Syrup",   code:"H-BLACKBERRY", cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:48, name:"Monin Strawberry Syrup",   code:"H-STRAWBERRY", cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:49, name:"Ghirardelli Choc Sauce 64oz",code:"I-Chocolate-S",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE" },
-  { id:50, name:"Ghirardelli Caramel Sauce",code:"I-Caramel-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:51, name:"Coffee Beans",             code:"D-Coffeebeans", cat:"Coffee",    vendor:"DUMONT",    uom:"BAG",    par:2,  order_qty:"1 BAG" },
-  { id:60, name:"Kids Scoop Cup",           code:"HP-KSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:61, name:"Regular Scoop Cup",        code:"HP-RSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:62, name:"Triple Scoop Cup",         code:"HP-TSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:63, name:"Hand Picked Happiness Tub",code:"HP-HPHC",      cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:64, name:"Take Away Bag",            code:"HP-BAG",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:65, name:"24 Oz Boba Cups",          code:"C-TPP24C",     cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:66, name:"16 Oz Milkshake Cups",     code:"C-TPP16C",     cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:67, name:"16/24 Oz PP Lids",         code:"C-TPPLW",      cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:68, name:"12 Oz Coffee Cups",        code:"C-KC12",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:69, name:"16 Oz Coffee Cups",        code:"C-KC16",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:70, name:"Boba Straws",              code:"C9050s",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE" },
-  { id:71, name:"Beverage Napkins",         code:"KN-B99-1K",    cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:72, name:"Gloves (M)",               code:"FP-GV1007",    cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:73, name:"Color Changing Spoons",    code:"U4000",        cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:74, name:"Tasting Spoons",           code:"U2400",        cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE" },
-  { id:80, name:"Frozen Mango Chunks",      code:"COND-01",      cat:"Condiments", vendor:"Target",    uom:"BAG",    par:2,  order_qty:"2 BAGS" },
-  { id:81, name:"Frozen Strawberry Chunks", code:"COND-02",      cat:"Condiments", vendor:"Target",    uom:"BAG",    par:2,  order_qty:"2 BAGS" },
-  { id:82, name:"Tajin Seasoning",          code:"COND-03",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:83, name:"Chamoy Sauce",             code:"COND-04",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:84, name:"Lemons",                   code:"COND-05",      cat:"Condiments", vendor:"Indian Store",uom:"COUNT",par:15, order_qty:"30 COUNT" },
-  { id:85, name:"Mint Leaves",              code:"COND-06",      cat:"Condiments", vendor:"Indian Store",uom:"LBS", par:1,  order_qty:"1 LB" },
-  { id:86, name:"Condensed Milk",           code:"COND-07",      cat:"Condiments", vendor:"Walmart",   uom:"CAN",    par:2,  order_qty:"4 CANS" },
-  { id:87, name:"Oat Milk",                 code:"COND-08",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS" },
-  { id:88, name:"Almond Milk",              code:"COND-09",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS" },
-  { id:89, name:"Heavy Cream",              code:"COND-10",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS" },
-  { id:90, name:"Honey",                    code:"COND-11",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:91, name:"Date Syrup",               code:"COND-12",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:92, name:"Cardamom Powder",          code:"COND-13",      cat:"Condiments", vendor:"Indian Store",uom:"PKT", par:1,  order_qty:"1 PKT" },
-  { id:93, name:"Callebaut Dark Chocolate", code:"COND-14",      cat:"Condiments", vendor:"Walmart",   uom:"BAG",    par:1,  order_qty:"1 BAG" },
-  { id:94, name:"Whipped Cream Spray",      code:"COND-15",      cat:"Condiments", vendor:"Walmart",   uom:"CAN",    par:2,  order_qty:"2 CANS" },
-  { id:95, name:"Roasted Nuts",             code:"COND-16",      cat:"Condiments", vendor:"Walmart",   uom:"LBS",    par:1,  order_qty:"1 LB" },
-  { id:96, name:"Biscoff Biscuits",         code:"COND-17",      cat:"Condiments", vendor:"Walmart",   uom:"PKT",    par:1,  order_qty:"1 PKT" },
-  { id:97, name:"Ferrero Rocher",           code:"COND-18",      cat:"Condiments", vendor:"Walmart",   uom:"BOX",    par:1,  order_qty:"1 BOX" },
-  { id:98, name:"Graham Crackers",          code:"COND-19",      cat:"Condiments", vendor:"Walmart",   uom:"BOX",    par:1,  order_qty:"1 BOX" },
-  { id:99, name:"PB M&Ms",                  code:"COND-20",      cat:"Condiments", vendor:"Walmart",   uom:"BAG",    par:1,  order_qty:"1 BAG" },
-  { id:100,name:"Coconut Water",            code:"COND-21",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK" },
-  { id:101,name:"Tonic Water",              code:"COND-22",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK" },
-  { id:102,name:"Simple Syrup",             code:"COND-23",      cat:"Condiments", vendor:"Target",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:103,name:"Maple Syrup",              code:"COND-24",      cat:"Condiments", vendor:"Costco",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE" },
-  { id:110,name:"Vanilla Bean",             code:"IC-01",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS" },
-  { id:111,name:"Classic Chocolate",        code:"IC-02",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS" },
-  { id:112,name:"Butterscotch",             code:"IC-03",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:113,name:"Strawberry Chunks",        code:"IC-04",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:114,name:"Berry Yogurt",             code:"IC-05",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:115,name:"Pistachio",                code:"IC-06",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:116,name:"Lots of Nuts",             code:"IC-07",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:117,name:"Oreo Caramel Fudge",       code:"IC-08",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:118,name:"Salted Caramel",           code:"IC-09",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS" },
-  { id:119,name:"Taro",                     code:"IC-10",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS" },
-  { id:120,name:"Mango",                    code:"IC-11",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS" },
-  { id:121,name:"Kheer",                    code:"IC-12",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:122,name:"Filter Coffee",            code:"IC-13",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:123,name:"Mint Chocochip",           code:"IC-14",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:124,name:"Ferrero Ice Cream",        code:"IC-15",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:125,name:"Biscoff Ice Cream",        code:"IC-16",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:126,name:"Ruby Cheese",              code:"IC-17",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
-  { id:127,name:"Peanut Butter Chocolate",  code:"IC-18",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB" },
+  { id:1,  name:"Chewy Tapioca Pearls",      code:"A2000",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:45.25 },
+  { id:2,  name:"Jasmine Green Tea",         code:"T1022",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:90.5 },
+  { id:3,  name:"Golden Milk Tea",           code:"T1025",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:58.25 },
+  { id:4,  name:"Black Tea",                 code:"T1030",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:76.25 },
+  { id:5,  name:"Thai Tea",                  code:"T1035",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:4.79 },
+  { id:6,  name:"White Peach Tea",           code:"T2001",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:41.25 },
+  { id:7,  name:"NDC (Creamer)",             code:"P1020",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:67.75 },
+  { id:8,  name:"Granulated Sugar",          code:"S1030",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:2,  order_qty:"1 BAG", cost:49.19 },
+  { id:9,  name:"Demerara Cane Sugar",       code:"S1020",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:79.9 },
+  { id:10, name:"Dark Brown Sugar",          code:"S1005",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:57.1 },
+  { id:11, name:"Longan Honey",              code:"S1015",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:12.5 },
+  { id:12, name:"Fructose",                  code:"S1013",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:11.0 },
+  { id:13, name:"Dark Brown Sugar Syrup",    code:"S1006",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:24.5 },
+  { id:14, name:"Con Dark Brown Sugar Syrup",code:"S1007",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:26.75 },
+  { id:15, name:"Grapefruit Syrup",          code:"J1015",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:16, name:"Lychee Syrup",             code:"J1040",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:17, name:"Mango Syrup",              code:"J1045",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:18, name:"Passion Fruit Syrup",      code:"J1060",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:19, name:"Pineapple Syrup",          code:"J1071",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:20, name:"Strawberry Syrup",         code:"J1090",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:21, name:"Winter Melon Syrup",       code:"J1095",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:22, name:"Passion Fruit Puree",      code:"J1095-P",      cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:16.99 },
+  { id:23, name:"Strawberry Fruit Puree",   code:"H-PUREE-STR",  cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:14.09 },
+  { id:24, name:"Mango Fruit Puree",        code:"H-PUREE-MNG",  cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:15.49 },
+  { id:25, name:"Sea Salt Caramel Powder",  code:"P1044",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:10.25 },
+  { id:26, name:"Matcha Green Tea Powder",  code:"P1046",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:2,  order_qty:"1 BAG", cost:15.5 },
+  { id:27, name:"Taro Powder",              code:"P0065",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:15.5 },
+  { id:28, name:"Vanilla Powder",           code:"P1068",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:13.35 },
+  { id:29, name:"Yoggi Powder",             code:"P2000",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:13.75 },
+  { id:30, name:"Horchata Powder",          code:"P6071",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:24.39 },
+  { id:31, name:"Chocolate Popping Pearls", code:"B2071",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:32, name:"Lychee Coconut Jelly",     code:"B2005",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:15.25 },
+  { id:33, name:"Assorted Jelly (Rainbow)", code:"B2020",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:2,  order_qty:"1 JAR", cost:15.25 },
+  { id:34, name:"Coffee Jelly",             code:"B2025",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:17.75 },
+  { id:35, name:"Mango Popping Pearls",     code:"B2051",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:36, name:"Strawberry Popping Pearls",code:"B2053",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:37, name:"Passion Popping Pearls",   code:"B2055",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:38, name:"Blueberry Popping Pearls", code:"B2056",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:40, name:"Monin Caramel Sauce 1.69L",code:"H-CARAMEL-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:41, name:"Monin White Mocha Sauce",  code:"H-CHOCOLATE-WMS",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:42, name:"Monin Dark Mocha Sauce",   code:"H-CHOCOLATE-S",  cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:43, name:"Monin Vanilla Syrup 750ml",code:"H-VANILLA",    cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:44, name:"Monin Caramel Syrup 750ml",code:"H-CARAMEL",    cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:45, name:"Monin Hazelnut Syrup",     code:"H-HAZELNUT",   cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:46, name:"Monin Pistachio Syrup",    code:"H-PISTACHIO",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:47, name:"Monin Blackberry Syrup",   code:"H-BLACKBERRY", cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:48, name:"Monin Strawberry Syrup",   code:"H-STRAWBERRY", cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:49, name:"Ghirardelli Choc Sauce 64oz",code:"I-Chocolate-S",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:50, name:"Ghirardelli Caramel Sauce",code:"I-Caramel-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:51, name:"Coffee Beans",             code:"D-Coffeebeans", cat:"Coffee",    vendor:"DUMONT",    uom:"BAG",    par:2,  order_qty:"1 BAG", cost:20.0 },
+  { id:60, name:"Kids Scoop Cup",           code:"HP-KSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.108 },
+  { id:61, name:"Regular Scoop Cup",        code:"HP-RSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.12 },
+  { id:62, name:"Triple Scoop Cup",         code:"HP-TSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.15 },
+  { id:63, name:"Hand Picked Happiness Tub",code:"HP-HPHC",      cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.168 },
+  { id:64, name:"Take Away Bag",            code:"HP-BAG",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.216 },
+  { id:65, name:"24 Oz Boba Cups",          code:"C-TPP24C",     cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.1305 },
+  { id:66, name:"16 Oz Milkshake Cups",     code:"C-TPP16C",     cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.079 },
+  { id:67, name:"16/24 Oz PP Lids",         code:"C-TPPLW",      cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.046 },
+  { id:68, name:"12 Oz Coffee Cups",        code:"C-KC12",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.168 },
+  { id:69, name:"16 Oz Coffee Cups",        code:"C-KC16",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.065 },
+  { id:70, name:"Boba Straws",              code:"C9050s",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.0175 },
+  { id:71, name:"Beverage Napkins",         code:"KN-B99-1K",    cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.00488 },
+  { id:72, name:"Gloves (M)",               code:"FP-GV1007",    cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.024 },
+  { id:73, name:"Color Changing Spoons",    code:"U4000",        cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.3 },
+  { id:74, name:"Tasting Spoons",           code:"U2400",        cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.05 },
+  { id:80, name:"Frozen Mango Chunks",      code:"COND-01",      cat:"Condiments", vendor:"Target",    uom:"BAG",    par:2,  order_qty:"2 BAGS", cost:4.99 },
+  { id:81, name:"Frozen Strawberry Chunks", code:"COND-02",      cat:"Condiments", vendor:"Target",    uom:"BAG",    par:2,  order_qty:"2 BAGS", cost:4.99 },
+  { id:82, name:"Tajin Seasoning",          code:"COND-03",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.99 },
+  { id:83, name:"Chamoy Sauce",             code:"COND-04",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.49 },
+  { id:84, name:"Lemons",                   code:"COND-05",      cat:"Condiments", vendor:"Indian Store",uom:"COUNT",par:15, order_qty:"30 COUNT", cost:0.25 },
+  { id:85, name:"Mint Leaves",              code:"COND-06",      cat:"Condiments", vendor:"Indian Store",uom:"LBS", par:1,  order_qty:"1 LB", cost:2.99 },
+  { id:86, name:"Condensed Milk",           code:"COND-07",      cat:"Condiments", vendor:"Walmart",   uom:"CAN",    par:2,  order_qty:"4 CANS", cost:1.5 },
+  { id:87, name:"Oat Milk",                 code:"COND-08",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:4.99 },
+  { id:88, name:"Almond Milk",              code:"COND-09",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:3.99 },
+  { id:89, name:"Heavy Cream",              code:"COND-10",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:3.99 },
+  { id:90, name:"Honey",                    code:"COND-11",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:5.99 },
+  { id:91, name:"Date Syrup",               code:"COND-12",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:92, name:"Cardamom Powder",          code:"COND-13",      cat:"Condiments", vendor:"Indian Store",uom:"PKT", par:1,  order_qty:"1 PKT", cost:3.99 },
+  { id:93, name:"Callebaut Dark Chocolate", code:"COND-14",      cat:"Condiments", vendor:"Walmart",   uom:"BAG",    par:1,  order_qty:"1 BAG", cost:8.99 },
+  { id:94, name:"Whipped Cream Spray",      code:"COND-15",      cat:"Condiments", vendor:"Walmart",   uom:"CAN",    par:2,  order_qty:"2 CANS", cost:4.99 },
+  { id:95, name:"Roasted Nuts",             code:"COND-16",      cat:"Condiments", vendor:"Walmart",   uom:"LBS",    par:1,  order_qty:"1 LB", cost:6.99 },
+  { id:96, name:"Biscoff Biscuits",         code:"COND-17",      cat:"Condiments", vendor:"Walmart",   uom:"PKT",    par:1,  order_qty:"1 PKT", cost:3.99 },
+  { id:97, name:"Ferrero Rocher",           code:"COND-18",      cat:"Condiments", vendor:"Walmart",   uom:"BOX",    par:1,  order_qty:"1 BOX", cost:12.99 },
+  { id:98, name:"Graham Crackers",          code:"COND-19",      cat:"Condiments", vendor:"Walmart",   uom:"BOX",    par:1,  order_qty:"1 BOX", cost:3.99 },
+  { id:99, name:"PB M&Ms",                  code:"COND-20",      cat:"Condiments", vendor:"Walmart",   uom:"BAG",    par:1,  order_qty:"1 BAG", cost:4.99 },
+  { id:100,name:"Coconut Water",            code:"COND-21",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK", cost:5.99 },
+  { id:101,name:"Tonic Water",              code:"COND-22",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK", cost:4.99 },
+  { id:102,name:"Simple Syrup",             code:"COND-23",      cat:"Condiments", vendor:"Target",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.99 },
+  { id:103,name:"Maple Syrup",              code:"COND-24",      cat:"Condiments", vendor:"Costco",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:9.99 },
+  { id:110,name:"Vanilla Bean",             code:"IC-01",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
+  { id:111,name:"Classic Chocolate",        code:"IC-02",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
+  { id:112,name:"Butterscotch",             code:"IC-03",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:113,name:"Strawberry Chunks",        code:"IC-04",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:114,name:"Berry Yogurt",             code:"IC-05",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:115,name:"Pistachio",                code:"IC-06",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:116,name:"Lots of Nuts",             code:"IC-07",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:117,name:"Oreo Caramel Fudge",       code:"IC-08",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:118,name:"Salted Caramel",           code:"IC-09",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
+  { id:119,name:"Taro",                     code:"IC-10",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
+  { id:120,name:"Mango",                    code:"IC-11",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
+  { id:121,name:"Kheer",                    code:"IC-12",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:122,name:"Filter Coffee",            code:"IC-13",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:123,name:"Mint Chocochip",           code:"IC-14",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:124,name:"Ferrero Ice Cream",        code:"IC-15",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:125,name:"Biscoff Ice Cream",        code:"IC-16",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:126,name:"Ruby Cheese",              code:"IC-17",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:127,name:"Peanut Butter Chocolate",  code:"IC-18",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
 ];
 
 const RECIPES = {
@@ -662,6 +806,7 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById('adminTabBtn').style.display = 'none';
     }
     await initStore(cfg.store);
+    await loadCustomItems();
     populateDelivSelect();
     renderInventory();
     renderOrders();
@@ -832,6 +977,8 @@ window.showTab = function(tab) {
   if (tab==='orders') renderOrders();
   if (tab==='delivery') renderDelivery();
   if (tab==='admin') loadAdminStores();
+  if (tab==='schedule') { schedLoaded=false; loadScheduleData(); }
+  if (tab==='cogs') { cogsLoaded=false; loadCogsData(); }
 };
 
 // ── DASHBOARD ──
@@ -1073,6 +1220,349 @@ window.logDelivery = async function() {
 };
 
 
+
+
+// ══════════════════════════════════════════
+// ADD ITEM / ADD CATEGORY MODULE
+// ══════════════════════════════════════════
+
+// Custom categories added by manager (persisted to Firestore)
+let customCategories = [];
+let customItems = []; // items added via the UI
+
+async function loadCustomItems() {
+  try {
+    const snap = await getDoc(doc(db, 'stores', viewingStore, 'inventory', 'custom'));
+    if (snap.exists()) {
+      const d = snap.data();
+      customCategories = d.categories || [];
+      customItems      = d.items      || [];
+      // Merge custom items into inventory if not already present
+      customItems.forEach(ci => {
+        if (!inventory.find(i => i.id === ci.id)) {
+          inventory.push(ci);
+        }
+      });
+    }
+  } catch(e) {}
+  renderStockValueBanner();
+  renderInventory();
+}
+
+async function saveCustomItems() {
+  try {
+    await setDoc(doc(db, 'stores', viewingStore, 'inventory', 'custom'), {
+      categories: customCategories,
+      items: customItems
+    });
+  } catch(e) { showToast('⚠️ Save failed'); }
+}
+
+// ── Stock Value Banner ──
+function renderStockValueBanner() {
+  const cats = [...new Set(inventory.map(i => i.cat))];
+  const el = document.getElementById('stockValueBanner');
+  if (!el) return;
+
+  // Total value
+  let totalVal = 0;
+  inventory.forEach(i => { if (i.cost) totalVal += i.stock * i.cost; });
+
+  let html = `<div class="stock-val-card" style="border-color:var(--caramel);background:rgba(200,132,58,0.06)">
+    <div class="stock-val-cat">Total Stock</div>
+    <div class="stock-val-amt">$${totalVal.toFixed(0)}</div>
+    <div class="stock-val-count">${inventory.length} items</div>
+  </div>`;
+
+  cats.forEach(cat => {
+    const items = inventory.filter(i => i.cat === cat);
+    const val = items.reduce((s,i) => s + (i.cost ? i.stock * i.cost : 0), 0);
+    const count = items.length;
+    html += `<div class="stock-val-card">
+      <div class="stock-val-cat">${cat}</div>
+      <div class="stock-val-amt">$${val.toFixed(0)}</div>
+      <div class="stock-val-count">${count} items</div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+// ── Add Category Modal ──
+window.openAddCategory = function() {
+  const allCats = [...new Set(inventory.map(i => i.cat)), ...customCategories];
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">+ Add Category</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div style="margin-bottom:14px">
+      ${allCats.map(c => `<div style="display:inline-flex;align-items:center;gap:6px;background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:5px 12px;margin:4px;font-size:13px">
+        ${c}
+        ${customCategories.includes(c) ? `<span onclick="removeCategory('${c}')" style="cursor:pointer;color:#C0392B;font-size:16px">×</span>` : ''}
+      </div>`).join('')}
+    </div>
+    <div class="modal-label">New Category Name</div>
+    <input class="modal-input" id="newCatName" placeholder="e.g. Bakery, Falooda, Seasonal">
+    <button class="modal-btn" onclick="addCategory()">+ Add Category</button>
+  `);
+};
+
+window.addCategory = async function() {
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) { showToast('⚠️ Enter a category name'); return; }
+  if (customCategories.includes(name)) { showToast('⚠️ Already exists'); return; }
+  customCategories.push(name);
+  await saveCustomItems();
+  showToast(`✅ Category "${name}" added!`);
+  closeModal();
+  renderInventory();
+};
+
+window.removeCategory = async function(name) {
+  customCategories = customCategories.filter(c => c !== name);
+  await saveCustomItems();
+  openAddCategory();
+  renderInventory();
+};
+
+// ── Add Item Modal ──
+window.openAddItem = function() {
+  const allCats = [...new Set(inventory.map(i => i.cat)), ...customCategories];
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">+ Add Inventory Item</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="modal-label">Item Name *</div>
+    <input class="modal-input" id="aiName" placeholder="e.g. Croissant, Rose Syrup">
+
+    <div class="modal-label">Category *</div>
+    <select class="modal-input" id="aiCat">
+      <option value="">— Select category —</option>
+      ${allCats.map(c => `<option value="${c}">${c}</option>`).join('')}
+    </select>
+
+    <div class="modal-label">Vendor / Supplier</div>
+    <input class="modal-input" id="aiVendor" placeholder="e.g. Walmart, Local Bakery">
+
+    <div class="modal-label">Unit of Measure</div>
+    <select class="modal-input" id="aiUom">
+      <option>CASE</option><option>BAG</option><option>BOTTLE</option>
+      <option>JAR</option><option>TUB</option><option>BOX</option>
+      <option>PKT</option><option>CAN</option><option>EACH</option><option>LBS</option>
+    </select>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+      <div>
+        <div class="modal-label">Current Stock</div>
+        <input class="modal-input" id="aiStock" type="number" min="0" value="0" step="0.5">
+      </div>
+      <div>
+        <div class="modal-label">Par Level</div>
+        <input class="modal-input" id="aiPar" type="number" min="0" value="1" step="0.5">
+      </div>
+      <div>
+        <div class="modal-label">Unit Cost ($)</div>
+        <input class="modal-input" id="aiCost" type="number" min="0" value="" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+
+    <div class="modal-label">Order Quantity</div>
+    <input class="modal-input" id="aiOrderQty" placeholder="e.g. 1 CASE, 2 BAGS">
+
+    <button class="modal-btn" onclick="addCustomItem()">+ Add to Inventory</button>
+  `);
+};
+
+window.addCustomItem = async function() {
+  const name     = document.getElementById('aiName').value.trim();
+  const cat      = document.getElementById('aiCat').value;
+  const vendor   = document.getElementById('aiVendor').value.trim() || 'Other';
+  const uom      = document.getElementById('aiUom').value;
+  const stock    = parseFloat(document.getElementById('aiStock').value) || 0;
+  const par      = parseFloat(document.getElementById('aiPar').value) || 1;
+  const cost     = parseFloat(document.getElementById('aiCost').value) || 0;
+  const orderQty = document.getElementById('aiOrderQty').value.trim() || `1 ${uom}`;
+
+  if (!name || !cat) { showToast('⚠️ Name and category required'); return; }
+
+  // Generate unique id (use timestamp-based high number to avoid conflicts)
+  const newId = 9000 + customItems.length + 1;
+  const newItem = { id:newId, name, cat, vendor, uom, stock, par, cost, order_qty:orderQty, code:`CUSTOM-${newId}` };
+
+  customItems.push(newItem);
+  inventory.push(newItem);
+
+  // Also save stock to main stock doc
+  await saveStock();
+  await saveCustomItems();
+
+  closeModal();
+  renderInventory();
+  renderStockValueBanner();
+  renderDashboard();
+  showToast(`✅ "${name}" added to ${cat}!`);
+};
+
+
+// ══════════════════════════════════════════
+// COGS MODULE
+// ══════════════════════════════════════════
+
+// Menu selling prices — loaded from Firestore, editable in UI
+let menuPrices = {
+  // Boba drinks
+  "Taro Milk Tea": 7.50, "Matcha Milk Tea": 7.50, "Horchata Milk Tea": 7.50,
+  "Tiger Stripes": 7.50, "Thai Milk Tea": 7.00, "Classic Milk Tea": 6.75,
+  "Dirty Mad Tea": 7.50, "Mangoficient": 7.50, "Pink Lips": 7.50,
+  "Passionate Love": 7.50, "Lychee Lust": 7.50,
+  "Strawberry Burst": 7.00, "Mangonada": 7.50,
+  "Mango Market Lemonade": 6.50, "Pineapple Island Lemonade": 6.50, "Passion World Lemonade": 6.50,
+  "Taro Smoothie": 7.00, "Matcha Smoothie": 7.00,
+  // Coffee
+  "Latte Hot": 5.50, "Latte Iced": 6.00, "Iced Latte": 6.00,
+  "Cappuccino Hot": 5.50, "Americano Hot": 4.50,
+  "Dark Chocolate Mocha Hot": 6.50, "Dark Chocolate Mocha Iced": 6.50,
+  "White Chocolate Mocha Hot": 6.50, "White Chocolate Mocha Iced": 6.50,
+  "Pistachio White Mocha Hot": 7.00, "Pistachio White Mocha Iced": 7.00,
+  "Blackberry White Mocha Iced": 7.00,
+  "Date Cardamom Latte Hot": 7.00, "Date Cardamom Latte Iced": 7.00,
+  "OG Cold Coffee": 6.50,
+  "Affogato Single shot": 6.50, "Affogato Double Shot": 7.50, "Matcha Affogato": 7.00,
+  // Milkshakes
+  "Kheer Milkshake": 9.00, "Raspberry Mascarpone Milkshake": 9.00,
+  "Strawberry Chunks Milkshake": 9.00, "Pistachio Milkshake": 9.00,
+  // Ice cream scoops
+  "Vanilla Bean kids": 4.50, "Vanilla Bean Regular": 6.50,
+  "Classic Chocolate kids": 4.50, "Classic Chocolate Regular": 6.50,
+  "Butterscotch kids": 4.50, "Butterscotch Regular": 6.50,
+  "Pistachio kids": 4.50, "Pistachio Regular": 6.50,
+  "Kheer kids": 4.50, "Kheer Regular": 6.50,
+  "Salted Caramel kids": 4.50, "Salted Caramel Regular": 6.50,
+  "Mango kids": 4.50, "Mango Regular": 6.50,
+  "Biscoff kids": 4.50, "Biscoff Regular": 6.50,
+  "Oreo Caramel Fudge kids": 4.50, "Oreo Caramel Fudge Regular": 6.50,
+  "Strawberry Chunks kids": 4.50,
+  "Filter Coffee kids": 4.50, "Filter Coffee Regular": 6.50,
+  "La Ferrero kids": 4.50, "La Ferrero Regular": 6.50,
+};
+
+let cogsActiveCat = 'all';
+let cogsLoaded = false;
+
+async function loadCogsData() {
+  try {
+    const snap = await getDoc(doc(db, 'stores', viewingStore, 'cogs', 'menuPrices'));
+    if (snap.exists()) {
+      const saved = snap.data();
+      Object.assign(menuPrices, saved);
+    }
+  } catch(e) {}
+  cogsLoaded = true;
+  renderCogs();
+}
+
+async function saveMenuPrice(menuItem, price) {
+  menuPrices[menuItem] = price;
+  try {
+    await setDoc(doc(db, 'stores', viewingStore, 'cogs', 'menuPrices'), menuPrices);
+  } catch(e) {}
+}
+
+function calcItemCOGS(menuItem) {
+  const recipe = RECIPES[menuItem];
+  if (!recipe) return null;
+  let ingredientCost = 0;
+  recipe.forEach(({id, a}) => {
+    const item = DEFAULT_INVENTORY.find(i => i.id === id);
+    if (item && item.cost) {
+      ingredientCost += item.cost * a;
+    }
+  });
+  const sellPrice = menuPrices[menuItem] || 0;
+  const cogsPct = sellPrice > 0 ? (ingredientCost / sellPrice) * 100 : null;
+  const margin = sellPrice > 0 ? sellPrice - ingredientCost : null;
+  const marginPct = sellPrice > 0 ? ((sellPrice - ingredientCost) / sellPrice) * 100 : null;
+  return { ingredientCost, sellPrice, cogsPct, margin, marginPct };
+}
+
+// Group menu items by category
+const MENU_CATS = {
+  'Milk Tea': ['Taro Milk Tea','Matcha Milk Tea','Horchata Milk Tea','Tiger Stripes','Thai Milk Tea','Classic Milk Tea','Dirty Mad Tea'],
+  'Fruit Tea': ['Mangoficient','Pink Lips','Passionate Love','Lychee Lust'],
+  'Slushies': ['Strawberry Burst','Mangonada'],
+  'Lemonade': ['Mango Market Lemonade','Pineapple Island Lemonade','Passion World Lemonade'],
+  'Coffee': ['Latte Hot','Latte Iced','Iced Latte','Cappuccino Hot','Americano Hot','Dark Chocolate Mocha Hot','Dark Chocolate Mocha Iced','White Chocolate Mocha Hot','White Chocolate Mocha Iced','Pistachio White Mocha Hot','Pistachio White Mocha Iced','Blackberry White Mocha Iced','Date Cardamom Latte Hot','Date Cardamom Latte Iced','OG Cold Coffee','Affogato Single shot','Affogato Double Shot','Matcha Affogato'],
+  'Milkshakes': ['Kheer Milkshake','Raspberry Mascarpone Milkshake','Strawberry Chunks Milkshake','Pistachio Milkshake'],
+  'Ice Cream': ['Vanilla Bean kids','Vanilla Bean Regular','Classic Chocolate kids','Classic Chocolate Regular','Butterscotch kids','Butterscotch Regular','Pistachio kids','Pistachio Regular','Kheer kids','Kheer Regular','Salted Caramel kids','Salted Caramel Regular','Mango kids','Mango Regular','Biscoff kids','Biscoff Regular','Oreo Caramel Fudge kids','Oreo Caramel Fudge Regular','La Ferrero kids','Filter Coffee kids','Filter Coffee Regular'],
+};
+
+function renderCogs() {
+  if (!cogsLoaded) { loadCogsData(); return; }
+
+  // Category filter
+  const cats = ['all', ...Object.keys(MENU_CATS)];
+  document.getElementById('cogsCatFilter').innerHTML = cats.map(c =>
+    `<button class="cat-btn ${cogsActiveCat===c?'active':''}" onclick="setCogscat('${c}')">${c==='all'?'All':c}</button>`
+  ).join('');
+
+  // Calc all items
+  const allItems = cogsActiveCat === 'all'
+    ? Object.keys(RECIPES)
+    : (MENU_CATS[cogsActiveCat] || []);
+
+  const results = allItems.map(name => ({ name, ...calcItemCOGS(name) })).filter(r => r.ingredientCost !== undefined);
+
+  // Summary stats
+  const withPrices = results.filter(r => r.cogsPct !== null);
+  if (withPrices.length) {
+    const avgCogs = withPrices.reduce((s,r) => s + r.cogsPct, 0) / withPrices.length;
+    document.getElementById('cogsAvgPct').textContent = avgCogs.toFixed(1) + '%';
+    const best = withPrices.reduce((a,b) => (a.marginPct > b.marginPct ? a : b));
+    const worst = withPrices.reduce((a,b) => (a.cogsPct > b.cogsPct ? a : b));
+    document.getElementById('cogsBestItem').textContent = best.name.split(' ').slice(0,3).join(' ');
+    document.getElementById('cogsWorstItem').textContent = worst.name.split(' ').slice(0,3).join(' ');
+  }
+
+  // Render cards
+  document.getElementById('cogsTable').innerHTML = results.map(r => {
+    const hasCogs = r.cogsPct !== null;
+    const pctClass = !hasCogs ? '' : r.cogsPct < 20 ? 'good' : r.cogsPct < 32 ? 'warn' : 'bad';
+    const barClass = !hasCogs ? 'margin-bar-warn' : r.cogsPct < 20 ? 'margin-bar-good' : r.cogsPct < 32 ? 'margin-bar-warn' : 'margin-bar-bad';
+    const barWidth = hasCogs ? Math.min(100, r.cogsPct * 2) : 0;
+    return `<div class="cogs-card">
+      <div class="cogs-top">
+        <span class="cogs-name">${r.name}</span>
+        <span class="cogs-pct ${pctClass}">${hasCogs ? r.cogsPct.toFixed(1)+'%' : '—'}</span>
+      </div>
+      <div class="cogs-bar"><div class="cogs-bar-fill ${barClass}" style="width:${barWidth}%"></div></div>
+      <div class="cogs-details">
+        <div class="cogs-detail-item">Ingredient cost: <span class="cogs-detail-val">$${r.ingredientCost.toFixed(3)}</span></div>
+        <div class="cogs-detail-item">
+          Sell price: $<input class="cogs-price-input" type="number" step="0.25" min="0"
+            value="${r.sellPrice || ''}" placeholder="0.00"
+            onchange="updateMenuPrice('${r.name.replace(/'/g,"\\'")}', this.value)"
+            onclick="this.select()">
+        </div>
+        <div class="cogs-detail-item">Margin: <span class="cogs-detail-val ${pctClass}">${hasCogs ? '$'+r.margin.toFixed(2)+' ('+r.marginPct.toFixed(1)+'%)' : 'Enter price →'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.setCogscat = function(cat) { cogsActiveCat = cat; renderCogs(); };
+
+window.updateMenuPrice = async function(menuItem, val) {
+  const price = parseFloat(val);
+  if (isNaN(price) || price <= 0) return;
+  await saveMenuPrice(menuItem, price);
+  renderCogs();
+  showToast(`✅ Price updated for ${menuItem}`);
+};
+
+
 // ── ADMIN PANEL ──
 
 // Dynamic stores list (starts with hardcoded, can be extended via Firestore)
@@ -1177,6 +1667,444 @@ window.adminAddUser = async function() {
     msgEl.textContent = e.code === 'auth/email-already-in-use' ? '⚠️ Email already exists' : e.message;
   }
 };
+
+
+// ══════════════════════════════════════════
+// SCHEDULE MODULE
+// ══════════════════════════════════════════
+
+// State
+let schedView = 'week';        // 'week' | 'day'
+let schedOffset = 0;           // weeks or days from today
+let schedStaff = [];           // [{id, name, color, role}]
+let schedShifts = [];          // [{id, staffId, date, shiftTypeId, note}]
+let schedShiftTypes = [];      // [{id, name, start, end, color}]
+let schedSwaps = [];           // [{id, fromStaffId, toStaffId, shiftId, status}]
+let schedLoaded = false;
+
+const SHIFT_COLORS = ['#C8843A','#7BBFA5','#E8A598','#D4A843','#5B8DD9','#A56CC1','#E57373','#4DB6AC'];
+
+// Default shift types
+const DEFAULT_SHIFT_TYPES = [
+  { id:'st1', name:'Opening', start:'10:00', end:'14:00', color:'#7BBFA5' },
+  { id:'st2', name:'Mid',     start:'12:00', end:'17:00', color:'#C8843A' },
+  { id:'st3', name:'Closing', start:'16:00', end:'22:00', color:'#5B8DD9' },
+  { id:'st4', name:'Full Day',start:'10:00', end:'19:00', color:'#D4A843' },
+];
+
+async function loadScheduleData() {
+  if (!viewingStore) return;
+  try {
+    const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'));
+    if (snap.exists()) {
+      const d = snap.data();
+      schedStaff      = d.staff       || [];
+      schedShifts     = d.shifts      || [];
+      schedShiftTypes = d.shiftTypes  || DEFAULT_SHIFT_TYPES;
+      schedSwaps      = d.swaps       || [];
+    } else {
+      schedStaff = []; schedShifts = []; schedShiftTypes = [...DEFAULT_SHIFT_TYPES]; schedSwaps = [];
+    }
+  } catch(e) { schedShiftTypes = [...DEFAULT_SHIFT_TYPES]; }
+  schedLoaded = true;
+  renderSchedule();
+}
+
+async function saveScheduleData() {
+  try {
+    await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
+      staff: schedStaff, shifts: schedShifts, shiftTypes: schedShiftTypes, swaps: schedSwaps,
+      updatedAt: Date.now()
+    });
+  } catch(e) { showToast('⚠️ Schedule save failed'); }
+}
+
+// ── Week helpers ──
+function getWeekStart(offset) {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  const day = d.getDay();
+  d.setDate(d.getDate() - day + offset * 7);
+  return d;
+}
+function getDateStr(d) { return d.toISOString().split('T')[0]; }
+function fmtDate(d) { return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtDay(d) { return d.toLocaleDateString('en-US',{weekday:'short'}); }
+
+window.setSchedView = function(v) {
+  schedView = v; schedOffset = 0;
+  document.getElementById('schedViewWeek').className = 'cat-btn' + (v==='week'?' active':'');
+  document.getElementById('schedViewDay').className  = 'cat-btn' + (v==='day'?' active':'');
+  document.getElementById('schedWeekView').style.display = v==='week'?'block':'none';
+  document.getElementById('schedDayView').style.display  = v==='day'?'block':'none';
+  renderSchedule();
+};
+
+window.schedNav = function(dir) { schedOffset += dir; renderSchedule(); };
+
+function renderSchedule() {
+  if (!schedLoaded) { loadScheduleData(); return; }
+  // Show/hide manager tools
+  const isManager = currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'owner';
+  const mt = document.getElementById('schedManagerTools');
+  if (mt) mt.style.display = isManager ? 'block' : 'none';
+  if (schedView === 'week') renderWeekGrid();
+  else renderDayView();
+  renderSwaps();
+}
+
+function renderWeekGrid() {
+  const ws = getWeekStart(schedOffset);
+  const days = Array.from({length:7},(_,i)=>{ const d=new Date(ws); d.setDate(ws.getDate()+i); return d; });
+  const endDate = new Date(days[6]); endDate.setDate(endDate.getDate()+1);
+  document.getElementById('schedTitle').textContent =
+    fmtDate(days[0]) + ' – ' + fmtDate(days[6]);
+
+  const isManager = currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'owner';
+  let html = '<thead><tr>';
+  html += '<th class="week-grid-th" style="text-align:left;padding-left:10px">Staff</th>';
+  days.forEach(d => { html += `<th class="week-grid-th">${fmtDay(d)}<br><span style="font-weight:400;font-size:10px">${fmtDate(d)}</span></th>`; });
+  html += '</tr></thead><tbody>';
+
+  if (!schedStaff.length) {
+    html += `<tr><td colspan="8" style="text-align:center;padding:32px;color:#8B7355;font-size:13px">No staff added yet. Click "Manage Staff" to add your team.</td></tr>`;
+  } else {
+    schedStaff.forEach(staff => {
+      html += `<tr><td class="week-grid-name"><span class="color-dot" style="background:${staff.color}"></span>${staff.name}<br><span style="font-size:10px;color:#8B7355;font-weight:400">${staff.role||''}</span></td>`;
+      days.forEach(d => {
+        const ds = getDateStr(d);
+        const dayShifts = schedShifts.filter(s => s.staffId === staff.id && s.date === ds);
+        let cellHtml = '';
+        dayShifts.forEach(shift => {
+          const st = schedShiftTypes.find(t=>t.id===shift.shiftTypeId)||{name:shift.shiftTypeId,color:'#999',start:'',end:''};
+          cellHtml += `<div class="shift-chip" style="background:${st.color}20;border:1px solid ${st.color}40;color:${st.color}" onclick="${isManager?`editShift('${shift.id}')`:''}" >
+            <span>${st.name}</span>
+            ${isManager?`<span onclick="event.stopPropagation();deleteShift('${shift.id}')" style="opacity:0.6;font-size:13px;cursor:pointer">×</span>`:''}
+          </div>
+          <div class="shift-chip-time" style="text-align:center;color:#8B7355;font-size:10px;margin-bottom:4px">${st.start}–${st.end}</div>`;
+        });
+        if (isManager) cellHtml += `<div onclick="quickAddShift('${staff.id}','${ds}')" style="text-align:center;color:#ccc;font-size:18px;cursor:pointer;padding:2px">+</div>`;
+        html += `<td class="week-cell">${cellHtml}</td>`;
+      });
+      html += '</tr>';
+    });
+  }
+  html += '</tbody>';
+  document.getElementById('weekGrid').innerHTML = html;
+}
+
+function renderDayView() {
+  const base = new Date(); base.setHours(0,0,0,0);
+  base.setDate(base.getDate() + schedOffset);
+  document.getElementById('schedTitle').textContent = base.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const ds = getDateStr(base);
+  const dayShifts = schedShifts.filter(s=>s.date===ds);
+  const el = document.getElementById('dayList');
+  if (!dayShifts.length) {
+    el.innerHTML = '<div style="text-align:center;padding:32px;color:#8B7355;font-size:13px">No shifts scheduled for this day.</div>';
+    return;
+  }
+  // Group by shift type
+  const byType = {};
+  dayShifts.forEach(s => {
+    const st = schedShiftTypes.find(t=>t.id===s.shiftTypeId)||{name:'Unknown',color:'#999',start:'',end:''};
+    if (!byType[st.id]) byType[st.id] = {st, shifts:[]};
+    byType[st.id].shifts.push(s);
+  });
+  el.innerHTML = Object.values(byType).map(({st,shifts}) => `
+    <div class="day-card">
+      <div class="day-card-header" style="background:${st.color}">
+        ${st.name} &nbsp;·&nbsp; <span style="font-weight:400;font-size:12px">${st.start} – ${st.end}</span>
+      </div>
+      ${shifts.map(shift => {
+        const staff = schedStaff.find(s=>s.id===shift.staffId);
+        const canSwap = currentUserConfig?.role==='manager' || false;
+        return `<div class="day-shift-row">
+          <div>
+            <div style="font-size:14px;font-weight:500">${staff?.name||'Unknown'}</div>
+            <div style="font-size:11px;color:#8B7355">${staff?.role||''} ${shift.note?'· '+shift.note:''}</div>
+          </div>
+          ${canSwap?`<button class="btn-adj" style="font-size:12px;width:auto;padding:4px 10px" onclick="requestSwap('${shift.id}')">⇄ Swap</button>`:''}
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+function renderSwaps() {
+  const pending = schedSwaps.filter(s=>s.status==='pending');
+  const el = document.getElementById('swapList');
+  const isManager = currentUserConfig?.role==='manager'||currentUserConfig?.role==='owner';
+  if (!pending.length) {
+    el.innerHTML = '<div style="color:#8B7355;font-size:13px;">No pending swap requests.</div>';
+    return;
+  }
+  el.innerHTML = pending.map(swap => {
+    const from = schedStaff.find(s=>s.id===swap.fromStaffId);
+    const to   = schedStaff.find(s=>s.id===swap.toStaffId);
+    const shift = schedShifts.find(s=>s.id===swap.shiftId);
+    const st = shift ? schedShiftTypes.find(t=>t.id===shift.shiftTypeId) : null;
+    return `<div class="swap-card">
+      <div style="font-size:14px;font-weight:500;margin-bottom:6px">
+        ${from?.name||'?'} → ${to?.name||'Anyone'} &nbsp;·&nbsp; <span style="color:#8B7355;font-size:12px">${st?.name||''} on ${shift?.date||''}</span>
+      </div>
+      ${isManager?`<div style="display:flex;gap:8px">
+        <button class="btn-approve" onclick="resolveSwap('${swap.id}','approved')">✓ Approve</button>
+        <button class="btn-decline" onclick="resolveSwap('${swap.id}','declined')">✗ Decline</button>
+      </div>`:'<div style="font-size:12px;color:#8B7355">Awaiting manager approval</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ── MODALS ──
+function openModal(html) {
+  document.getElementById('modalBox').innerHTML = html;
+  document.getElementById('modalOverlay').style.display = 'flex';
+}
+window.closeModal = function() { document.getElementById('modalOverlay').style.display = 'none'; };
+
+window.openAddStaff = function() {
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">👤 Manage Staff</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="staffListModal" style="margin-bottom:16px">
+      ${schedStaff.map((s,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div><span class="color-dot" style="background:${s.color}"></span><strong>${s.name}</strong> <span style="font-size:12px;color:#8B7355">${s.role}</span></div>
+        <button onclick="removeStaff('${s.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:18px">×</button>
+      </div>`).join('') || '<div style="color:#8B7355;font-size:13px;margin-bottom:8px">No staff yet.</div>'}
+    </div>
+    <div class="modal-label">Name</div>
+    <input class="modal-input" id="newStaffName" placeholder="e.g. Priya">
+    <div class="modal-label">Role</div>
+    <input class="modal-input" id="newStaffRole" placeholder="e.g. Barista, Cashier">
+    <div class="modal-label">Color</div>
+    <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+      ${SHIFT_COLORS.map(c=>`<div onclick="selectColor('${c}')" id="clr-${c.replace('#','')}" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:3px solid transparent;transition:border 0.2s"></div>`).join('')}
+    </div>
+    <input type="hidden" id="newStaffColor" value="${SHIFT_COLORS[0]}">
+    <button class="modal-btn" onclick="addStaff()">+ Add Staff Member</button>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+      <div class="modal-title" style="font-size:14px">⏰ Shift Types</div>
+      ${schedShiftTypes.map(st=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div><span class="color-dot" style="background:${st.color}"></span><strong>${st.name}</strong> <span style="font-size:11px;color:#8B7355">${st.start}–${st.end}</span></div>
+        <button onclick="removeShiftType('${st.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px">×</button>
+      </div>`).join('')}
+      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <input class="modal-input" id="newStName" placeholder="Name" style="font-size:12px;padding:8px">
+        <input class="modal-input" type="time" id="newStStart" value="09:00" style="font-size:12px;padding:8px">
+        <input class="modal-input" type="time" id="newStEnd" value="17:00" style="font-size:12px;padding:8px">
+      </div>
+      <button class="modal-btn" style="margin-top:8px" onclick="addShiftType()">+ Add Shift Type</button>
+    </div>
+  `);
+  // pre-select first color
+  selectColor(SHIFT_COLORS[0]);
+};
+
+window.selectColor = function(c) {
+  SHIFT_COLORS.forEach(col => {
+    const el = document.getElementById('clr-'+col.replace('#',''));
+    if (el) el.style.border = col===c ? '3px solid var(--dark)' : '3px solid transparent';
+  });
+  const inp = document.getElementById('newStaffColor');
+  if (inp) inp.value = c;
+};
+
+window.addStaff = function() {
+  const name = document.getElementById('newStaffName').value.trim();
+  const role = document.getElementById('newStaffRole').value.trim();
+  const color = document.getElementById('newStaffColor').value || SHIFT_COLORS[0];
+  if (!name) { showToast('⚠️ Enter a name'); return; }
+  schedStaff.push({ id: 'staff-'+Date.now(), name, role, color });
+  saveScheduleData();
+  showToast(`✅ ${name} added!`);
+  openAddStaff(); // refresh modal
+  renderSchedule();
+};
+
+window.removeStaff = function(id) {
+  schedStaff = schedStaff.filter(s=>s.id!==id);
+  schedShifts = schedShifts.filter(s=>s.staffId!==id);
+  saveScheduleData();
+  openAddStaff();
+  renderSchedule();
+};
+
+window.addShiftType = function() {
+  const name = document.getElementById('newStName').value.trim();
+  const start = document.getElementById('newStStart').value;
+  const end = document.getElementById('newStEnd').value;
+  if (!name) { showToast('⚠️ Enter shift name'); return; }
+  const color = SHIFT_COLORS[schedShiftTypes.length % SHIFT_COLORS.length];
+  schedShiftTypes.push({ id:'st-'+Date.now(), name, start, end, color });
+  saveScheduleData();
+  openAddStaff();
+};
+
+window.removeShiftType = function(id) {
+  schedShiftTypes = schedShiftTypes.filter(s=>s.id!==id);
+  saveScheduleData();
+  openAddStaff();
+};
+
+window.openAddShift = function() {
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">+ Add Shift</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-label">Staff Member</div>
+    <select class="modal-input" id="shiftStaffId">
+      <option value="">— Select staff —</option>
+      ${schedStaff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+    </select>
+    <div class="modal-label">Date</div>
+    <input class="modal-input" type="date" id="shiftDate" value="${new Date().toISOString().split('T')[0]}">
+    <div class="modal-label">Shift Type</div>
+    <select class="modal-input" id="shiftTypeId">
+      <option value="">— Select shift —</option>
+      ${schedShiftTypes.map(st=>`<option value="${st.id}">${st.name} (${st.start}–${st.end})</option>`).join('')}
+    </select>
+    <div class="modal-label">Note (optional)</div>
+    <input class="modal-input" id="shiftNote" placeholder="e.g. Cover for Priya">
+    <button class="modal-btn" onclick="saveShift()">Save Shift</button>
+  `);
+};
+
+window.quickAddShift = function(staffId, date) {
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">+ Add Shift</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-label">Staff Member</div>
+    <select class="modal-input" id="shiftStaffId">
+      ${schedStaff.map(s=>`<option value="${s.id}" ${s.id===staffId?'selected':''}>${s.name}</option>`).join('')}
+    </select>
+    <div class="modal-label">Date</div>
+    <input class="modal-input" type="date" id="shiftDate" value="${date}">
+    <div class="modal-label">Shift Type</div>
+    <select class="modal-input" id="shiftTypeId">
+      <option value="">— Select shift —</option>
+      ${schedShiftTypes.map(st=>`<option value="${st.id}">${st.name} (${st.start}–${st.end})</option>`).join('')}
+    </select>
+    <div class="modal-label">Note (optional)</div>
+    <input class="modal-input" id="shiftNote" placeholder="Optional note">
+    <button class="modal-btn" onclick="saveShift()">Save Shift</button>
+  `);
+};
+
+window.saveShift = function() {
+  const staffId = document.getElementById('shiftStaffId').value;
+  const date = document.getElementById('shiftDate').value;
+  const shiftTypeId = document.getElementById('shiftTypeId').value;
+  const note = document.getElementById('shiftNote').value.trim();
+  if (!staffId||!date||!shiftTypeId) { showToast('⚠️ Fill all fields'); return; }
+  schedShifts.push({ id:'shift-'+Date.now(), staffId, date, shiftTypeId, note });
+  saveScheduleData();
+  closeModal();
+  renderSchedule();
+  showToast('✅ Shift saved!');
+};
+
+window.deleteShift = function(id) {
+  schedShifts = schedShifts.filter(s=>s.id!==id);
+  saveScheduleData();
+  renderSchedule();
+  showToast('Shift removed');
+};
+
+window.editShift = function(id) {
+  const shift = schedShifts.find(s=>s.id===id);
+  if (!shift) return;
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">✏️ Edit Shift</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-label">Staff Member</div>
+    <select class="modal-input" id="shiftStaffId">
+      ${schedStaff.map(s=>`<option value="${s.id}" ${s.id===shift.staffId?'selected':''}>${s.name}</option>`).join('')}
+    </select>
+    <div class="modal-label">Date</div>
+    <input class="modal-input" type="date" id="shiftDate" value="${shift.date}">
+    <div class="modal-label">Shift Type</div>
+    <select class="modal-input" id="shiftTypeId">
+      ${schedShiftTypes.map(st=>`<option value="${st.id}" ${st.id===shift.shiftTypeId?'selected':''}>${st.name} (${st.start}–${st.end})</option>`).join('')}
+    </select>
+    <div class="modal-label">Note</div>
+    <input class="modal-input" id="shiftNote" value="${shift.note||''}">
+    <button class="modal-btn" onclick="updateShift('${id}')">Update Shift</button>
+  `);
+};
+
+window.updateShift = function(id) {
+  const idx = schedShifts.findIndex(s=>s.id===id);
+  if (idx<0) return;
+  schedShifts[idx] = {
+    ...schedShifts[idx],
+    staffId: document.getElementById('shiftStaffId').value,
+    date: document.getElementById('shiftDate').value,
+    shiftTypeId: document.getElementById('shiftTypeId').value,
+    note: document.getElementById('shiftNote').value.trim()
+  };
+  saveScheduleData();
+  closeModal();
+  renderSchedule();
+  showToast('✅ Shift updated!');
+};
+
+window.publishSchedule = function() {
+  showToast('📤 Schedule published — staff can now view it!');
+};
+
+window.requestSwap = function(shiftId) {
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">⇄ Request Shift Swap</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-label">Swap with (optional)</div>
+    <select class="modal-input" id="swapToStaff">
+      <option value="">— Anyone can take it —</option>
+      ${schedStaff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+    </select>
+    <div class="modal-label">Reason</div>
+    <input class="modal-input" id="swapReason" placeholder="e.g. Doctor appointment">
+    <button class="modal-btn" onclick="submitSwap('${shiftId}')">Submit Request</button>
+  `);
+};
+
+window.submitSwap = function(shiftId) {
+  const toStaffId = document.getElementById('swapToStaff').value;
+  const reason = document.getElementById('swapReason').value.trim();
+  const shift = schedShifts.find(s=>s.id===shiftId);
+  if (!shift) return;
+  schedSwaps.push({
+    id: 'swap-'+Date.now(), shiftId,
+    fromStaffId: shift.staffId, toStaffId: toStaffId||'any',
+    reason, status: 'pending'
+  });
+  saveScheduleData();
+  closeModal();
+  renderSwaps();
+  showToast('✅ Swap request submitted!');
+};
+
+window.resolveSwap = function(swapId, status) {
+  const swap = schedSwaps.find(s=>s.id===swapId);
+  if (!swap) return;
+  if (status==='approved' && swap.toStaffId && swap.toStaffId!=='any') {
+    const shift = schedShifts.find(s=>s.id===swap.shiftId);
+    if (shift) shift.staffId = swap.toStaffId;
+  }
+  swap.status = status;
+  saveScheduleData();
+  renderSchedule();
+  showToast(status==='approved'?'✅ Swap approved!':'Swap declined');
+};
+
 
 </script>
 </body>
