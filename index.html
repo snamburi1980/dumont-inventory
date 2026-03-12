@@ -837,19 +837,40 @@ let pendingScan = null;
 
 // ── AUTH ──
 window.doLogin = async function() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pw = document.getElementById('loginPassword').value;
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pw    = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
+  const btn   = document.querySelector('.btn-login');
   errEl.textContent = '';
   if (!email || !pw) { errEl.textContent = 'Please enter email and password'; return; }
   try {
-    document.querySelector('.btn-login').innerHTML = '<span class="spinner"></span>';
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
     await signInWithEmailAndPassword(auth, email, pw);
   } catch(e) {
-    document.querySelector('.btn-login').textContent = 'Sign In';
-    errEl.textContent = e.code === 'auth/invalid-credential' ? 'Invalid email or password' : e.message;
+    btn.textContent = 'Sign In';
+    btn.disabled = false;
+    const msgs = {
+      'auth/invalid-credential':    'Wrong email or password. Check and try again.',
+      'auth/user-not-found':        'No account found with this email.',
+      'auth/wrong-password':        'Incorrect password.',
+      'auth/too-many-requests':     'Too many attempts. Wait a few minutes and try again.',
+      'auth/network-request-failed':'No internet connection. Check your WiFi.',
+      'auth/invalid-email':         'Email address format is invalid.',
+    };
+    errEl.textContent = msgs[e.code] || ('Error: ' + e.code + ' — ' + e.message);
   }
 };
+
+// Allow Enter key to submit login
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loginPassword')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('loginEmail')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginPassword').focus();
+  });
+});
 
 window.doLogout = async function() {
   if (unsubscribeInventory) unsubscribeInventory();
