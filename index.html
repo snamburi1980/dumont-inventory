@@ -310,7 +310,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
     <div class="login-sub">Creamery &amp; Café — Inventory</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
-    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <button class="btn-login" id="loginBtn">Sign In</button>
     <div class="login-error" id="loginError"></div>
   </div>
 </div>
@@ -871,6 +871,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') document.getElementById('loginPassword').focus();
   });
 });
+
+// Attach login button (needed for type=module scope)
+document.getElementById('loginBtn')?.addEventListener('click', doLogin);
 
 window.doLogout = async function() {
   if (unsubscribeInventory) unsubscribeInventory();
@@ -1454,7 +1457,6 @@ window.parseInvoicePDF = async function(event) {
     statusEl.innerHTML = '⚠️ Could not read PDF. Try uploading again or use manual entry below.';
     console.error('PDF parse error:', e.message, e.stack);
   }
-}
 };
 
 function renderInvoicePreview() {
