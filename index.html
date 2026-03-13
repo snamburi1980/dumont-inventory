@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dumont">
-<title>Dumont — Coppell Inventory</title>
+<title>Dumont — Inventory</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -1309,12 +1309,34 @@ function renderDelivery() {
     const invoiceNum = first.invoiceNumber || '';
     const displayTotal = totalCost > 0 ? `$${totalCost.toFixed(2)}` : '';
 
-    const lineItemsHtml = entries.map(e => `
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;flex-wrap:wrap;gap:4px">
-        <span style="flex:1;color:var(--dark);font-weight:500">${e.itemName}</span>
-        <span style="color:#8B7355">×${e.qty} ${e.uom||''}</span>
-        ${e.unitCost ? `<span style="color:var(--caramel);font-weight:600">$${(e.qty * e.unitCost).toFixed(2)}</span>` : ''}
-      </div>`).join('');
+    const lineItemsHtml = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:4px">
+        <thead>
+          <tr style="background:var(--cream)">
+            <th style="text-align:left;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">#</th>
+            <th style="text-align:left;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">Item</th>
+            <th style="text-align:center;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">Qty</th>
+            <th style="text-align:right;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">Unit $</th>
+            <th style="text-align:right;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${entries.map((e,i) => `
+          <tr style="border-bottom:1px solid var(--border);background:${i%2===0?'#fff':'var(--cream)'}">
+            <td style="padding:6px 8px;color:#aaa">${i+1}</td>
+            <td style="padding:6px 8px;color:var(--dark);font-weight:500">${e.itemName}</td>
+            <td style="padding:6px 8px;text-align:center;color:#8B7355">${e.qty} ${e.uom||''}</td>
+            <td style="padding:6px 8px;text-align:right;color:#8B7355">${e.unitCost ? '$'+e.unitCost.toFixed(2) : '—'}</td>
+            <td style="padding:6px 8px;text-align:right;color:var(--caramel);font-weight:600">${e.totalCost ? '$'+e.totalCost.toFixed(2) : '—'}</td>
+          </tr>`).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="background:var(--cream)">
+            <td colspan="4" style="padding:8px;text-align:right;font-weight:700;color:var(--dark)">Total</td>
+            <td style="padding:8px;text-align:right;font-weight:700;color:var(--caramel)">$${entries.reduce((s,e)=>s+(e.totalCost||0),0).toFixed(2)}</td>
+          </tr>
+        </tfoot>
+      </table>`;
 
     return `<div class="del-invoice-card" id="inv-${key}">
       <div class="del-invoice-header" onclick="toggleInvoice('${key}')">
