@@ -1344,8 +1344,9 @@ function renderDelivery() {
           <div style="font-size:13px;font-weight:700;color:var(--dark)">${isInvoice ? '🧾' : '📦'} ${vendor} ${invoiceNum ? '· ' + invoiceNum : ''}</div>
           <div style="font-size:11px;color:#8B7355;margin-top:2px">${dateStr} · ${totalItems} item${totalItems>1?'s':''}</div>
         </div>
-        ${displayTotal ? `<div style="font-size:16px;font-weight:700;color:var(--caramel)">${displayTotal}</div>` : ''}
-        <div style="font-size:18px;color:#8B7355;margin-left:8px" id="inv-arrow-${key}">▼</div>
+        ${displayTotal ? `<div style="font-size:16px;font-weight:700;color:var(--caramel);margin-right:8px">${displayTotal}</div>` : ''}
+        <button onclick="event.stopPropagation();deleteDelivery('${key}')" style="background:none;border:none;cursor:pointer;font-size:16px;color:#C0392B;padding:4px 8px" title="Delete">🗑</button>
+        <div style="font-size:18px;color:#8B7355;margin-left:4px" id="inv-arrow-${key}">▼</div>
       </div>
       <div class="del-invoice-items" id="inv-items-${key}" style="display:none">
         ${lineItemsHtml}
@@ -1361,6 +1362,27 @@ window.toggleInvoice = function(key) {
   const open = items.style.display !== 'none';
   items.style.display = open ? 'none' : 'block';
   arrow.textContent = open ? '▼' : '▲';
+};
+
+window.deleteDelivery = async function(key) {
+  if (!confirm('Delete this delivery entry? This will NOT reverse stock changes.')) return;
+  // Remove from local array
+  deliveryHistory = deliveryHistory.filter(d => {
+    const dk = d.invoiceId || ('manual-' + d.timestamp);
+    return dk !== key;
+  });
+  // Remove from Firestore
+  try {
+    const snap = await getDocs(collection(db, 'stores', viewingStore, 'deliveries'));
+    const toDelete = snap.docs.filter(d => {
+      const data = d.data();
+      const dk = data.invoiceId || ('manual-' + data.timestamp);
+      return dk === key;
+    });
+    await Promise.all(toDelete.map(d => deleteDoc(doc(db, 'stores', viewingStore, 'deliveries', d.id))));
+  } catch(e) { console.error(e); }
+  renderDelivery();
+  showToast('🗑 Delivery entry deleted');
 };
 
 // ── PDF Invoice Parser ──
