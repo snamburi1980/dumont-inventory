@@ -1,3 +1,24 @@
+<!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  DUMONT CREAMERY & CAFÉ — INVENTORY APP                  ║
+  ║  Version: v11                                            ║
+  ║  Last Updated: March 14, 2026                            ║
+  ║                                                          ║
+  ║  VERIFY DEPLOYMENT: Login screen should say "v11"        ║
+  ║  If it says a different version, the wrong file          ║
+  ║  was deployed. Re-upload index.html and hard refresh.    ║
+  ║                                                          ║
+  ║  MODULES:                                                ║
+  ║  - Firebase Auth + Firestore                             ║
+  ║  - Inventory (107 items + custom)                        ║
+  ║  - Orders (auto-generate by vendor)                      ║
+  ║  - Sales (Clover Excel upload)                           ║
+  ║  - Delivery (PDF invoice parser)                         ║
+  ║  - COGS Report (Method 2) + Menu Margins                 ║
+  ║  - Schedule (weekly grid + export image)                 ║
+  ║  - Admin (owner only)                                    ║
+  ╚══════════════════════════════════════════════════════════╝
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +27,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dumont">
-<title>Dumont — Inventory</title>
+<title>Dumont — Inventory v11</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -307,7 +328,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">Dumont</div>
-    <div class="login-sub">Creamery &amp; Café — Inventory</div>
+    <div class="login-sub">Creamery &amp; Café — Inventory v11</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
     <button class="btn-login" id="loginBtn">Sign In</button>
@@ -634,6 +655,8 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, si
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
+const APP_VERSION = "v11";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBofsUP3yf2OkaQVPav8rfxUiax39TkxYY",
   authDomain: "dumont-inventory.firebaseapp.com",
@@ -895,11 +918,32 @@ window.doLogout = async function() {
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-    const cfg = USERS[user.email] || { store: 'coppell', role: 'manager', name: user.email };
+
+    // ── Load user profile from Firestore first, fallback to USERS map ──
+    let cfg = USERS[user.email] || { store: 'coppell', role: 'manager', name: user.email };
+    try {
+      const userSnap = await getDoc(doc(db, 'users', user.uid));
+      if (userSnap.exists()) {
+        cfg = { ...cfg, ...userSnap.data() };
+      } else {
+        // First login — write profile to Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          email: user.email,
+          store: cfg.store,
+          role:  cfg.role,
+          name:  cfg.name,
+          createdAt: Date.now()
+        });
+      }
+    } catch(e) {
+      console.warn('Could not load user profile from Firestore, using local config', e);
+    }
+
     currentUserConfig = cfg;
     viewingStore = cfg.store;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+
     if (cfg.role === 'owner') {
       document.getElementById('storeBadge').textContent = '👑 Owner';
       document.getElementById('ownerBar').style.display = 'flex';
@@ -909,6 +953,7 @@ onAuthStateChanged(auth, async (user) => {
       document.getElementById('ownerBar').style.display = 'none';
       document.getElementById('adminTabBtn').style.display = 'none';
     }
+
     await initStore(cfg.store);
     await loadCustomItems();
     populateDelivSelect();
@@ -1608,6 +1653,7 @@ window.confirmDelivery = async function() {
 
   renderDashboard(); renderInventory(); renderOrders(); renderDelivery();
   showToast(`✅ Invoice logged — ${stockUpdated} items updated`);
+  logAudit('delivery_confirmed', { invoiceId, vendor: meta.vendor, total: meta.total, itemCount: parsedInvoiceLines.length, stockUpdated });
 };
 
 window.cancelInvoice = function() {
@@ -1654,6 +1700,29 @@ window.logDelivery = async function() {
 
 
 
+
+
+// ══════════════════════════════════════════
+// AUDIT TRAIL MODULE
+// ══════════════════════════════════════════
+
+async function logAudit(action, details = {}) {
+  if (!currentUser) return;
+  try {
+    await addDoc(collection(db, 'stores', viewingStore, 'auditLog'), {
+      action,
+      details,
+      userEmail: currentUser.email,
+      userName:  currentUserConfig?.name || currentUser.email,
+      storeId:   viewingStore,
+      timestamp: Date.now(),
+      dateStr:   new Date().toLocaleString()
+    });
+  } catch(e) {
+    // Audit logging should never break the app
+    console.warn('Audit log failed:', e);
+  }
+}
 
 // ══════════════════════════════════════════
 // ADD ITEM / ADD CATEGORY MODULE
@@ -1929,7 +1998,7 @@ window.exportScheduleImage = async function() {
                           const st = schedShiftTypes.find(t => t.id === shift.shiftTypeId) || {name:shift.shiftTypeId, color:'#999', start:'', end:''};
                           return `<div style="background:${st.color}22;border:1px solid ${st.color}55;border-radius:6px;padding:4px 6px;margin-bottom:3px">
                             <div style="font-weight:700;color:${st.color};font-size:11px">${st.name}</div>
-                            <div style="font-size:10px;color:#8B7355">${st.start}–${st.end}</div>
+                            <div style="font-size:10px;color:#8B7355">${fmt12(st.start)}–${fmt12(st.end)}</div>
                           </div>`;
                         }).join('')
                     }
@@ -2516,6 +2585,15 @@ async function saveScheduleData() {
   } catch(e) { showToast('⚠️ Schedule save failed'); }
 }
 
+
+// ── Time format helper ──
+function fmt12(time24) {
+  if (!time24) return '';
+  const [h, m] = time24.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
 // ── Week helpers ──
 function getWeekStart(offset) {
   const d = new Date();
@@ -2578,7 +2656,7 @@ function renderWeekGrid() {
             <span>${st.name}</span>
             ${isManager?`<span onclick="event.stopPropagation();deleteShift('${shift.id}')" style="opacity:0.6;font-size:13px;cursor:pointer">×</span>`:''}
           </div>
-          <div class="shift-chip-time" style="text-align:center;color:#8B7355;font-size:10px;margin-bottom:4px">${st.start}–${st.end}</div>`;
+          <div class="shift-chip-time" style="text-align:center;color:#8B7355;font-size:10px;margin-bottom:4px">${fmt12(st.start)}–${fmt12(st.end)}</div>`;
         });
         if (isManager) cellHtml += `<div onclick="quickAddShift('${staff.id}','${ds}')" style="text-align:center;color:#ccc;font-size:18px;cursor:pointer;padding:2px">+</div>`;
         html += `<td class="week-cell">${cellHtml}</td>`;
@@ -2611,7 +2689,7 @@ function renderDayView() {
   el.innerHTML = Object.values(byType).map(({st,shifts}) => `
     <div class="day-card">
       <div class="day-card-header" style="background:${st.color}">
-        ${st.name} &nbsp;·&nbsp; <span style="font-weight:400;font-size:12px">${st.start} – ${st.end}</span>
+        ${st.name} &nbsp;·&nbsp; <span style="font-weight:400;font-size:12px">${fmt12(st.start)} – ${fmt12(st.end)}</span>
       </div>
       ${shifts.map(shift => {
         const staff = schedStaff.find(s=>s.id===shift.staffId);
@@ -2684,7 +2762,7 @@ window.openAddStaff = function() {
     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
       <div class="modal-title" style="font-size:14px">⏰ Shift Types</div>
       ${schedShiftTypes.map(st=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
-        <div><span class="color-dot" style="background:${st.color}"></span><strong>${st.name}</strong> <span style="font-size:11px;color:#8B7355">${st.start}–${st.end}</span></div>
+        <div><span class="color-dot" style="background:${st.color}"></span><strong>${st.name}</strong> <span style="font-size:11px;color:#8B7355">${fmt12(st.start)}–${fmt12(st.end)}</span></div>
         <button onclick="removeShiftType('${st.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px">×</button>
       </div>`).join('')}
       <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
@@ -2761,7 +2839,7 @@ window.openAddShift = function() {
     <div class="modal-label">Shift Type</div>
     <select class="modal-input" id="shiftTypeId">
       <option value="">— Select shift —</option>
-      ${schedShiftTypes.map(st=>`<option value="${st.id}">${st.name} (${st.start}–${st.end})</option>`).join('')}
+      ${schedShiftTypes.map(st=>`<option value="${st.id}">${st.name} (${fmt12(st.start)}–${fmt12(st.end)})</option>`).join('')}
     </select>
     <div class="modal-label">Note (optional)</div>
     <input class="modal-input" id="shiftNote" placeholder="e.g. Cover for Priya">
@@ -2784,7 +2862,7 @@ window.quickAddShift = function(staffId, date) {
     <div class="modal-label">Shift Type</div>
     <select class="modal-input" id="shiftTypeId">
       <option value="">— Select shift —</option>
-      ${schedShiftTypes.map(st=>`<option value="${st.id}">${st.name} (${st.start}–${st.end})</option>`).join('')}
+      ${schedShiftTypes.map(st=>`<option value="${st.id}">${st.name} (${fmt12(st.start)}–${fmt12(st.end)})</option>`).join('')}
     </select>
     <div class="modal-label">Note (optional)</div>
     <input class="modal-input" id="shiftNote" placeholder="Optional note">
@@ -2828,7 +2906,7 @@ window.editShift = function(id) {
     <input class="modal-input" type="date" id="shiftDate" value="${shift.date}">
     <div class="modal-label">Shift Type</div>
     <select class="modal-input" id="shiftTypeId">
-      ${schedShiftTypes.map(st=>`<option value="${st.id}" ${st.id===shift.shiftTypeId?'selected':''}>${st.name} (${st.start}–${st.end})</option>`).join('')}
+      ${schedShiftTypes.map(st=>`<option value="${st.id}" ${st.id===shift.shiftTypeId?'selected':''}>${st.name} (${fmt12(st.start)}–${fmt12(st.end)})</option>`).join('')}
     </select>
     <div class="modal-label">Note</div>
     <input class="modal-input" id="shiftNote" value="${shift.note||''}">
