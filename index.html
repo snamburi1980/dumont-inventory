@@ -2746,7 +2746,7 @@ function populateStoreSwitcher(cfg) {
 }
 
 // Map stores to regions
-const STORE_REGIONS = {
+let STORE_REGIONS = {
   'coppell':    'texas',
   'frisco':     'texas',
   'cedar-park': 'texas',
@@ -3561,22 +3561,24 @@ window.adminAddStore = async function() {
 
 
 window.deleteStore = async function(sid) {
-  const storeName = allStores[sid]?.name || sid;
+  const storeName = allStores[sid]?.name || STORES[sid]?.name || sid;
   if (!confirm(`Delete store "${storeName}"? This removes it from the app but does NOT delete its Firestore data.`)) return;
   try {
-    // Remove from config
+    // Remove from Firestore config
     const snap = await getDoc(doc(db, 'config', 'stores'));
     if (snap.exists()) {
       const data = snap.data();
       delete data[sid];
       await setDoc(doc(db, 'config', 'stores'), data);
     }
-    // Remove from local
+    // Remove from ALL local maps
     delete allStores[sid];
     delete STORES[sid];
-    // Remove from store switcher
+    delete STORE_REGIONS[sid];
+    // Refresh UI
     populateStoreSwitcher(currentUserConfig);
     renderAdminStoreList();
+    renderOrgTree();  // ← refresh org tree too
     showToast(`🗑 Store "${storeName}" removed`);
     logAudit('store_deleted', { storeId: sid, storeName });
   } catch(e) {
