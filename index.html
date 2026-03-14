@@ -922,12 +922,13 @@ onAuthStateChanged(auth, async (user) => {
     // ── Load user profile from Firestore first, fallback to USERS map ──
     let cfg = USERS[user.email] || { store: 'coppell', role: 'manager', name: user.email };
     try {
-      const userSnap = await getDoc(doc(db, 'users', user.uid));
+      const emailKey = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+      const userSnap = await getDoc(doc(db, 'users', emailKey));
       if (userSnap.exists()) {
         cfg = { ...cfg, ...userSnap.data() };
       } else {
         // First login — write profile to Firestore
-        await setDoc(doc(db, 'users', user.uid), {
+        await setDoc(doc(db, 'users', emailKey), {
           email: user.email,
           store: cfg.store,
           role:  cfg.role,
