@@ -471,6 +471,17 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
             <button class="btn-adj" onclick="cogsNavPeriod(1)">›</button>
           </div>
 
+          <!-- Stock Snapshot Buttons -->
+          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <button class="btn-log" style="width:auto;padding:9px 16px;font-size:13px" onclick="takeStockSnapshot('open')">
+              📸 Record Opening Stock
+            </button>
+            <button class="btn-log" style="width:auto;padding:9px 16px;font-size:13px;background:var(--caramel)" onclick="takeStockSnapshot('close')">
+              📸 Record Closing Stock
+            </button>
+          </div>
+          <div id="snapshotInfo" class="sync-info" style="margin-bottom:12px;display:none"></div>
+
           <!-- KPI cards -->
           <div class="stat-grid" style="margin-bottom:16px">
             <div class="stat-card">
@@ -543,6 +554,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
             <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px" onclick="openAddStaff()">👤 Manage Staff</button>
             <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px" onclick="openAddShift()">+ Add Shift</button>
             <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px;background:var(--caramel)" onclick="publishSchedule()">📤 Publish Schedule</button>
+            <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px;background:#2C7A4B" onclick="exportScheduleImage()">📸 Share Schedule</button>
           </div>
         </div>
 
@@ -692,7 +704,7 @@ const DEFAULT_INVENTORY = [
   { id:35, name:"Mango Popping Pearls",     code:"B2051",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
   { id:36, name:"Strawberry Popping Pearls",code:"B2053",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
   { id:37, name:"Passion Popping Pearls",   code:"B2055",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
-  { id:38, name:"Blueberry Popping Pearls", code:"B2056",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:60.0, units_per_case:6, case_desc:"CASE of 6 bags" },
+  { id:38, name:"Blueberry Popping Pearls", code:"B2056",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0, units_per_case:6, case_desc:"CASE of 6 bags" },
   { id:40, name:"Monin Caramel Sauce 1.69L",code:"H-CARAMEL-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
   { id:41, name:"Monin White Mocha Sauce",  code:"H-CHOCOLATE-WMS",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:18.99 },
   { id:42, name:"Monin Dark Mocha Sauce",   code:"H-CHOCOLATE-S",  cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
@@ -744,24 +756,24 @@ const DEFAULT_INVENTORY = [
   { id:101,name:"Tonic Water",              code:"COND-22",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK", cost:4.99 },
   { id:102,name:"Simple Syrup",             code:"COND-23",      cat:"Condiments", vendor:"Target",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.99 },
   { id:103,name:"Maple Syrup",              code:"COND-24",      cat:"Condiments", vendor:"Costco",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:9.99 },
-  { id:110,name:"Vanilla Bean",             code:"IC-01",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
-  { id:111,name:"Classic Chocolate",        code:"IC-02",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
-  { id:112,name:"Butterscotch",             code:"IC-03",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:113,name:"Strawberry Chunks",        code:"IC-04",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:114,name:"Berry Yogurt",             code:"IC-05",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:115,name:"Pistachio",                code:"IC-06",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:116,name:"Lots of Nuts",             code:"IC-07",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:117,name:"Oreo Caramel Fudge",       code:"IC-08",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:118,name:"Salted Caramel",           code:"IC-09",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
-  { id:119,name:"Taro",                     code:"IC-10",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
-  { id:120,name:"Mango",                    code:"IC-11",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0 },
-  { id:121,name:"Kheer",                    code:"IC-12",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:122,name:"Filter Coffee",            code:"IC-13",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:123,name:"Mint Chocochip",           code:"IC-14",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:124,name:"Ferrero Ice Cream",        code:"IC-15",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:125,name:"Biscoff Ice Cream",        code:"IC-16",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:126,name:"Ruby Cheese",              code:"IC-17",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
-  { id:127,name:"Peanut Butter Chocolate",  code:"IC-18",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0 },
+  { id:110,name:"Vanilla Bean",             code:"IC-01",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:111,name:"Classic Chocolate",        code:"IC-02",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:112,name:"Butterscotch",             code:"IC-03",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:113,name:"Strawberry Chunks",        code:"IC-04",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:114,name:"Berry Yogurt",             code:"IC-05",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:115,name:"Pistachio",                code:"IC-06",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:116,name:"Lots of Nuts",             code:"IC-07",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:117,name:"Oreo Caramel Fudge",       code:"IC-08",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:118,name:"Salted Caramel",           code:"IC-09",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:119,name:"Taro",                     code:"IC-10",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:120,name:"Mango",                    code:"IC-11",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:121,name:"Kheer",                    code:"IC-12",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:122,name:"Filter Coffee",            code:"IC-13",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:123,name:"Mint Chocochip",           code:"IC-14",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:124,name:"Ferrero Ice Cream",        code:"IC-15",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:125,name:"Biscoff Ice Cream",        code:"IC-16",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:126,name:"Ruby Cheese",              code:"IC-17",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:127,name:"Peanut Butter Chocolate",  code:"IC-18",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
 ];
 
 const RECIPES = {
@@ -1829,6 +1841,201 @@ window.addCustomItem = async function() {
 
 
 
+
+
+// ══════════════════════════════════════════
+// SCHEDULE EXPORT MODULE
+// ══════════════════════════════════════════
+
+window.exportScheduleImage = async function() {
+  // Load html2canvas if not loaded
+  if (!window.html2canvas) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Make sure we're in weekly view
+  setSchedView('week');
+  await new Promise(r => setTimeout(r, 300));
+
+  // Build a clean standalone schedule table for export
+  const { weekDates, weekLabels } = getWeekDates();
+  const storeName = STORES[viewingStore]?.name || viewingStore;
+
+  // Create export container
+  const exportDiv = document.createElement('div');
+  exportDiv.style.cssText = `
+    position:fixed; left:-9999px; top:0;
+    background:#FDF6EC; padding:24px; font-family:Arial,sans-serif;
+    width:900px; border-radius:12px;
+  `;
+
+  // Header
+  const weekStart = weekDates[0];
+  const weekEnd   = weekDates[6];
+  const headerLabel = `${weekStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${weekEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+
+  exportDiv.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:22px;font-weight:900;color:#3D2B1F;font-family:serif">Dumont</div>
+        <div style="font-size:13px;color:#8B7355;text-transform:uppercase;letter-spacing:1px">${storeName} — Staff Schedule</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:#C8843A;background:#FFF8EE;padding:8px 16px;border-radius:20px;border:1px solid #E8D5B0">
+        📅 ${headerLabel}
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:#3D2B1F">
+          <th style="padding:10px 12px;text-align:left;color:#D4A843;font-weight:700;width:140px">Staff</th>
+          ${weekDates.map((d,i) => {
+            const isToday = d.toDateString() === new Date().toDateString();
+            return `<th style="padding:10px 8px;text-align:center;color:${isToday?'#FFD700':'#D4A843'};font-weight:700;background:${isToday?'rgba(200,132,58,0.3)':'transparent'}">
+              <div>${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]}</div>
+              <div style="font-size:11px;opacity:0.8">${d.getDate()}</div>
+            </th>`;
+          }).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${schedStaff.length === 0
+          ? `<tr><td colspan="8" style="padding:32px;text-align:center;color:#8B7355">No staff added yet</td></tr>`
+          : schedStaff.map((staff, si) => {
+              const rowBg = si % 2 === 0 ? '#FFFFFF' : '#FDF6EC';
+              return `<tr style="background:${rowBg}">
+                <td style="padding:10px 12px;border-right:2px solid #E8D5B0">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <div style="width:10px;height:10px;border-radius:50%;background:${staff.color};flex-shrink:0"></div>
+                    <div>
+                      <div style="font-weight:700;color:#1A1209;font-size:12px">${staff.name}</div>
+                      <div style="font-size:10px;color:#8B7355">${staff.role||''}</div>
+                    </div>
+                  </div>
+                </td>
+                ${weekDates.map(d => {
+                  const ds = d.toISOString().split('T')[0];
+                  const isToday = d.toDateString() === new Date().toDateString();
+                  const dayShifts = schedShifts.filter(s => s.staffId === staff.id && s.date === ds);
+                  const cellBg = isToday ? 'rgba(200,132,58,0.06)' : 'transparent';
+                  return `<td style="padding:6px;text-align:center;border:1px solid #EDE0CC;background:${cellBg};min-width:100px;vertical-align:top">
+                    ${dayShifts.length === 0
+                      ? '<div style="color:#DDD;font-size:18px;line-height:32px">—</div>'
+                      : dayShifts.map(shift => {
+                          const st = schedShiftTypes.find(t => t.id === shift.shiftTypeId) || {name:shift.shiftTypeId, color:'#999', start:'', end:''};
+                          return `<div style="background:${st.color}22;border:1px solid ${st.color}55;border-radius:6px;padding:4px 6px;margin-bottom:3px">
+                            <div style="font-weight:700;color:${st.color};font-size:11px">${st.name}</div>
+                            <div style="font-size:10px;color:#8B7355">${st.start}–${st.end}</div>
+                          </div>`;
+                        }).join('')
+                    }
+                  </td>`;
+                }).join('')}
+              </tr>`;
+            }).join('')
+        }
+      </tbody>
+    </table>
+    <div style="margin-top:16px;display:flex;justify-content:space-between;font-size:11px;color:#8B7355">
+      <span>Generated by Dumont Inventory App · ${new Date().toLocaleString()}</span>
+      <span>${schedStaff.length} staff · ${schedShifts.filter(s => {
+        const wd = weekDates.map(d => d.toISOString().split('T')[0]);
+        return wd.includes(s.date);
+      }).length} shifts this week</span>
+    </div>
+  `;
+
+  document.body.appendChild(exportDiv);
+
+  try {
+    const canvas = await html2canvas(exportDiv, {
+      scale: 2,
+      backgroundColor: '#FDF6EC',
+      logging: false,
+      useCORS: true
+    });
+
+    document.body.removeChild(exportDiv);
+
+    // Convert to blob and download
+    canvas.toBlob(blob => {
+      const url  = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href     = url;
+      link.download = `Dumont_${storeName}_Schedule_${headerLabel.replace(/[^a-z0-9]/gi,'_')}.png`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast('✅ Schedule image downloaded — share on WhatsApp!');
+    }, 'image/png');
+
+  } catch(e) {
+    document.body.removeChild(exportDiv);
+    showToast('⚠️ Could not export. Try again.');
+    console.error(e);
+  }
+};
+
+function getWeekDates() {
+  const now  = new Date();
+  const day  = now.getDay();
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - day + i);
+    d.setHours(0,0,0,0);
+    weekDates.push(d);
+  }
+  return { weekDates, weekLabels: weekDates.map(d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})) };
+}
+
+// ══════════════════════════════════════════
+// STOCK SNAPSHOT MODULE (Method 2 COGS)
+// ══════════════════════════════════════════
+
+async function takeStockSnapshot(type) {
+  // Calculate current total stock value
+  const totalValue = inventory.reduce((sum, item) => {
+    return sum + (item.stock * (item.cost || 0));
+  }, 0);
+
+  const categoryValues = {};
+  inventory.forEach(item => {
+    if (!categoryValues[item.cat]) categoryValues[item.cat] = 0;
+    categoryValues[item.cat] += item.stock * (item.cost || 0);
+  });
+
+  const snapshot = {
+    type,           // 'open' or 'close'
+    value: totalValue,
+    categoryValues,
+    date: new Date().toLocaleDateString(),
+    dateTs: Date.now(),
+    itemCount: inventory.length,
+    weekStart: getWeekStart()
+  };
+
+  try {
+    await setDoc(doc(db, 'stores', viewingStore, 'snapshots', `${type}-${snapshot.weekStart}`), snapshot);
+    showToast(`✅ ${type === 'open' ? 'Opening' : 'Closing'} stock recorded — $${totalValue.toFixed(2)}`);
+    loadCogsLedgers();
+  } catch(e) {
+    showToast('⚠️ Could not save snapshot');
+    console.error(e);
+  }
+}
+
+function getWeekStart() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day;
+  const weekStart = new Date(now.setDate(diff));
+  return weekStart.toISOString().split('T')[0];
+}
+
 // ══════════════════════════════════════════
 // COGS REPORT MODULE
 // ══════════════════════════════════════════
@@ -1883,12 +2090,16 @@ function getPeriodRange() {
   return { start, end, label };
 }
 
+let stockSnapshots = [];
+
 async function loadCogsLedgers() {
   try {
     const salesSnap = await getDocs(collection(db, 'stores', viewingStore, 'salesLedger'));
     salesLedger = salesSnap.docs.map(d => d.data());
     const costSnap = await getDocs(collection(db, 'stores', viewingStore, 'costLedger'));
     costLedger = costSnap.docs.map(d => d.data());
+    const snapSnap = await getDocs(collection(db, 'stores', viewingStore, 'snapshots'));
+    stockSnapshots = snapSnap.docs.map(d => d.data());
   } catch(e) {}
   renderCogsReport();
 }
@@ -1897,72 +2108,99 @@ function renderCogsReport() {
   const { start, end, label } = getPeriodRange();
   document.getElementById('cogsPeriodLabel').textContent = label;
 
+  // ── Revenue from Clover sales uploads ──
   const revenue = salesLedger
     .filter(s => s.dateTs >= start.getTime() && s.dateTs <= end.getTime())
     .reduce((sum, s) => sum + (s.revenue || 0), 0);
 
-  const cost = costLedger
+  // ── METHOD 2: Opening Stock + Purchases - Closing Stock = COGS ──
+  const weekKey = getWeekStart();
+  const openSnap  = stockSnapshots.find(s => s.type === 'open'  && s.weekStart === weekKey);
+  const closeSnap = stockSnapshots.find(s => s.type === 'close' && s.weekStart === weekKey);
+  const purchases = costLedger
     .filter(c => c.dateTs >= start.getTime() && c.dateTs <= end.getTime())
     .reduce((sum, c) => sum + (c.amount || 0), 0);
 
+  // Show snapshot info
+  const snapEl = document.getElementById('snapshotInfo');
+  if (openSnap || closeSnap) {
+    snapEl.style.display = 'block';
+    snapEl.innerHTML = `
+      ${openSnap  ? `📸 Opening stock: <strong>$${openSnap.value.toFixed(2)}</strong> recorded on ${openSnap.date}` : '⚠️ No opening stock recorded yet — tap "Record Opening Stock"'}
+      ${openSnap && closeSnap ? '<br>' : ''}
+      ${closeSnap ? `📸 Closing stock: <strong>$${closeSnap.value.toFixed(2)}</strong> recorded on ${closeSnap.date}` : openSnap ? '<br>⚠️ No closing stock yet — record at end of week' : ''}
+    `;
+  } else {
+    snapEl.style.display = 'block';
+    snapEl.innerHTML = `💡 To calculate real COGS: tap <strong>Record Opening Stock</strong> at start of week, then <strong>Record Closing Stock</strong> at end of week.`;
+  }
+
+  // Calculate COGS using Method 2 if both snapshots exist
+  let cost = 0;
+  let method = 'purchases'; // fallback to delivery spend
+  if (openSnap && closeSnap) {
+    cost = openSnap.value + purchases - closeSnap.value;
+    method = 'method2';
+    if (cost < 0) cost = 0; // can't be negative
+  } else {
+    cost = purchases; // fallback: show delivery spend
+  }
+
   const profit = revenue - cost;
-  const pct = revenue > 0 ? (cost / revenue * 100) : 0;
+  const pct    = revenue > 0 ? (cost / revenue * 100) : 0;
 
   document.getElementById('cogsRevenue').textContent = '$' + revenue.toFixed(0);
   document.getElementById('cogsCost').textContent    = '$' + cost.toFixed(0);
-  document.getElementById('cogsProfit').textContent  = '$' + profit.toFixed(0);
+  document.getElementById('cogsProfit').textContent  = (profit >= 0 ? '$' : '-$') + Math.abs(profit).toFixed(0);
+  document.getElementById('cogsProfit').style.color  = profit >= 0 ? 'var(--green-ok)' : 'var(--red-alert)';
 
-  const pctEl  = document.getElementById('cogsReportPct');
-  const barEl  = document.getElementById('cogsReportBar');
-  const varEl  = document.getElementById('cogsVarianceAlert');
+  const pctEl = document.getElementById('cogsReportPct');
+  const barEl = document.getElementById('cogsReportBar');
+  const varEl = document.getElementById('cogsVarianceAlert');
 
-  if (revenue > 0) {
+  if (revenue > 0 && cost > 0) {
     pctEl.textContent = pct.toFixed(1) + '%';
     pctEl.style.color = pct < 25 ? 'var(--green-ok)' : pct < 32 ? 'var(--amber-alert)' : 'var(--red-alert)';
     barEl.style.width = Math.min(100, pct * 2) + '%';
     barEl.className   = 'cogs-bar-fill ' + (pct < 25 ? 'margin-bar-good' : pct < 32 ? 'margin-bar-warn' : 'margin-bar-bad');
-
     if (pct > 32) {
       varEl.style.display = 'block';
-      varEl.innerHTML = `⚠️ COGS is ${pct.toFixed(1)}% — above the 32% target. Check for over-pouring, wastage, or unlogged deliveries.`;
+      varEl.innerHTML = `⚠️ COGS is ${pct.toFixed(1)}% — above 32% target. ${method === 'method2' ? 'Check wastage or pricing.' : 'Note: based on delivery spend, not actual usage.'}`;
     } else {
       varEl.style.display = 'none';
     }
   } else {
     pctEl.textContent = '—';
     varEl.style.display = 'block';
-    varEl.innerHTML = revenue === 0 && cost === 0
-      ? '💡 No data yet for this period. Sales will appear after Clover uploads. Costs will appear after delivery invoices are logged.'
-      : cost > 0
-        ? `💡 Delivery costs of $${cost.toFixed(2)} recorded but no sales uploaded yet for this period.`
-        : '💡 Upload a Clover sales report in the Sales tab to see COGS data.';
+    varEl.innerHTML = revenue === 0
+      ? '💡 Upload a Clover sales report in the Sales tab to see revenue.'
+      : '💡 Record opening and closing stock to calculate real COGS.';
   }
 
-  // Daily breakdown (only for week/month view)
+  // ── Weekly breakdown ──
   const breakdownEl = document.getElementById('cogsDailyBreakdown');
   if (cogsPeriod === 'day') { breakdownEl.innerHTML = ''; return; }
 
-  // Build day-by-day
   const days = [];
   const cur = new Date(start);
   while (cur <= end) {
-    const dayStart = new Date(cur); dayStart.setHours(0,0,0,0);
-    const dayEnd   = new Date(cur); dayEnd.setHours(23,59,59,999);
-    const dayRev  = salesLedger.filter(s => s.dateTs >= dayStart.getTime() && s.dateTs <= dayEnd.getTime()).reduce((s,x) => s+(x.revenue||0), 0);
-    const dayCost = costLedger.filter(c => c.dateTs >= dayStart.getTime() && c.dateTs <= dayEnd.getTime()).reduce((s,x) => s+(x.amount||0), 0);
+    const ds = new Date(cur); ds.setHours(0,0,0,0);
+    const de = new Date(cur); de.setHours(23,59,59,999);
+    const dayRev  = salesLedger.filter(s => s.dateTs >= ds.getTime() && s.dateTs <= de.getTime()).reduce((s,x) => s+(x.revenue||0), 0);
+    const dayCost = costLedger.filter(c => c.dateTs >= ds.getTime() && c.dateTs <= de.getTime()).reduce((s,x) => s+(x.amount||0), 0);
     if (dayRev > 0 || dayCost > 0) {
       days.push({ label: cur.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}), rev: dayRev, cost: dayCost, pct: dayRev > 0 ? dayCost/dayRev*100 : 0 });
     }
     cur.setDate(cur.getDate() + 1);
   }
 
-  if (!days.length) { breakdownEl.innerHTML = ''; return; }
+  if (!days.length) { breakdownEl.innerHTML = '<div class="sync-info" style="margin-top:8px">No daily data yet for this period.</div>'; return; }
   breakdownEl.innerHTML = `<div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--dark)">Daily Breakdown</div>` +
     days.map(d => `<div class="cogs-day-row">
       <div class="cogs-day-date">${d.label}</div>
       <div class="cogs-day-stat"><span style="color:var(--green-ok)">$${d.rev.toFixed(0)}</span>Revenue</div>
-      <div class="cogs-day-stat"><span style="color:var(--red-alert)">$${d.cost.toFixed(0)}</span>Cost</div>
-      <div class="cogs-day-stat"><span style="color:${d.pct<25?'var(--green-ok)':d.pct<32?'var(--amber-alert)':'var(--red-alert)'}">${d.pct.toFixed(1)}%</span>COGS</div>
+      <div class="cogs-day-stat"><span style="color:var(--red-alert)">$${d.cost.toFixed(0)}</span>Purchases</div>
+      <div class="cogs-day-stat"><span style="color:${d.pct<25?'var(--green-ok)':d.pct<32?'var(--amber-alert)':'var(--red-alert)'}">${d.pct > 0 ? d.pct.toFixed(1)+'%' : '—'}</span>COGS</div>
     </div>`).join('');
 }
 
