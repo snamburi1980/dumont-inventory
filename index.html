@@ -3517,9 +3517,12 @@ function renderAdminStoreList() {
   const rows = Object.keys(allStores).map(sid => {
     const managers = Object.entries(USERS).filter(([email, cfg]) => cfg.store === sid && cfg.role === 'manager');
     const managerText = managers.length ? managers.map(([email]) => email).join(', ') : '<span style="color:#aaa">No manager assigned</span>';
-    return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
-      <div style="font-weight:600;font-size:14px">${allStores[sid].name} <span style="font-size:11px;color:#8B7355;font-weight:400">${allStores[sid].city||''}</span></div>
-      <div style="font-size:12px;color:#8B7355;margin-top:3px">Manager: ${managerText}</div>
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div>
+        <div style="font-weight:600;font-size:14px">${allStores[sid].name} <span style="font-size:11px;color:#8B7355;font-weight:400">${allStores[sid].city||''}</span></div>
+        <div style="font-size:12px;color:#8B7355;margin-top:3px">Manager: ${managerText}</div>
+      </div>
+      ${sid !== 'coppell' ? `<button onclick="deleteStore('${sid}')" style="background:none;border:1px solid #C0392B;color:#C0392B;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer">🗑 Delete</button>` : '<span style="font-size:11px;color:var(--green-ok);font-weight:600">✓ Primary</span>'}
     </div>`;
   }).join('');
   el.innerHTML = rows || '<div style="color:#8B7355;font-size:13px;">No stores configured.</div>';
@@ -3556,6 +3559,30 @@ window.adminAddStore = async function() {
   showToast(`✅ Store "${name}" added!`);
 };
 
+
+window.deleteStore = async function(sid) {
+  const storeName = allStores[sid]?.name || sid;
+  if (!confirm(`Delete store "${storeName}"? This removes it from the app but does NOT delete its Firestore data.`)) return;
+  try {
+    // Remove from config
+    const snap = await getDoc(doc(db, 'config', 'stores'));
+    if (snap.exists()) {
+      const data = snap.data();
+      delete data[sid];
+      await setDoc(doc(db, 'config', 'stores'), data);
+    }
+    // Remove from local
+    delete allStores[sid];
+    delete STORES[sid];
+    // Remove from store switcher
+    populateStoreSwitcher(currentUserConfig);
+    renderAdminStoreList();
+    showToast(`🗑 Store "${storeName}" removed`);
+    logAudit('store_deleted', { storeId: sid, storeName });
+  } catch(e) {
+    showToast('⚠️ Delete failed: ' + e.message);
+  }
+};
 window.adminAddUser = async function() {
   const email = document.getElementById('newUserEmail').value.trim();
   const password = document.getElementById('newUserPassword').value;
