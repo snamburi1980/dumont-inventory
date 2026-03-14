@@ -1863,7 +1863,7 @@ window.exportScheduleImage = async function() {
   await new Promise(r => setTimeout(r, 300));
 
   // Build a clean standalone schedule table for export
-  const { weekDates, weekLabels } = getWeekDates();
+  const { weekDates, weekLabels } = getExportWeekDates();
   const storeName = STORES[viewingStore]?.name || viewingStore;
 
   // Create export container
@@ -1979,7 +1979,7 @@ window.exportScheduleImage = async function() {
   }
 };
 
-function getWeekDates() {
+function getExportWeekDates() {
   const now  = new Date();
   const day  = now.getDay();
   const weekDates = [];
@@ -2015,7 +2015,7 @@ async function takeStockSnapshot(type) {
     date: new Date().toLocaleDateString(),
     dateTs: Date.now(),
     itemCount: inventory.length,
-    weekStart: getWeekStart()
+    weekStart: getSnapshotWeekKey()
   };
 
   try {
@@ -2028,7 +2028,7 @@ async function takeStockSnapshot(type) {
   }
 }
 
-function getWeekStart() {
+function getSnapshotWeekKey() {
   const now = new Date();
   const day = now.getDay();
   const diff = now.getDate() - day;
@@ -2114,7 +2114,7 @@ function renderCogsReport() {
     .reduce((sum, s) => sum + (s.revenue || 0), 0);
 
   // ── METHOD 2: Opening Stock + Purchases - Closing Stock = COGS ──
-  const weekKey = getWeekStart();
+  const weekKey = getSnapshotWeekKey();
   const openSnap  = stockSnapshots.find(s => s.type === 'open'  && s.weekStart === weekKey);
   const closeSnap = stockSnapshots.find(s => s.type === 'close' && s.weekStart === weekKey);
   const purchases = costLedger
