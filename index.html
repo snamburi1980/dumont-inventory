@@ -1,7 +1,7 @@
 <!--
   ╔══════════════════════════════════════════════════════════╗
   ║  DUMONT CREAMERY & CAFÉ — INVENTORY APP                  ║
-  ║  Version: v11                                            ║
+  ║  Version: v12                                            ║
   ║  Last Updated: March 14, 2026                            ║
   ║                                                          ║
   ║  VERIFY DEPLOYMENT: Login screen should say "v11"        ║
@@ -27,7 +27,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dumont">
-<title>Dumont — Inventory v11</title>
+<title>Dumont — Inventory v12</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -326,14 +326,84 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
-  <div class="login-box">
+
+  <!-- ── SIGN IN PANEL ── -->
+  <div class="login-box" id="loginPanel">
     <div class="login-logo">Dumont</div>
-    <div class="login-sub">Creamery &amp; Café — Inventory v11</div>
+    <div class="login-sub">Creamery &amp; Café — Inventory v12</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
     <button class="btn-login" id="loginBtn">Sign In</button>
     <div class="login-error" id="loginError"></div>
+    <div style="text-align:center;margin-top:16px">
+      <span style="color:rgba(253,246,236,0.4);font-size:13px">New store? </span>
+      <span style="color:#D4A843;font-size:13px;cursor:pointer;text-decoration:underline" onclick="showSignup()">Create Account</span>
+    </div>
   </div>
+
+  <!-- ── SIGN UP PANEL ── -->
+  <div class="login-box" id="signupPanel" style="display:none">
+    <div class="login-logo" style="font-size:28px">Create Account</div>
+    <div class="login-sub">Set up your store</div>
+
+    <input type="text" id="signupName" placeholder="Your Name" autocomplete="name"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+    <input type="email" id="signupEmail" placeholder="Email Address" autocomplete="email"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+    <input type="password" id="signupPassword" placeholder="Password (min 8 characters)"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+    <input type="text" id="signupStoreName" placeholder="Store Name (e.g. My Boba Shop)"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+    <select id="signupStoreType"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(61,43,31,0.9);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+      <option value="">— Store Type —</option>
+      <option value="boba">Boba / Bubble Tea</option>
+      <option value="icecream">Ice Cream</option>
+      <option value="cafe">Café / Coffee</option>
+      <option value="combined">Combined (Boba + Ice Cream + Coffee)</option>
+      <option value="other">Other F&B</option>
+    </select>
+    <input type="text" id="signupCity" placeholder="City, State"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+
+    <select id="signupRole"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(61,43,31,0.9);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px"
+      onchange="toggleSignupRoleFields()">
+      <option value="">— I am a... —</option>
+      <option value="store_owner">Store Owner (I own one store)</option>
+      <option value="regional_owner">Regional Owner / Area Rep (I manage multiple stores)</option>
+    </select>
+
+    <select id="signupOrg"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(61,43,31,0.9);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px;display:none">
+      <option value="">— Select Brand / Org —</option>
+      <option value="dumont">Dumont Creamery & Café</option>
+      <option value="other">Other / New Brand</option>
+    </select>
+
+    <input type="text" id="signupRegionName" placeholder="Region Name (e.g. Texas, Chicago)"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:16px;display:none">
+
+    <button class="btn-login" id="signupBtn" onclick="doSignup()">Request Access</button>
+    <div class="login-error" id="signupError"></div>
+    <div style="text-align:center;margin-top:16px">
+      <span style="color:#D4A843;font-size:13px;cursor:pointer;text-decoration:underline" onclick="showLogin()">← Back to Sign In</span>
+    </div>
+  </div>
+
+  <!-- ── PENDING APPROVAL PANEL ── -->
+  <div class="login-box" id="pendingPanel" style="display:none">
+    <div style="font-size:48px;text-align:center;margin-bottom:16px">⏳</div>
+    <div class="login-logo" style="font-size:22px;text-align:center">Awaiting Approval</div>
+    <div style="color:rgba(253,246,236,0.6);font-size:13px;text-align:center;margin:12px 0 20px">
+      Your account request has been submitted.<br>
+      The owner will review and approve your access.<br>
+      You will be notified by email once approved.
+    </div>
+    <div id="pendingStoreName" style="background:rgba(200,132,58,0.15);border:1px solid rgba(200,132,58,0.3);border-radius:10px;padding:12px;text-align:center;color:#D4A843;font-size:14px;font-weight:600;margin-bottom:20px"></div>
+    <button class="btn-login" style="background:#555" onclick="doLogout()">Sign Out</button>
+  </div>
+
 </div>
 
 <!-- MAIN APP -->
@@ -363,6 +433,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
     <button class="tab-btn" onclick="showTab('delivery')">🚚 Delivery</button>
     <button class="tab-btn" onclick="showTab('cogs')">💰 COGS</button>
     <button class="tab-btn" id="schedTabBtn" onclick="showTab('schedule')">📅 Schedule</button>
+    <button class="tab-btn" id="regionalTabBtn" style="display:none" onclick="showTab('regional')">🌎 Regional</button>
     <button class="tab-btn" id="adminTabBtn" style="display:none" onclick="showTab('admin')">⚙️ Admin</button>
   </div>
 
@@ -553,6 +624,47 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
       </div>
 
+
+      <!-- REGIONAL DASHBOARD -->
+      <div id="tab-regional" style="display:none">
+
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--dark)" id="regionalTitle">Texas Region</div>
+            <div style="font-size:12px;color:#8B7355" id="regionalSubtitle">Dumont Creamery & Café</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="cat-btn active" id="regPeriodWeek" onclick="setRegPeriod('week')">This Week</button>
+            <button class="cat-btn" id="regPeriodMonth" onclick="setRegPeriod('month')">This Month</button>
+          </div>
+        </div>
+
+        <!-- Regional KPI cards -->
+        <div class="stat-grid" style="margin-bottom:16px">
+          <div class="stat-card">
+            <div class="stat-num" id="regRevenue" style="color:var(--green-ok);font-size:20px">$0</div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="regCOGS" style="color:var(--caramel);font-size:20px">—</div>
+            <div class="stat-label">Blended COGS %</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="regStores" style="color:var(--dark);font-size:20px">0</div>
+            <div class="stat-label">Active Stores</div>
+          </div>
+        </div>
+
+        <!-- Alerts banner -->
+        <div id="regAlerts" style="margin-bottom:16px"></div>
+
+        <!-- Per store breakdown -->
+        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">Store Performance</div>
+        <div id="regStoreList"></div>
+
+      </div>
+
       <!-- SCHEDULE TAB -->
       <div id="tab-schedule" style="display:none">
 
@@ -599,6 +711,98 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
       </div>
 
+
+      <!-- SETUP WIZARD (shown after first approval) -->
+      <div id="setupWizard" style="display:none;position:fixed;inset:0;background:var(--cream);z-index:300;overflow-y:auto;padding:24px">
+        <div style="max-width:600px;margin:0 auto">
+
+          <!-- Progress bar -->
+          <div style="margin-bottom:24px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--dark)">Store Setup</div>
+              <div style="font-size:13px;color:#8B7355" id="wizardStepLabel">Step 1 of 4</div>
+            </div>
+            <div style="background:#E8D5B0;border-radius:4px;height:6px">
+              <div id="wizardProgress" style="background:var(--caramel);height:6px;border-radius:4px;transition:width 0.3s;width:25%"></div>
+            </div>
+          </div>
+
+          <!-- Step 1: Store Info -->
+          <div id="wizStep1">
+            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👋 Welcome! Let's set up your store</div>
+            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Confirm your store details and customize your inventory categories.</div>
+
+            <div class="modal-label">Store Name</div>
+            <input class="modal-input" id="wiz1StoreName" placeholder="e.g. My Boba Shop">
+
+            <div class="modal-label">Store Location</div>
+            <input class="modal-input" id="wiz1City" placeholder="City, State">
+
+            <div class="modal-label">Select your inventory categories</div>
+            <div id="wiz1Categories" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+              ${['Boba','Coffee','Ice Cream','Dry Stock','Condiments','Bakery','Falooda','Seasonal'].map(cat =>
+                `<label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px">
+                  <input type="checkbox" value="${cat}" ${['Boba','Coffee','Ice Cream','Dry Stock','Condiments'].includes(cat)?'checked':''} style="accent-color:var(--caramel)"> ${cat}
+                </label>`
+              ).join('')}
+            </div>
+
+            <button class="btn-log" onclick="wizNext(2)">Continue →</button>
+          </div>
+
+          <!-- Step 2: Add Staff -->
+          <div id="wizStep2" style="display:none">
+            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👥 Add Your Team</div>
+            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Add staff members who will use the app. You can always add more later.</div>
+
+            <div id="wiz2StaffList" style="margin-bottom:16px"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <input class="modal-input" id="wiz2Name" placeholder="Staff name" style="margin-bottom:0">
+              <input class="modal-input" id="wiz2Role" placeholder="Role (e.g. Barista)" style="margin-bottom:0">
+            </div>
+            <button class="btn-log" style="background:#555;margin-bottom:20px" onclick="wiz2AddStaff()">+ Add Staff Member</button>
+
+            <div style="display:flex;gap:8px">
+              <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(1)">← Back</button>
+              <button class="btn-log" style="flex:2" onclick="wizNext(3)">Continue →</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Menu Prices -->
+          <div id="wizStep3" style="display:none">
+            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">💰 Set Your Menu Prices</div>
+            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Enter your selling prices to calculate COGS and margins. Skip any that don't apply.</div>
+
+            <div id="wiz3MenuItems" style="max-height:350px;overflow-y:auto;margin-bottom:16px"></div>
+
+            <div style="display:flex;gap:8px">
+              <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(2)">← Back</button>
+              <button class="btn-log" style="flex:2" onclick="wizNext(4)">Continue →</button>
+            </div>
+          </div>
+
+          <!-- Step 4: Done -->
+          <div id="wizStep4" style="display:none;text-align:center;padding:40px 0">
+            <div style="font-size:64px;margin-bottom:16px">🎉</div>
+            <div style="font-size:24px;font-weight:700;color:var(--dark);margin-bottom:8px;font-family:'Playfair Display',serif">You're all set!</div>
+            <div style="font-size:14px;color:#8B7355;margin-bottom:32px">Your store is ready. Start by entering your current stock counts in the Inventory tab.</div>
+
+            <div style="background:var(--card-bg);border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:24px;text-align:left">
+              <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px">📋 Your daily routine:</div>
+              <div style="font-size:12px;color:#8B7355;line-height:2">
+                🌅 Morning — Check Dashboard for low stock<br>
+                📦 On delivery — Upload invoice in Delivery tab<br>
+                🌙 Evening — Upload Clover sales in Sales tab<br>
+                📅 Weekly — Record closing stock in COGS tab
+              </div>
+            </div>
+
+            <button class="btn-log" style="font-size:16px;padding:16px" onclick="completeWizard()">Go to My Store →</button>
+          </div>
+
+        </div>
+      </div>
       <!-- MODALS -->
       <div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px">
         <div id="modalBox" style="background:var(--card-bg);border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto"></div>
@@ -606,6 +810,46 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
       <!-- ADMIN PANEL (owner only) -->
       <div id="tab-admin" style="display:none">
+
+        <!-- Pending Signups -->
+        <div class="delivery-form" style="margin-bottom:20px;border:2px solid var(--caramel)">
+          <h3 style="margin-bottom:4px">🔔 Pending Signups</h3>
+          <p style="font-size:12px;color:#8B7355;margin-bottom:14px">New store owners waiting for approval.</p>
+          <div id="pendingSignupsList"><div style="font-size:12px;color:#8B7355">Loading...</div></div>
+        </div>
+
+        <!-- Org Tree -->
+        <div class="delivery-form" style="margin-bottom:20px">
+          <h3 style="margin-bottom:12px">🏢 Organisation Structure</h3>
+          <div id="orgTree"></div>
+        </div>
+
+        <!-- Add Region -->
+        <div class="delivery-form" style="margin-bottom:20px">
+          <h3 style="margin-bottom:4px">🌎 Add New Region</h3>
+          <p style="font-size:12px;color:#8B7355;margin-bottom:14px">Add a new region under an org (e.g. Chicago under Dumont).</p>
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <input class="modal-input" id="newRegionName" placeholder="Region Name (e.g. Chicago)" style="margin-bottom:0">
+            <select class="modal-input" id="newRegionOrg" style="margin-bottom:0">
+              <option value="dumont">Dumont Creamery & Café</option>
+            </select>
+          </div>
+          <input class="modal-input" id="newRegionOwnerEmail" placeholder="Regional Owner Email (optional)">
+          <button class="btn-log" onclick="addRegion()">+ Add Region</button>
+        </div>
+
+        <!-- Assign Regional Owner -->
+        <div class="delivery-form" style="margin-bottom:20px">
+          <h3 style="margin-bottom:4px">👤 Assign Regional Owner</h3>
+          <p style="font-size:12px;color:#8B7355;margin-bottom:14px">Promote an existing user to Regional Owner for a specific region.</p>
+          <input class="modal-input" id="assignEmail" placeholder="User Email">
+          <select class="modal-input" id="assignRegion">
+            <option value="texas">Texas</option>
+            <option value="chicago">Chicago</option>
+          </select>
+          <button class="btn-log" onclick="assignRegionalOwner()">Assign Regional Owner</button>
+        </div>
+
         <div class="delivery-form" style="margin-bottom:20px">
           <h3 style="margin-bottom:4px">➕ Add New Store</h3>
           <p style="font-size:12px;color:#8B7355;margin-bottom:14px">Creates the store in the app. Then add the manager user below.</p>
@@ -673,13 +917,64 @@ const db = getFirestore(fbApp);
 // ── USER CONFIG ──
 // Map email → { store, role }
 // Add more users here as you create them in Firebase Auth console
-const USERS = {
-  "dumonttexas@gmail.com":        { store: "coppell", role: "owner", name: "Sasikanth" },
-  "txccpointwest@gmail.com":     { store: "coppell", role: "manager", name: "Coppell Manager" },
-  "frisco@dumont.com":           { store: "frisco",  role: "manager", name: "Frisco Manager" },
-  "cedarpark@dumont.com":        { store: "cedar-park", role: "manager", name: "Cedar Park Manager" },
-  "sanjose@dumont.com":          { store: "san-jose", role: "manager", name: "San Jose Manager" },
+// ── Role hierarchy ──
+// super_owner  → all orgs, all regions, all stores
+// regional_owner → one org, one region, all stores in region
+// store_owner  → one org, one region, one store (full ops)
+// manager      → one store (daily ops only)
+
+const ROLES = {
+  SUPER_OWNER:    'super_owner',
+  REGIONAL_OWNER: 'regional_owner',
+  STORE_OWNER:    'store_owner',
+  MANAGER:        'manager',
 };
+
+// ── Org / Region definitions ──
+const ORGS = {
+  'dumont': { name: 'Dumont Creamery & Café', id: 'dumont' },
+};
+
+const REGIONS = {
+  'texas':   { name: 'Texas',   orgId: 'dumont', id: 'texas' },
+  'chicago': { name: 'Chicago', orgId: 'dumont', id: 'chicago' },
+};
+
+const USERS = {
+  "dumonttexas@gmail.com": {
+    store: "coppell", role: ROLES.SUPER_OWNER,
+    orgId: "dumont",  regionId: "texas",
+    name: "Sasikanth"
+  },
+  "txccpointwest@gmail.com": {
+    store: "coppell", role: ROLES.STORE_OWNER,
+    orgId: "dumont",  regionId: "texas",
+    name: "Coppell Owner"
+  },
+  "frisco@dumont.com": {
+    store: "frisco", role: ROLES.STORE_OWNER,
+    orgId: "dumont", regionId: "texas",
+    name: "Frisco Owner"
+  },
+  "cedarpark@dumont.com": {
+    store: "cedar-park", role: ROLES.STORE_OWNER,
+    orgId: "dumont",     regionId: "texas",
+    name: "Cedar Park Owner"
+  },
+  "sanjose@dumont.com": {
+    store: "san-jose", role: ROLES.STORE_OWNER,
+    orgId: "dumont",   regionId: "texas",
+    name: "San Jose Owner"
+  },
+};
+
+// ── Role helper functions ──
+function isSuperOwner(cfg)    { return cfg?.role === ROLES.SUPER_OWNER; }
+function isRegionalOwner(cfg) { return cfg?.role === ROLES.REGIONAL_OWNER || isSuperOwner(cfg); }
+function isStoreOwner(cfg)    { return cfg?.role === ROLES.STORE_OWNER || isRegionalOwner(cfg); }
+function isManager(cfg)       { return cfg?.role === ROLES.MANAGER || isStoreOwner(cfg); }
+function canSeeAllStores(cfg) { return isSuperOwner(cfg) || isRegionalOwner(cfg); }
+
 
 const STORES = {
   "coppell":    { name: "Coppell", city: "Coppell, TX" },
@@ -919,6 +1214,10 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
 
+    // ── Check if user is pending approval ──
+    const isPending = await checkPendingStatus(user);
+    if (isPending) return;
+
     // ── Load user profile from Firestore first, fallback to USERS map ──
     let cfg = USERS[user.email] || { store: 'coppell', role: 'manager', name: user.email };
     try {
@@ -945,15 +1244,29 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
 
-    if (cfg.role === 'owner') {
-      document.getElementById('storeBadge').textContent = '👑 Owner';
+    // ── Set UI based on role ──
+    if (isSuperOwner(cfg)) {
+      document.getElementById('storeBadge').textContent = '👑 Super Owner';
       document.getElementById('ownerBar').style.display = 'flex';
       document.getElementById('adminTabBtn').style.display = 'block';
+      document.getElementById('regionalTabBtn').style.display = 'block';
+    } else if (isRegionalOwner(cfg)) {
+      document.getElementById('storeBadge').textContent = `🌎 ${REGIONS[cfg.regionId]?.name || cfg.regionId} Region`;
+      document.getElementById('ownerBar').style.display = 'flex';
+      document.getElementById('adminTabBtn').style.display = 'block';
+      document.getElementById('regionalTabBtn').style.display = 'block';
+    } else if (isStoreOwner(cfg)) {
+      document.getElementById('storeBadge').textContent = `🏪 ${STORES[cfg.store]?.name || cfg.store}`;
+      document.getElementById('ownerBar').style.display = 'none';
+      document.getElementById('adminTabBtn').style.display = 'none';
     } else {
       document.getElementById('storeBadge').textContent = STORES[cfg.store]?.name || cfg.store;
       document.getElementById('ownerBar').style.display = 'none';
       document.getElementById('adminTabBtn').style.display = 'none';
     }
+
+    // ── Populate store switcher based on role ──
+    populateStoreSwitcher(cfg);
 
     await initStore(cfg.store);
     await loadCustomItems();
@@ -961,6 +1274,7 @@ onAuthStateChanged(auth, async (user) => {
     renderInventory();
     renderOrders();
     renderDelivery();
+    await checkNeedsSetup();
   } else {
     currentUser = null;
     document.getElementById('loginScreen').style.display = 'flex';
@@ -1128,6 +1442,8 @@ window.showTab = function(tab) {
   if (tab==='delivery') renderDelivery();
   if (tab==='admin') loadAdminStores();
   if (tab==='schedule') { schedLoaded=false; loadScheduleData(); }
+  if (tab==='admin') { loadPendingSignups(); loadOrgStructure(); }
+  if (tab==='regional') { loadRegionalData(); }
   if (tab==='cogs') { cogsLoaded=false; loadCogsData(); loadCogsLedgers(); }
 };
 
@@ -1702,6 +2018,742 @@ window.logDelivery = async function() {
 
 
 
+
+
+
+// ── Load Pending Signups (owner only) ──
+async function loadPendingSignups() {
+  const el = document.getElementById('pendingSignupsList');
+  if (!el) return;
+  try {
+    const snap = await getDocs(collection(db, 'signupRequests'));
+    const pending = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                             .filter(s => s.status === 'pending');
+    if (!pending.length) {
+      el.innerHTML = '<div style="font-size:12px;color:#8B7355">No pending signups.</div>';
+      return;
+    }
+    el.innerHTML = pending.map(s => {
+      const roleLabel = s.role === 'regional_owner' ? '🌎 Regional Owner' : '🏪 Store Owner';
+      const roleBadge = `<span style="background:${s.role==='regional_owner'?'rgba(200,132,58,0.15)':'rgba(91,141,217,0.15)'};color:${s.role==='regional_owner'?'var(--caramel)':'#5B8DD9'};border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600">${roleLabel}</span>`;
+      return `
+      <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span style="font-size:13px;font-weight:700;color:var(--dark)">${s.name}</span>
+              ${roleBadge}
+            </div>
+            <div style="font-size:12px;color:#8B7355">${s.email}</div>
+            <div style="font-size:12px;color:#8B7355;margin-top:2px">
+              ${s.role==='regional_owner' ? `🌎 ${s.regionName || s.regionId || ''} Region · ${s.orgId||''}` : `🏪 ${s.storeName} · ${s.storeType}`} · ${s.city || ''}
+            </div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px">${new Date(s.createdAt).toLocaleDateString()}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn-log" style="width:auto;padding:6px 14px;font-size:12px;background:var(--green-ok)"
+              onclick="approveSignup('${s.id}','${s.storeId||''}','${s.storeName}','${s.email}','${s.role||'store_owner'}','${s.orgId||'dumont'}','${s.regionId||'texas'}')">✅ Approve</button>
+            <button class="btn-log" style="width:auto;padding:6px 14px;font-size:12px;background:#C0392B"
+              onclick="rejectSignup('${s.id}','${s.email}')">✕ Reject</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="font-size:12px;color:#8B7355">Could not load signups.</div>';
+  }
+}
+
+window.approveSignup = async function(reqId, storeId, storeName, email) {
+  try {
+    const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_');
+
+    // Update signup request status
+    await setDoc(doc(db, 'signupRequests', reqId), { status: 'approved' }, { merge: true });
+
+    // Update user profile to approved
+    await setDoc(doc(db, 'users', emailKey), {
+      status: 'approved',
+      role: 'manager',
+      store: storeId,
+      approvedAt: Date.now(),
+      approvedBy: currentUser.email
+    }, { merge: true });
+
+    // Create store in config
+    const configSnap = await getDoc(doc(db, 'config', 'stores'));
+    const existing = configSnap.exists() ? configSnap.data() : {};
+    existing[storeId] = { name: storeName, id: storeId, createdAt: Date.now() };
+    await setDoc(doc(db, 'config', 'stores'), existing);
+
+    showToast(`✅ ${storeName} approved!`);
+    logAudit('signup_approved', { email, storeId, storeName });
+    loadPendingSignups();
+  } catch(e) {
+    showToast('⚠️ Approval failed: ' + e.message);
+  }
+};
+
+window.rejectSignup = async function(reqId, email) {
+  if (!confirm(`Reject signup from ${email}?`)) return;
+  try {
+    await setDoc(doc(db, 'signupRequests', reqId), { status: 'rejected' }, { merge: true });
+    const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_');
+    await setDoc(doc(db, 'users', emailKey), { status: 'rejected' }, { merge: true });
+    showToast('Signup rejected');
+    loadPendingSignups();
+  } catch(e) {}
+};
+
+// ══════════════════════════════════════════
+// ONBOARDING MODULE
+// ══════════════════════════════════════════
+
+// ── Login/Signup screen toggles ──
+window.showSignup = function() {
+  document.getElementById('loginPanel').style.display  = 'none';
+  document.getElementById('signupPanel').style.display = 'block';
+  document.getElementById('pendingPanel').style.display = 'none';
+};
+
+window.showLogin = function() {
+  document.getElementById('loginPanel').style.display  = 'block';
+  document.getElementById('signupPanel').style.display = 'none';
+  document.getElementById('pendingPanel').style.display = 'none';
+};
+
+window.showPending = function(storeName) {
+  document.getElementById('loginPanel').style.display   = 'none';
+  document.getElementById('signupPanel').style.display  = 'none';
+  document.getElementById('pendingPanel').style.display = 'block';
+  document.getElementById('pendingStoreName').textContent = '🏪 ' + storeName;
+};
+
+// ── Sign Up ──
+// Toggle role-specific fields in signup form
+window.toggleSignupRoleFields = function() {
+  const role = document.getElementById('signupRole').value;
+  const orgEl    = document.getElementById('signupOrg');
+  const regionEl = document.getElementById('signupRegionName');
+  const storeEl  = document.getElementById('signupStoreName');
+
+  if (role === 'regional_owner') {
+    orgEl.style.display    = 'block';
+    regionEl.style.display = 'block';
+    storeEl.placeholder    = 'Your Company / Brand Name';
+  } else {
+    orgEl.style.display    = 'none';
+    regionEl.style.display = 'none';
+    storeEl.placeholder    = 'Store Name (e.g. My Boba Shop)';
+  }
+};
+
+window.doSignup = async function() {
+  const name       = document.getElementById('signupName').value.trim();
+  const email      = document.getElementById('signupEmail').value.trim().toLowerCase();
+  const password   = document.getElementById('signupPassword').value;
+  const storeName  = document.getElementById('signupStoreName').value.trim();
+  const storeType  = document.getElementById('signupStoreType').value;
+  const city       = document.getElementById('signupCity').value.trim();
+  const role       = document.getElementById('signupRole').value;
+  const orgId      = document.getElementById('signupOrg').value || 'independent';
+  const regionName = document.getElementById('signupRegionName').value.trim();
+  const errEl      = document.getElementById('signupError');
+  const btn        = document.getElementById('signupBtn');
+
+  errEl.textContent = '';
+
+  if (!name || !email || !password || !storeName || !storeType || !role) {
+    errEl.textContent = 'Please fill in all required fields'; return;
+  }
+  if (password.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters'; return;
+  }
+  if (role === 'regional_owner' && !regionName) {
+    errEl.textContent = 'Please enter your region name'; return;
+  }
+
+  btn.textContent = 'Creating account...';
+  btn.disabled = true;
+
+  try {
+    const { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js');
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+    const storeId  = storeName.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,30);
+    const regionId = regionName ? regionName.toLowerCase().replace(/[^a-z0-9]/g,'-').slice(0,20) : null;
+    const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_');
+
+    // Write user profile
+    await setDoc(doc(db, 'users', emailKey), {
+      email, name, role, orgId, regionId,
+      store: role === 'store_owner' ? storeId : null,
+      status: 'pending',
+      storeName, storeType, city, regionName,
+      createdAt: Date.now()
+    });
+
+    // Write signup request
+    await setDoc(doc(db, 'signupRequests', emailKey), {
+      email, name, role, orgId, regionId,
+      storeName, storeType, city, regionName, storeId,
+      status: 'pending',
+      createdAt: Date.now()
+    });
+
+    showPending(storeName);
+    showToast('✅ Account created! Awaiting approval.');
+
+  } catch(e) {
+    btn.textContent = 'Request Access';
+    btn.disabled = false;
+    const msgs = {
+      'auth/email-already-in-use': 'This email is already registered. Try signing in.',
+      'auth/weak-password':        'Password is too weak. Use at least 8 characters.',
+      'auth/invalid-email':        'Invalid email address.',
+    };
+    errEl.textContent = msgs[e.code] || e.message;
+  }
+};
+
+// ── Check if user is pending on auth state change ──
+async function checkPendingStatus(user) {
+  const emailKey = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try {
+    const snap = await getDoc(doc(db, 'users', emailKey));
+    if (snap.exists() && snap.data().status === 'pending') {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
+      showPending(snap.data().storeName || 'Your Store');
+      return true; // is pending
+    }
+  } catch(e) {}
+  return false; // not pending
+}
+
+// ── Setup Wizard ──
+let wizStaffList = [];
+
+window.wizNext = function(step) {
+  // Save current step data before moving
+  if (step === 2) {
+    const storeName = document.getElementById('wiz1StoreName').value.trim();
+    if (!storeName) { showToast('⚠️ Please enter your store name'); return; }
+  }
+
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('wizStep' + i).style.display = i === step ? 'block' : 'none';
+  }
+  document.getElementById('wizardStepLabel').textContent = `Step ${step} of 4`;
+  document.getElementById('wizardProgress').style.width = (step * 25) + '%';
+
+  // Populate step 3 menu prices
+  if (step === 3) renderWizMenuPrices();
+};
+
+window.wiz2AddStaff = function() {
+  const name = document.getElementById('wiz2Name').value.trim();
+  const role = document.getElementById('wiz2Role').value.trim() || 'Staff';
+  if (!name) { showToast('⚠️ Enter a name'); return; }
+  const colors = ['#C8843A','#7BBFA5','#5B8DD9','#D4A843','#E8A598','#9B59B6'];
+  wizStaffList.push({ id: 'ws' + Date.now(), name, role, color: colors[wizStaffList.length % colors.length] });
+  document.getElementById('wiz2Name').value = '';
+  document.getElementById('wiz2Role').value = '';
+  renderWiz2Staff();
+};
+
+function renderWiz2Staff() {
+  document.getElementById('wiz2StaffList').innerHTML = wizStaffList.length === 0
+    ? '<div style="font-size:12px;color:#8B7355;margin-bottom:8px">No staff added yet — add at least one</div>'
+    : wizStaffList.map((s,i) => `<div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--card-bg);border-radius:8px;margin-bottom:6px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${s.color}"></div>
+        <span style="flex:1;font-size:13px">${s.name} <span style="color:#8B7355">${s.role}</span></span>
+        <span onclick="wizStaffList.splice(${i},1);renderWiz2Staff()" style="cursor:pointer;color:#C0392B">×</span>
+      </div>`).join('');
+}
+
+function renderWizMenuPrices() {
+  const cats = ['Milk Tea', 'Coffee', 'Ice Cream', 'Milkshakes'];
+  const items = Object.keys(RECIPES).slice(0, 20); // first 20 items
+  document.getElementById('wiz3MenuItems').innerHTML = items.map(name => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px;color:var(--dark)">${name}</span>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:12px;color:#8B7355">$</span>
+        <input type="number" step="0.25" min="0" placeholder="0.00"
+          value="${menuPrices[name] || ''}"
+          onchange="menuPrices['${name.replace(/'/g,"\\'")}'] = parseFloat(this.value)||0"
+          style="width:70px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);font-family:inherit;font-size:13px;text-align:right">
+      </div>
+    </div>`).join('');
+}
+
+window.completeWizard = async function() {
+  // Save wizard data
+  const storeName = document.getElementById('wiz1StoreName').value.trim();
+  const city = document.getElementById('wiz1City').value.trim();
+
+  // Get selected categories
+  const cats = [...document.querySelectorAll('#wiz1Categories input:checked')].map(c => c.value);
+
+  // Save staff to schedule
+  if (wizStaffList.length > 0) {
+    schedStaff = wizStaffList;
+    await saveScheduleData();
+  }
+
+  // Save menu prices
+  await saveMenuPrice('_wizard_complete_', 1);
+
+  // Mark setup as complete in Firestore
+  const emailKey = currentUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try {
+    await setDoc(doc(db, 'users', emailKey), {
+      setupComplete: true,
+      storeName, city,
+      customCategories: cats.filter(c => !['Boba','Coffee','Ice Cream','Dry Stock','Condiments'].includes(c))
+    }, { merge: true });
+  } catch(e) {}
+
+  // Hide wizard and show app
+  document.getElementById('setupWizard').style.display = 'none';
+  showToast('🎉 Setup complete! Welcome to your store.');
+  logAudit('setup_complete', { storeName, staffCount: wizStaffList.length });
+};
+
+// ── Show wizard for new users ──
+async function checkNeedsSetup() {
+  if (!currentUser) return;
+  const emailKey = currentUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try {
+    const snap = await getDoc(doc(db, 'users', emailKey));
+    if (snap.exists() && !snap.data().setupComplete && snap.data().status === 'approved') {
+      // Pre-fill wizard with signup data
+      const d = snap.data();
+      document.getElementById('wiz1StoreName').value = d.storeName || '';
+      document.getElementById('wiz1City').value = d.city || '';
+      document.getElementById('setupWizard').style.display = 'block';
+    }
+  } catch(e) {}
+}
+
+
+
+
+// ══════════════════════════════════════════
+// ORG / REGION MANAGEMENT MODULE
+// ══════════════════════════════════════════
+
+// Live regions loaded from Firestore (merges with hardcoded REGIONS)
+let liveRegions = {};
+let liveOrgs    = {};
+
+async function loadOrgStructure() {
+  try {
+    // Load orgs
+    const orgSnap = await getDocs(collection(db, 'orgs'));
+    orgSnap.docs.forEach(d => { liveOrgs[d.id] = d.data(); });
+
+    // Merge with hardcoded
+    Object.assign(liveOrgs, ORGS);
+
+    // Load regions
+    const regSnap = await getDocs(collection(db, 'regions'));
+    regSnap.docs.forEach(d => { liveRegions[d.id] = d.data(); });
+
+    // Merge with hardcoded
+    Object.assign(liveRegions, REGIONS);
+
+  } catch(e) {}
+  renderOrgTree();
+  updateAssignDropdown();
+}
+
+function renderOrgTree() {
+  const el = document.getElementById('orgTree');
+  if (!el) return;
+
+  // Group stores by region
+  const regionStores = {};
+  Object.entries(STORE_REGIONS).forEach(([storeId, regionId]) => {
+    if (!regionStores[regionId]) regionStores[regionId] = [];
+    regionStores[regionId].push(storeId);
+  });
+
+  // Group regions by org
+  const allRegions = { ...REGIONS, ...liveRegions };
+  const orgRegions = {};
+  Object.entries(allRegions).forEach(([regId, reg]) => {
+    const orgId = reg.orgId || 'dumont';
+    if (!orgRegions[orgId]) orgRegions[orgId] = [];
+    if (!orgRegions[orgId].find(r => r.id === regId)) {
+      orgRegions[orgId].push({ ...reg, id: regId });
+    }
+  });
+
+  const allOrgs = { ...ORGS, ...liveOrgs };
+
+  el.innerHTML = Object.entries(allOrgs).map(([orgId, org]) => {
+    const regions = orgRegions[orgId] || [];
+    return `
+      <div style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--dark);border-radius:10px;color:#D4A843;font-weight:700;font-size:13px">
+          🏢 ${org.name}
+          <span style="margin-left:auto;font-size:11px;font-weight:400;color:#8B7355">${regions.length} region${regions.length!==1?'s':''}</span>
+        </div>
+        ${regions.map(reg => {
+          const stores = regionStores[reg.id] || [];
+          return `
+            <div style="margin-left:16px;margin-top:6px">
+              <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(200,132,58,0.1);border-left:3px solid var(--caramel);border-radius:0 8px 8px 0;font-size:12px;font-weight:600;color:var(--caramel)">
+                🌎 ${reg.name} Region
+                <span style="margin-left:auto;font-size:11px;font-weight:400;color:#8B7355">${stores.length} store${stores.length!==1?'s':''}</span>
+              </div>
+              ${stores.map(storeId => `
+                <div style="margin-left:16px;margin-top:4px;display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--dark)">
+                  🏪 ${STORES[storeId]?.name || storeId}
+                  <span style="margin-left:auto">
+                    <button onclick="switchViewStore('${storeId}');showTab('dashboard')" style="font-size:10px;padding:3px 8px;background:var(--caramel);color:#fff;border:none;border-radius:6px;cursor:pointer">View</button>
+                  </span>
+                </div>`).join('')}
+            </div>`;
+        }).join('')}
+      </div>`;
+  }).join('');
+}
+
+function updateAssignDropdown() {
+  const sel = document.getElementById('assignRegion');
+  if (!sel) return;
+  const allRegions = { ...REGIONS, ...liveRegions };
+  sel.innerHTML = Object.entries(allRegions).map(([id, r]) =>
+    `<option value="${id}">${r.name}</option>`
+  ).join('');
+
+  // Also update new region org dropdown
+  const orgSel = document.getElementById('newRegionOrg');
+  if (orgSel) {
+    const allOrgs = { ...ORGS, ...liveOrgs };
+    orgSel.innerHTML = Object.entries(allOrgs).map(([id, o]) =>
+      `<option value="${id}">${o.name}</option>`
+    ).join('');
+  }
+}
+
+window.addRegion = async function() {
+  const name     = document.getElementById('newRegionName').value.trim();
+  const orgId    = document.getElementById('newRegionOrg').value;
+  const ownerEmail = document.getElementById('newRegionOwnerEmail').value.trim().toLowerCase();
+
+  if (!name || !orgId) { showToast('⚠️ Enter region name and org'); return; }
+
+  const regionId = name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,20);
+
+  try {
+    // Save region to Firestore
+    await setDoc(doc(db, 'regions', regionId), {
+      id: regionId, name, orgId,
+      createdAt: Date.now(),
+      createdBy: currentUser.email
+    });
+
+    // Update local REGIONS
+    REGIONS[regionId] = { id: regionId, name, orgId };
+    liveRegions[regionId] = { id: regionId, name, orgId };
+
+    // If owner email provided, assign them
+    if (ownerEmail) {
+      const emailKey = ownerEmail.replace(/\./g,'_').replace(/@/g,'_at_');
+      await setDoc(doc(db, 'users', emailKey), {
+        role: ROLES.REGIONAL_OWNER,
+        orgId, regionId,
+        updatedAt: Date.now()
+      }, { merge: true });
+    }
+
+    showToast(`✅ Region "${name}" created!`);
+    logAudit('region_created', { regionId, name, orgId });
+
+    // Clear form
+    document.getElementById('newRegionName').value = '';
+    document.getElementById('newRegionOwnerEmail').value = '';
+
+    renderOrgTree();
+    updateAssignDropdown();
+
+  } catch(e) {
+    showToast('⚠️ Failed: ' + e.message);
+  }
+};
+
+window.assignRegionalOwner = async function() {
+  const email    = document.getElementById('assignEmail').value.trim().toLowerCase();
+  const regionId = document.getElementById('assignRegion').value;
+
+  if (!email || !regionId) { showToast('⚠️ Enter email and select region'); return; }
+
+  const region   = { ...REGIONS, ...liveRegions }[regionId];
+  const orgId    = region?.orgId || 'dumont';
+  const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_');
+
+  try {
+    await setDoc(doc(db, 'users', emailKey), {
+      role:     ROLES.REGIONAL_OWNER,
+      orgId,
+      regionId,
+      status:   'approved',
+      updatedAt: Date.now(),
+      updatedBy: currentUser.email
+    }, { merge: true });
+
+    showToast(`✅ ${email} is now Regional Owner for ${region?.name || regionId}`);
+    logAudit('regional_owner_assigned', { email, regionId, orgId });
+
+    document.getElementById('assignEmail').value = '';
+
+  } catch(e) {
+    showToast('⚠️ Failed: ' + e.message);
+  }
+};
+
+// ── Update approveSignup to handle role correctly ──
+window.approveSignup = async function(reqId, storeId, storeName, email, role, orgId, regionId) {
+  try {
+    const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_');
+    const finalRole = role || ROLES.STORE_OWNER;
+
+    // Update signup request
+    await setDoc(doc(db, 'signupRequests', reqId), { status: 'approved' }, { merge: true });
+
+    // Update user profile
+    await setDoc(doc(db, 'users', emailKey), {
+      status: 'approved', role: finalRole,
+      orgId: orgId || 'dumont',
+      regionId: regionId || 'texas',
+      store: finalRole === ROLES.STORE_OWNER ? storeId : null,
+      approvedAt: Date.now(),
+      approvedBy: currentUser.email
+    }, { merge: true });
+
+    // Create store in config if store owner
+    if (finalRole === ROLES.STORE_OWNER) {
+      const configSnap = await getDoc(doc(db, 'config', 'stores'));
+      const existing = configSnap.exists() ? configSnap.data() : {};
+      existing[storeId] = { name: storeName, id: storeId, createdAt: Date.now() };
+      await setDoc(doc(db, 'config', 'stores'), existing);
+    }
+
+    // If regional owner, create region
+    if (finalRole === ROLES.REGIONAL_OWNER && regionId) {
+      await setDoc(doc(db, 'regions', regionId), {
+        id: regionId, name: storeName,
+        orgId: orgId || 'dumont',
+        createdAt: Date.now()
+      }, { merge: true });
+    }
+
+    showToast(`✅ ${storeName} approved as ${finalRole.replace('_',' ')}!`);
+    logAudit('signup_approved', { email, storeId, storeName, role: finalRole });
+    loadPendingSignups();
+    loadOrgStructure();
+  } catch(e) {
+    showToast('⚠️ Approval failed: ' + e.message);
+  }
+};
+
+// ══════════════════════════════════════════
+// REGIONAL DASHBOARD MODULE
+// ══════════════════════════════════════════
+
+let regPeriod = 'week';
+let regData   = {};  // storeId → { revenue, cost, stockAlerts, stockValue }
+
+window.setRegPeriod = function(p) {
+  regPeriod = p;
+  document.getElementById('regPeriodWeek').classList.toggle('active', p === 'week');
+  document.getElementById('regPeriodMonth').classList.toggle('active', p === 'month');
+  loadRegionalData();
+};
+
+async function loadRegionalData() {
+  const cfg = currentUserConfig;
+  if (!cfg) return;
+
+  // Determine which stores to show
+  let regionStoreIds = [];
+  if (isSuperOwner(cfg)) {
+    regionStoreIds = Object.keys(STORES);
+  } else if (isRegionalOwner(cfg)) {
+    regionStoreIds = Object.keys(STORE_REGIONS).filter(id => STORE_REGIONS[id] === cfg.regionId);
+  }
+
+  // Update header
+  document.getElementById('regionalTitle').textContent =
+    isSuperOwner(cfg) ? 'All Regions' : `${REGIONS[cfg.regionId]?.name || 'Region'} Region`;
+  document.getElementById('regionalSubtitle').textContent =
+    ORGS[cfg.orgId]?.name || 'Dumont Creamery & Café';
+  document.getElementById('regStores').textContent = regionStoreIds.length;
+
+  // Date range
+  const now = new Date();
+  let startTs;
+  if (regPeriod === 'week') {
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    weekStart.setHours(0,0,0,0);
+    startTs = weekStart.getTime();
+  } else {
+    startTs = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  }
+
+  // Load data for each store in parallel
+  const storeDataPromises = regionStoreIds.map(async storeId => {
+    try {
+      // Revenue
+      const salesSnap = await getDocs(collection(db, 'stores', storeId, 'salesLedger'));
+      const revenue = salesSnap.docs
+        .map(d => d.data())
+        .filter(s => s.dateTs >= startTs)
+        .reduce((sum, s) => sum + (s.revenue || 0), 0);
+
+      // Cost
+      const costSnap = await getDocs(collection(db, 'stores', storeId, 'costLedger'));
+      const cost = costSnap.docs
+        .map(d => d.data())
+        .filter(c => c.dateTs >= startTs)
+        .reduce((sum, c) => sum + (c.amount || 0), 0);
+
+      // Stock alerts
+      const stockSnap = await getDoc(doc(db, 'stores', storeId, 'inventory', 'stock'));
+      const stockMap = stockSnap.exists() ? stockSnap.data() : {};
+      const criticalCount = DEFAULT_INVENTORY.filter(item => {
+        const stock = stockMap[item.id] ?? item.stock ?? 0;
+        return stock === 0 || stock <= item.par * 0.5;
+      }).length;
+
+      // Stock value
+      const stockValue = DEFAULT_INVENTORY.reduce((sum, item) => {
+        const stock = stockMap[item.id] ?? 0;
+        return sum + (stock * (item.cost || 0));
+      }, 0);
+
+      return { storeId, revenue, cost, criticalCount, stockValue,
+               cogsPct: revenue > 0 ? (cost / revenue * 100) : 0 };
+    } catch(e) {
+      return { storeId, revenue: 0, cost: 0, criticalCount: 0, stockValue: 0, cogsPct: 0 };
+    }
+  });
+
+  const results = await Promise.all(storeDataPromises);
+  regData = {};
+  results.forEach(r => { regData[r.storeId] = r; });
+
+  renderRegionalDashboard(regionStoreIds);
+}
+
+function renderRegionalDashboard(storeIds) {
+  // Totals
+  const totalRevenue = storeIds.reduce((s, id) => s + (regData[id]?.revenue || 0), 0);
+  const totalCost    = storeIds.reduce((s, id) => s + (regData[id]?.cost    || 0), 0);
+  const blendedCOGS  = totalRevenue > 0 ? (totalCost / totalRevenue * 100) : 0;
+
+  document.getElementById('regRevenue').textContent = '$' + totalRevenue.toLocaleString('en-US', {maximumFractionDigits:0});
+  document.getElementById('regCOGS').textContent    = blendedCOGS > 0 ? blendedCOGS.toFixed(1) + '%' : '—';
+  document.getElementById('regCOGS').style.color    = blendedCOGS === 0 ? 'var(--caramel)' : blendedCOGS < 25 ? 'var(--green-ok)' : blendedCOGS < 32 ? 'var(--amber-alert)' : 'var(--red-alert)';
+
+  // Alerts
+  const critStores = storeIds.filter(id => (regData[id]?.criticalCount || 0) > 5);
+  const alertsEl = document.getElementById('regAlerts');
+  if (critStores.length) {
+    alertsEl.innerHTML = `<div style="background:#FFF0EE;border:1px solid #E8A598;border-radius:10px;padding:12px 14px;font-size:13px;color:#C0392B">
+      ⚠️ ${critStores.length} store${critStores.length>1?'s':''} with critical stock:
+      ${critStores.map(id => `<strong>${STORES[id]?.name || id}</strong>`).join(', ')}
+    </div>`;
+  } else {
+    alertsEl.innerHTML = `<div style="background:#F0FFF4;border:1px solid #A8D5B5;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--green-ok)">
+      ✅ All stores have adequate stock levels
+    </div>`;
+  }
+
+  // Per store table
+  const sorted = [...storeIds].sort((a, b) => (regData[b]?.revenue || 0) - (regData[a]?.revenue || 0));
+
+  document.getElementById('regStoreList').innerHTML = sorted.map((id, idx) => {
+    const d = regData[id] || {};
+    const store = STORES[id] || { name: id };
+    const cogsPct = d.cogsPct || 0;
+    const cogsColor = cogsPct === 0 ? '#8B7355' : cogsPct < 25 ? 'var(--green-ok)' : cogsPct < 32 ? 'var(--amber-alert)' : 'var(--red-alert)';
+    const rankEmoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx+1}.`;
+
+    return `<div class="cogs-card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px">${rankEmoji}</span>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--dark)">${store.name}</div>
+            <div style="font-size:11px;color:#8B7355">${d.criticalCount || 0} critical items · $${(d.stockValue||0).toFixed(0)} stock value</div>
+          </div>
+        </div>
+        <button class="cat-btn" onclick="switchViewStore('${id}');showTab('dashboard')" style="font-size:11px;padding:4px 10px">View Store →</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        <div style="background:var(--cream);border-radius:8px;padding:8px">
+          <div style="font-size:15px;font-weight:700;color:var(--green-ok)">$${(d.revenue||0).toLocaleString('en-US',{maximumFractionDigits:0})}</div>
+          <div style="font-size:10px;color:#8B7355">Revenue</div>
+        </div>
+        <div style="background:var(--cream);border-radius:8px;padding:8px">
+          <div style="font-size:15px;font-weight:700;color:var(--red-alert)">$${(d.cost||0).toLocaleString('en-US',{maximumFractionDigits:0})}</div>
+          <div style="font-size:10px;color:#8B7355">Purchases</div>
+        </div>
+        <div style="background:var(--cream);border-radius:8px;padding:8px">
+          <div style="font-size:15px;font-weight:700;color:${cogsColor}">${cogsPct > 0 ? cogsPct.toFixed(1)+'%' : '—'}</div>
+          <div style="font-size:10px;color:#8B7355">COGS</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// STORE SWITCHER — Role-aware
+// ══════════════════════════════════════════
+
+function populateStoreSwitcher(cfg) {
+  const bar = document.getElementById('ownerBar');
+  if (!bar) return;
+
+  let storeButtons = '';
+
+  if (isSuperOwner(cfg)) {
+    // Super owner sees all orgs → all regions → all stores
+    storeButtons = `<button class="store-tab-btn active" onclick="switchViewStore('all')" id="storeAll">📊 All Stores</button>`;
+    Object.entries(STORES).forEach(([id, store]) => {
+      storeButtons += `<button class="store-tab-btn" onclick="switchViewStore('${id}')" id="store-${id}">${store.name}</button>`;
+    });
+  } else if (isRegionalOwner(cfg)) {
+    // Regional owner sees all stores in their region
+    const regionStores = Object.entries(STORES).filter(([id]) => {
+      const storeRegion = STORE_REGIONS[id];
+      return storeRegion === cfg.regionId;
+    });
+    storeButtons = `<button class="store-tab-btn active" onclick="switchViewStore('all')" id="storeAll">📊 ${REGIONS[cfg.regionId]?.name || 'Region'}</button>`;
+    regionStores.forEach(([id, store]) => {
+      storeButtons += `<button class="store-tab-btn" onclick="switchViewStore('${id}')" id="store-${id}">${store.name}</button>`;
+    });
+  }
+
+  bar.innerHTML = storeButtons;
+}
+
+// Map stores to regions
+const STORE_REGIONS = {
+  'coppell':    'texas',
+  'frisco':     'texas',
+  'cedar-park': 'texas',
+  'san-jose':   'texas',
+  'southlake':  'texas',
+  'aubrey':     'texas',
+};
 
 // ══════════════════════════════════════════
 // AUDIT TRAIL MODULE
