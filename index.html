@@ -1,7 +1,7 @@
 <!--
   ╔══════════════════════════════════════════════════════════╗
   ║  DUMONT CREAMERY & CAFÉ — INVENTORY APP                  ║
-  ║  Version: v16                                            ║
+  ║  Version: v15                                            ║
   ║  Last Updated: March 14, 2026                            ║
   ║                                                          ║
   ║  VERIFY DEPLOYMENT: Login screen should say "v11"        ║
@@ -30,9 +30,10 @@
 <meta name="apple-mobile-web-app-title" content="Dumont">
 <meta name="theme-color" content="#1A1209">
 <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍦</text></svg>">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dumont">
-<title>Dumont — Inventory v16</title>
+<title>Dumont — Inventory v15</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -364,7 +365,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
   <!-- ── SIGN IN PANEL ── -->
   <div class="login-box" id="loginPanel">
     <div class="login-logo">Dumont</div>
-    <div class="login-sub">Creamery &amp; Café — Inventory v16</div>
+    <div class="login-sub">Creamery &amp; Café — Inventory v15</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
     <button class="btn-login" id="loginBtn">Sign In</button>
@@ -873,7 +874,16 @@ function doc(db,...args) {
   for (let i=0;i<parts.length;i++) ref = (i%2===0)?ref.collection(parts[i]):ref.doc(parts[i]);
   return ref;
 }
-function collection(db,...args) { let r=db; for(const s of args) r=r.collection(s); return r; }
+function collection(db, ...args) {
+  let r = db;
+  // args alternate: collection, doc, collection, doc...
+  // For compat SDK: db.collection('x').doc('y').collection('z')
+  for (let i = 0; i < args.length; i++) {
+    if (i % 2 === 0) r = r.collection(args[i]);
+    else r = r.doc(args[i]);
+  }
+  return r;
+}
 async function getDoc(ref) {
   const snap = await ref.get();
   // compat SDK: snap.exists is already a boolean - no normalization needed
@@ -2281,7 +2291,7 @@ async function checkNeedsSetup() {
 async function logAudit(action, details = {}) {
   if (!currentUser) return;
   try {
-    await addDoc(collection(db, 'stores', viewingStore, 'auditLog'), {
+    await db.collection('stores').doc(viewingStore||'coppell').collection('auditLog').add({
       action,
       details,
       userEmail: currentUser.email,
@@ -2957,11 +2967,11 @@ function renderCogs() {
   const withPrices = results.filter(r => r.cogsPct !== null);
   if (withPrices.length) {
     const avgCogs = withPrices.reduce((s,r) => s + r.cogsPct, 0) / withPrices.length;
-    document.getElementById('cogsAvgPct').textContent = avgCogs.toFixed(1) + '%';
+    const _avgEl = document.getElementById('cogsAvgPct'); if (_avgEl) _avgEl.textContent = avgCogs.toFixed(1) + '%';
     const best = withPrices.reduce((a,b) => (a.marginPct > b.marginPct ? a : b));
     const worst = withPrices.reduce((a,b) => (a.cogsPct > b.cogsPct ? a : b));
-    document.getElementById('cogsBestItem').textContent = best.name.split(' ').slice(0,3).join(' ');
-    document.getElementById('cogsWorstItem').textContent = worst.name.split(' ').slice(0,3).join(' ');
+    const _bi=document.getElementById('cogsBestItem'); if(_bi) _bi.textContent = best.name.split(' ').slice(0,3).join(' ');
+    const _wi=document.getElementById('cogsWorstItem'); if(_wi) _wi.textContent = worst.name.split(' ').slice(0,3).join(' ');
   }
 
   // Render cards
@@ -3887,6 +3897,38 @@ function populateStoreSwitcher(cfg) {
   });
 }
 
+
+window.setSchedView = function(v) {
+  schedView = v;
+  var wBtn = document.getElementById('schedViewWeek');
+  var dBtn = document.getElementById('schedViewDay');
+  if (wBtn) wBtn.classList.toggle('active', v==='week');
+  if (dBtn) dBtn.classList.toggle('active', v==='day');
+  renderSchedule();
+};
+async function loadAuditLog() {
+  const el = document.getElementById('auditLogList');
+  if (!el) return;
+  el.innerHTML = '<div style="font-size:12px;color:#8B7355">Loading...</div>';
+  try {
+    const snap = await db.collection('stores').doc(viewingStore||'coppell')
+      .collection('auditLog').orderBy('timestamp','desc').limit(50).get();
+    if (!snap.docs || !snap.docs.length) {
+      el.innerHTML = '<div style="font-size:12px;color:#8B7355">No audit entries yet.</div>';
+      return;
+    }
+    el.innerHTML = snap.docs.map(d => {
+      const e = d.data();
+      return '<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">'
+        + '<div style="font-size:11px;color:#aaa;min-width:130px">' + (e.dateStr||'') + '</div>'
+        + '<div style="font-size:12px;font-weight:600;color:var(--caramel)">' + (e.action||'') + '</div>'
+        + '<div style="font-size:12px;color:#8B7355;margin-left:8px">' + (e.userName||e.userEmail||'') + '</div>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="font-size:12px;color:#8B7355">Could not load audit log.</div>';
+  }
+}
 
 
 
