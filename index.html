@@ -277,6 +277,21 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 .stock-val-amt { font-family:"Playfair Display",serif; font-size:18px; font-weight:700; color:var(--caramel); }
 .stock-val-count { font-size:10px; color:#8B7355; margin-top:1px; }
 
+.admin-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.admin-card-title{font-size:11px;font-weight:700;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.admin-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--cream);font-family:inherit;font-size:13px;outline:none;margin-bottom:6px;box-sizing:border-box;color:var(--dark)}
+.admin-input:focus{border-color:var(--caramel)}
+.admin-btn{width:100%;padding:9px;border:none;border-radius:8px;background:var(--dark);color:#D4A843;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px}
+
+
+/* ── ADMIN CARDS ── */
+.admin-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+.admin-card-title { font-size:11px; font-weight:700; color:#8B7355; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+.admin-input { width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--cream); font-family:inherit; font-size:13px; outline:none; margin-bottom:6px; box-sizing:border-box; color:var(--dark); }
+.admin-input:focus { border-color:var(--caramel); }
+.admin-btn { width:100%; padding:9px; border:none; border-radius:8px; background:var(--dark); color:#D4A843; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; margin-top:2px; transition:opacity 0.2s; }
+.admin-btn:hover { opacity:0.85; }
+
 /* ── COGS ── */
 .cogs-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; padding:14px 16px; }
 .cogs-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
@@ -605,6 +620,15 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
       </div>
 
+      <!-- REGIONAL DASHBOARD -->
+      <div id="tab-regional" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px"><div><div style="font-size:16px;font-weight:700;color:var(--dark)" id="regionalTitle">Region</div><div style="font-size:12px;color:#8B7355" id="regionalSubtitle"></div></div><div style="display:flex;gap:8px"><button class="cat-btn active" id="regPeriodWeek" onclick="setRegPeriod('week')">This Week</button><button class="cat-btn" id="regPeriodMonth" onclick="setRegPeriod('month')">This Month</button></div></div>
+        <div class="stat-grid" style="margin-bottom:16px"><div class="stat-card"><div class="stat-num" id="regRevenue" style="color:var(--green-ok);font-size:20px">$0</div><div class="stat-label">Revenue</div></div><div class="stat-card"><div class="stat-num" id="regCOGS" style="color:var(--caramel);font-size:20px">--</div><div class="stat-label">COGS</div></div><div class="stat-card"><div class="stat-num" id="regStores" style="color:var(--dark);font-size:20px">0</div><div class="stat-label">Stores</div></div></div>
+        <div id="regAlerts" style="margin-bottom:12px"></div>
+        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px">Store Performance</div>
+        <div id="regStoreList"></div>
+      </div>
+
       <!-- SCHEDULE TAB -->
       <div id="tab-schedule" style="display:none">
 
@@ -750,141 +774,17 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
       <!-- ADMIN PANEL (owner only) -->
       <div id="tab-admin" style="display:none">
-
-        <!-- Pending Signups Banner -->
-        <div id="pendingBanner" style="display:none;background:rgba(200,132,58,0.1);border:1px solid var(--caramel);border-radius:12px;padding:12px 16px;margin-bottom:16px">
-          <div style="font-size:13px;font-weight:700;color:var(--caramel);margin-bottom:8px">🔔 Pending Signups</div>
-          <div id="pendingSignupsList"></div>
+        <div id="pendingBanner" style="display:none;background:rgba(200,132,58,0.1);border:1px solid var(--caramel);border-radius:12px;padding:12px 16px;margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:var(--caramel);margin-bottom:8px">Pending Signups</div><div id="pendingSignupsList"></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="admin-card"><div class="admin-card-title">New Region</div><input class="admin-input" id="newRegionName" placeholder="e.g. Chicago"><select class="admin-input" id="newRegionOrg"><option value="dumont">Dumont</option></select><input class="admin-input" id="newRegionOwnerEmail" placeholder="Owner email (optional)"><button class="admin-btn" onclick="addRegion()">Add Region</button></div>
+          <div class="admin-card"><div class="admin-card-title">New Store</div><input class="admin-input" id="newStoreId" placeholder="ID e.g. frisco"><input class="admin-input" id="newStoreName" placeholder="Display name"><input class="admin-input" id="newStoreCity" placeholder="City"><select class="admin-input" id="newStoreRegion"></select><button class="admin-btn" onclick="adminAddStore()">Add Store</button></div>
         </div>
-
-        <!-- Two column layout -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-
-          <!-- Add Region -->
-          <div class="admin-card">
-            <div class="admin-card-title">🌎 New Region</div>
-            <input class="admin-input" id="newRegionName" placeholder="Region name">
-            <select class="admin-input" id="newRegionOrg">
-              <option value="dumont">Dumont Creamery & Café</option>
-            </select>
-            <input class="admin-input" id="newRegionOwnerEmail" placeholder="Owner email (optional)">
-            <button class="admin-btn" onclick="addRegion()">Add Region</button>
-          </div>
-
-          <!-- Add Store -->
-          <div class="admin-card">
-            <div class="admin-card-title">🏪 New Store</div>
-            <input class="admin-input" id="newStoreId" placeholder="Store ID (e.g. frisco)">
-            <input class="admin-input" id="newStoreName" placeholder="Display name">
-            <input class="admin-input" id="newStoreCity" placeholder="City">
-            <select class="admin-input" id="newStoreRegion"></select>
-            <button class="admin-btn" onclick="adminAddStore()">Add Store</button>
-          </div>
-
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="admin-card"><div class="admin-card-title">Assign Regional Owner</div><input class="admin-input" id="assignEmail" placeholder="User email"><select class="admin-input" id="assignRegion"></select><button class="admin-btn" onclick="assignRegionalOwner()">Assign</button></div>
+          <div class="admin-card"><div class="admin-card-title">Add Manager</div><input class="admin-input" id="newUserEmail" placeholder="Email"><input class="admin-input" id="newUserPassword" type="password" placeholder="Temp password"><select class="admin-input" id="newUserStore"></select><button class="admin-btn" onclick="adminAddUser()">Add Manager</button></div>
         </div>
-
-        <!-- Second row -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-
-          <!-- Assign Regional Owner -->
-          <div class="admin-card">
-            <div class="admin-card-title">👤 Assign Regional Owner</div>
-            <input class="admin-input" id="assignEmail" placeholder="User email">
-            <select class="admin-input" id="assignRegion"></select>
-            <button class="admin-btn" onclick="assignRegionalOwner()">Assign</button>
-          </div>
-
-          <!-- Add Manager -->
-          <div class="admin-card">
-            <div class="admin-card-title">👥 Add Manager</div>
-            <input class="admin-input" id="newUserEmail" placeholder="Email">
-            <input class="admin-input" id="newUserPassword" type="password" placeholder="Temp password">
-            <select class="admin-input" id="newUserStore"></select>
-            <button class="admin-btn" onclick="adminAddUser()">Add Manager</button>
-          </div>
-
-        </div>
-
-        <!-- Org Tree — compact -->
-        <div class="admin-card" style="margin-bottom:12px">
-          <div class="admin-card-title">🏢 Organisation</div>
-          <div id="orgTree"></div>
-        </div>
-
-        <!-- Store List — compact -->
-        <div class="admin-card">
-          <div class="admin-card-title">📋 Store List</div>
-          <div id="adminStoreList"></div>
-        </div>
-
-      </div>
-
-      <!-- MODALS -->
-      <div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px">
-        <div id="modalBox" style="background:var(--card-bg);border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto"></div>
-      </div>
-
-      <!-- ADMIN PANEL (owner only) -->
-      <div id="tab-admin" style="display:none">
-
-        <!-- Pending Signups -->
-        <div style="margin-bottom:20px">
-          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">🔔 Pending Signups</div>
-          <div id="pendingSignupsList"><div style="font-size:12px;color:#8B7355">No pending signups.</div></div>
-        </div>
-
-        <div style="height:1px;background:var(--border);margin-bottom:20px"></div>
-
-        <!-- Org Tree -->
-        <div style="margin-bottom:20px">
-          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">🏢 Organisation</div>
-          <div id="orgTree"></div>
-        </div>
-
-        <div style="height:1px;background:var(--border);margin-bottom:20px"></div>
-
-        <!-- Quick Actions 2x2 grid -->
-        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px">⚡ Quick Actions</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-
-          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px">
-            <div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:10px">🌎 New Region</div>
-            <input class="modal-input" id="newRegionName" placeholder="Region name" style="margin-bottom:6px;font-size:12px;padding:8px 10px">
-            <select class="modal-input" id="newRegionOrg" style="margin-bottom:6px;font-size:12px;padding:8px 10px"><option value="dumont">Dumont</option></select>
-            <input class="modal-input" id="newRegionOwnerEmail" placeholder="Owner email (optional)" style="margin-bottom:10px;font-size:12px;padding:8px 10px">
-            <button onclick="addRegion()" style="width:100%;padding:8px;background:var(--caramel);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">+ Add</button>
-          </div>
-
-          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px">
-            <div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:10px">🏪 New Store</div>
-            <input class="modal-input" id="newStoreId" placeholder="ID (e.g. frisco)" style="margin-bottom:6px;font-size:12px;padding:8px 10px">
-            <input class="modal-input" id="newStoreName" placeholder="Display name" style="margin-bottom:6px;font-size:12px;padding:8px 10px">
-            <select class="modal-input" id="newStoreRegion" style="margin-bottom:6px;font-size:12px;padding:8px 10px"><option value="texas">Texas</option></select>
-            <input class="modal-input" id="newStoreCity" placeholder="City" style="margin-bottom:10px;font-size:12px;padding:8px 10px">
-            <button onclick="adminAddStore()" style="width:100%;padding:8px;background:var(--dark);color:#D4A843;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">+ Add</button>
-          </div>
-
-          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px">
-            <div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:10px">👤 Assign Regional Owner</div>
-            <input class="modal-input" id="assignEmail" placeholder="User email" style="margin-bottom:6px;font-size:12px;padding:8px 10px">
-            <select class="modal-input" id="assignRegion" style="margin-bottom:10px;font-size:12px;padding:8px 10px"><option value="texas">Texas</option></select>
-            <button onclick="assignRegionalOwner()" style="width:100%;padding:8px;background:#5B8DD9;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">Assign</button>
-          </div>
-
-          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px">
-            <div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:10px">👥 Add Manager</div>
-            <input class="modal-input" id="newUserEmail" placeholder="Manager email" style="margin-bottom:6px;font-size:12px;padding:8px 10px">
-            <input class="modal-input" id="newUserPassword" type="password" placeholder="Temp password" style="margin-bottom:6px;font-size:12px;padding:8px 10px">
-            <select class="modal-input" id="newUserStore" style="margin-bottom:10px;font-size:12px;padding:8px 10px"></select>
-            <button onclick="adminAddUser()" style="width:100%;padding:8px;background:#2C7A4B;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">+ Add</button>
-          </div>
-
-        </div>
-
-        <div style="height:1px;background:var(--border);margin-bottom:16px"></div>
-        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">📋 Store List</div>
-        <div id="adminStoreList"></div>
-
+        <div class="admin-card" style="margin-bottom:10px"><div class="admin-card-title">Organisation</div><div id="orgTree"></div></div>
+        <div class="admin-card"><div class="admin-card-title">Store List</div><div id="adminStoreList"></div></div>
       </div>
 
     </div>
@@ -919,35 +819,18 @@ const db = getFirestore(fbApp);
 // ── USER CONFIG ──
 // Map email → { store, role }
 // Add more users here as you create them in Firebase Auth console
-// ── Role hierarchy ──
-const ROLES = {
-  SUPER_OWNER:    'super_owner',
-  REGIONAL_OWNER: 'regional_owner',
-  STORE_OWNER:    'store_owner',
-  MANAGER:        'manager',
-};
-
-// ── Org / Region definitions ──
-const ORGS = {
-  'dumont': { name: 'Dumont Creamery & Café', id: 'dumont' },
-};
-
-const REGIONS = {
-  'texas': { name: 'Texas', orgId: 'dumont', id: 'texas' },
-};
-
-// ── Role helper functions ──
-function isSuperOwner(cfg)    { return cfg?.role === 'super_owner' || cfg?.role === 'owner'; }
-function isRegionalOwner(cfg) { return cfg?.role === 'regional_owner' || isSuperOwner(cfg); }
-function isStoreOwner(cfg)    { return cfg?.role === 'store_owner' || isRegionalOwner(cfg); }
-function isManager(cfg)       { return cfg?.role === 'manager' || isStoreOwner(cfg); }
-function canSeeAllStores(cfg) { return isSuperOwner(cfg) || isRegionalOwner(cfg); }
-
-let STORE_REGIONS = { "coppell": "texas" };
+const ROLES={SUPER_OWNER:"super_owner",REGIONAL_OWNER:"regional_owner",STORE_OWNER:"store_owner",MANAGER:"manager"};
+const ORGS={"dumont":{name:"Dumont Creamery and Cafe",id:"dumont"}};
+let REGIONS={"texas":{name:"Texas",orgId:"dumont",id:"texas"}};
+let STORE_REGIONS={"coppell":"texas"};
+function isSuperOwner(c){return c?.role==="super_owner"||c?.role==="owner";}
+function isRegionalOwner(c){return c?.role==="regional_owner"||isSuperOwner(c);}
+function isStoreOwner(c){return c?.role==="store_owner"||isRegionalOwner(c);}
+function canSeeAllStores(c){return isSuperOwner(c)||isRegionalOwner(c);}
 
 const USERS = {
-  "dumonttexas@gmail.com":        { store: "coppell", role: "owner", name: "Sasikanth" },
-  "txccpointwest@gmail.com":     { store: "coppell", role: "manager", name: "Coppell Manager" },
+  "dumonttexas@gmail.com":{store:"coppell",role:ROLES.SUPER_OWNER,orgId:"dumont",regionId:"texas",name:"Sasikanth"},
+  "txccpointwest@gmail.com":{store:"coppell",role:ROLES.STORE_OWNER,orgId:"dumont",regionId:"texas",name:"Coppell Owner"},
   "frisco@dumont.com":           { store: "frisco",  role: "manager", name: "Frisco Manager" },
   "cedarpark@dumont.com":        { store: "cedar-park", role: "manager", name: "Cedar Park Manager" },
   "sanjose@dumont.com":          { store: "san-jose", role: "manager", name: "San Jose Manager" },
@@ -1201,10 +1084,7 @@ onAuthStateChanged(auth, async (user) => {
       const emailKey = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
       const userSnap = await getDoc(doc(db, 'users', emailKey));
       if (userSnap.exists()) {
-        const firestoreData = userSnap.data();
-        // Backward compat: map old 'owner' role to 'super_owner'
-        if (firestoreData.role === 'owner') firestoreData.role = ROLES.SUPER_OWNER;
-        cfg = { ...cfg, ...firestoreData };
+        const fd=userSnap.data(); if(fd.role==="owner")fd.role=ROLES.SUPER_OWNER; cfg={...cfg,...fd};
       } else {
         // First login — write profile to Firestore
         await setDoc(doc(db, 'users', emailKey), {
@@ -1224,28 +1104,8 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
 
-    if (isSuperOwner(cfg)) {
-      document.getElementById('storeBadge').textContent = '👑 Super Owner';
-      document.getElementById('ownerBar').style.display = 'flex';
-      document.getElementById('adminTabBtn').style.display = 'block';
-      document.getElementById('regionalTabBtn').style.display = 'block';
-    } else if (isRegionalOwner(cfg)) {
-      document.getElementById('storeBadge').textContent = `🌎 ${REGIONS[cfg.regionId]?.name || cfg.regionId || ''} Region`;
-      document.getElementById('ownerBar').style.display = 'flex';
-      document.getElementById('adminTabBtn').style.display = 'block';
-      document.getElementById('regionalTabBtn').style.display = 'block';
-    } else if (isStoreOwner(cfg)) {
-      document.getElementById('storeBadge').textContent = `🏪 ${STORES[cfg.store]?.name || cfg.store}`;
-      document.getElementById('ownerBar').style.display = 'none';
-      document.getElementById('adminTabBtn').style.display = 'none';
-      document.getElementById('regionalTabBtn').style.display = 'none';
-    } else {
-      document.getElementById('storeBadge').textContent = STORES[cfg.store]?.name || cfg.store;
-      document.getElementById('ownerBar').style.display = 'none';
-      document.getElementById('adminTabBtn').style.display = 'none';
-      document.getElementById('regionalTabBtn').style.display = 'none';
-    }
-    populateStoreSwitcher(cfg);
+    if(isSuperOwner(cfg)){document.getElementById('storeBadge').textContent='Super Owner';document.getElementById('ownerBar').style.display='flex';document.getElementById('adminTabBtn').style.display='block';if(document.getElementById('regionalTabBtn'))document.getElementById('regionalTabBtn').style.display='block';}else if(isRegionalOwner(cfg)){document.getElementById('storeBadge').textContent=(REGIONS[cfg.regionId]?.name||'')+' Region';document.getElementById('ownerBar').style.display='flex';document.getElementById('adminTabBtn').style.display='block';if(document.getElementById('regionalTabBtn'))document.getElementById('regionalTabBtn').style.display='block';}else{document.getElementById('storeBadge').textContent=STORES[cfg.store]?.name||cfg.store;document.getElementById('ownerBar').style.display='none';document.getElementById('adminTabBtn').style.display='none';}
+    if(typeof populateStoreSwitcher==='function')populateStoreSwitcher(cfg);
 
     await initStore(cfg.store);
     await loadCustomItems();
@@ -1421,6 +1281,10 @@ window.showTab = function(tab) {
   if (tab==='delivery') renderDelivery();
   if (tab==='admin') loadAdminStores();
   if (tab==='schedule') { schedLoaded=false; loadScheduleData(); }
+  if (tab==='regional') { loadRegionalData(); }
+  if (tab==='admin') { loadPendingSignups(); loadOrgStructure(); }
+  if (tab==='regional') { loadRegionalData(); }
+  if (tab==='admin') { loadPendingSignups(); if(typeof loadOrgStructure==="function")loadOrgStructure(); }
   if (tab==='admin') { loadPendingSignups(); }
   if (tab==='cogs') { cogsLoaded=false; loadCogsData(); loadCogsLedgers(); }
 };
@@ -2007,13 +1871,10 @@ async function loadPendingSignups() {
     const snap = await getDocs(collection(db, 'signupRequests'));
     const pending = snap.docs.map(d => ({ id: d.id, ...d.data() }))
                              .filter(s => s.status === 'pending');
-    const banner = document.getElementById('pendingBanner');
     if (!pending.length) {
-      el.innerHTML = '<div style="font-size:12px;color:#8B7355">No pending signups ✅</div>';
-      if (banner) banner.style.display = 'none';
+      el.innerHTML = '<div style="font-size:12px;color:#8B7355">No pending signups.</div>';
       return;
     }
-    if (banner) banner.style.display = 'block';
     el.innerHTML = pending.map(s => `
       <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
@@ -3563,6 +3424,451 @@ window.resolveSwap = function(swapId, status) {
   renderSchedule();
   showToast(status==='approved'?'✅ Swap approved!':'Swap declined');
 };
+// ══════════════════════════════════════════
+// V12: 4-TIER ROLES + REGIONAL + ADMIN
+// ══════════════════════════════════════════
+
+const ROLES = {
+  SUPER_OWNER:    'super_owner',
+  REGIONAL_OWNER: 'regional_owner',
+  STORE_OWNER:    'store_owner',
+  MANAGER:        'manager',
+};
+
+const ORGS    = { 'dumont': { name: 'Dumont Creamery & Café', id: 'dumont' } };
+let   REGIONS = { 'texas':  { name: 'Texas', orgId: 'dumont', id: 'texas' } };
+let   STORE_REGIONS = { 'coppell': 'texas' };
+
+function isSuperOwner(cfg)    { return cfg?.role === 'super_owner' || cfg?.role === 'owner'; }
+function isRegionalOwner(cfg) { return cfg?.role === 'regional_owner' || isSuperOwner(cfg); }
+function isStoreOwner(cfg)    { return cfg?.role === 'store_owner'    || isRegionalOwner(cfg); }
+
+// ── Store Switcher ──
+function populateStoreSwitcher(cfg) {
+  const bar = document.getElementById('ownerBar');
+  if (!bar) return;
+  const ids = isSuperOwner(cfg) ? Object.keys(STORES)
+    : Object.keys(STORE_REGIONS).filter(id => STORE_REGIONS[id] === cfg.regionId);
+  bar.innerHTML = `<button class="store-tab-btn active" onclick="switchViewStore('all')" id="storeAll">📊 All</button>`
+    + ids.map(id => `<button class="store-tab-btn" onclick="switchViewStore('${id}')" id="store-${id}">${STORES[id]?.name||id}</button>`).join('');
+}
+
+// ── Org Structure ──
+let liveRegions = {}, liveOrgs = {};
+
+async function loadOrgStructure() {
+  try {
+    const [orgSnap, regSnap, cfgSnap] = await Promise.all([
+      getDocs(collection(db, 'orgs')),
+      getDocs(collection(db, 'regions')),
+      getDoc(doc(db, 'config', 'stores'))
+    ]);
+    orgSnap.docs.forEach(d => { liveOrgs[d.id] = d.data(); });
+    regSnap.docs.forEach(d => { liveRegions[d.id] = { ...d.data(), id: d.id }; });
+    if (cfgSnap.exists()) {
+      Object.entries(cfgSnap.data()).forEach(([sid, store]) => {
+        STORES[sid] = store; allStores[sid] = store;
+        STORE_REGIONS[sid] = store.regionId || 'texas';
+      });
+    }
+  } catch(e) { console.warn('loadOrgStructure:', e); }
+  renderOrgTree();
+  updateAdminDropdowns();
+}
+
+function renderOrgTree() {
+  const el = document.getElementById('orgTree');
+  if (!el) return;
+  const regionStores = {};
+  Object.entries(STORE_REGIONS).forEach(([sid, rid]) => {
+    if (!regionStores[rid]) regionStores[rid] = [];
+    regionStores[rid].push(sid);
+  });
+  const allOrgs = { ...ORGS, ...liveOrgs };
+  const allRegs = { ...REGIONS, ...liveRegions };
+  el.innerHTML = Object.entries(allOrgs).map(([orgId, org]) => {
+    const regs = Object.entries(allRegs).filter(([, r]) => r.orgId === orgId);
+    return `<div style="margin-bottom:10px">
+      <div style="padding:8px 12px;background:var(--dark);border-radius:8px;color:#D4A843;font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center">
+        🏢 ${org.name}<span style="opacity:0.5;font-weight:400">${regs.length} region${regs.length!==1?'s':''}</span>
+      </div>
+      ${regs.map(([rid, reg]) => {
+        const stores = regionStores[rid] || [];
+        return `<div style="margin-left:12px;margin-top:4px">
+          <div style="padding:6px 12px;background:rgba(200,132,58,0.1);border-left:3px solid var(--caramel);border-radius:0 6px 6px 0;font-size:12px;font-weight:600;color:var(--caramel);display:flex;justify-content:space-between">
+            🌎 ${reg.name}<span style="font-weight:400;opacity:0.7">${stores.length} store${stores.length!==1?'s':''}</span>
+          </div>
+          ${stores.map(sid => `<div style="margin-left:12px;margin-top:3px;display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;font-size:12px">
+            🏪 ${STORES[sid]?.name||sid}
+            <button onclick="switchViewStore('${sid}');showTab('dashboard')" style="margin-left:auto;font-size:10px;padding:2px 8px;background:var(--caramel);color:#fff;border:none;border-radius:5px;cursor:pointer">→</button>
+          </div>`).join('')}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function updateAdminDropdowns() {
+  const allRegs = { ...REGIONS, ...liveRegions };
+  const regOpts = Object.entries(allRegs).map(([id, r]) => `<option value="${id}">${r.name}</option>`).join('');
+  ['assignRegion','newStoreRegion'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML=regOpts; });
+  const storeOpts = Object.keys(STORES).map(id=>`<option value="${id}">${STORES[id]?.name||id}</option>`).join('');
+  const su = document.getElementById('newUserStore'); if(su) su.innerHTML = storeOpts;
+  const allOrgs = { ...ORGS, ...liveOrgs };
+  const orgOpts = Object.entries(allOrgs).map(([id,o])=>`<option value="${id}">${o.name}</option>`).join('');
+  ['newRegionOrg'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML=orgOpts; });
+}
+
+window.addRegion = async function() {
+  const name  = document.getElementById('newRegionName').value.trim();
+  const orgId = document.getElementById('newRegionOrg').value;
+  const email = document.getElementById('newRegionOwnerEmail').value.trim().toLowerCase();
+  if (!name) { showToast('⚠️ Enter region name'); return; }
+  const regionId = name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,20);
+  try {
+    await setDoc(doc(db,'regions',regionId), { id:regionId, name, orgId, createdAt:Date.now() });
+    REGIONS[regionId] = liveRegions[regionId] = { id:regionId, name, orgId };
+    if (email) {
+      const ek = email.replace(/\./g,'_').replace(/@/g,'_at_');
+      await setDoc(doc(db,'users',ek), { role:'regional_owner', orgId, regionId, status:'approved', updatedAt:Date.now() }, { merge:true });
+    }
+    showToast(`✅ Region "${name}" created!`);
+    document.getElementById('newRegionName').value = '';
+    document.getElementById('newRegionOwnerEmail').value = '';
+    renderOrgTree(); updateAdminDropdowns();
+  } catch(e) { showToast('⚠️ ' + e.message); }
+};
+
+window.assignRegionalOwner = async function() {
+  const email    = document.getElementById('assignEmail').value.trim().toLowerCase();
+  const regionId = document.getElementById('assignRegion').value;
+  if (!email || !regionId) { showToast('⚠️ Enter email and region'); return; }
+  const region = liveRegions[regionId] || REGIONS[regionId];
+  const ek = email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try {
+    await setDoc(doc(db,'users',ek), { role:'regional_owner', orgId:region?.orgId||'dumont', regionId, status:'approved', updatedAt:Date.now() }, { merge:true });
+    showToast(`✅ ${email} is Regional Owner for ${region?.name||regionId}`);
+    document.getElementById('assignEmail').value = '';
+  } catch(e) { showToast('⚠️ ' + e.message); }
+};
+
+window.deleteStore = async function(sid) {
+  const name = STORES[sid]?.name || sid;
+  if (!confirm(`Delete "${name}"? Firestore data kept.`)) return;
+  try {
+    const snap = await getDoc(doc(db,'config','stores'));
+    if (snap.exists()) { const d=snap.data(); delete d[sid]; await setDoc(doc(db,'config','stores'),d); }
+    delete allStores[sid]; delete STORES[sid]; delete STORE_REGIONS[sid];
+    populateStoreSwitcher(currentUserConfig); renderAdminStoreList(); renderOrgTree();
+    showToast(`🗑 "${name}" removed`);
+  } catch(e) { showToast('⚠️ ' + e.message); }
+};
+
+// ── Override renderAdminStoreList to add delete buttons ──
+const _origRenderAdminStoreList = typeof renderAdminStoreList !== 'undefined' ? renderAdminStoreList : null;
+function renderAdminStoreListV12() {
+  const el = document.getElementById('adminStoreList');
+  if (!el) return;
+  const keys = Object.keys(allStores);
+  if (!keys.length) { el.innerHTML = '<div style="font-size:12px;color:#8B7355">No stores.</div>'; return; }
+  el.innerHTML = keys.map(sid => `
+    <div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1"><span style="font-size:13px;font-weight:600">${allStores[sid].name||sid}</span>
+      <span style="font-size:11px;color:#8B7355;margin-left:6px">${allStores[sid].city||''}</span></div>
+      ${sid!=='coppell' ? `<button onclick="deleteStore('${sid}')" style="border:1px solid #C0392B;color:#C0392B;background:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">Delete</button>`
+      : '<span style="font-size:11px;color:var(--green-ok)">Primary ✓</span>'}
+    </div>`).join('');
+}
+
+// ── Regional Dashboard ──
+let regPeriod = 'week';
+window.setRegPeriod = function(p) {
+  regPeriod = p;
+  document.getElementById('regPeriodWeek').classList.toggle('active', p==='week');
+  document.getElementById('regPeriodMonth').classList.toggle('active', p==='month');
+  loadRegionalData();
+};
+
+async function loadRegionalData() {
+  const cfg = currentUserConfig;
+  if (!cfg) return;
+  const storeIds = isSuperOwner(cfg) ? Object.keys(STORES)
+    : Object.keys(STORE_REGIONS).filter(id => STORE_REGIONS[id] === cfg.regionId);
+  const rt = document.getElementById('regionalTitle');
+  const rs = document.getElementById('regionalSubtitle');
+  const rn = document.getElementById('regStores');
+  if (rt) rt.textContent = isSuperOwner(cfg) ? 'All Regions' : `${REGIONS[cfg.regionId]?.name||''} Region`;
+  if (rs) rs.textContent = ORGS[cfg.orgId]?.name || 'Dumont Creamery & Café';
+  if (rn) rn.textContent = storeIds.length;
+  const now = new Date();
+  const startTs = regPeriod==='week'
+    ? (() => { const d=new Date(now); d.setDate(now.getDate()-now.getDay()); d.setHours(0,0,0,0); return d.getTime(); })()
+    : new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const results = await Promise.all(storeIds.map(async sid => {
+    try {
+      const [s,c] = await Promise.all([getDocs(collection(db,'stores',sid,'salesLedger')),getDocs(collection(db,'stores',sid,'costLedger'))]);
+      const rev  = s.docs.map(d=>d.data()).filter(x=>x.dateTs>=startTs).reduce((t,x)=>t+(x.revenue||0),0);
+      const cost = c.docs.map(d=>d.data()).filter(x=>x.dateTs>=startTs).reduce((t,x)=>t+(x.amount||0),0);
+      return { sid, rev, cost, cogsPct:rev>0?(cost/rev*100):0 };
+    } catch(e) { return {sid,rev:0,cost:0,cogsPct:0}; }
+  }));
+  const totRev = results.reduce((s,r)=>s+r.rev,0);
+  const totCost= results.reduce((s,r)=>s+r.cost,0);
+  const pct    = totRev>0?(totCost/totRev*100):0;
+  const rr=document.getElementById('regRevenue'); if(rr) rr.textContent='$'+totRev.toLocaleString('en-US',{maximumFractionDigits:0});
+  const rc=document.getElementById('regCOGS');    if(rc) { rc.textContent=pct>0?pct.toFixed(1)+'%':'—'; rc.style.color=pct<25?'var(--green-ok)':pct<32?'var(--amber-alert)':'var(--red-alert)'; }
+  const ra=document.getElementById('regAlerts');
+  if(ra) ra.innerHTML='<div style="background:#F0FFF4;border:1px solid #A8D5B5;border-radius:10px;padding:10px 14px;font-size:13px;color:var(--green-ok)">✅ Regional data loaded</div>';
+  const rl=document.getElementById('regStoreList');
+  if(rl) rl.innerHTML=[...results].sort((a,b)=>b.rev-a.rev).map((r,i)=>`
+    <div class="cogs-card" style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div><span>${['🥇','🥈','🥉'][i]||`${i+1}.`}</span> <strong style="font-size:13px">${STORES[r.sid]?.name||r.sid}</strong></div>
+        <button class="cat-btn" onclick="switchViewStore('${r.sid}');showTab('dashboard')" style="font-size:11px;padding:4px 10px">View →</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">
+        <div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:var(--green-ok)">$${r.rev.toLocaleString('en-US',{maximumFractionDigits:0})}</div><div style="font-size:10px;color:#8B7355">Revenue</div></div>
+        <div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:var(--red-alert)">$${r.cost.toLocaleString('en-US',{maximumFractionDigits:0})}</div><div style="font-size:10px;color:#8B7355">Purchases</div></div>
+        <div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:${r.cogsPct<25?'var(--green-ok)':r.cogsPct<32?'var(--amber-alert)':'var(--red-alert)'}">${r.cogsPct>0?r.cogsPct.toFixed(1)+'%':'—'}</div><div style="font-size:10px;color:#8B7355">COGS</div></div>
+      </div>
+    </div>`).join('');
+}
+
+// Override renderAdminStoreList on load
+document.addEventListener('DOMContentLoaded', () => {
+  window.renderAdminStoreList = renderAdminStoreListV12;
+});
+
+
+
+// ===== STORE SWITCHER =====
+function populateStoreSwitcher(cfg) {
+  const bar = document.getElementById('ownerBar');
+  if (!bar) return;
+  const ids = canSeeAllStores(cfg) ? Object.keys(STORES)
+    : Object.keys(STORE_REGIONS).filter(id=>STORE_REGIONS[id]===cfg.regionId);
+  bar.innerHTML = '<button class="store-tab-btn active" onclick="switchViewStore(\'all\')" id="storeAll">All</button>'
+    + ids.map(id=>`<button class="store-tab-btn" onclick="switchViewStore('${id}')" id="store-${id}">${STORES[id]?.name||id}</button>`).join('');
+}
+
+// ===== ORG/REGION MANAGEMENT =====
+let liveRegions={}, liveOrgs={};
+
+async function loadOrgStructure() {
+  try {
+    const [o,r,c] = await Promise.all([
+      getDocs(collection(db,'orgs')),
+      getDocs(collection(db,'regions')),
+      getDoc(doc(db,'config','stores'))
+    ]);
+    o.docs.forEach(d=>{liveOrgs[d.id]=d.data();});
+    Object.assign(liveOrgs,ORGS);
+    r.docs.forEach(d=>{liveRegions[d.id]={...d.data(),id:d.id};});
+    Object.keys(REGIONS).forEach(id=>{if(!liveRegions[id])liveRegions[id]=REGIONS[id];});
+    if(c.exists()){
+      Object.entries(c.data()).forEach(([sid,store])=>{
+        STORES[sid]=store; allStores[sid]=store;
+        STORE_REGIONS[sid]=store.regionId||'texas';
+      });
+    }
+  } catch(e){console.warn(e);}
+  renderOrgTree(); updateAdminDropdowns();
+}
+
+function renderOrgTree() {
+  const el = document.getElementById('orgTree');
+  if (!el) return;
+  const byR={};
+  Object.entries(STORE_REGIONS).forEach(([sid,rid])=>{if(!byR[rid])byR[rid]=[];byR[rid].push(sid);});
+  const allO={...ORGS,...liveOrgs}, allR={...REGIONS,...liveRegions};
+  el.innerHTML = Object.entries(allO).map(([oid,org])=>{
+    const regs=Object.entries(allR).filter(([,r])=>r.orgId===oid);
+    return '<div style="margin-bottom:8px">'
+      +'<div style="padding:7px 12px;background:var(--dark);border-radius:8px;color:#D4A843;font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center">'
+      +' '+org.name+'<span style="opacity:0.5;font-weight:400;font-size:11px">'+regs.length+' region'+(regs.length!==1?'s':'')+'</span></div>'
+      +regs.map(([rid,reg])=>{
+        const stores=byR[rid]||[];
+        return '<div style="margin-left:12px;margin-top:4px">'
+          +'<div style="padding:5px 12px;background:rgba(200,132,58,0.1);border-left:3px solid var(--caramel);border-radius:0 6px 6px 0;font-size:12px;font-weight:600;color:var(--caramel);display:flex;justify-content:space-between">'
+          +' '+reg.name+'<span style="opacity:0.6;font-weight:400">'+stores.length+' store'+(stores.length!==1?'s':'')+'</span></div>'
+          +stores.map(sid=>'<div style="margin-left:12px;margin-top:3px;display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--dark)">'
+            +' '+(STORES[sid]?.name||sid)
+            +'<button onclick="switchViewStore(\''+sid+'\');showTab(\'dashboard\')" style="margin-left:auto;font-size:10px;padding:2px 8px;background:var(--caramel);color:#fff;border:none;border-radius:5px;cursor:pointer">Go</button>'
+            +'</div>').join('')
+          +'</div>';
+      }).join('')
+      +'</div>';
+  }).join('');
+}
+
+function updateAdminDropdowns() {
+  const allR={...REGIONS,...liveRegions};
+  const ro=Object.entries(allR).map(([id,r])=>'<option value="'+id+'">'+r.name+'</option>').join('');
+  ['assignRegion','newStoreRegion'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=ro;});
+  const so=Object.keys(STORES).map(id=>'<option value="'+id+'">'+(STORES[id]?.name||id)+'</option>').join('');
+  const su=document.getElementById('newUserStore');if(su)su.innerHTML=so;
+}
+
+window.addRegion = async function() {
+  const name=document.getElementById('newRegionName').value.trim();
+  const orgId=document.getElementById('newRegionOrg').value;
+  const email=document.getElementById('newRegionOwnerEmail').value.trim().toLowerCase();
+  if(!name){showToast('Enter region name');return;}
+  const rid=name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,20);
+  try{
+    await setDoc(doc(db,'regions',rid),{id:rid,name,orgId,createdAt:Date.now(),createdBy:currentUser.email});
+    REGIONS[rid]=liveRegions[rid]={id:rid,name,orgId};
+    if(email){const ek=email.replace(/\./g,'_').replace(/@/g,'_at_');await setDoc(doc(db,'users',ek),{role:ROLES.REGIONAL_OWNER,orgId,regionId:rid,status:'approved',updatedAt:Date.now()},{merge:true});}
+    document.getElementById('newRegionName').value='';
+    document.getElementById('newRegionOwnerEmail').value='';
+    showToast('Region "'+name+'" created!');
+    renderOrgTree(); updateAdminDropdowns();
+  }catch(e){showToast('Error: '+e.message);}
+};
+
+window.assignRegionalOwner = async function() {
+  const email=document.getElementById('assignEmail').value.trim().toLowerCase();
+  const rid=document.getElementById('assignRegion').value;
+  if(!email||!rid){showToast('Enter email and region');return;}
+  const region=liveRegions[rid]||REGIONS[rid];
+  const ek=email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try{
+    await setDoc(doc(db,'users',ek),{role:ROLES.REGIONAL_OWNER,orgId:region?.orgId||'dumont',regionId:rid,status:'approved',updatedAt:Date.now(),updatedBy:currentUser.email},{merge:true});
+    showToast(email+' is Regional Owner for '+(region?.name||rid));
+    document.getElementById('assignEmail').value='';
+  }catch(e){showToast('Error: '+e.message);}
+};
+
+window.deleteStore = async function(sid) {
+  const name=STORES[sid]?.name||sid;
+  if(!confirm('Delete "'+name+'"? Firestore data kept.'))return;
+  try{
+    const s=await getDoc(doc(db,'config','stores'));
+    if(s.exists()){const d=s.data();delete d[sid];await setDoc(doc(db,'config','stores'),d);}
+    delete allStores[sid]; delete STORES[sid]; delete STORE_REGIONS[sid];
+    populateStoreSwitcher(currentUserConfig); renderAdminStoreList(); renderOrgTree();
+    showToast('"'+name+'" removed');
+  }catch(e){showToast('Error: '+e.message);}
+};
+
+// Override renderAdminStoreList with delete buttons
+function renderAdminStoreList() {
+  const el=document.getElementById('adminStoreList');
+  if(!el)return;
+  const rows=Object.keys(allStores).map(sid=>'<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">'
+    +'<div style="flex:1"><span style="font-size:13px;font-weight:600;color:var(--dark)">'+(allStores[sid].name||sid)+'</span>'
+    +'<span style="font-size:11px;color:#8B7355;margin-left:6px">'+(allStores[sid].city||'')+'</span></div>'
+    +(sid!=='coppell'
+      ?'<button onclick="deleteStore(\''+sid+'\')" style="background:none;border:1px solid #C0392B;color:#C0392B;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">Delete</button>'
+      :'<span style="font-size:11px;color:var(--green-ok)">Primary</span>')
+    +'</div>').join('');
+  el.innerHTML=rows||'<div style="color:#8B7355;font-size:13px">No stores.</div>';
+}
+
+// Override loadPendingSignups with banner logic
+async function loadPendingSignups() {
+  const el=document.getElementById('pendingSignupsList');
+  const banner=document.getElementById('pendingBanner');
+  if(!el)return;
+  try{
+    const snap=await getDocs(collection(db,'signupRequests'));
+    const pending=snap.docs.map(d=>({id:d.id,...d.data()})).filter(s=>s.status==='pending');
+    if(!pending.length){if(banner)banner.style.display='none';return;}
+    if(banner)banner.style.display='block';
+    el.innerHTML=pending.map(s=>'<div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:start;gap:8px;flex-wrap:wrap">'
+      +'<div><div style="font-size:13px;font-weight:700;color:var(--dark)">'+s.name+'</div>'
+      +'<div style="font-size:12px;color:#8B7355">'+s.email+' · '+(s.storeName||'')+' · '+(s.city||'')+'</div>'
+      +'<div style="font-size:11px;color:var(--caramel)">'+(s.role==='regional_owner'?'Regional Owner':'Store Owner')+'</div></div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button class="admin-btn" style="width:auto;padding:5px 12px;font-size:12px;background:var(--green-ok)" onclick="approveSignup(\''+s.id+'\',\''+( s.storeId||'')+'\',\''+s.storeName+'\',\''+s.email+'\',\''+(s.role||'store_owner')+'\',\''+(s.orgId||'dumont')+'\',\''+(s.regionId||'texas')+'\')">Approve</button>'
+      +'<button class="admin-btn" style="width:auto;padding:5px 12px;font-size:12px;background:#C0392B" onclick="rejectSignup(\''+s.id+'\',\''+s.email+'\')">Reject</button>'
+      +'</div></div></div>').join('');
+  }catch(e){if(banner)banner.style.display='none';}
+}
+
+window.approveSignup = async function(reqId,storeId,storeName,email,role,orgId,regionId) {
+  try{
+    const ek=email.replace(/\./g,'_').replace(/@/g,'_at_');
+    await setDoc(doc(db,'signupRequests',reqId),{status:'approved'},{merge:true});
+    await setDoc(doc(db,'users',ek),{status:'approved',role,orgId:orgId||'dumont',regionId:regionId||'texas',store:role===ROLES.STORE_OWNER?storeId:null,approvedAt:Date.now(),approvedBy:currentUser.email},{merge:true});
+    if(role===ROLES.STORE_OWNER&&storeId){const cs=await getDoc(doc(db,'config','stores'));const cd=cs.exists()?cs.data():{};cd[storeId]={name:storeName,id:storeId,createdAt:Date.now()};await setDoc(doc(db,'config','stores'),cd);}
+    if(role===ROLES.REGIONAL_OWNER&&regionId){await setDoc(doc(db,'regions',regionId),{id:regionId,name:storeName,orgId:orgId||'dumont',createdAt:Date.now()},{merge:true});}
+    showToast(storeName+' approved!');
+    loadPendingSignups(); loadOrgStructure();
+  }catch(e){showToast('Error: '+e.message);}
+};
+
+// ===== REGIONAL DASHBOARD =====
+let regPeriod='week';
+
+window.setRegPeriod = function(p) {
+  regPeriod=p;
+  document.getElementById('regPeriodWeek').classList.toggle('active',p==='week');
+  document.getElementById('regPeriodMonth').classList.toggle('active',p==='month');
+  loadRegionalData();
+};
+
+async function loadRegionalData() {
+  const cfg=currentUserConfig;
+  if(!cfg)return;
+  const ids=canSeeAllStores(cfg)?Object.keys(STORES):Object.keys(STORE_REGIONS).filter(id=>STORE_REGIONS[id]===cfg.regionId);
+  document.getElementById('regionalTitle').textContent=canSeeAllStores(cfg)?'All Stores':(REGIONS[cfg.regionId]?.name||'')+' Region';
+  document.getElementById('regionalSubtitle').textContent=ORGS[cfg.orgId]?.name||'Dumont Creamery and Cafe';
+  document.getElementById('regStores').textContent=ids.length;
+  const now=new Date();
+  const startTs=regPeriod==='week'?(() =>{const d=new Date(now);d.setDate(now.getDate()-now.getDay());d.setHours(0,0,0,0);return d.getTime();})():new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const results=await Promise.all(ids.map(async sid=>{
+    try{
+      const [ss,cs]=await Promise.all([getDocs(collection(db,'stores',sid,'salesLedger')),getDocs(collection(db,'stores',sid,'costLedger'))]);
+      const rev=ss.docs.map(d=>d.data()).filter(s=>s.dateTs>=startTs).reduce((s,x)=>s+(x.revenue||0),0);
+      const cost=cs.docs.map(d=>d.data()).filter(c=>c.dateTs>=startTs).reduce((s,x)=>s+(x.amount||0),0);
+      return {sid,rev,cost,cogsPct:rev>0?(cost/rev*100):0};
+    }catch(e){return {sid,rev:0,cost:0,cogsPct:0};}
+  }));
+  const totRev=results.reduce((s,r)=>s+r.rev,0);
+  const totCost=results.reduce((s,r)=>s+r.cost,0);
+  const pct=totRev>0?(totCost/totRev*100):0;
+  document.getElementById('regRevenue').textContent='$'+totRev.toLocaleString('en-US',{maximumFractionDigits:0});
+  document.getElementById('regCOGS').textContent=pct>0?pct.toFixed(1)+'%':'--';
+  document.getElementById('regAlerts').innerHTML='<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:#8B7355">'+ids.length+' store'+(ids.length!==1?'s':'')+' · '+(regPeriod==='week'?'This week':'This month')+'</div>';
+  document.getElementById('regStoreList').innerHTML=[...results].sort((a,b)=>b.rev-a.rev).map((r,i)=>'<div class="cogs-card" style="margin-bottom:8px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    +'<div><strong style="font-size:13px">'+(i+1)+'. '+(STORES[r.sid]?.name||r.sid)+'</strong></div>'
+    +'<button class="cat-btn" onclick="switchViewStore(\''+r.sid+'\');showTab(\'dashboard\')" style="font-size:11px;padding:4px 10px">View</button>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">'
+    +'<div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:var(--green-ok)">$'+r.rev.toLocaleString('en-US',{maximumFractionDigits:0})+'</div><div style="font-size:10px;color:#8B7355">Revenue</div></div>'
+    +'<div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:var(--red-alert)">$'+r.cost.toLocaleString('en-US',{maximumFractionDigits:0})+'</div><div style="font-size:10px;color:#8B7355">Purchases</div></div>'
+    +'<div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:'+(r.cogsPct<25?'var(--green-ok)':r.cogsPct<32?'var(--amber-alert)':'var(--red-alert)')+'">'+(r.cogsPct>0?r.cogsPct.toFixed(1)+'%':'--')+'</div><div style="font-size:10px;color:#8B7355">COGS</div></div>'
+    +'</div></div>').join('');
+}
+
+// Override adminAddStore with regionId support
+window.adminAddStore = async function() {
+  const sid=document.getElementById('newStoreId').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const name=document.getElementById('newStoreName').value.trim();
+  const city=document.getElementById('newStoreCity').value.trim();
+  const rid=document.getElementById('newStoreRegion')?.value||'texas';
+  if(!sid||!name){showToast('Store ID and name required');return;}
+  if(allStores[sid]){showToast('Store ID already exists');return;}
+  const ns={name,city,regionId:rid};
+  allStores[sid]=ns; STORES[sid]=ns; STORE_REGIONS[sid]=rid;
+  try{
+    const s=await getDoc(doc(db,'config','stores'));
+    const e=s.exists()?s.data():{};e[sid]=ns;
+    await setDoc(doc(db,'config','stores'),e);
+  }catch(e){}
+  if(typeof populateAdminStoreSelect==='function')populateAdminStoreSelect();
+  renderAdminStoreList(); renderOrgTree(); updateAdminDropdowns();
+  if(typeof populateStoreSwitcher==='function')populateStoreSwitcher(currentUserConfig);
+  document.getElementById('newStoreId').value='';
+  document.getElementById('newStoreName').value='';
+  document.getElementById('newStoreCity').value='';
+  showToast('Store "'+name+'" added!');
+};
+
+
 
 
 </script>
