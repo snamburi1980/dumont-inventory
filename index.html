@@ -3252,10 +3252,19 @@ function renderWeekGrid() {
         const isToday   = d.getTime() === today.getTime();
         const dayShifts = schedShifts.filter(s => s.staffId===staff.id && s.date===ds);
         const st        = dayShifts.length ? schedShiftTypes.find(t=>t.id===dayShifts[0].shiftTypeId) : null;
+        const orphaned  = dayShifts.length && !st; // shift exists but type deleted
         if (st) totalHrs += shiftHours(st);
 
         html += `<td class="sched-day-cell${isToday?' sched-today':''}" data-sid="${staff.id}" data-date="${ds}" id="cell-${staff.id}-${ds}">`;
-        if (st) {
+        if (orphaned) {
+          // Shift exists but type deleted - show remove button
+          html += `<div class="sched-shift-bar" style="background:#eee;border:1.5px solid #ccc;color:#999"
+            data-shiftid="${dayShifts[0].id}" data-sid="${staff.id}" data-date="${ds}"
+            title="Tap to remove (shift type deleted)">
+            <div>⚠️ Unknown</div>
+            <div class="sched-shift-time">Tap to remove</div>
+          </div>`;
+        } else if (st) {
           html += `<div class="sched-shift-bar" style="background:${st.color}22;border:1.5px solid ${st.color};color:${st.color};position:relative"
             data-shiftid="${dayShifts[0].id}" data-sid="${staff.id}" data-date="${ds}"
             title="Tap to remove">
