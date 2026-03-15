@@ -2626,15 +2626,13 @@ window.exportScheduleImage = async function() {
 };
 
 function getExportWeekDates() {
-  const now  = new Date();
-  const day  = now.getDay();
-  const weekDates = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(now);
-    d.setDate(now.getDate() - day + i);
-    d.setHours(0,0,0,0);
-    weekDates.push(d);
-  }
+  // Use same week calculation as the grid (Mon start, respects schedOffset)
+  const ws = getWeekStart(schedOffset);
+  const weekDates = Array.from({length:7}, (_, i) => {
+    const d = new Date(ws);
+    d.setDate(ws.getDate() + i);
+    return d;
+  });
   return { weekDates, weekLabels: weekDates.map(d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})) };
 }
 
