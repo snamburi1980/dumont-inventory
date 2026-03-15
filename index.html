@@ -802,17 +802,56 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
       <!-- ADMIN PANEL (owner only) -->
       <div id="tab-admin" style="display:none">
-        <div id="pendingBanner" style="display:none;background:rgba(200,132,58,0.1);border:1px solid var(--caramel);border-radius:12px;padding:12px 16px;margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:var(--caramel);margin-bottom:8px">Pending Signups</div><div id="pendingSignupsList"></div></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div class="admin-card"><div class="admin-card-title">New Region</div><input class="admin-input" id="newRegionName" placeholder="e.g. Chicago"><select class="admin-input" id="newRegionOrg"><option value="dumont">Dumont</option></select><input class="admin-input" id="newRegionOwnerEmail" placeholder="Owner email (optional)"><button class="admin-btn" onclick="addRegion()">Add Region</button></div>
-          <div class="admin-card" style="grid-column:span 1"><div class="admin-card-title">🏪 Add Store + Manager</div><select class="admin-input" id="newStoreRegion"></select><input class="admin-input" id="newStoreName" placeholder="Store name (e.g. Plano Dumont)"><input class="admin-input" id="newStoreCity" placeholder="City"><div style="height:1px;background:var(--border);margin:2px 0 6px;opacity:0.5"></div><input class="admin-input" id="newUserEmail" placeholder="Manager email"><input class="admin-input" id="newUserPassword" type="password" placeholder="Temp password"><button class="admin-btn" onclick="adminAddStoreAndManager()">Add Store + Manager</button></div>
+
+        <!-- Pending signups banner -->
+        <div id="pendingBanner" style="display:none;background:rgba(200,132,58,0.1);border:1px solid var(--caramel);border-radius:12px;padding:12px 16px;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:700;color:var(--caramel);margin-bottom:8px">🔔 Pending Signups</div>
+          <div id="pendingSignupsList"></div>
         </div>
+
+        <!-- Row 1: Add Region (with owner) + Add Store (with manager) -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div class="admin-card"><div class="admin-card-title">Assign Regional Owner</div><input class="admin-input" id="assignEmail" placeholder="User email"><select class="admin-input" id="assignRegion"></select><button class="admin-btn" onclick="assignRegionalOwner()">Assign</button></div>
-          <div class="admin-card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;color:#8B7355;font-size:12px;text-align:center"><div style="font-size:28px">💡</div><div style="font-weight:600">Store ID is auto-generated from store name</div><div style="font-size:11px">Manager gets access immediately after adding</div></div>
+
+          <!-- Add Region + Regional Owner combined -->
+          <div class="admin-card">
+            <div class="admin-card-title">🌎 Add Region</div>
+            <div class="modal-label">Region Name</div>
+            <input class="admin-input" id="newRegionName" placeholder="e.g. Chicago">
+            <div class="modal-label">Regional Owner Email <span style="color:#aaa;font-weight:400">(optional)</span></div>
+            <input class="admin-input" id="newRegionOwnerEmail" placeholder="owner@email.com">
+            <button class="admin-btn" onclick="addRegion()">Add Region</button>
+          </div>
+
+          <!-- Add Store + Manager combined -->
+          <div class="admin-card">
+            <div class="admin-card-title">🏪 Add Store</div>
+            <div class="modal-label">Region</div>
+            <select class="admin-input" id="newStoreRegion"><option value="texas">Texas</option></select>
+            <div class="modal-label">Store Name</div>
+            <input class="admin-input" id="newStoreName" placeholder="e.g. Plano Dumont">
+            <div class="modal-label">City</div>
+            <input class="admin-input" id="newStoreCity" placeholder="City">
+            <div style="height:1px;background:var(--border);margin:4px 0 8px;opacity:0.4"></div>
+            <div class="modal-label">Manager Email</div>
+            <input class="admin-input" id="newUserEmail" placeholder="manager@email.com">
+            <div class="modal-label">Temp Password</div>
+            <input class="admin-input" id="newUserPassword" type="password" placeholder="Min 8 characters">
+            <button class="admin-btn" onclick="adminAddStoreAndManager()">Add Store + Manager</button>
+          </div>
         </div>
-        <div class="admin-card" style="margin-bottom:10px"><div class="admin-card-title">Organisation</div><div id="orgTree"></div></div>
-        <div class="admin-card"><div class="admin-card-title">Store List</div><div id="adminStoreList"></div></div>
+
+        <!-- Row 2: Org tree + Store list -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="admin-card">
+            <div class="admin-card-title">🏢 Organisation</div>
+            <div id="orgTree"></div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-title">📋 Stores</div>
+            <div id="adminStoreList"></div>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -839,15 +878,40 @@ function doc(db,...args) {
   return ref;
 }
 function collection(db,...args) { let r=db; for(const s of args) r=r.collection(s); return r; }
-async function getDoc(ref)           { return ref.get(); }
+async function getDoc(ref) {
+  const snap = await ref.get();
+  // compat SDK: snap.exists is already a boolean - no normalization needed
+  return snap;
+}
 async function setDoc(ref,data,opt)  { return opt?.merge?ref.set(data,{merge:true}):ref.set(data); }
 async function addDoc(ref,data)      { return ref.add(data); }
 async function deleteDoc(ref)        { return ref.delete(); }
 async function getDocs(ref)          { return ref.get(); }
-function onSnapshot(ref,cb)          { return ref.onSnapshot(cb); }
+function onSnapshot(ref, cb) {
+  return ref.onSnapshot(cb);
+}
 function query(ref,...c)             { let q=ref; for(const x of c){if(x?._ob)q=q.orderBy(x.f,x.d);} return q; }
 function orderBy(f,d='asc')          { return {_ob:true,f,d}; }
 const serverTimestamp                = () => firebase.firestore.FieldValue.serverTimestamp();
+// ── Modal helpers ──
+function openModal(html) {
+  const overlay = document.getElementById('modalOverlay');
+  const box     = document.getElementById('modalBox');
+  if (!overlay || !box) return;
+  box.innerHTML = html;
+  overlay.style.display = 'flex';
+}
+function closeModal() {
+  const overlay = document.getElementById('modalOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+// Close on overlay click
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('modalOverlay')?.addEventListener('click', (e) => {
+    if (e.target.id === 'modalOverlay') closeModal();
+  });
+});
+
 
 const APP_VERSION = "v14";
 
@@ -1149,7 +1213,7 @@ onAuthStateChanged(auth, async (user) => {
     try {
       const emailKey = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
       const userSnap = await getDoc(doc(db, 'users', emailKey));
-      if (userSnap.exists()) {
+      if (userSnap.exists) {
         const fd=userSnap.data(); if(fd.role==="owner")fd.role=ROLES.SUPER_OWNER; cfg={...cfg,...fd};
       } else {
         // First login — write profile to Firestore
@@ -1192,14 +1256,14 @@ async function initStore(storeId) {
   // Load inventory from Firestore, fallback to defaults
   const docRef = doc(db, 'stores', storeId, 'inventory', 'stock');
   const snap = await getDoc(docRef);
-  const stockMap = snap.exists() ? snap.data() : {};
+  const stockMap = snap.exists ? snap.data() : {};
   inventory = DEFAULT_INVENTORY.map(item => ({
     ...item,
     stock: stockMap[String(item.id)] !== undefined ? stockMap[String(item.id)] : 0
   }));
   // Real-time listener
   unsubscribeInventory = onSnapshot(docRef, (snap) => {
-    const data = snap.exists() ? snap.data() : {};
+    const data = snap.exists ? snap.data() : {};
     inventory.forEach(item => {
       if (data[String(item.id)] !== undefined) item.stock = data[String(item.id)];
     });
@@ -1282,7 +1346,7 @@ async function loadAllStores() {
   for (const sid of storeIds) {
     try {
       const snap = await getDoc(doc(db, 'stores', sid, 'inventory', 'stock'));
-      const stockMap = snap.exists() ? snap.data() : {};
+      const stockMap = snap.exists ? snap.data() : {};
       const inv = DEFAULT_INVENTORY.map(item => ({
         ...item, stock: stockMap[String(item.id)] !== undefined ? stockMap[String(item.id)] : 0
       }));
@@ -1984,7 +2048,7 @@ window.approveSignup = async function(reqId, storeId, storeName, email) {
 
     // Create store in config
     const configSnap = await getDoc(doc(db, 'config', 'stores'));
-    const existing = configSnap.exists() ? configSnap.data() : {};
+    const existing = configSnap.exists ? configSnap.data() : {};
     existing[storeId] = { name: storeName, id: storeId, createdAt: Date.now() };
     await setDoc(doc(db, 'config', 'stores'), existing);
 
@@ -2100,7 +2164,7 @@ async function checkPendingStatus(user) {
   const emailKey = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
   try {
     const snap = await getDoc(doc(db, 'users', emailKey));
-    if (snap.exists() && snap.data().status === 'pending') {
+    if (snap.exists && snap.data().status === 'pending') {
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('app').style.display = 'none';
       showPending(snap.data().storeName || 'Your Store');
@@ -2206,7 +2270,7 @@ async function checkNeedsSetup() {
   const emailKey = currentUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
   try {
     const snap = await getDoc(doc(db, 'users', emailKey));
-    if (snap.exists() && !snap.data().setupComplete && snap.data().status === 'approved') {
+    if (snap.exists && !snap.data().setupComplete && snap.data().status === 'approved') {
       // Pre-fill wizard with signup data
       const d = snap.data();
       document.getElementById('wiz1StoreName').value = d.storeName || '';
@@ -2249,7 +2313,7 @@ let customItems = []; // items added via the UI
 async function loadCustomItems() {
   try {
     const snap = await getDoc(doc(db, 'stores', viewingStore, 'inventory', 'custom'));
-    if (snap.exists()) {
+    if (snap.exists) {
       const d = snap.data();
       customCategories = d.categories || [];
       customItems      = d.items      || [];
@@ -2835,7 +2899,7 @@ let cogsLoaded = false;
 async function loadCogsData() {
   try {
     const snap = await getDoc(doc(db, 'stores', viewingStore, 'cogs', 'menuPrices'));
-    if (snap.exists()) {
+    if (snap.exists) {
       const saved = snap.data();
       Object.assign(menuPrices, saved);
     }
@@ -2952,7 +3016,7 @@ async function loadAdminStores() {
   // Load any extra stores saved to Firestore
   try {
     const snap = await getDoc(doc(db, 'config', 'stores'));
-    if (snap.exists()) {
+    if (snap.exists) {
       const extra = snap.data();
       Object.assign(allStores, extra);
       // Merge into STORES and USERS store switcher
@@ -2984,7 +3048,7 @@ window.adminAddStore = async function() {
   // Save to Firestore config
   try {
     const snap = await getDoc(doc(db, 'config', 'stores'));
-    const existing = snap.exists() ? snap.data() : {};
+    const existing = snap.exists ? snap.data() : {};
     existing[sid] = newStore;
     await setDoc(doc(db, 'config', 'stores'), existing);
   } catch(e) {}
@@ -3062,7 +3126,7 @@ async function loadScheduleData() {
   if (!viewingStore) return;
   try {
     const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'));
-    if (snap.exists()) {
+    if (snap.exists) {
       const d        = snap.data();
       schedStaff     = d.staff      || [];
       schedShifts    = d.shifts     || [];
@@ -3626,7 +3690,7 @@ function renderHoursSummary() {
 // ── Admin: Add Region ──
 window.addRegion = async function() {
   const name  = document.getElementById('newRegionName')?.value.trim();
-  const orgId = document.getElementById('newRegionOrg')?.value || 'dumont';
+  const orgId = 'dumont'; // single org for now
   const email = document.getElementById('newRegionOwnerEmail')?.value.trim().toLowerCase();
   if (!name) { showToast('⚠️ Enter region name'); return; }
   const regionId = name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,20);
@@ -3641,8 +3705,9 @@ window.addRegion = async function() {
     showToast('✅ Region "' + name + '" created!');
     document.getElementById('newRegionName').value = '';
     document.getElementById('newRegionOwnerEmail').value = '';
-    if (typeof renderOrgTree === 'function') renderOrgTree();
-    if (typeof updateAdminDropdowns === 'function') updateAdminDropdowns();
+    renderOrgTree();
+    updateAdminDropdowns();
+    renderAdminStoreList();
   } catch(e) { showToast('⚠️ ' + e.message); }
 };
 
@@ -3663,7 +3728,7 @@ window.adminAddStoreAndManager = async function() {
     if (typeof STORES !== 'undefined')    STORES[sid]    = newStore;
     if (typeof STORE_REGIONS !== 'undefined') STORE_REGIONS[sid] = regionId;
     const snap = await getDoc(doc(db,'config','stores'));
-    const existing = snap.exists() ? snap.data() : {};
+    const existing = snap.exists ? snap.data() : {};
     existing[sid] = newStore;
     await setDoc(doc(db,'config','stores'), existing);
     const ek = email.replace(/\./g,'_').replace(/@/g,'_at_');
@@ -3704,6 +3769,107 @@ window.setRegPeriod = function(p) {
   document.getElementById('regPeriodMonth')?.classList.toggle('active', p==='month');
   if (typeof loadRegionalData === 'function') loadRegionalData();
 };
+
+// ── Org Structure & Admin ──
+let liveRegions = {}, liveOrgs = {};
+
+async function loadOrgStructure() {
+  try {
+    const [orgSnap, regSnap, cfgSnap] = await Promise.all([
+      getDocs(collection(db,'orgs')),
+      getDocs(collection(db,'regions')),
+      getDoc(doc(db,'config','stores'))
+    ]);
+    orgSnap.docs.forEach(d => { liveOrgs[d.id] = d.data(); });
+    regSnap.docs.forEach(d => { liveRegions[d.id] = {...d.data(), id:d.id}; });
+    if (cfgSnap.exists) {
+      Object.entries(cfgSnap.data()).forEach(([sid,store]) => {
+        STORES[sid] = store; allStores[sid] = store;
+        STORE_REGIONS[sid] = store.regionId || 'texas';
+      });
+    }
+  } catch(e) { console.warn('loadOrgStructure:',e); }
+  renderOrgTree();
+  updateAdminDropdowns();
+}
+
+function renderOrgTree() {
+  const el = document.getElementById('orgTree');
+  if (!el) return;
+  const regionStores = {};
+  Object.entries(STORE_REGIONS).forEach(([sid,rid]) => {
+    if (!regionStores[rid]) regionStores[rid] = [];
+    regionStores[rid].push(sid);
+  });
+  const allOrgs = {...ORGS, ...liveOrgs};
+  const allRegs = {...REGIONS, ...liveRegions};
+  el.innerHTML = Object.entries(allOrgs).map(([orgId,org]) => {
+    const regs = Object.entries(allRegs).filter(([,r]) => r.orgId===orgId);
+    return `<div style="margin-bottom:10px">
+      <div style="padding:8px 12px;background:var(--dark);border-radius:8px;color:#D4A843;font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center">
+        🏢 ${org.name}<span style="opacity:0.5;font-weight:400">${regs.length} region${regs.length!==1?'s':''}</span>
+      </div>
+      ${regs.map(([rid,reg]) => {
+        const stores = regionStores[rid] || [];
+        return `<div style="margin-left:12px;margin-top:4px">
+          <div style="padding:6px 12px;background:rgba(200,132,58,0.1);border-left:3px solid var(--caramel);border-radius:0 6px 6px 0;font-size:12px;font-weight:600;color:var(--caramel);display:flex;justify-content:space-between">
+            🌎 ${reg.name}<span style="font-weight:400;opacity:0.7">${stores.length} store${stores.length!==1?'s':''}</span>
+          </div>
+          ${stores.map(sid => `<div style="margin-left:12px;margin-top:3px;display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;font-size:12px">
+            🏪 ${STORES[sid]?.name||sid}
+            <button onclick="switchViewStore('${sid}');showTab('dashboard')" style="margin-left:auto;font-size:10px;padding:2px 8px;background:var(--caramel);color:#fff;border:none;border-radius:5px;cursor:pointer">→</button>
+          </div>`).join('')}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderAdminStoreList() {
+  const el = document.getElementById('adminStoreList');
+  if (!el) return;
+  const keys = Object.keys(allStores);
+  if (!keys.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#8B7355;text-align:center;padding:16px">No stores added yet.<br>Add your first store above.</div>';
+    return;
+  }
+  el.innerHTML = keys.map(sid => {
+    const store   = allStores[sid];
+    const regId   = store.regionId || STORE_REGIONS[sid] || '';
+    const regName = (REGIONS[regId] || liveRegions[regId])?.name || regId;
+    return `<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--dark)">${store.name||sid}</div>
+        <div style="font-size:11px;color:#8B7355">${store.city||''} ${regName?'· '+regName:''}</div>
+      </div>
+      <button onclick="deleteStore('${sid}')" style="border:1px solid #C0392B;color:#C0392B;background:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">Delete</button>
+    </div>`;
+  }).join('');
+}
+
+function updateAdminDropdowns() {
+  const allRegs = {...REGIONS,...liveRegions};
+  const regOpts = Object.entries(allRegs).map(([id,r])=>`<option value="${id}">${r.name}</option>`).join('');
+  ['assignRegion','newStoreRegion'].forEach(id=>{const el=document.getElementById(id);if(el && regOpts)el.innerHTML=regOpts;});
+  const storeOpts = Object.keys(STORES).map(id=>`<option value="${id}">${STORES[id]?.name||id}</option>`).join('');
+  const su=document.getElementById('newUserStore');if(su)su.innerHTML=storeOpts;
+  const allOrgs={...ORGS,...liveOrgs};
+  const orgOpts=Object.entries(allOrgs).map(([id,o])=>`<option value="${id}">${o.name}</option>`).join('');
+  const ro=document.getElementById('newRegionOrg');if(ro)ro.innerHTML=orgOpts;
+}
+
+window.deleteStore = async function(sid) {
+  const name = STORES[sid]?.name||sid;
+  if (!confirm('Delete "'+name+'"? Firestore data kept.')) return;
+  try {
+    const snap = await getDoc(doc(db,'config','stores'));
+    if (snap.exists) { const d=snap.data(); delete d[sid]; await setDoc(doc(db,'config','stores'),d); }
+    delete allStores[sid]; delete STORES[sid]; delete STORE_REGIONS[sid];
+    populateStoreSwitcher(currentUserConfig); renderAdminStoreList(); renderOrgTree();
+    showToast('🗑 "'+name+'" removed');
+  } catch(e) { showToast('⚠️ '+e.message); }
+};
+
 
 
 
