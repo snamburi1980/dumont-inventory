@@ -1,13 +1,6 @@
 
-// Make Firebase modular functions available globally
-// Using Firebase compat + modular bridge
-const _app  = firebase.app();
-const _auth = firebase.auth();
-const _db   = firebase.firestore();
-
-// Bridge modular API to globals
-const auth = _auth;
-const db   = _db;
+// auth and db declared in firebase.js
+// Firestore helper shims below
 
 // Firestore helper shims (modular -> compat)
 function doc(database, ...pathSegments) {
