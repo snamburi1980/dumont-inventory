@@ -1,7 +1,7 @@
 <!--
   ╔══════════════════════════════════════════════════════════╗
   ║  DUMONT CREAMERY & CAFÉ — INVENTORY APP                  ║
-  ║  Version: v15                                            ║
+  ║  Version: v16                                            ║
   ║  Last Updated: March 14, 2026                            ║
   ║                                                          ║
   ║  VERIFY DEPLOYMENT: Login screen should say "v11"        ║
@@ -32,7 +32,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dumont">
-<title>Dumont — Inventory v15</title>
+<title>Dumont — Inventory v16</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -364,7 +364,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
   <!-- ── SIGN IN PANEL ── -->
   <div class="login-box" id="loginPanel">
     <div class="login-logo">Dumont</div>
-    <div class="login-sub">Creamery &amp; Café — Inventory v15</div>
+    <div class="login-sub">Creamery &amp; Café — Inventory v16</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
     <button class="btn-login" id="loginBtn">Sign In</button>
@@ -3873,9 +3873,18 @@ function populateStoreSwitcher(cfg) {
   if (!bar) return;
   const ids = isSuperOwner(cfg)
     ? Object.keys(allStores)
-    : Object.keys(allStores).filter(id => (allStores[id]?.regionId || STORE_REGIONS[id]) === cfg.regionId);
-  bar.innerHTML = '<button class="store-tab-btn active" onclick="switchViewStore('all')" id="storeAll">📊 All Stores</button>'
-    + ids.map(id => `<button class="store-tab-btn" onclick="switchViewStore('${id}')" id="store-${id}">${allStores[id]?.name||id}</button>`).join('');
+    : Object.keys(allStores).filter(function(id) { return (allStores[id] && allStores[id].regionId || STORE_REGIONS[id]) === cfg.regionId; });
+  let html = '<button class="store-tab-btn active" id="storeAll">📊 All Stores</button>';
+  ids.forEach(function(id) {
+    html += '<button class="store-tab-btn" id="store-' + id + '">' + (allStores[id] && allStores[id].name || id) + '</button>';
+  });
+  bar.innerHTML = html;
+  // Attach click handlers
+  document.getElementById('storeAll').onclick = function() { switchViewStore('all'); };
+  ids.forEach(function(id) {
+    var btn = document.getElementById('store-' + id);
+    if (btn) btn.onclick = function() { switchViewStore(id); };
+  });
 }
 
 
