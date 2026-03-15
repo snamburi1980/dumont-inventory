@@ -1,7 +1,7 @@
 <!--
   ╔══════════════════════════════════════════════════════════╗
   ║  DUMONT CREAMERY & CAFÉ — INVENTORY APP                  ║
-  ║  Version: v11                                            ║
+  ║  Version: v12                                            ║
   ║  Last Updated: March 14, 2026                            ║
   ║                                                          ║
   ║  VERIFY DEPLOYMENT: Login screen should say "v11"        ║
@@ -27,7 +27,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dumont">
-<title>Dumont — Inventory v11</title>
+<title>Dumont — Inventory v12</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -330,7 +330,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
   <!-- ── SIGN IN PANEL ── -->
   <div class="login-box" id="loginPanel">
     <div class="login-logo">Dumont</div>
-    <div class="login-sub">Creamery &amp; Café — Inventory v11</div>
+    <div class="login-sub">Creamery &amp; Café — Inventory v12</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
     <button class="btn-login" id="loginBtn">Sign In</button>
@@ -901,7 +901,7 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, si
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-const APP_VERSION = "v11";
+const APP_VERSION = "v12";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBofsUP3yf2OkaQVPav8rfxUiax39TkxYY",
