@@ -3254,10 +3254,10 @@ function renderWeekGrid() {
         const st        = dayShifts.length ? schedShiftTypes.find(t=>t.id===dayShifts[0].shiftTypeId) : null;
         if (st) totalHrs += shiftHours(st);
 
-        html += `<td class="sched-day-cell${isToday?' sched-today':''}" onclick="${isManager?`cellClick('${staff.id}','${ds}')`:''}" >`;
+        html += `<td class="sched-day-cell${isToday?' sched-today':''}" data-sid="${staff.id}" data-date="${ds}" id="cell-${staff.id}-${ds}">`;
         if (st) {
           html += `<div class="sched-shift-bar" style="background:${st.color}22;border:1.5px solid ${st.color};color:${st.color};position:relative"
-            onclick="event.stopPropagation();${isManager?`removeShift('${dayShifts[0].id}','${staff.id}','${ds}')`:''}"
+            data-shiftid="${dayShifts[0].id}" data-sid="${staff.id}" data-date="${ds}"
             title="Tap to remove">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div>${st.name}</div>
@@ -3289,6 +3289,28 @@ function renderWeekGrid() {
 
   html += '</tbody>';
   document.getElementById('weekGrid').innerHTML = html;
+
+  // Attach click handlers via event delegation (avoids quote issues in onclick)
+  document.getElementById('weekGrid').addEventListener('click', function(e) {
+    if (!isManager) return;
+    // Click on shift bar - remove shift
+    const bar = e.target.closest('.sched-shift-bar');
+    if (bar) {
+      e.stopPropagation();
+      const shiftId = bar.dataset.shiftid;
+      const sid     = bar.dataset.sid;
+      const date    = bar.dataset.date;
+      if (shiftId && sid && date) removeShift(shiftId, sid, date);
+      return;
+    }
+    // Click on empty cell - open shift picker
+    const cell = e.target.closest('td[data-sid]');
+    if (cell) {
+      const sid  = cell.dataset.sid;
+      const date = cell.dataset.date;
+      if (sid && date) cellClick(sid, date);
+    }
+  }, { once: true });
 
   // Hours summary
   const totalShifts = schedShifts.filter(s => {
