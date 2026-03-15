@@ -3290,10 +3290,13 @@ function renderWeekGrid() {
   html += '</tbody>';
   document.getElementById('weekGrid').innerHTML = html;
 
-  // Attach click handlers via event delegation (avoids quote issues in onclick)
-  document.getElementById('weekGrid').addEventListener('click', function(e) {
-    if (!isManager) return;
-    // Click on shift bar - remove shift
+  // Re-attach click handler each render (grid innerHTML replaced)
+  const grid = document.getElementById('weekGrid');
+  if (grid._schedListener) grid.removeEventListener('click', grid._schedListener);
+  grid._schedListener = function(e) {
+    const mgr = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig)
+             || currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'store_owner';
+    if (!mgr) return;
     const bar = e.target.closest('.sched-shift-bar');
     if (bar) {
       e.stopPropagation();
@@ -3303,14 +3306,14 @@ function renderWeekGrid() {
       if (shiftId && sid && date) removeShift(shiftId, sid, date);
       return;
     }
-    // Click on empty cell - open shift picker
     const cell = e.target.closest('td[data-sid]');
     if (cell) {
       const sid  = cell.dataset.sid;
       const date = cell.dataset.date;
       if (sid && date) cellClick(sid, date);
     }
-  }, { once: true });
+  };
+  grid.addEventListener('click', grid._schedListener);
 
   // Hours summary
   const totalShifts = schedShifts.filter(s => {
