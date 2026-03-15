@@ -3165,7 +3165,10 @@ function shiftHours(st) {
 }
 function getWeekStart(offset) {
   const d = new Date(); d.setHours(0,0,0,0);
-  d.setDate(d.getDate() - d.getDay() + offset*7);
+  // Start week on Monday (1), not Sunday (0)
+  const day = d.getDay();
+  const diff = (day === 0) ? -6 : 1 - day; // if Sunday, go back 6 days; else go to Monday
+  d.setDate(d.getDate() + diff + offset*7);
   return d;
 }
 function getDateStr(d) { return d.toISOString().split('T')[0]; }
@@ -3175,7 +3178,7 @@ function fmtDay(d)     { return d.toLocaleDateString('en-US',{weekday:'short'});
 // ── Main render ──
 function renderSchedule() {
   if (!schedLoaded) { loadScheduleData(); return; }
-  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig);
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig) || currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'store_owner';
   const mt = document.getElementById('schedManagerTools');
   if (mt) mt.style.display = isManager ? 'flex' : 'none';
   renderShiftLegend();
@@ -3204,7 +3207,7 @@ function renderWeekGrid() {
   document.getElementById('schedTitle').textContent =
     fmtDate(days[0]) + ' – ' + fmtDate(days[6]);
 
-  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig);
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig) || currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'store_owner';
   let html = '<colgroup><col style="width:110px">';
   days.forEach(() => html += '<col>');
   html += '<col style="width:50px"></colgroup>';
@@ -3250,10 +3253,13 @@ function renderWeekGrid() {
 
         html += `<td class="sched-day-cell${isToday?' sched-today':''}" onclick="${isManager?`cellClick('${staff.id}','${ds}')`:''}" >`;
         if (st) {
-          html += `<div class="sched-shift-bar" style="background:${st.color}22;border:1.5px solid ${st.color};color:${st.color}"
+          html += `<div class="sched-shift-bar" style="background:${st.color}22;border:1.5px solid ${st.color};color:${st.color};position:relative"
             onclick="event.stopPropagation();${isManager?`removeShift('${dayShifts[0].id}','${staff.id}','${ds}')`:''}"
-            title="Click to remove">
-            <div>${st.name}</div>
+            title="Tap to remove">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>${st.name}</div>
+              ${isManager ? `<span style="font-size:14px;opacity:0.6;line-height:1">×</span>` : ''}
+            </div>
             <div class="sched-shift-time">${fmt12(st.start)}–${fmt12(st.end)}</div>
           </div>`;
         } else if (isManager) {
@@ -3513,7 +3519,7 @@ function renderSwaps() {
   if (!el || !list) return;
   el.style.display = pending.length ? 'block' : 'none';
   if (!pending.length) return;
-  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig);
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig) || currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'store_owner';
   list.innerHTML = pending.map(sw => {
     const from = schedStaff.find(s=>s.id===sw.fromStaffId);
     const to   = schedStaff.find(s=>s.id===sw.toStaffId);
