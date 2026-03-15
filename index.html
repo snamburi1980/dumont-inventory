@@ -803,56 +803,30 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
       <!-- ADMIN PANEL (owner only) -->
       <div id="tab-admin" style="display:none">
 
-        <!-- Pending signups banner -->
-        <div id="pendingBanner" style="display:none;background:rgba(200,132,58,0.1);border:1px solid var(--caramel);border-radius:12px;padding:12px 16px;margin-bottom:12px">
-          <div style="font-size:13px;font-weight:700;color:var(--caramel);margin-bottom:8px">🔔 Pending Signups</div>
-          <div id="pendingSignupsList"></div>
+        <!-- Pending Signups -->
+        <div id="pendingBanner" style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">🔔 Pending Signups</div>
+          <div id="pendingSignupsList"><div style="font-size:12px;color:#8B7355">Loading...</div></div>
         </div>
 
-        <!-- Row 1: Add Region (with owner) + Add Store (with manager) -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <!-- Org Tree + Store List side by side -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
 
-          <!-- Add Region + Regional Owner combined -->
-          <div class="admin-card">
-            <div class="admin-card-title">🌎 Add Region</div>
-            <div class="modal-label">Region Name</div>
-            <input class="admin-input" id="newRegionName" placeholder="e.g. Chicago">
-            <div class="modal-label">Regional Owner Email <span style="color:#aaa;font-weight:400">(optional)</span></div>
-            <input class="admin-input" id="newRegionOwnerEmail" placeholder="owner@email.com">
-            <button class="admin-btn" onclick="addRegion()">Add Region</button>
-          </div>
-
-          <!-- Add Store + Manager combined -->
-          <div class="admin-card">
-            <div class="admin-card-title">🏪 Add Store</div>
-            <div class="modal-label">Region</div>
-            <select class="admin-input" id="newStoreRegion"><option value="texas">Texas</option></select>
-            <div class="modal-label">Store Name</div>
-            <input class="admin-input" id="newStoreName" placeholder="e.g. Plano Dumont">
-            <div class="modal-label">City</div>
-            <input class="admin-input" id="newStoreCity" placeholder="City">
-            <div style="height:1px;background:var(--border);margin:4px 0 8px;opacity:0.4"></div>
-            <div class="modal-label">Manager Email</div>
-            <input class="admin-input" id="newUserEmail" placeholder="manager@email.com">
-            <div class="modal-label">Temp Password</div>
-            <input class="admin-input" id="newUserPassword" type="password" placeholder="Min 8 characters">
-            <button class="admin-btn" onclick="adminAddStoreAndManager()">Add Store + Manager</button>
-          </div>
-        </div>
-
-        <!-- Row 2: Org tree + Store list -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <div class="admin-card">
             <div class="admin-card-title">🏢 Organisation</div>
             <div id="orgTree"></div>
           </div>
+
           <div class="admin-card">
             <div class="admin-card-title">📋 Stores</div>
             <div id="adminStoreList"></div>
           </div>
+
         </div>
 
       </div>
+
+</div>
 
     </div>
   </div>
