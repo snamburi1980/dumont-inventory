@@ -1175,7 +1175,10 @@ onAuthStateChanged(auth, async (user) => {
       const emailKey = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
       const userSnap = await getDoc(doc(db, 'users', emailKey));
       if (userSnap.exists()) {
-        cfg = { ...cfg, ...userSnap.data() };
+        const firestoreData = userSnap.data();
+        // Backward compat: map old 'owner' role to 'super_owner'
+        if (firestoreData.role === 'owner') firestoreData.role = ROLES.SUPER_OWNER;
+        cfg = { ...cfg, ...firestoreData };
       } else {
         // First login — write profile to Firestore
         await setDoc(doc(db, 'users', emailKey), {
