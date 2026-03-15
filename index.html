@@ -807,6 +807,13 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 <script>
 // Firebase loaded via compat CDN in <head>
 // Shims to keep modular-style calls working
+
+// Auth shims
+const signInWithEmailAndPassword  = (auth, email, pw) => auth.signInWithEmailAndPassword(email, pw);
+const createUserWithEmailAndPassword = (auth, email, pw) => auth.createUserWithEmailAndPassword(email, pw);
+const signOut                     = (auth) => auth.signOut();
+const onAuthStateChanged          = (auth, cb) => auth.onAuthStateChanged(cb);
+const updatePassword              = (user, pw) => user.updatePassword(pw);
 function doc(db, ...args) {
   const path = args.join('/').split('/');
   let ref = db;
