@@ -3165,10 +3165,13 @@ function shiftHours(st) {
 }
 function getWeekStart(offset) {
   const d = new Date(); d.setHours(0,0,0,0);
-  // Start week on Monday (1), not Sunday (0)
+  // Start week on Monday, end on Sunday
+  // JS getDay(): 0=Sun, 1=Mon...6=Sat
   const day = d.getDay();
-  const diff = (day === 0) ? -6 : 1 - day; // if Sunday, go back 6 days; else go to Monday
-  d.setDate(d.getDate() + diff + offset*7);
+  // If Sunday(0), it belongs to current week so go back 6 days to Monday
+  // If Monday(1), diff=0. If Tuesday(2), diff=-1. etc.
+  const diff = day === 0 ? -6 : -(day - 1);
+  d.setDate(d.getDate() + diff + offset * 7);
   return d;
 }
 function getDateStr(d) { return d.toISOString().split('T')[0]; }
