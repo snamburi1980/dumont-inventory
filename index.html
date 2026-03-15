@@ -1081,22 +1081,18 @@ window.doLogin = async function() {
 };
 
 // Allow Enter key to submit login
-document.addEventListener('DOMContentLoaded', () => {
-  // Login
-  document.getElementById('loginPassword')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') doLogin();
-  });
-  document.getElementById('loginEmail')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('loginPassword').focus();
-  });
-  // Signup screen toggles
-  document.getElementById('showSignupBtn')?.addEventListener('click', () => showSignup());
-  document.getElementById('showLoginBtn')?.addEventListener('click',  () => showLogin());
-  document.getElementById('signupBtn')?.addEventListener('click',     () => doSignup());
-  document.getElementById('signupRoleSelect')?.addEventListener('change', () => toggleSignupRoleFields());
-  // Attach login button inside DOMContentLoaded
-  document.getElementById('loginBtn')?.addEventListener('click', doLogin);
+// Attach all button listeners directly (module scripts run after DOM is ready)
+document.getElementById('loginBtn')?.addEventListener('click', doLogin);
+document.getElementById('loginPassword')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
 });
+document.getElementById('loginEmail')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('loginPassword').focus();
+});
+document.getElementById('showSignupBtn')?.addEventListener('click', () => showSignup());
+document.getElementById('showLoginBtn')?.addEventListener('click',  () => showLogin());
+document.getElementById('signupBtn')?.addEventListener('click',     () => doSignup());
+document.getElementById('signupRoleSelect')?.addEventListener('change', () => toggleSignupRoleFields());
 
 window.doLogout = async function() {
   if (unsubscribeInventory) unsubscribeInventory();
@@ -3592,3 +3588,6 @@ function renderHoursSummary() {
 }
 
 
+</script>
+</body>
+</html>
