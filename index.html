@@ -1198,15 +1198,28 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
 
-    if (cfg.role === 'owner') {
-      document.getElementById('storeBadge').textContent = '👑 Owner';
+    if (isSuperOwner(cfg)) {
+      document.getElementById('storeBadge').textContent = '👑 Super Owner';
       document.getElementById('ownerBar').style.display = 'flex';
       document.getElementById('adminTabBtn').style.display = 'block';
+      document.getElementById('regionalTabBtn').style.display = 'block';
+    } else if (isRegionalOwner(cfg)) {
+      document.getElementById('storeBadge').textContent = `🌎 ${REGIONS[cfg.regionId]?.name || cfg.regionId || ''} Region`;
+      document.getElementById('ownerBar').style.display = 'flex';
+      document.getElementById('adminTabBtn').style.display = 'block';
+      document.getElementById('regionalTabBtn').style.display = 'block';
+    } else if (isStoreOwner(cfg)) {
+      document.getElementById('storeBadge').textContent = `🏪 ${STORES[cfg.store]?.name || cfg.store}`;
+      document.getElementById('ownerBar').style.display = 'none';
+      document.getElementById('adminTabBtn').style.display = 'none';
+      document.getElementById('regionalTabBtn').style.display = 'none';
     } else {
       document.getElementById('storeBadge').textContent = STORES[cfg.store]?.name || cfg.store;
       document.getElementById('ownerBar').style.display = 'none';
       document.getElementById('adminTabBtn').style.display = 'none';
+      document.getElementById('regionalTabBtn').style.display = 'none';
     }
+    populateStoreSwitcher(cfg);
 
     await initStore(cfg.store);
     await loadCustomItems();
