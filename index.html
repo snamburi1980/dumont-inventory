@@ -1,7 +1,7 @@
 <!--
   ╔══════════════════════════════════════════════════════════╗
   ║  DUMONT CREAMERY & CAFÉ — INVENTORY APP                  ║
-  ║  Version: v13                                            ║
+  ║  Version: v14                                            ║
   ║  Last Updated: March 14, 2026                            ║
   ║                                                          ║
   ║  VERIFY DEPLOYMENT: Login screen should say "v11"        ║
@@ -32,7 +32,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dumont">
-<title>Dumont — Inventory v13</title>
+<title>Dumont — Inventory v14</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -289,6 +289,20 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 .admin-btn{width:100%;padding:9px;border:none;border-radius:8px;background:var(--dark);color:#D4A843;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px}
 
 
+
+/* ── SCHEDULE GRID ── */
+.sched-name-cell { padding:8px 10px; font-size:13px; font-weight:600; color:var(--dark); white-space:nowrap; border-right:2px solid var(--border); min-width:100px; vertical-align:middle; }
+.sched-day-cell  { padding:4px; text-align:center; border:1px solid var(--border); vertical-align:middle; cursor:pointer; min-width:80px; height:52px; position:relative; }
+.sched-day-cell:hover { background:rgba(200,132,58,0.05); }
+.sched-day-header { padding:6px 4px; text-align:center; font-size:11px; font-weight:700; color:#8B7355; border-bottom:2px solid var(--border); background:var(--card-bg); }
+.sched-shift-bar { border-radius:6px; padding:5px 6px; font-size:11px; font-weight:700; cursor:pointer; user-select:none; line-height:1.2; }
+.sched-shift-bar:hover { opacity:0.8; }
+.sched-shift-time { font-size:9px; font-weight:400; opacity:0.85; margin-top:1px; }
+.sched-today { background:rgba(200,132,58,0.06) !important; }
+.sched-hours { font-size:11px; color:#8B7355; padding:4px 8px; text-align:right; white-space:nowrap; }
+.shift-type-pill { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; border:2px solid transparent; }
+.shift-type-pill.selected { border-color: var(--dark); }
+
 /* ── ADMIN CARDS ── */
 .admin-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
 .admin-card-title { font-size:11px; font-weight:700; color:#8B7355; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
@@ -350,7 +364,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
   <!-- ── SIGN IN PANEL ── -->
   <div class="login-box" id="loginPanel">
     <div class="login-logo">Dumont</div>
-    <div class="login-sub">Creamery &amp; Café — Inventory v13</div>
+    <div class="login-sub">Creamery &amp; Café — Inventory v14</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
     <button class="btn-login" id="loginBtn">Sign In</button>
@@ -641,44 +655,49 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
       <!-- SCHEDULE TAB -->
       <div id="tab-schedule" style="display:none">
 
-        <!-- Schedule Sub-nav -->
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-          <div style="display:flex;gap:8px">
-            <button class="cat-btn active" id="schedViewWeek" onclick="setSchedView('week')">📅 Weekly</button>
-            <button class="cat-btn" id="schedViewDay" onclick="setSchedView('day')">📆 Daily</button>
+        <!-- Toolbar -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn-adj" onclick="schedNav(-1)" style="font-size:18px">‹</button>
+            <span id="schedTitle" style="font-size:14px;font-weight:700;color:var(--dark);min-width:160px;text-align:center"></span>
+            <button class="btn-adj" onclick="schedNav(1)" style="font-size:18px">›</button>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn-adj" onclick="schedNav(-1)">‹</button>
-            <span id="schedTitle" style="font-size:13px;font-weight:600;min-width:140px;text-align:center"></span>
-            <button class="btn-adj" onclick="schedNav(1)">›</button>
-          </div>
-        </div>
-
-        <!-- Manager controls -->
-        <div id="schedManagerTools" style="display:none;margin-bottom:16px">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-            <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px" onclick="openAddStaff()">👤 Manage Staff</button>
-            <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px" onclick="openAddShift()">+ Add Shift</button>
-            <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px;background:var(--caramel)" onclick="publishSchedule()">📤 Publish Schedule</button>
-            <button class="btn-log" style="width:auto;padding:8px 16px;font-size:13px;background:#2C7A4B" onclick="exportScheduleImage()">📸 Share Schedule</button>
+          <div id="schedManagerTools" style="display:none;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="cat-btn" onclick="openManageShiftTypes()" style="font-size:12px">⚙️ Shifts</button>
+            <button class="cat-btn" onclick="openAddStaff()" style="font-size:12px">👥 Staff</button>
+            <button class="cat-btn" onclick="copyLastWeek()" style="font-size:12px">📋 Copy Week</button>
+            <button class="cat-btn active" onclick="publishSchedule()" style="font-size:12px">📤 Publish</button>
+            <button class="cat-btn" onclick="exportScheduleImage()" style="font-size:12px;background:#2C7A4B;color:#fff;border-color:#2C7A4B">📸 Share</button>
           </div>
         </div>
 
-        <!-- Weekly Grid -->
-        <div id="schedWeekView">
-          <div style="overflow-x:auto">
-            <table id="weekGrid" style="width:100%;border-collapse:collapse;min-width:600px"></table>
-          </div>
+        <!-- Shift type legend -->
+        <div id="schedLegend" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+
+        <!-- Main grid -->
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+          <table id="weekGrid" style="width:100%;border-collapse:collapse;min-width:500px;table-layout:fixed"></table>
         </div>
 
-        <!-- Daily View -->
-        <div id="schedDayView" style="display:none">
-          <div id="dayList"></div>
+        <!-- Hours summary -->
+        <div id="schedSummary" style="margin-top:12px"></div>
+
+        <!-- Hours Report -->
+        <div id="schedHoursReport" style="margin-top:16px;display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:700;color:var(--dark)">⏱ Hours Summary</div>
+            <div style="display:flex;gap:6px">
+              <button class="cat-btn active" id="hrsWeekBtn" onclick="setHrsPeriod('week')">This Week</button>
+              <button class="cat-btn" id="hrsMonthBtn" onclick="setHrsPeriod('month')">This Month</button>
+            </div>
+          </div>
+          <div id="schedHoursTable"></div>
+          <div id="schedHoursTotals" style="margin-top:10px"></div>
         </div>
 
         <!-- Swap Requests -->
-        <div id="swapSection" style="margin-top:20px">
-          <div style="font-size:14px;font-weight:700;margin-bottom:10px">🔄 Swap Requests</div>
+        <div id="swapSection" style="margin-top:16px;display:none">
+          <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--dark)">🔄 Swap Requests</div>
           <div id="swapList"></div>
         </div>
 
@@ -786,11 +805,11 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
         <div id="pendingBanner" style="display:none;background:rgba(200,132,58,0.1);border:1px solid var(--caramel);border-radius:12px;padding:12px 16px;margin-bottom:14px"><div style="font-size:13px;font-weight:700;color:var(--caramel);margin-bottom:8px">Pending Signups</div><div id="pendingSignupsList"></div></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
           <div class="admin-card"><div class="admin-card-title">New Region</div><input class="admin-input" id="newRegionName" placeholder="e.g. Chicago"><select class="admin-input" id="newRegionOrg"><option value="dumont">Dumont</option></select><input class="admin-input" id="newRegionOwnerEmail" placeholder="Owner email (optional)"><button class="admin-btn" onclick="addRegion()">Add Region</button></div>
-          <div class="admin-card"><div class="admin-card-title">New Store</div><input class="admin-input" id="newStoreId" placeholder="ID e.g. frisco"><input class="admin-input" id="newStoreName" placeholder="Display name"><input class="admin-input" id="newStoreCity" placeholder="City"><select class="admin-input" id="newStoreRegion"></select><button class="admin-btn" onclick="adminAddStore()">Add Store</button></div>
+          <div class="admin-card" style="grid-column:span 1"><div class="admin-card-title">🏪 Add Store + Manager</div><select class="admin-input" id="newStoreRegion"></select><input class="admin-input" id="newStoreName" placeholder="Store name (e.g. Plano Dumont)"><input class="admin-input" id="newStoreCity" placeholder="City"><div style="height:1px;background:var(--border);margin:2px 0 6px;opacity:0.5"></div><input class="admin-input" id="newUserEmail" placeholder="Manager email"><input class="admin-input" id="newUserPassword" type="password" placeholder="Temp password"><button class="admin-btn" onclick="adminAddStoreAndManager()">Add Store + Manager</button></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
           <div class="admin-card"><div class="admin-card-title">Assign Regional Owner</div><input class="admin-input" id="assignEmail" placeholder="User email"><select class="admin-input" id="assignRegion"></select><button class="admin-btn" onclick="assignRegionalOwner()">Assign</button></div>
-          <div class="admin-card"><div class="admin-card-title">Add Manager</div><input class="admin-input" id="newUserEmail" placeholder="Email"><input class="admin-input" id="newUserPassword" type="password" placeholder="Temp password"><select class="admin-input" id="newUserStore"></select><button class="admin-btn" onclick="adminAddUser()">Add Manager</button></div>
+          <div class="admin-card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;color:#8B7355;font-size:12px;text-align:center"><div style="font-size:28px">💡</div><div style="font-weight:600">Store ID is auto-generated from store name</div><div style="font-size:11px">Manager gets access immediately after adding</div></div>
         </div>
         <div class="admin-card" style="margin-bottom:10px"><div class="admin-card-title">Organisation</div><div id="orgTree"></div></div>
         <div class="admin-card"><div class="admin-card-title">Store List</div><div id="adminStoreList"></div></div>
@@ -810,7 +829,7 @@ import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, si
 import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-const APP_VERSION = "v13";
+const APP_VERSION = "v14";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBofsUP3yf2OkaQVPav8rfxUiax39TkxYY",
@@ -2991,20 +3010,20 @@ window.adminAddUser = async function() {
 // State
 let schedView = 'week';        // 'week' | 'day'
 let schedOffset = 0;           // weeks or days from today
-let schedStaff = [];           // [{id, name, color, role}]
-let schedShifts = [];          // [{id, staffId, date, shiftTypeId, note}]
-let schedShiftTypes = [];      // [{id, name, start, end, color}]
-let schedSwaps = [];           // [{id, fromStaffId, toStaffId, shiftId, status}]
-let schedLoaded = false;
+let schedStaff      = [];  // [{id, name, color, role}]
+let schedShifts     = [];  // [{id, staffId, date, shiftTypeId}]
+let schedShiftTypes = [];  // [{id, name, start, end, color}]
+let schedSwaps      = [];  // [{id, fromStaffId, toStaffId, shiftId, status}]
+let schedLoaded     = false;
+// schedOffset declared above
 
 const SHIFT_COLORS = ['#C8843A','#7BBFA5','#E8A598','#D4A843','#5B8DD9','#A56CC1','#E57373','#4DB6AC'];
 
-// Default shift types
 const DEFAULT_SHIFT_TYPES = [
-  { id:'st1', name:'Opening', start:'10:00', end:'14:00', color:'#7BBFA5' },
-  { id:'st2', name:'Mid',     start:'12:00', end:'17:00', color:'#C8843A' },
-  { id:'st3', name:'Closing', start:'16:00', end:'22:00', color:'#5B8DD9' },
-  { id:'st4', name:'Full Day',start:'10:00', end:'19:00', color:'#D4A843' },
+  { id:'st1', name:'Opening', start:'11:00', end:'16:00', color:'#7BBFA5' },
+  { id:'st2', name:'Mid',     start:'13:00', end:'18:00', color:'#C8843A' },
+  { id:'st3', name:'Closing', start:'17:00', end:'23:00', color:'#5B8DD9' },
+  { id:'st4', name:'Full Day',start:'11:00', end:'23:00', color:'#D4A843' },
 ];
 
 async function loadScheduleData() {
@@ -3012,11 +3031,11 @@ async function loadScheduleData() {
   try {
     const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'));
     if (snap.exists()) {
-      const d = snap.data();
-      schedStaff      = d.staff       || [];
-      schedShifts     = d.shifts      || [];
-      schedShiftTypes = d.shiftTypes  || DEFAULT_SHIFT_TYPES;
-      schedSwaps      = d.swaps       || [];
+      const d        = snap.data();
+      schedStaff     = d.staff      || [];
+      schedShifts    = d.shifts     || [];
+      schedShiftTypes= d.shiftTypes || [...DEFAULT_SHIFT_TYPES];
+      schedSwaps     = d.swaps      || [];
     } else {
       schedStaff = []; schedShifts = []; schedShiftTypes = [...DEFAULT_SHIFT_TYPES]; schedSwaps = [];
     }
@@ -3028,746 +3047,549 @@ async function loadScheduleData() {
 async function saveScheduleData() {
   try {
     await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
-      staff: schedStaff, shifts: schedShifts, shiftTypes: schedShiftTypes, swaps: schedSwaps,
+      staff: schedStaff, shifts: schedShifts,
+      shiftTypes: schedShiftTypes, swaps: schedSwaps,
       updatedAt: Date.now()
     });
   } catch(e) { showToast('⚠️ Schedule save failed'); }
 }
 
-
-// ── Time format helper ──
-function fmt12(time24) {
-  if (!time24) return '';
-  const [h, m] = time24.split(':').map(Number);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12  = h % 12 || 12;
-  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+// ── Time helpers ──
+function fmt12(t) {
+  if (!t) return '';
+  const [h,m] = t.split(':').map(Number);
+  return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`;
 }
-// ── Week helpers ──
+function shiftHours(st) {
+  if (!st?.start || !st?.end) return 0;
+  const [sh,sm] = st.start.split(':').map(Number);
+  const [eh,em] = st.end.split(':').map(Number);
+  return Math.max(0, (eh*60+em - sh*60-sm) / 60);
+}
 function getWeekStart(offset) {
-  const d = new Date();
-  d.setHours(0,0,0,0);
-  const day = d.getDay();
-  d.setDate(d.getDate() - day + offset * 7);
+  const d = new Date(); d.setHours(0,0,0,0);
+  d.setDate(d.getDate() - d.getDay() + offset*7);
   return d;
 }
 function getDateStr(d) { return d.toISOString().split('T')[0]; }
-function fmtDate(d) { return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
-function fmtDay(d) { return d.toLocaleDateString('en-US',{weekday:'short'}); }
+function fmtDate(d)    { return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtDay(d)     { return d.toLocaleDateString('en-US',{weekday:'short'}); }
 
-window.setSchedView = function(v) {
-  schedView = v; schedOffset = 0;
-  document.getElementById('schedViewWeek').className = 'cat-btn' + (v==='week'?' active':'');
-  document.getElementById('schedViewDay').className  = 'cat-btn' + (v==='day'?' active':'');
-  document.getElementById('schedWeekView').style.display = v==='week'?'block':'none';
-  document.getElementById('schedDayView').style.display  = v==='day'?'block':'none';
-  renderSchedule();
-};
-
-window.schedNav = function(dir) { schedOffset += dir; renderSchedule(); };
-
+// ── Main render ──
 function renderSchedule() {
   if (!schedLoaded) { loadScheduleData(); return; }
-  // Show/hide manager tools
-  const isManager = currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'owner';
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig);
   const mt = document.getElementById('schedManagerTools');
-  if (mt) mt.style.display = isManager ? 'block' : 'none';
-  if (schedView === 'week') renderWeekGrid();
-  else renderDayView();
+  if (mt) mt.style.display = isManager ? 'flex' : 'none';
+  renderShiftLegend();
+  renderWeekGrid();
   renderSwaps();
+  renderHoursSummary();
 }
 
-function renderWeekGrid() {
-  const ws = getWeekStart(schedOffset);
-  const days = Array.from({length:7},(_,i)=>{ const d=new Date(ws); d.setDate(ws.getDate()+i); return d; });
-  const endDate = new Date(days[6]); endDate.setDate(endDate.getDate()+1);
-  document.getElementById('schedTitle').textContent =
-    fmtDate(days[0]) + ' – ' + fmtDate(days[6]);
-
-  const isManager = currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'owner';
-  let html = '<thead><tr>';
-  html += '<th class="week-grid-th" style="text-align:left;padding-left:10px">Staff</th>';
-  days.forEach(d => { html += `<th class="week-grid-th">${fmtDay(d)}<br><span style="font-weight:400;font-size:10px">${fmtDate(d)}</span></th>`; });
-  html += '</tr></thead><tbody>';
-
-  if (!schedStaff.length) {
-    html += `<tr><td colspan="8" style="text-align:center;padding:32px;color:#8B7355;font-size:13px">No staff added yet. Click "Manage Staff" to add your team.</td></tr>`;
-  } else {
-    schedStaff.forEach(staff => {
-      html += `<tr><td class="week-grid-name"><span class="color-dot" style="background:${staff.color}"></span>${staff.name}<br><span style="font-size:10px;color:#8B7355;font-weight:400">${staff.role||''}</span></td>`;
-      days.forEach(d => {
-        const ds = getDateStr(d);
-        const dayShifts = schedShifts.filter(s => s.staffId === staff.id && s.date === ds);
-        let cellHtml = '';
-        dayShifts.forEach(shift => {
-          const st = schedShiftTypes.find(t=>t.id===shift.shiftTypeId)||{name:shift.shiftTypeId,color:'#999',start:'',end:''};
-          cellHtml += `<div class="shift-chip" style="background:${st.color}20;border:1px solid ${st.color}40;color:${st.color}" onclick="${isManager?`editShift('${shift.id}')`:''}" >
-            <span>${st.name}</span>
-            ${isManager?`<span onclick="event.stopPropagation();deleteShift('${shift.id}')" style="opacity:0.6;font-size:13px;cursor:pointer">×</span>`:''}
-          </div>
-          <div class="shift-chip-time" style="text-align:center;color:#8B7355;font-size:10px;margin-bottom:4px">${fmt12(st.start)}–${fmt12(st.end)}</div>`;
-        });
-        if (isManager) cellHtml += `<div onclick="quickAddShift('${staff.id}','${ds}')" style="text-align:center;color:#ccc;font-size:18px;cursor:pointer;padding:2px">+</div>`;
-        html += `<td class="week-cell">${cellHtml}</td>`;
-      });
-      html += '</tr>';
-    });
-  }
-  html += '</tbody>';
-  document.getElementById('weekGrid').innerHTML = html;
-}
-
-function renderDayView() {
-  const base = new Date(); base.setHours(0,0,0,0);
-  base.setDate(base.getDate() + schedOffset);
-  document.getElementById('schedTitle').textContent = base.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  const ds = getDateStr(base);
-  const dayShifts = schedShifts.filter(s=>s.date===ds);
-  const el = document.getElementById('dayList');
-  if (!dayShifts.length) {
-    el.innerHTML = '<div style="text-align:center;padding:32px;color:#8B7355;font-size:13px">No shifts scheduled for this day.</div>';
-    return;
-  }
-  // Group by shift type
-  const byType = {};
-  dayShifts.forEach(s => {
-    const st = schedShiftTypes.find(t=>t.id===s.shiftTypeId)||{name:'Unknown',color:'#999',start:'',end:''};
-    if (!byType[st.id]) byType[st.id] = {st, shifts:[]};
-    byType[st.id].shifts.push(s);
-  });
-  el.innerHTML = Object.values(byType).map(({st,shifts}) => `
-    <div class="day-card">
-      <div class="day-card-header" style="background:${st.color}">
-        ${st.name} &nbsp;·&nbsp; <span style="font-weight:400;font-size:12px">${fmt12(st.start)} – ${fmt12(st.end)}</span>
-      </div>
-      ${shifts.map(shift => {
-        const staff = schedStaff.find(s=>s.id===shift.staffId);
-        const canSwap = currentUserConfig?.role==='manager' || false;
-        return `<div class="day-shift-row">
-          <div>
-            <div style="font-size:14px;font-weight:500">${staff?.name||'Unknown'}</div>
-            <div style="font-size:11px;color:#8B7355">${staff?.role||''} ${shift.note?'· '+shift.note:''}</div>
-          </div>
-          ${canSwap?`<button class="btn-adj" style="font-size:12px;width:auto;padding:4px 10px" onclick="requestSwap('${shift.id}')">⇄ Swap</button>`:''}
-        </div>`;
-      }).join('')}
+function renderShiftLegend() {
+  const el = document.getElementById('schedLegend');
+  if (!el) return;
+  el.innerHTML = schedShiftTypes.map(st => `
+    <div class="shift-type-pill" style="background:${st.color}22;color:${st.color};border-color:${st.color}44">
+      <span style="width:8px;height:8px;border-radius:50%;background:${st.color};display:inline-block"></span>
+      ${st.name} <span style="font-weight:400;opacity:0.8">${fmt12(st.start)}–${fmt12(st.end)}</span>
     </div>`).join('');
 }
 
+window.schedNav = function(dir) { schedOffset += dir; renderSchedule(); };
+
+function renderWeekGrid() {
+  const ws   = getWeekStart(schedOffset);
+  const days = Array.from({length:7},(_,i) => { const d=new Date(ws); d.setDate(ws.getDate()+i); return d; });
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  document.getElementById('schedTitle').textContent =
+    fmtDate(days[0]) + ' – ' + fmtDate(days[6]);
+
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig);
+  let html = '<colgroup><col style="width:110px">';
+  days.forEach(() => html += '<col>');
+  html += '<col style="width:50px"></colgroup>';
+
+  // Header row
+  html += '<thead><tr><th class="sched-day-header" style="text-align:left;padding-left:10px">Staff</th>';
+  days.forEach(d => {
+    const isToday = d.getTime() === today.getTime();
+    html += `<th class="sched-day-header${isToday?' sched-today':''}" style="${isToday?'color:var(--caramel)':''}">
+      <div style="font-size:12px;font-weight:700">${fmtDay(d)}</div>
+      <div style="font-size:10px;font-weight:400">${fmtDate(d)}</div>
+    </th>`;
+  });
+  html += '<th class="sched-day-header" style="text-align:right;padding-right:8px">Hrs</th></tr></thead><tbody>';
+
+  if (!schedStaff.length) {
+    html += `<tr><td colspan="9" style="text-align:center;padding:40px;color:#8B7355;font-size:13px">
+      No staff yet. Tap ⚙️ Shifts to set up shift types, then 👥 Staff to add your team.
+    </td></tr>`;
+  } else {
+    schedStaff.forEach((staff, si) => {
+      const rowBg = si%2===0 ? '#fff' : 'var(--cream)';
+      html += `<tr style="background:${rowBg}">`;
+      // Staff name cell
+      html += `<td class="sched-name-cell">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:8px;height:8px;border-radius:50%;background:${staff.color};flex-shrink:0"></div>
+          <div>
+            <div style="font-size:12px;font-weight:700">${staff.name}</div>
+            <div style="font-size:10px;color:#8B7355">${staff.role||''}</div>
+          </div>
+        </div>
+      </td>`;
+
+      // Day cells
+      let totalHrs = 0;
+      days.forEach(d => {
+        const ds        = getDateStr(d);
+        const isToday   = d.getTime() === today.getTime();
+        const dayShifts = schedShifts.filter(s => s.staffId===staff.id && s.date===ds);
+        const st        = dayShifts.length ? schedShiftTypes.find(t=>t.id===dayShifts[0].shiftTypeId) : null;
+        if (st) totalHrs += shiftHours(st);
+
+        html += `<td class="sched-day-cell${isToday?' sched-today':''}" onclick="${isManager?`cellClick('${staff.id}','${ds}')`:''}" >`;
+        if (st) {
+          html += `<div class="sched-shift-bar" style="background:${st.color}22;border:1.5px solid ${st.color};color:${st.color}"
+            onclick="event.stopPropagation();${isManager?`removeShift('${dayShifts[0].id}','${staff.id}','${ds}')`:''}"
+            title="Click to remove">
+            <div>${st.name}</div>
+            <div class="sched-shift-time">${fmt12(st.start)}–${fmt12(st.end)}</div>
+          </div>`;
+        } else if (isManager) {
+          html += `<div style="font-size:18px;color:#DDD;line-height:40px;text-align:center">+</div>`;
+        }
+        html += '</td>';
+      });
+
+      // Hours total
+      html += `<td class="sched-hours"><strong style="color:var(--caramel)">${totalHrs>0?totalHrs+'h':''}</strong></td>`;
+      html += '</tr>';
+    });
+
+    // Daily totals row
+    html += '<tr style="background:var(--card-bg);border-top:2px solid var(--border)">';
+    html += '<td style="padding:6px 10px;font-size:11px;font-weight:700;color:#8B7355">STAFF/DAY</td>';
+    days.forEach(d => {
+      const ds    = getDateStr(d);
+      const count = schedStaff.filter(staff => schedShifts.some(s=>s.staffId===staff.id&&s.date===ds)).length;
+      html += `<td style="text-align:center;padding:6px;font-size:12px;font-weight:700;color:${count>0?'var(--caramel)':'#DDD'}">${count>0?count:''}</td>`;
+    });
+    html += '<td></td></tr>';
+  }
+
+  html += '</tbody>';
+  document.getElementById('weekGrid').innerHTML = html;
+
+  // Hours summary
+  const totalShifts = schedShifts.filter(s => {
+    const d = new Date(s.date); d.setHours(0,0,0,0);
+    return d >= ws && d <= days[6];
+  }).length;
+  const el = document.getElementById('schedSummary');
+  if (el) el.innerHTML = totalShifts > 0
+    ? `<div style="font-size:12px;color:#8B7355;text-align:right">${totalShifts} shift${totalShifts!==1?'s':''} this week</div>`
+    : '';
+}
+
+// ── Cell click — show shift picker ──
+window.cellClick = function(staffId, dateStr) {
+  const existing = schedShifts.find(s => s.staffId===staffId && s.date===dateStr);
+  if (existing) return; // already has shift - click the bar to remove
+
+  if (!schedShiftTypes.length) { showToast('⚠️ Add shift types first (tap ⚙️ Shifts)'); return; }
+
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="modal-title">Assign Shift</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div style="font-size:12px;color:#8B7355;margin-bottom:12px">${schedStaff.find(s=>s.id===staffId)?.name} · ${new Date(dateStr+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</div>
+    ${schedShiftTypes.map(st => `
+      <div onclick="assignShift('${staffId}','${dateStr}','${st.id}')"
+        style="display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid ${st.color}44;border-radius:10px;margin-bottom:8px;cursor:pointer;background:${st.color}11;transition:all 0.15s"
+        onmouseover="this.style.background='${st.color}22'" onmouseout="this.style.background='${st.color}11'">
+        <div style="width:12px;height:12px;border-radius:50%;background:${st.color};flex-shrink:0"></div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:${st.color}">${st.name}</div>
+          <div style="font-size:12px;color:#8B7355">${fmt12(st.start)} – ${fmt12(st.end)} · ${shiftHours(st)}h</div>
+        </div>
+      </div>`).join('')}
+  `);
+};
+
+window.assignShift = async function(staffId, dateStr, shiftTypeId) {
+  closeModal();
+  const id = 'sh_' + Date.now();
+  schedShifts.push({ id, staffId, date: dateStr, shiftTypeId });
+  renderSchedule();
+  await saveScheduleData();
+  logAudit('shift_assigned', { staffId, date: dateStr, shiftTypeId });
+};
+
+window.removeShift = async function(shiftId, staffId, dateStr) {
+  if (!confirm('Remove this shift?')) return;
+  schedShifts = schedShifts.filter(s => s.id !== shiftId);
+  renderSchedule();
+  await saveScheduleData();
+};
+
+// ── Copy last week ──
+window.copyLastWeek = async function() {
+  const ws       = getWeekStart(schedOffset);
+  const lastWs   = getWeekStart(schedOffset - 1);
+  const days     = Array.from({length:7},(_,i)=>{ const d=new Date(ws); d.setDate(ws.getDate()+i); return d; });
+  const lastDays = Array.from({length:7},(_,i)=>{ const d=new Date(lastWs); d.setDate(lastWs.getDate()+i); return d; });
+
+  const thisWeekDates = days.map(getDateStr);
+  const lastWeekDates = lastDays.map(getDateStr);
+
+  // Remove this week's existing shifts
+  schedShifts = schedShifts.filter(s => !thisWeekDates.includes(s.date));
+
+  // Copy last week's shifts to this week
+  let copied = 0;
+  lastWeekDates.forEach((lastDate, i) => {
+    const thisDate    = thisWeekDates[i];
+    const dayShifts   = schedShifts.filter(s => s.date === lastDate); // already removed this week
+    // Actually get from original
+    const orig = schedShifts; // we need to get from saved data
+    copied += dayShifts.length;
+  });
+
+  // Simpler approach: copy by day-of-week
+  const lastWeekShifts = schedShifts.filter(s => lastWeekDates.includes(s.date));
+  lastWeekShifts.forEach(s => {
+    const dayIdx   = lastWeekDates.indexOf(s.date);
+    const newDate  = thisWeekDates[dayIdx];
+    if (newDate && !schedShifts.find(x => x.staffId===s.staffId && x.date===newDate)) {
+      schedShifts.push({ id:'sh_'+Date.now()+'_'+Math.random(), staffId:s.staffId, date:newDate, shiftTypeId:s.shiftTypeId });
+      copied++;
+    }
+  });
+
+  renderSchedule();
+  await saveScheduleData();
+  showToast(`✅ Copied ${copied} shifts from last week`);
+};
+
+// ── Manage shift types ──
+window.openManageShiftTypes = function() {
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="modal-title">⚙️ Shift Types</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div style="font-size:12px;color:#8B7355;margin-bottom:12px">Define your store's shift times. These show in the schedule grid.</div>
+
+    ${schedShiftTypes.map((st,i) => `
+      <div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--cream);border-radius:10px;margin-bottom:8px;border-left:4px solid ${st.color}">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:${st.color}">${st.name}</div>
+          <div style="font-size:11px;color:#8B7355">${fmt12(st.start)} – ${fmt12(st.end)} · ${shiftHours(st)}h</div>
+        </div>
+        <button onclick="deleteShiftType('${st.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px">×</button>
+      </div>`).join('')}
+
+    <div style="margin-top:16px;font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Add New Shift Type</div>
+    <input class="modal-input" id="newStName" placeholder="Shift name (e.g. Opening)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div>
+        <div class="modal-label">Start Time</div>
+        <input class="modal-input" type="time" id="newStStart" value="11:00" style="margin-bottom:0">
+      </div>
+      <div>
+        <div class="modal-label">End Time</div>
+        <input class="modal-input" type="time" id="newStEnd" value="17:00" style="margin-bottom:0">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="stColorPicker">
+      ${SHIFT_COLORS.map(c=>`<div onclick="selectStColor('${c}')" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:3px solid transparent" id="stc-${c.replace('#','')}"></div>`).join('')}
+    </div>
+    <button class="modal-btn" onclick="addShiftType()">+ Add Shift Type</button>
+  `);
+  // Pre-select first color
+  selectedStColor = SHIFT_COLORS[0];
+  const el = document.getElementById('stc-' + SHIFT_COLORS[0].replace('#',''));
+  if (el) el.style.borderColor = 'var(--dark)';
+};
+
+let selectedStColor = SHIFT_COLORS[0];
+window.selectStColor = function(c) {
+  selectedStColor = c;
+  SHIFT_COLORS.forEach(col => {
+    const el = document.getElementById('stc-' + col.replace('#',''));
+    if (el) el.style.borderColor = col===c ? 'var(--dark)' : 'transparent';
+  });
+};
+
+window.addShiftType = async function() {
+  const name  = document.getElementById('newStName').value.trim();
+  const start = document.getElementById('newStStart').value;
+  const end   = document.getElementById('newStEnd').value;
+  if (!name)  { showToast('⚠️ Enter shift name'); return; }
+  if (!start || !end) { showToast('⚠️ Set start and end times'); return; }
+  schedShiftTypes.push({ id:'st_'+Date.now(), name, start, end, color: selectedStColor });
+  await saveScheduleData();
+  closeModal();
+  renderSchedule();
+  showToast(`✅ "${name}" shift added`);
+};
+
+window.deleteShiftType = async function(id) {
+  if (schedShifts.some(s=>s.shiftTypeId===id)) {
+    showToast('⚠️ Cannot delete — shift type is in use'); return;
+  }
+  schedShiftTypes = schedShiftTypes.filter(s=>s.id!==id);
+  await saveScheduleData();
+  closeModal();
+  renderSchedule();
+};
+
+// ── Manage staff (keep existing openAddStaff) ──
+window.openAddStaff = function() {
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="modal-title">👥 Manage Staff</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    ${schedStaff.map((s,i)=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--cream);border-radius:8px;margin-bottom:6px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${s.color}"></div>
+        <span style="flex:1;font-size:13px"><strong>${s.name}</strong> <span style="color:#8B7355">${s.role||''}</span></span>
+        <button onclick="removeStaff('${s.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px">×</button>
+      </div>`).join('')}
+    <div style="margin-top:12px;font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Add Staff Member</div>
+    <input class="modal-input" id="newStaffName" placeholder="Name">
+    <input class="modal-input" id="newStaffRole" placeholder="Role (e.g. Barista, Cashier)">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="staffColorPicker">
+      ${SHIFT_COLORS.map(c=>`<div onclick="selectStaffColor('${c}')" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:3px solid transparent" id="sfc-${c.replace('#','')}"></div>`).join('')}
+    </div>
+    <button class="modal-btn" onclick="addStaffMember()">+ Add</button>
+  `);
+  selectedStaffColor = SHIFT_COLORS[schedStaff.length % SHIFT_COLORS.length];
+  const el = document.getElementById('sfc-' + selectedStaffColor.replace('#',''));
+  if (el) el.style.borderColor = 'var(--dark)';
+};
+
+let selectedStaffColor = SHIFT_COLORS[0];
+window.selectStaffColor = function(c) {
+  selectedStaffColor = c;
+  SHIFT_COLORS.forEach(col => {
+    const el = document.getElementById('sfc-' + col.replace('#',''));
+    if (el) el.style.borderColor = col===c ? 'var(--dark)' : 'transparent';
+  });
+};
+
+window.addStaffMember = async function() {
+  const name = document.getElementById('newStaffName').value.trim();
+  const role = document.getElementById('newStaffRole').value.trim();
+  if (!name) { showToast('⚠️ Enter name'); return; }
+  schedStaff.push({ id:'staff_'+Date.now(), name, role, color: selectedStaffColor });
+  await saveScheduleData();
+  closeModal();
+  renderSchedule();
+};
+
+window.removeStaff = async function(id) {
+  schedStaff  = schedStaff.filter(s=>s.id!==id);
+  schedShifts = schedShifts.filter(s=>s.staffId!==id);
+  await saveScheduleData();
+  closeModal();
+  renderSchedule();
+};
+
+// ── Publish ──
+window.publishSchedule = async function() {
+  showToast('✅ Schedule published!');
+  logAudit('schedule_published', { week: getDateStr(getWeekStart(schedOffset)) });
+};
+
+// ── Swap requests (simplified) ──
 function renderSwaps() {
   const pending = schedSwaps.filter(s=>s.status==='pending');
-  const el = document.getElementById('swapList');
-  const isManager = currentUserConfig?.role==='manager'||currentUserConfig?.role==='owner';
-  if (!pending.length) {
-    el.innerHTML = '<div style="color:#8B7355;font-size:13px;">No pending swap requests.</div>';
-    return;
-  }
-  el.innerHTML = pending.map(swap => {
-    const from = schedStaff.find(s=>s.id===swap.fromStaffId);
-    const to   = schedStaff.find(s=>s.id===swap.toStaffId);
-    const shift = schedShifts.find(s=>s.id===swap.shiftId);
-    const st = shift ? schedShiftTypes.find(t=>t.id===shift.shiftTypeId) : null;
+  const el = document.getElementById('swapSection');
+  const list = document.getElementById('swapList');
+  if (!el || !list) return;
+  el.style.display = pending.length ? 'block' : 'none';
+  if (!pending.length) return;
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig);
+  list.innerHTML = pending.map(sw => {
+    const from = schedStaff.find(s=>s.id===sw.fromStaffId);
+    const to   = schedStaff.find(s=>s.id===sw.toStaffId);
     return `<div class="swap-card">
-      <div style="font-size:14px;font-weight:500;margin-bottom:6px">
-        ${from?.name||'?'} → ${to?.name||'Anyone'} &nbsp;·&nbsp; <span style="color:#8B7355;font-size:12px">${st?.name||''} on ${shift?.date||''}</span>
-      </div>
-      ${isManager?`<div style="display:flex;gap:8px">
-        <button class="btn-approve" onclick="resolveSwap('${swap.id}','approved')">✓ Approve</button>
-        <button class="btn-decline" onclick="resolveSwap('${swap.id}','declined')">✗ Decline</button>
-      </div>`:'<div style="font-size:12px;color:#8B7355">Awaiting manager approval</div>'}
+      <div style="font-size:13px">${from?.name||'?'} wants to swap with ${to?.name||'?'}</div>
+      ${isManager ? `<div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-log" style="width:auto;padding:5px 14px;font-size:12px;background:var(--green-ok)" onclick="handleSwap('${sw.id}','approved')">✅ Approve</button>
+        <button class="btn-log" style="width:auto;padding:5px 14px;font-size:12px;background:#C0392B" onclick="handleSwap('${sw.id}','declined')">✕ Decline</button>
+      </div>` : ''}
     </div>`;
   }).join('');
 }
 
-// ── MODALS ──
-function openModal(html) {
-  document.getElementById('modalBox').innerHTML = html;
-  document.getElementById('modalOverlay').style.display = 'flex';
-}
-window.closeModal = function() { document.getElementById('modalOverlay').style.display = 'none'; };
-
-window.openAddStaff = function() {
-  openModal(`
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="modal-title">👤 Manage Staff</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div id="staffListModal" style="margin-bottom:16px">
-      ${schedStaff.map((s,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-        <div><span class="color-dot" style="background:${s.color}"></span><strong>${s.name}</strong> <span style="font-size:12px;color:#8B7355">${s.role}</span></div>
-        <button onclick="removeStaff('${s.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:18px">×</button>
-      </div>`).join('') || '<div style="color:#8B7355;font-size:13px;margin-bottom:8px">No staff yet.</div>'}
-    </div>
-    <div class="modal-label">Name</div>
-    <input class="modal-input" id="newStaffName" placeholder="e.g. Priya">
-    <div class="modal-label">Role</div>
-    <input class="modal-input" id="newStaffRole" placeholder="e.g. Barista, Cashier">
-    <div class="modal-label">Color</div>
-    <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-      ${SHIFT_COLORS.map(c=>`<div onclick="selectColor('${c}')" id="clr-${c.replace('#','')}" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:3px solid transparent;transition:border 0.2s"></div>`).join('')}
-    </div>
-    <input type="hidden" id="newStaffColor" value="${SHIFT_COLORS[0]}">
-    <button class="modal-btn" onclick="addStaff()">+ Add Staff Member</button>
-    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-      <div class="modal-title" style="font-size:14px">⏰ Shift Types</div>
-      ${schedShiftTypes.map(st=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
-        <div><span class="color-dot" style="background:${st.color}"></span><strong>${st.name}</strong> <span style="font-size:11px;color:#8B7355">${fmt12(st.start)}–${fmt12(st.end)}</span></div>
-        <button onclick="removeShiftType('${st.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px">×</button>
-      </div>`).join('')}
-      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-        <input class="modal-input" id="newStName" placeholder="Name" style="font-size:12px;padding:8px">
-        <input class="modal-input" type="time" id="newStStart" value="09:00" style="font-size:12px;padding:8px">
-        <input class="modal-input" type="time" id="newStEnd" value="17:00" style="font-size:12px;padding:8px">
-      </div>
-      <button class="modal-btn" style="margin-top:8px" onclick="addShiftType()">+ Add Shift Type</button>
-    </div>
-  `);
-  // pre-select first color
-  selectColor(SHIFT_COLORS[0]);
-};
-
-window.selectColor = function(c) {
-  SHIFT_COLORS.forEach(col => {
-    const el = document.getElementById('clr-'+col.replace('#',''));
-    if (el) el.style.border = col===c ? '3px solid var(--dark)' : '3px solid transparent';
-  });
-  const inp = document.getElementById('newStaffColor');
-  if (inp) inp.value = c;
-};
-
-window.addStaff = function() {
-  const name = document.getElementById('newStaffName').value.trim();
-  const role = document.getElementById('newStaffRole').value.trim();
-  const color = document.getElementById('newStaffColor').value || SHIFT_COLORS[0];
-  if (!name) { showToast('⚠️ Enter a name'); return; }
-  schedStaff.push({ id: 'staff-'+Date.now(), name, role, color });
-  saveScheduleData();
-  showToast(`✅ ${name} added!`);
-  openAddStaff(); // refresh modal
-  renderSchedule();
-};
-
-window.removeStaff = function(id) {
-  schedStaff = schedStaff.filter(s=>s.id!==id);
-  schedShifts = schedShifts.filter(s=>s.staffId!==id);
-  saveScheduleData();
-  openAddStaff();
-  renderSchedule();
-};
-
-window.addShiftType = function() {
-  const name = document.getElementById('newStName').value.trim();
-  const start = document.getElementById('newStStart').value;
-  const end = document.getElementById('newStEnd').value;
-  if (!name) { showToast('⚠️ Enter shift name'); return; }
-  const color = SHIFT_COLORS[schedShiftTypes.length % SHIFT_COLORS.length];
-  schedShiftTypes.push({ id:'st-'+Date.now(), name, start, end, color });
-  saveScheduleData();
-  openAddStaff();
-};
-
-window.removeShiftType = function(id) {
-  schedShiftTypes = schedShiftTypes.filter(s=>s.id!==id);
-  saveScheduleData();
-  openAddStaff();
-};
-
-window.openAddShift = function() {
-  openModal(`
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="modal-title">+ Add Shift</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-label">Staff Member</div>
-    <select class="modal-input" id="shiftStaffId">
-      <option value="">— Select staff —</option>
-      ${schedStaff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
-    </select>
-    <div class="modal-label">Date</div>
-    <input class="modal-input" type="date" id="shiftDate" value="${new Date().toISOString().split('T')[0]}">
-    <div class="modal-label">Shift Type</div>
-    <select class="modal-input" id="shiftTypeId">
-      <option value="">— Select shift —</option>
-      ${schedShiftTypes.map(st=>`<option value="${st.id}">${st.name} (${fmt12(st.start)}–${fmt12(st.end)})</option>`).join('')}
-    </select>
-    <div class="modal-label">Note (optional)</div>
-    <input class="modal-input" id="shiftNote" placeholder="e.g. Cover for Priya">
-    <button class="modal-btn" onclick="saveShift()">Save Shift</button>
-  `);
-};
-
-window.quickAddShift = function(staffId, date) {
-  openModal(`
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="modal-title">+ Add Shift</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-label">Staff Member</div>
-    <select class="modal-input" id="shiftStaffId">
-      ${schedStaff.map(s=>`<option value="${s.id}" ${s.id===staffId?'selected':''}>${s.name}</option>`).join('')}
-    </select>
-    <div class="modal-label">Date</div>
-    <input class="modal-input" type="date" id="shiftDate" value="${date}">
-    <div class="modal-label">Shift Type</div>
-    <select class="modal-input" id="shiftTypeId">
-      <option value="">— Select shift —</option>
-      ${schedShiftTypes.map(st=>`<option value="${st.id}">${st.name} (${fmt12(st.start)}–${fmt12(st.end)})</option>`).join('')}
-    </select>
-    <div class="modal-label">Note (optional)</div>
-    <input class="modal-input" id="shiftNote" placeholder="Optional note">
-    <button class="modal-btn" onclick="saveShift()">Save Shift</button>
-  `);
-};
-
-window.saveShift = function() {
-  const staffId = document.getElementById('shiftStaffId').value;
-  const date = document.getElementById('shiftDate').value;
-  const shiftTypeId = document.getElementById('shiftTypeId').value;
-  const note = document.getElementById('shiftNote').value.trim();
-  if (!staffId||!date||!shiftTypeId) { showToast('⚠️ Fill all fields'); return; }
-  schedShifts.push({ id:'shift-'+Date.now(), staffId, date, shiftTypeId, note });
-  saveScheduleData();
-  closeModal();
-  renderSchedule();
-  showToast('✅ Shift saved!');
-};
-
-window.deleteShift = function(id) {
-  schedShifts = schedShifts.filter(s=>s.id!==id);
-  saveScheduleData();
-  renderSchedule();
-  showToast('Shift removed');
-};
-
-window.editShift = function(id) {
-  const shift = schedShifts.find(s=>s.id===id);
-  if (!shift) return;
-  openModal(`
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="modal-title">✏️ Edit Shift</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-label">Staff Member</div>
-    <select class="modal-input" id="shiftStaffId">
-      ${schedStaff.map(s=>`<option value="${s.id}" ${s.id===shift.staffId?'selected':''}>${s.name}</option>`).join('')}
-    </select>
-    <div class="modal-label">Date</div>
-    <input class="modal-input" type="date" id="shiftDate" value="${shift.date}">
-    <div class="modal-label">Shift Type</div>
-    <select class="modal-input" id="shiftTypeId">
-      ${schedShiftTypes.map(st=>`<option value="${st.id}" ${st.id===shift.shiftTypeId?'selected':''}>${st.name} (${fmt12(st.start)}–${fmt12(st.end)})</option>`).join('')}
-    </select>
-    <div class="modal-label">Note</div>
-    <input class="modal-input" id="shiftNote" value="${shift.note||''}">
-    <button class="modal-btn" onclick="updateShift('${id}')">Update Shift</button>
-  `);
-};
-
-window.updateShift = function(id) {
-  const idx = schedShifts.findIndex(s=>s.id===id);
-  if (idx<0) return;
-  schedShifts[idx] = {
-    ...schedShifts[idx],
-    staffId: document.getElementById('shiftStaffId').value,
-    date: document.getElementById('shiftDate').value,
-    shiftTypeId: document.getElementById('shiftTypeId').value,
-    note: document.getElementById('shiftNote').value.trim()
-  };
-  saveScheduleData();
-  closeModal();
-  renderSchedule();
-  showToast('✅ Shift updated!');
-};
-
-window.publishSchedule = function() {
-  showToast('📤 Schedule published — staff can now view it!');
-};
-
-window.requestSwap = function(shiftId) {
-  openModal(`
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="modal-title">⇄ Request Shift Swap</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-label">Swap with (optional)</div>
-    <select class="modal-input" id="swapToStaff">
-      <option value="">— Anyone can take it —</option>
-      ${schedStaff.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
-    </select>
-    <div class="modal-label">Reason</div>
-    <input class="modal-input" id="swapReason" placeholder="e.g. Doctor appointment">
-    <button class="modal-btn" onclick="submitSwap('${shiftId}')">Submit Request</button>
-  `);
-};
-
-window.submitSwap = function(shiftId) {
-  const toStaffId = document.getElementById('swapToStaff').value;
-  const reason = document.getElementById('swapReason').value.trim();
-  const shift = schedShifts.find(s=>s.id===shiftId);
-  if (!shift) return;
-  schedSwaps.push({
-    id: 'swap-'+Date.now(), shiftId,
-    fromStaffId: shift.staffId, toStaffId: toStaffId||'any',
-    reason, status: 'pending'
-  });
-  saveScheduleData();
-  closeModal();
-  renderSwaps();
-  showToast('✅ Swap request submitted!');
-};
-
-window.resolveSwap = function(swapId, status) {
+window.handleSwap = async function(swapId, status) {
   const swap = schedSwaps.find(s=>s.id===swapId);
   if (!swap) return;
-  if (status==='approved' && swap.toStaffId && swap.toStaffId!=='any') {
+  if (status === 'approved') {
     const shift = schedShifts.find(s=>s.id===swap.shiftId);
     if (shift) shift.staffId = swap.toStaffId;
   }
   swap.status = status;
-  saveScheduleData();
+  await saveScheduleData();
   renderSchedule();
   showToast(status==='approved'?'✅ Swap approved!':'Swap declined');
 };
+
+// Keep openAddShift for backward compat
+window.openAddShift = window.openManageShiftTypes;
+
+// ── Export schedule image (uses existing exportScheduleImage fn) ──
+
+
 // ══════════════════════════════════════════
-// V12: 4-TIER ROLES + REGIONAL + ADMIN
+// HOURS SUMMARY MODULE
 // ══════════════════════════════════════════
 
+let hrsPeriod = 'week';
 
-// ===== STORE SWITCHER =====
-function populateStoreSwitcher(cfg) {
-  const bar = document.getElementById('ownerBar');
-  if (!bar) return;
-  const ids = canSeeAllStores(cfg) ? Object.keys(STORES)
-    : Object.keys(STORE_REGIONS).filter(id=>STORE_REGIONS[id]===cfg.regionId);
-  bar.innerHTML = '<button class="store-tab-btn active" onclick="switchViewStore(\'all\')" id="storeAll">All</button>'
-    + ids.map(id=>`<button class="store-tab-btn" onclick="switchViewStore('${id}')" id="store-${id}">${STORES[id]?.name||id}</button>`).join('');
-}
+window.setHrsPeriod = function(p) {
+  hrsPeriod = p;
+  document.getElementById('hrsWeekBtn').classList.toggle('active', p==='week');
+  document.getElementById('hrsMonthBtn').classList.toggle('active', p==='month');
+  renderHoursSummary();
+};
 
-// ===== ORG/REGION MANAGEMENT =====
-let liveRegions={}, liveOrgs={};
+function renderHoursSummary() {
+  const el    = document.getElementById('schedHoursReport');
+  const table = document.getElementById('schedHoursTable');
+  const totEl = document.getElementById('schedHoursTotals');
+  if (!el || !table) return;
 
-async function loadOrgStructure() {
-  try {
-    const [o,r,c] = await Promise.all([
-      getDocs(collection(db,'orgs')),
-      getDocs(collection(db,'regions')),
-      getDoc(doc(db,'config','stores'))
-    ]);
-    o.docs.forEach(d=>{liveOrgs[d.id]=d.data();});
-    Object.assign(liveOrgs,ORGS);
-    r.docs.forEach(d=>{liveRegions[d.id]={...d.data(),id:d.id};});
-    Object.keys(REGIONS).forEach(id=>{if(!liveRegions[id])liveRegions[id]=REGIONS[id];});
-    if(c.exists()){
-      Object.entries(c.data()).forEach(([sid,store])=>{
-        STORES[sid]=store; allStores[sid]=store;
-        STORE_REGIONS[sid]=store.regionId||'texas';
+  if (!schedStaff.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+
+  // Get date range
+  let startDate, endDate;
+  const now = new Date();
+
+  if (hrsPeriod === 'week') {
+    startDate = getWeekStart(schedOffset);
+    endDate   = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+  } else {
+    // Full month containing current week
+    const ws = getWeekStart(schedOffset);
+    startDate = new Date(ws.getFullYear(), ws.getMonth(), 1);
+    endDate   = new Date(ws.getFullYear(), ws.getMonth() + 1, 0);
+  }
+
+  // Build list of dates in range
+  const dates = [];
+  const cur = new Date(startDate);
+  while (cur <= endDate) {
+    dates.push(getDateStr(new Date(cur)));
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  // Calculate hours per staff member
+  const staffHours = schedStaff.map(staff => {
+    const shifts = schedShifts.filter(s =>
+      s.staffId === staff.id && dates.includes(s.date)
+    );
+    const totalHrs = shifts.reduce((sum, s) => {
+      const st = schedShiftTypes.find(t => t.id === s.shiftTypeId);
+      return sum + (st ? shiftHours(st) : 0);
+    }, 0);
+    const shiftCount = shifts.length;
+
+    // Weekly breakdown for month view
+    const weeklyHrs = {};
+    if (hrsPeriod === 'month') {
+      shifts.forEach(s => {
+        const d    = new Date(s.date + 'T12:00:00');
+        const wk   = getWeekStart(0);
+        wk.setDate(wk.getDate() - wk.getDay());
+        // Get week label
+        const wkStart = new Date(d);
+        wkStart.setDate(d.getDate() - d.getDay());
+        const wkLabel = fmtDate(wkStart);
+        if (!weeklyHrs[wkLabel]) weeklyHrs[wkLabel] = 0;
+        const st = schedShiftTypes.find(t => t.id === s.shiftTypeId);
+        if (st) weeklyHrs[wkLabel] += shiftHours(st);
       });
     }
-  } catch(e){console.warn(e);}
-  renderOrgTree(); updateAdminDropdowns();
-}
 
-function renderOrgTree() {
-  const el = document.getElementById('orgTree');
-  if (!el) return;
-  const byR={};
-  Object.entries(STORE_REGIONS).forEach(([sid,rid])=>{if(!byR[rid])byR[rid]=[];byR[rid].push(sid);});
-  const allO={...ORGS,...liveOrgs}, allR={...REGIONS,...liveRegions};
-  el.innerHTML = Object.entries(allO).map(([oid,org])=>{
-    const regs=Object.entries(allR).filter(([,r])=>r.orgId===oid);
-    return '<div style="margin-bottom:8px">'
-      +'<div style="padding:7px 12px;background:var(--dark);border-radius:8px;color:#D4A843;font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center">'
-      +' '+org.name+'<span style="opacity:0.5;font-weight:400;font-size:11px">'+regs.length+' region'+(regs.length!==1?'s':'')+'</span></div>'
-      +regs.map(([rid,reg])=>{
-        const stores=byR[rid]||[];
-        return '<div style="margin-left:12px;margin-top:4px">'
-          +'<div style="padding:5px 12px;background:rgba(200,132,58,0.1);border-left:3px solid var(--caramel);border-radius:0 6px 6px 0;font-size:12px;font-weight:600;color:var(--caramel);display:flex;justify-content:space-between">'
-          +' '+reg.name+'<span style="opacity:0.6;font-weight:400">'+stores.length+' store'+(stores.length!==1?'s':'')+'</span></div>'
-          +stores.map(sid=>'<div style="margin-left:12px;margin-top:3px;display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--dark)">'
-            +' '+(STORES[sid]?.name||sid)
-            +'<button onclick="switchViewStore(\''+sid+'\');showTab(\'dashboard\')" style="margin-left:auto;font-size:10px;padding:2px 8px;background:var(--caramel);color:#fff;border:none;border-radius:5px;cursor:pointer">Go</button>'
-            +'</div>').join('')
-          +'</div>';
-      }).join('')
-      +'</div>';
-  }).join('');
-}
+    return { staff, totalHrs, shiftCount, weeklyHrs };
+  }).sort((a, b) => b.totalHrs - a.totalHrs);
 
-function updateAdminDropdowns() {
-  const allR={...REGIONS,...liveRegions};
-  const ro=Object.entries(allR).map(([id,r])=>'<option value="'+id+'">'+r.name+'</option>').join('');
-  ['assignRegion','newStoreRegion'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=ro;});
-  const so=Object.keys(STORES).map(id=>'<option value="'+id+'">'+(STORES[id]?.name||id)+'</option>').join('');
-  const su=document.getElementById('newUserStore');if(su)su.innerHTML=so;
-}
+  const totalAllHrs   = staffHours.reduce((s, r) => s + r.totalHrs, 0);
+  const totalAllShifts= staffHours.reduce((s, r) => s + r.shiftCount, 0);
+  const avgHrs        = staffHours.length > 0 ? totalAllHrs / staffHours.length : 0;
 
-window.addRegion = async function() {
-  const name=document.getElementById('newRegionName').value.trim();
-  const orgId=document.getElementById('newRegionOrg').value;
-  const email=document.getElementById('newRegionOwnerEmail').value.trim().toLowerCase();
-  if(!name){showToast('Enter region name');return;}
-  const rid=name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,20);
-  try{
-    await setDoc(doc(db,'regions',rid),{id:rid,name,orgId,createdAt:Date.now(),createdBy:currentUser.email});
-    REGIONS[rid]=liveRegions[rid]={id:rid,name,orgId};
-    if(email){const ek=email.replace(/\./g,'_').replace(/@/g,'_at_');await setDoc(doc(db,'users',ek),{role:ROLES.REGIONAL_OWNER,orgId,regionId:rid,status:'approved',updatedAt:Date.now()},{merge:true});}
-    document.getElementById('newRegionName').value='';
-    document.getElementById('newRegionOwnerEmail').value='';
-    showToast('Region "'+name+'" created!');
-    renderOrgTree(); updateAdminDropdowns();
-  }catch(e){showToast('Error: '+e.message);}
-};
+  // Render table
+  const periodLabel = hrsPeriod === 'week'
+    ? `Week of ${fmtDate(startDate)}`
+    : startDate.toLocaleDateString('en-US', {month:'long', year:'numeric'});
 
-window.assignRegionalOwner = async function() {
-  const email=document.getElementById('assignEmail').value.trim().toLowerCase();
-  const rid=document.getElementById('assignRegion').value;
-  if(!email||!rid){showToast('Enter email and region');return;}
-  const region=liveRegions[rid]||REGIONS[rid];
-  const ek=email.replace(/\./g,'_').replace(/@/g,'_at_');
-  try{
-    await setDoc(doc(db,'users',ek),{role:ROLES.REGIONAL_OWNER,orgId:region?.orgId||'dumont',regionId:rid,status:'approved',updatedAt:Date.now(),updatedBy:currentUser.email},{merge:true});
-    showToast(email+' is Regional Owner for '+(region?.name||rid));
-    document.getElementById('assignEmail').value='';
-  }catch(e){showToast('Error: '+e.message);}
-};
+  table.innerHTML = `
+    <div style="font-size:11px;color:#8B7355;margin-bottom:8px">${periodLabel}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:var(--dark)">
+          <th style="padding:8px 10px;text-align:left;color:#D4A843;font-weight:600">Staff</th>
+          <th style="padding:8px 10px;text-align:center;color:#D4A843;font-weight:600">Shifts</th>
+          <th style="padding:8px 10px;text-align:right;color:#D4A843;font-weight:600">Hours</th>
+          <th style="padding:8px 10px;text-align:right;color:#D4A843;font-weight:600">% of Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${staffHours.map((r, i) => {
+          const pct     = totalAllHrs > 0 ? (r.totalHrs / totalAllHrs * 100) : 0;
+          const barWidth= Math.round(pct);
+          return `<tr style="background:${i%2===0?'#fff':'var(--cream)'}">
+            <td style="padding:8px 10px;border-bottom:1px solid var(--border)">
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:8px;height:8px;border-radius:50%;background:${r.staff.color}"></div>
+                <span style="font-weight:600">${r.staff.name}</span>
+                <span style="font-size:11px;color:#8B7355">${r.staff.role||''}</span>
+              </div>
+              <div style="margin-top:4px;background:#EDE0CC;border-radius:4px;height:4px;width:100%">
+                <div style="background:${r.staff.color};height:4px;border-radius:4px;width:${barWidth}%"></div>
+              </div>
+            </td>
+            <td style="padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);color:#8B7355">${r.shiftCount}</td>
+            <td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:700;color:var(--caramel)">${r.totalHrs}h</td>
+            <td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);color:#8B7355">${pct.toFixed(0)}%</td>
+          </tr>`;
+        }).join('')}
+        <tr style="background:var(--card-bg);border-top:2px solid var(--border)">
+          <td style="padding:8px 10px;font-weight:700;color:var(--dark)">Total</td>
+          <td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--dark)">${totalAllShifts}</td>
+          <td style="padding:8px 10px;text-align:right;font-weight:700;color:var(--caramel);font-size:16px">${totalAllHrs}h</td>
+          <td style="padding:8px 10px;text-align:right;font-size:11px;color:#8B7355">avg ${avgHrs.toFixed(1)}h</td>
+        </tr>
+      </tbody>
+    </table>`;
 
-window.deleteStore = async function(sid) {
-  const name=STORES[sid]?.name||sid;
-  if(!confirm('Delete "'+name+'"? Firestore data kept.'))return;
-  try{
-    const s=await getDoc(doc(db,'config','stores'));
-    if(s.exists()){const d=s.data();delete d[sid];await setDoc(doc(db,'config','stores'),d);}
-    delete allStores[sid]; delete STORES[sid]; delete STORE_REGIONS[sid];
-    populateStoreSwitcher(currentUserConfig); renderAdminStoreList(); renderOrgTree();
-    showToast('"'+name+'" removed');
-  }catch(e){showToast('Error: '+e.message);}
-};
-
-// Override renderAdminStoreList with delete buttons
-function renderAdminStoreList() {
-  const el=document.getElementById('adminStoreList');
-  if(!el)return;
-  const rows=Object.keys(allStores).map(sid=>'<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">'
-    +'<div style="flex:1"><span style="font-size:13px;font-weight:600;color:var(--dark)">'+(allStores[sid].name||sid)+'</span>'
-    +'<span style="font-size:11px;color:#8B7355;margin-left:6px">'+(allStores[sid].city||'')+'</span></div>'
-    +(sid!=='coppell'
-      ?'<button onclick="deleteStore(\''+sid+'\')" style="background:none;border:1px solid #C0392B;color:#C0392B;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">Delete</button>'
-      :'<span style="font-size:11px;color:var(--green-ok)">Primary</span>')
-    +'</div>').join('');
-  el.innerHTML=rows||'<div style="color:#8B7355;font-size:13px">No stores.</div>';
-}
-
-// Override loadPendingSignups with banner logic
-window.approveSignup = async function(reqId,storeId,storeName,email,role,orgId,regionId) {
-  try{
-    const ek=email.replace(/\./g,'_').replace(/@/g,'_at_');
-    await setDoc(doc(db,'signupRequests',reqId),{status:'approved'},{merge:true});
-    await setDoc(doc(db,'users',ek),{status:'approved',role,orgId:orgId||'dumont',regionId:regionId||'texas',store:role===ROLES.STORE_OWNER?storeId:null,approvedAt:Date.now(),approvedBy:currentUser.email},{merge:true});
-    if(role===ROLES.STORE_OWNER&&storeId){const cs=await getDoc(doc(db,'config','stores'));const cd=cs.exists()?cs.data():{};cd[storeId]={name:storeName,id:storeId,createdAt:Date.now()};await setDoc(doc(db,'config','stores'),cd);}
-    if(role===ROLES.REGIONAL_OWNER&&regionId){await setDoc(doc(db,'regions',regionId),{id:regionId,name:storeName,orgId:orgId||'dumont',createdAt:Date.now()},{merge:true});}
-    showToast(storeName+' approved!');
-    loadPendingSignups(); loadOrgStructure();
-  }catch(e){showToast('Error: '+e.message);}
-};
-
-// ===== REGIONAL DASHBOARD =====
-let regPeriod='week';
-
-window.setRegPeriod = function(p) {
-  regPeriod=p;
-  document.getElementById('regPeriodWeek').classList.toggle('active',p==='week');
-  document.getElementById('regPeriodMonth').classList.toggle('active',p==='month');
-  loadRegionalData();
-};
-
-async function loadRegionalData() {
-  const cfg=currentUserConfig;
-  if(!cfg)return;
-  const ids=canSeeAllStores(cfg)?Object.keys(STORES):Object.keys(STORE_REGIONS).filter(id=>STORE_REGIONS[id]===cfg.regionId);
-  document.getElementById('regionalTitle').textContent=canSeeAllStores(cfg)?'All Stores':(REGIONS[cfg.regionId]?.name||'')+' Region';
-  document.getElementById('regionalSubtitle').textContent=ORGS[cfg.orgId]?.name||'Dumont Creamery and Cafe';
-  document.getElementById('regStores').textContent=ids.length;
-  const now=new Date();
-  const startTs=regPeriod==='week'?(() =>{const d=new Date(now);d.setDate(now.getDate()-now.getDay());d.setHours(0,0,0,0);return d.getTime();})():new Date(now.getFullYear(),now.getMonth(),1).getTime();
-  const results=await Promise.all(ids.map(async sid=>{
-    try{
-      const [ss,cs]=await Promise.all([getDocs(collection(db,'stores',sid,'salesLedger')),getDocs(collection(db,'stores',sid,'costLedger'))]);
-      const rev=ss.docs.map(d=>d.data()).filter(s=>s.dateTs>=startTs).reduce((s,x)=>s+(x.revenue||0),0);
-      const cost=cs.docs.map(d=>d.data()).filter(c=>c.dateTs>=startTs).reduce((s,x)=>s+(x.amount||0),0);
-      return {sid,rev,cost,cogsPct:rev>0?(cost/rev*100):0};
-    }catch(e){return {sid,rev:0,cost:0,cogsPct:0};}
-  }));
-  const totRev=results.reduce((s,r)=>s+r.rev,0);
-  const totCost=results.reduce((s,r)=>s+r.cost,0);
-  const pct=totRev>0?(totCost/totRev*100):0;
-  document.getElementById('regRevenue').textContent='$'+totRev.toLocaleString('en-US',{maximumFractionDigits:0});
-  document.getElementById('regCOGS').textContent=pct>0?pct.toFixed(1)+'%':'--';
-  document.getElementById('regAlerts').innerHTML='<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;color:#8B7355">'+ids.length+' store'+(ids.length!==1?'s':'')+' · '+(regPeriod==='week'?'This week':'This month')+'</div>';
-  document.getElementById('regStoreList').innerHTML=[...results].sort((a,b)=>b.rev-a.rev).map((r,i)=>'<div class="cogs-card" style="margin-bottom:8px">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
-    +'<div><strong style="font-size:13px">'+(i+1)+'. '+(STORES[r.sid]?.name||r.sid)+'</strong></div>'
-    +'<button class="cat-btn" onclick="switchViewStore(\''+r.sid+'\');showTab(\'dashboard\')" style="font-size:11px;padding:4px 10px">View</button>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">'
-    +'<div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:var(--green-ok)">$'+r.rev.toLocaleString('en-US',{maximumFractionDigits:0})+'</div><div style="font-size:10px;color:#8B7355">Revenue</div></div>'
-    +'<div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:var(--red-alert)">$'+r.cost.toLocaleString('en-US',{maximumFractionDigits:0})+'</div><div style="font-size:10px;color:#8B7355">Purchases</div></div>'
-    +'<div style="background:var(--cream);border-radius:6px;padding:6px"><div style="font-size:13px;font-weight:700;color:'+(r.cogsPct<25?'var(--green-ok)':r.cogsPct<32?'var(--amber-alert)':'var(--red-alert)')+'">'+(r.cogsPct>0?r.cogsPct.toFixed(1)+'%':'--')+'</div><div style="font-size:10px;color:#8B7355">COGS</div></div>'
-    +'</div></div>').join('');
-}
-
-// Override adminAddStore with regionId support
-window.adminAddStore = async function() {
-  const sid=document.getElementById('newStoreId').value.trim().toLowerCase().replace(/\s+/g,'-');
-  const name=document.getElementById('newStoreName').value.trim();
-  const city=document.getElementById('newStoreCity').value.trim();
-  const rid=document.getElementById('newStoreRegion')?.value||'texas';
-  if(!sid||!name){showToast('Store ID and name required');return;}
-  if(allStores[sid]){showToast('Store ID already exists');return;}
-  const ns={name,city,regionId:rid};
-  allStores[sid]=ns; STORES[sid]=ns; STORE_REGIONS[sid]=rid;
-  try{
-    const s=await getDoc(doc(db,'config','stores'));
-    const e=s.exists()?s.data():{};e[sid]=ns;
-    await setDoc(doc(db,'config','stores'),e);
-  }catch(e){}
-  if(typeof populateAdminStoreSelect==='function')populateAdminStoreSelect();
-  renderAdminStoreList(); renderOrgTree(); updateAdminDropdowns();
-  if(typeof populateStoreSwitcher==='function')populateStoreSwitcher(currentUserConfig);
-  document.getElementById('newStoreId').value='';
-  document.getElementById('newStoreName').value='';
-  document.getElementById('newStoreCity').value='';
-  showToast('Store "'+name+'" added!');
-};
-
-
-// ══════════════════════════════════════════
-// V13 IMPROVEMENTS
-// ══════════════════════════════════════════
-
-// ── Tap-to-type stock count ──
-window.editStockDirect = function(id) {
-  const span = document.getElementById('sv-' + id);
-  if (!span) return;
-  const item = inventory.find(i => i.id === id);
-  if (!item) return;
-  const cur = item.stock;
-  span.innerHTML = `<input type="number" value="${cur}" min="0" step="0.5"
-    style="width:52px;padding:4px;border:2px solid var(--caramel);border-radius:8px;font-family:inherit;font-size:15px;font-weight:700;text-align:center;background:var(--cream);outline:none"
-    onblur="commitStock(${id},this.value)"
-    onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape'){renderInventory();}"
-    onclick="this.select()">`;
-  span.querySelector('input').focus();
-  span.querySelector('input').select();
-};
-
-window.commitStock = function(id, val) {
-  const item = inventory.find(i => i.id === id);
-  if (!item) return;
-  const newVal = parseFloat(val);
-  if (isNaN(newVal) || newVal < 0) { renderInventory(); return; }
-  item.stock = Math.round(newVal * 10) / 10;
-  updateItemDisplay(id);
-  renderDashboard();
-  renderOrders();
-  renderStockValueBanner();
-  debounceSave();
-  logAudit('stock_set', { itemId: id, itemName: item.name, newStock: item.stock });
-};
-
-// ── Audit log viewer ──
-
-// ── Delivery log search ──
-window.filterDeliveryLog = function(query) {
-  const q = query.toLowerCase();
-  document.querySelectorAll('.del-invoice-card').forEach(card => {
-    const text = card.textContent.toLowerCase();
-    card.style.display = text.includes(q) ? 'block' : 'none';
-  });
-};
-
-// ── Dashboard improvements ──
-function updateDashboardTime() {
-  const el = document.getElementById('syncInfo');
-  if (el) {
-    const now = new Date();
-    el.innerHTML = `🔄 Live sync active — ${STORES[viewingStore]?.name || viewingStore} &nbsp;·&nbsp; <span style="color:#8B7355;font-size:11px">${now.toLocaleTimeString()}</span>`;
-  }
-}
-setInterval(updateDashboardTime, 60000);
-
-
-// ══════════════════════════════════════════
-// AUDIT LOG VIEWER
-// ══════════════════════════════════════════
-
-async function loadAuditLog() {
-  const el = document.getElementById('auditLogList');
-  if (!el) return;
-  el.innerHTML = '<div style="font-size:12px;color:#8B7355">Loading...</div>';
-
-  const filterStore = document.getElementById('auditStoreFilter')?.value || viewingStore;
-
-  try {
-    const snap = await getDocs(collection(db, 'stores', filterStore, 'auditLog'));
-    const entries = snap.docs.map(d => d.data())
-      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-      .slice(0, 50);
-
-    if (!entries.length) {
-      el.innerHTML = '<div style="font-size:12px;color:#8B7355">No audit entries yet.</div>';
-      return;
-    }
-
-    const actionLabels = {
-      'stock_adjust':    '📦 Stock adjusted',
-      'delivery_confirmed': '🚚 Delivery confirmed',
-      'sales_uploaded':  '📊 Sales uploaded',
-      'store_deleted':   '🗑 Store deleted',
-      'region_created':  '🌎 Region created',
-      'signup_approved': '✅ Signup approved',
-      'setup_complete':  '🎉 Setup completed',
-    };
-
-    el.innerHTML = entries.map(e => `
-      <div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:start">
-        <div style="flex:1">
-          <div style="font-size:12px;font-weight:600;color:var(--dark)">${actionLabels[e.action] || e.action}</div>
-          <div style="font-size:11px;color:#8B7355">${e.userName||e.userEmail||''} · ${e.dateStr||''}</div>
-          ${e.details ? `<div style="font-size:11px;color:#aaa;margin-top:2px">${JSON.stringify(e.details).slice(0,80)}</div>` : ''}
-        </div>
-      </div>`).join('');
-
-    // Populate store filter
-    const sel = document.getElementById('auditStoreFilter');
-    if (sel && Object.keys(STORES).length > 1) {
-      sel.innerHTML = '<option value="">All Stores</option>' +
-        Object.entries(STORES).map(([id, s]) => `<option value="${id}" ${id===viewingStore?'selected':''}>${s.name}</option>`).join('');
-    }
-  } catch(e) {
-    el.innerHTML = '<div style="font-size:12px;color:#8B7355">Could not load audit log.</div>';
-  }
+  // Totals card
+  totEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div class="stat-card" style="padding:12px">
+        <div style="font-size:20px;font-weight:700;color:var(--caramel)">${totalAllHrs}h</div>
+        <div style="font-size:11px;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px">Total Hours</div>
+      </div>
+      <div class="stat-card" style="padding:12px">
+        <div style="font-size:20px;font-weight:700;color:var(--dark)">${totalAllShifts}</div>
+        <div style="font-size:11px;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px">Total Shifts</div>
+      </div>
+      <div class="stat-card" style="padding:12px">
+        <div style="font-size:20px;font-weight:700;color:var(--green-ok)">${avgHrs.toFixed(1)}h</div>
+        <div style="font-size:11px;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px">Avg Per Staff</div>
+      </div>
+    </div>`;
 }
 
 
-window.copyAlertList = function() {
-  const critical = inventory.filter(i => i.stock === 0 || i.stock <= i.par * 0.5);
-  const low      = inventory.filter(i => i.stock > i.par * 0.5 && i.stock <= i.par);
-  let text = `🏪 ${STORES[viewingStore]?.name || viewingStore} — Stock Alert\n`;
-  text += `📅 ${new Date().toLocaleDateString()}\n\n`;
-  if (critical.length) {
-    text += `🔴 ORDER NOW (${critical.length} items):\n`;
-    critical.forEach(i => { text += `• ${i.name} — ${i.stock} ${i.uom} (par: ${i.par})\n`; });
-    text += '\n';
-  }
-  if (low.length) {
-    text += `🟡 Running Low (${low.length} items):\n`;
-    low.forEach(i => { text += `• ${i.name} — ${i.stock} ${i.uom} (par: ${i.par})\n`; });
-  }
-  navigator.clipboard.writeText(text).then(() => showToast('✅ Alert list copied — paste into WhatsApp!'));
-};
-
-
-
-</script>
-</body>
-</html>
