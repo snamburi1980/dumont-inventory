@@ -1081,6 +1081,14 @@ window.doLogin = async function() {
 };
 
 // Allow Enter key to submit login
+
+// ── Expose all HTML onclick functions to window ──
+window.addRegion              = addRegion;
+window.adminAddStoreAndManager= adminAddStoreAndManager;
+window.assignRegionalOwner    = assignRegionalOwner;
+window.setRegPeriod           = setRegPeriod;
+window.takeStockSnapshot      = takeStockSnapshot;
+
 // Attach all button listeners (module script scope fix)
 function attachAllListeners() {
   // Login
