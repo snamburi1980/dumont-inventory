@@ -3428,20 +3428,8 @@ window.resolveSwap = function(swapId, status) {
 // V12: 4-TIER ROLES + REGIONAL + ADMIN
 // ══════════════════════════════════════════
 
-const ROLES = {
-  SUPER_OWNER:    'super_owner',
-  REGIONAL_OWNER: 'regional_owner',
-  STORE_OWNER:    'store_owner',
-  MANAGER:        'manager',
-};
-
-const ORGS    = { 'dumont': { name: 'Dumont Creamery & Café', id: 'dumont' } };
-let   REGIONS = { 'texas':  { name: 'Texas', orgId: 'dumont', id: 'texas' } };
-let   STORE_REGIONS = { 'coppell': 'texas' };
-
-function isSuperOwner(cfg)    { return cfg?.role === 'super_owner' || cfg?.role === 'owner'; }
-function isRegionalOwner(cfg) { return cfg?.role === 'regional_owner' || isSuperOwner(cfg); }
-function isStoreOwner(cfg)    { return cfg?.role === 'store_owner'    || isRegionalOwner(cfg); }
+// Note: ROLES, ORGS, REGIONS, STORE_REGIONS and role helpers
+// are defined earlier in the file near the USERS constant
 
 // ── Store Switcher ──
 function populateStoreSwitcher(cfg) {
@@ -3454,7 +3442,7 @@ function populateStoreSwitcher(cfg) {
 }
 
 // ── Org Structure ──
-let liveRegions = {}, liveOrgs = {};
+// liveRegions and liveOrgs declared below
 
 async function loadOrgStructure() {
   try {
@@ -3581,7 +3569,7 @@ function renderAdminStoreListV12() {
 }
 
 // ── Regional Dashboard ──
-let regPeriod = 'week';
+// regPeriod declared in regional module
 window.setRegPeriod = function(p) {
   regPeriod = p;
   document.getElementById('regPeriodWeek').classList.toggle('active', p==='week');
