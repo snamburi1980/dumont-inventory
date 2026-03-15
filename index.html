@@ -434,11 +434,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
   <!-- Owner store switcher (admin only) -->
   <div class="owner-toggle-bar" id="ownerBar" style="display:none">
-    <button class="store-tab-btn active" onclick="switchViewStore('all')" id="storeAll">📊 All Stores</button>
-    <button class="store-tab-btn" onclick="switchViewStore('coppell')" id="storeCoppell">Coppell</button>
-    <button class="store-tab-btn" onclick="switchViewStore('frisco')" id="storeFrisco">Frisco</button>
-    <button class="store-tab-btn" onclick="switchViewStore('cedar-park')" id="storeCedar">Cedar Park</button>
-    <button class="store-tab-btn" onclick="switchViewStore('san-jose')" id="storeSJ">San Jose</button>
+    <!-- Store buttons built dynamically by populateStoreSwitcher() -->
   </div>
 
   <div class="tabs" id="tabBar">
@@ -3011,19 +3007,21 @@ window.updateMenuPrice = async function(menuItem, val) {
 let allStores = { ...STORES };
 
 async function loadAdminStores() {
-  // Load any extra stores saved to Firestore
+  // Load stores from Firestore — single source of truth
   try {
     const snap = await getDoc(doc(db, 'config', 'stores'));
     if (snap.exists) {
       const extra = snap.data();
-      Object.assign(allStores, extra);
-      // Merge into STORES and USERS store switcher
+      // Merge into allStores (keep Coppell as primary)
       Object.keys(extra).forEach(sid => {
-        if (!STORES[sid]) STORES[sid] = extra[sid];
+        allStores[sid] = extra[sid];
+        STORE_REGIONS[sid] = extra[sid].regionId || 'texas';
       });
     }
   } catch(e) {}
   renderAdminStoreList();
+  // Refresh store switcher bar with loaded stores
+  if (currentUserConfig) populateStoreSwitcher(currentUserConfig);
   populateAdminStoreSelect();
 }
 
@@ -3867,6 +3865,18 @@ window.deleteStore = async function(sid) {
     showToast('🗑 "'+name+'" removed');
   } catch(e) { showToast('⚠️ '+e.message); }
 };
+
+
+// ── Store Switcher ──
+function populateStoreSwitcher(cfg) {
+  const bar = document.getElementById('ownerBar');
+  if (!bar) return;
+  const ids = isSuperOwner(cfg)
+    ? Object.keys(allStores)
+    : Object.keys(allStores).filter(id => (allStores[id]?.regionId || STORE_REGIONS[id]) === cfg.regionId);
+  bar.innerHTML = '<button class="store-tab-btn active" onclick="switchViewStore('all')" id="storeAll">📊 All Stores</button>'
+    + ids.map(id => `<button class="store-tab-btn" onclick="switchViewStore('${id}')" id="store-${id}">${allStores[id]?.name||id}</button>`).join('');
+}
 
 
 
