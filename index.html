@@ -658,16 +658,16 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
         <!-- Toolbar -->
         <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
           <div style="display:flex;gap:6px;align-items:center">
-            <button class="btn-adj" onclick="schedNav(-1)" style="font-size:18px">‹</button>
+            <button class="btn-adj" id="schedPrev" style="font-size:18px">‹</button>
             <span id="schedTitle" style="font-size:14px;font-weight:700;color:var(--dark);min-width:160px;text-align:center"></span>
-            <button class="btn-adj" onclick="schedNav(1)" style="font-size:18px">›</button>
+            <button class="btn-adj" id="schedNext" style="font-size:18px">›</button>
           </div>
           <div id="schedManagerTools" style="display:none;display:flex;gap:6px;flex-wrap:wrap">
-            <button class="cat-btn" onclick="openManageShiftTypes()" style="font-size:12px">⚙️ Shifts</button>
-            <button class="cat-btn" onclick="openAddStaff()" style="font-size:12px">👥 Staff</button>
-            <button class="cat-btn" onclick="copyLastWeek()" style="font-size:12px">📋 Copy Week</button>
-            <button class="cat-btn active" onclick="publishSchedule()" style="font-size:12px">📤 Publish</button>
-            <button class="cat-btn" onclick="exportScheduleImage()" style="font-size:12px;background:#2C7A4B;color:#fff;border-color:#2C7A4B">📸 Share</button>
+            <button class="cat-btn" id="schedShiftsBtn" style="font-size:12px">⚙️ Shifts</button>
+            <button class="cat-btn" id="schedStaffBtn" style="font-size:12px">👥 Staff</button>
+            <button class="cat-btn" id="schedCopyBtn" style="font-size:12px">📋 Copy Week</button>
+            <button class="cat-btn active" id="schedPublishBtn" style="font-size:12px">📤 Publish</button>
+            <button class="cat-btn" id="schedShareBtn" style="font-size:12px;background:#2C7A4B;color:#fff;border-color:#2C7A4B">📸 Share</button>
           </div>
         </div>
 
@@ -687,8 +687,8 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div style="font-size:13px;font-weight:700;color:var(--dark)">⏱ Hours Summary</div>
             <div style="display:flex;gap:6px">
-              <button class="cat-btn active" id="hrsWeekBtn" onclick="setHrsPeriod('week')">This Week</button>
-              <button class="cat-btn" id="hrsMonthBtn" onclick="setHrsPeriod('month')">This Month</button>
+              <button class="cat-btn active" id="hrsWeekBtn">This Week</button>
+              <button class="cat-btn" id="hrsMonthBtn">This Month</button>
             </div>
           </div>
           <div id="schedHoursTable"></div>
@@ -1081,18 +1081,34 @@ window.doLogin = async function() {
 };
 
 // Allow Enter key to submit login
-// Attach all button listeners directly (module scripts run after DOM is ready)
-document.getElementById('loginBtn')?.addEventListener('click', doLogin);
-document.getElementById('loginPassword')?.addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
-document.getElementById('loginEmail')?.addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('loginPassword').focus();
-});
-document.getElementById('showSignupBtn')?.addEventListener('click', () => showSignup());
-document.getElementById('showLoginBtn')?.addEventListener('click',  () => showLogin());
-document.getElementById('signupBtn')?.addEventListener('click',     () => doSignup());
-document.getElementById('signupRoleSelect')?.addEventListener('change', () => toggleSignupRoleFields());
+// Attach all button listeners (module script scope fix)
+function attachAllListeners() {
+  // Login
+  document.getElementById('loginBtn')?.addEventListener('click', doLogin);
+  document.getElementById('loginPassword')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('loginEmail')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginPassword')?.focus();
+  });
+  // Signup
+  document.getElementById('showSignupBtn')?.addEventListener('click', () => showSignup());
+  document.getElementById('showLoginBtn')?.addEventListener('click',  () => showLogin());
+  document.getElementById('signupBtn')?.addEventListener('click',     () => doSignup());
+  document.getElementById('signupRoleSelect')?.addEventListener('change', () => toggleSignupRoleFields());
+  // Schedule toolbar
+  document.getElementById('schedPrev')?.addEventListener('click', () => schedNav(-1));
+  document.getElementById('schedNext')?.addEventListener('click', () => schedNav(1));
+  document.getElementById('schedShiftsBtn')?.addEventListener('click', () => openManageShiftTypes());
+  document.getElementById('schedStaffBtn')?.addEventListener('click', () => openAddStaff());
+  document.getElementById('schedCopyBtn')?.addEventListener('click', () => copyLastWeek());
+  document.getElementById('schedPublishBtn')?.addEventListener('click', () => publishSchedule());
+  document.getElementById('schedShareBtn')?.addEventListener('click', () => exportScheduleImage());
+  document.getElementById('hrsWeekBtn')?.addEventListener('click', () => setHrsPeriod('week'));
+  document.getElementById('hrsMonthBtn')?.addEventListener('click', () => setHrsPeriod('month'));
+}
+// Run immediately (module scripts execute after DOM is parsed)
+attachAllListeners();
 
 window.doLogout = async function() {
   if (unsubscribeInventory) unsubscribeInventory();
