@@ -1094,10 +1094,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('showLoginBtn')?.addEventListener('click',  () => showLogin());
   document.getElementById('signupBtn')?.addEventListener('click',     () => doSignup());
   document.getElementById('signupRoleSelect')?.addEventListener('change', () => toggleSignupRoleFields());
+  // Attach login button inside DOMContentLoaded
+  document.getElementById('loginBtn')?.addEventListener('click', doLogin);
 });
-
-// Attach login button (needed for type=module scope)
-document.getElementById('loginBtn')?.addEventListener('click', doLogin);
 
 window.doLogout = async function() {
   if (unsubscribeInventory) unsubscribeInventory();
