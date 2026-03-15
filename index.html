@@ -919,6 +919,32 @@ const db = getFirestore(fbApp);
 // ── USER CONFIG ──
 // Map email → { store, role }
 // Add more users here as you create them in Firebase Auth console
+// ── Role hierarchy ──
+const ROLES = {
+  SUPER_OWNER:    'super_owner',
+  REGIONAL_OWNER: 'regional_owner',
+  STORE_OWNER:    'store_owner',
+  MANAGER:        'manager',
+};
+
+// ── Org / Region definitions ──
+const ORGS = {
+  'dumont': { name: 'Dumont Creamery & Café', id: 'dumont' },
+};
+
+const REGIONS = {
+  'texas': { name: 'Texas', orgId: 'dumont', id: 'texas' },
+};
+
+// ── Role helper functions ──
+function isSuperOwner(cfg)    { return cfg?.role === 'super_owner' || cfg?.role === 'owner'; }
+function isRegionalOwner(cfg) { return cfg?.role === 'regional_owner' || isSuperOwner(cfg); }
+function isStoreOwner(cfg)    { return cfg?.role === 'store_owner' || isRegionalOwner(cfg); }
+function isManager(cfg)       { return cfg?.role === 'manager' || isStoreOwner(cfg); }
+function canSeeAllStores(cfg) { return isSuperOwner(cfg) || isRegionalOwner(cfg); }
+
+let STORE_REGIONS = { "coppell": "texas" };
+
 const USERS = {
   "dumonttexas@gmail.com":        { store: "coppell", role: "owner", name: "Sasikanth" },
   "txccpointwest@gmail.com":     { store: "coppell", role: "manager", name: "Coppell Manager" },
