@@ -68,10 +68,6 @@ function onSnapshot(ref, cb) {
 const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
 
 
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword }
-  from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, query, orderBy, getDocs, deleteDoc, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
 const APP_VERSION = "v14";
 

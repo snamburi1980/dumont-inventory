@@ -823,6 +823,11 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
 <!-- Firebase Compat SDKs (no module scope issues) -->
 <!-- App scripts — load in order, all global scope -->
+<!-- Firebase compat SDK - MUST load first -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- App scripts -->
 <script src="firebase.js"></script>
 <script src="core.js"></script>
 <script src="delivery.js"></script>

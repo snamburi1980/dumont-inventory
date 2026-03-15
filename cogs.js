@@ -156,8 +156,7 @@ window.updateMenuPrice = async function(menuItem, val) {
 
 // ── ADMIN PANEL ──
 
-// Dynamic stores list (starts with hardcoded, can be extended via Firestore)
-let allStores = { ...STORES };
+// allStores defined in core.js
 
 async function loadAdminStores() {
   // Load any extra stores saved to Firestore
