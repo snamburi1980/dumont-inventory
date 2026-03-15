@@ -729,11 +729,14 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
             <div class="modal-label">Select your inventory categories</div>
             <div id="wiz1Categories" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-              ${['Boba','Coffee','Ice Cream','Dry Stock','Condiments','Bakery','Falooda','Seasonal'].map(cat =>
-                `<label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px">
-                  <input type="checkbox" value="${cat}" ${['Boba','Coffee','Ice Cream','Dry Stock','Condiments'].includes(cat)?'checked':''} style="accent-color:var(--caramel)"> ${cat}
-                </label>`
-              ).join('')}
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Boba" checked style="accent-color:var(--caramel)"> Boba</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Coffee" checked style="accent-color:var(--caramel)"> Coffee</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Ice Cream" checked style="accent-color:var(--caramel)"> Ice Cream</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Dry Stock" checked style="accent-color:var(--caramel)"> Dry Stock</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Condiments" checked style="accent-color:var(--caramel)"> Condiments</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Bakery" style="accent-color:var(--caramel)"> Bakery</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Falooda" style="accent-color:var(--caramel)"> Falooda</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Seasonal" style="accent-color:var(--caramel)"> Seasonal</label>
             </div>
 
             <button class="btn-log" onclick="wizNext(2)">Continue →</button>
@@ -2044,11 +2047,12 @@ window.approveSignup = async function(reqId, storeId, storeName, email) {
     // Update signup request status
     await setDoc(doc(db, 'signupRequests', reqId), { status: 'approved' }, { merge: true });
 
-    // Update user profile to approved
+    // Update user profile to approved with store assignment
+    const finalStoreId = storeId || emailKey.replace('_at_gmail_com','').replace('_at_','_');
     await setDoc(doc(db, 'users', emailKey), {
       status: 'approved',
-      role: 'manager',
-      store: storeId,
+      role: 'store_owner',
+      store: finalStoreId,
       approvedAt: Date.now(),
       approvedBy: currentUser.email
     }, { merge: true });
@@ -2171,14 +2175,25 @@ async function checkPendingStatus(user) {
   const emailKey = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
   try {
     const snap = await getDoc(doc(db, 'users', emailKey));
-    if (snap.exists && snap.data().status === 'pending') {
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('app').style.display = 'none';
-      showPending(snap.data().storeName || 'Your Store');
-      return true; // is pending
+    if (snap.exists) {
+      const data = snap.data();
+      // Show pending screen if status is pending
+      if (data.status === 'pending') {
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('app').style.display = 'none';
+        showPending(data.storeName || 'Your Store');
+        return true;
+      }
+      // If no store assigned yet, show pending
+      if (!data.store && data.status !== 'approved') {
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('app').style.display = 'none';
+        showPending(data.storeName || 'Your Store');
+        return true;
+      }
     }
-  } catch(e) {}
-  return false; // not pending
+  } catch(e) { console.warn('checkPendingStatus error:', e); }
+  return false;
 }
 
 // ── Setup Wizard ──
@@ -2274,10 +2289,13 @@ window.completeWizard = async function() {
 // ── Show wizard for new users ──
 async function checkNeedsSetup() {
   if (!currentUser) return;
+  // Skip wizard for super_owner and regional_owner
+  if (isSuperOwner(currentUserConfig) || isRegionalOwner(currentUserConfig)) return;
   const emailKey = currentUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
   try {
     const snap = await getDoc(doc(db, 'users', emailKey));
-    if (snap.exists && !snap.data().setupComplete && snap.data().status === 'approved') {
+    // Only show wizard if self-registered (has storeType from signup form)
+    if (snap.exists && !snap.data().setupComplete && snap.data().status === 'approved' && snap.data().storeType) {
       // Pre-fill wizard with signup data
       const d = snap.data();
       document.getElementById('wiz1StoreName').value = d.storeName || '';
