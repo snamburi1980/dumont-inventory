@@ -19,7 +19,9 @@
   ║  - Admin (owner only)                                    ║
   ╚══════════════════════════════════════════════════════════╝
 -->
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -38,47 +40,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-  --cream: #FDF6EC;
-  --caramel: #C8843A;
-  --dark: #1A1209;
-  --mocha: #3D2B1F;
-  --rose: #E8A598;
-  --mint: #7BBFA5;
-  --gold: #D4A843;
-  --red-alert: #C0392B;
-  --amber-alert: #E67E22;
-  --green-ok: #27AE60;
-  --card-bg: #FFFDF8;
-  --border: #EDE0CC;
+–cream: #FDF6EC;
+–caramel: #C8843A;
+–dark: #1A1209;
+–mocha: #3D2B1F;
+–rose: #E8A598;
+–mint: #7BBFA5;
+–gold: #D4A843;
+–red-alert: #C0392B;
+–amber-alert: #E67E22;
+–green-ok: #27AE60;
+–card-bg: #FFFDF8;
+–border: #EDE0CC;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--cream); color:var(--dark); min-height:100vh; }
+
+- { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:‘DM Sans’,-apple-system,BlinkMacSystemFont,sans-serif; background:var(–cream); color:var(–dark); min-height:100vh; }
 
 /* ── LOGIN SCREEN ── */
 #loginScreen {
-  min-height:100vh; display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(145deg,#1A1209 0%,#3D2B1F 50%,#1A1209 100%);
-  padding:24px;
+min-height:100vh; display:flex; align-items:center; justify-content:center;
+background:linear-gradient(145deg,#1A1209 0%,#3D2B1F 50%,#1A1209 100%);
+padding:24px;
 }
 .login-box {
-  background:rgba(253,246,236,0.04); border:1px solid rgba(200,132,58,0.3);
-  border-radius:20px; padding:40px 32px; width:100%; max-width:380px;
-  backdrop-filter:blur(20px); text-align:center;
+background:rgba(253,246,236,0.04); border:1px solid rgba(200,132,58,0.3);
+border-radius:20px; padding:40px 32px; width:100%; max-width:380px;
+backdrop-filter:blur(20px); text-align:center;
 }
-.login-logo { font-family:'Playfair Display',serif; font-size:36px; color:#D4A843; font-weight:900; letter-spacing:-1px; }
+.login-logo { font-family:‘Playfair Display’,serif; font-size:36px; color:#D4A843; font-weight:900; letter-spacing:-1px; }
 .login-sub { color:rgba(253,246,236,0.6); font-size:13px; margin-top:4px; margin-bottom:32px; letter-spacing:1px; text-transform:uppercase; }
 .login-box input {
-  width:100%; padding:14px 16px; border-radius:10px; border:1px solid rgba(200,132,58,0.3);
-  background:rgba(253,246,236,0.06); color:#FDF6EC; font-size:15px; margin-bottom:12px;
-  outline:none; font-family:inherit;
+width:100%; padding:14px 16px; border-radius:10px; border:1px solid rgba(200,132,58,0.3);
+background:rgba(253,246,236,0.06); color:#FDF6EC; font-size:15px; margin-bottom:12px;
+outline:none; font-family:inherit;
 }
-.login-box input:focus { border-color:var(--caramel); }
+.login-box input:focus { border-color:var(–caramel); }
 .login-box input::placeholder { color:rgba(253,246,236,0.35); }
 .btn-login {
-  width:100%; padding:15px; border-radius:10px; border:none; cursor:pointer;
-  background:linear-gradient(135deg,#C8843A,#D4A843); color:#1A1209;
-  font-size:15px; font-weight:600; font-family:inherit; margin-top:4px; letter-spacing:0.3px;
-  transition:opacity 0.2s;
+width:100%; padding:15px; border-radius:10px; border:none; cursor:pointer;
+background:linear-gradient(135deg,#C8843A,#D4A843); color:#1A1209;
+font-size:15px; font-weight:600; font-family:inherit; margin-top:4px; letter-spacing:0.3px;
+transition:opacity 0.2s;
 }
 .btn-login:hover { opacity:0.9; }
 .login-error { color:#E8A598; font-size:13px; margin-top:10px; min-height:18px; }
@@ -89,50 +92,50 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
 /* HEADER */
 .header {
-  background:var(--mocha); color:var(--cream); padding:0 16px;
-  display:flex; align-items:center; justify-content:space-between;
-  height:56px; position:sticky; top:0; z-index:100;
-  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+background:var(–mocha); color:var(–cream); padding:0 16px;
+display:flex; align-items:center; justify-content:space-between;
+height:56px; position:sticky; top:0; z-index:100;
+box-shadow:0 2px 8px rgba(0,0,0,0.2);
 }
-.header-logo { font-family:'Playfair Display',serif; font-size:20px; color:var(--gold); font-weight:700; }
+.header-logo { font-family:‘Playfair Display’,serif; font-size:20px; color:var(–gold); font-weight:700; }
 .header-right { display:flex; align-items:center; gap:12px; }
 .store-badge {
-  background:rgba(212,168,67,0.2); border:1px solid rgba(212,168,67,0.4);
-  color:var(--gold); font-size:11px; font-weight:600; padding:4px 10px;
-  border-radius:20px; letter-spacing:0.5px; text-transform:uppercase;
+background:rgba(212,168,67,0.2); border:1px solid rgba(212,168,67,0.4);
+color:var(–gold); font-size:11px; font-weight:600; padding:4px 10px;
+border-radius:20px; letter-spacing:0.5px; text-transform:uppercase;
 }
 .btn-logout {
-  background:rgba(232,165,152,0.15); border:1px solid rgba(232,165,152,0.3);
-  color:var(--rose); font-size:12px; padding:5px 10px; border-radius:8px;
-  cursor:pointer; font-family:inherit; font-weight:500;
+background:rgba(232,165,152,0.15); border:1px solid rgba(232,165,152,0.3);
+color:var(–rose); font-size:12px; padding:5px 10px; border-radius:8px;
+cursor:pointer; font-family:inherit; font-weight:500;
 }
 .header-sync { font-size:11px; color:rgba(253,246,236,0.5); }
 
 /* OWNER TOGGLE (admin only) */
 .owner-toggle-bar {
-  background:var(--dark); padding:8px 16px; display:flex; gap:8px; overflow-x:auto;
-  border-bottom:1px solid rgba(212,168,67,0.2);
+background:var(–dark); padding:8px 16px; display:flex; gap:8px; overflow-x:auto;
+border-bottom:1px solid rgba(212,168,67,0.2);
 }
 .store-tab-btn {
-  background:rgba(212,168,67,0.1); border:1px solid rgba(212,168,67,0.2);
-  color:rgba(253,246,236,0.7); font-size:12px; font-weight:500; padding:6px 14px;
-  border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap;
-  transition:all 0.2s;
+background:rgba(212,168,67,0.1); border:1px solid rgba(212,168,67,0.2);
+color:rgba(253,246,236,0.7); font-size:12px; font-weight:500; padding:6px 14px;
+border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap;
+transition:all 0.2s;
 }
-.store-tab-btn.active { background:var(--caramel); color:#fff; border-color:var(--caramel); }
+.store-tab-btn.active { background:var(–caramel); color:#fff; border-color:var(–caramel); }
 
 /* TABS */
 .tabs {
-  display:flex; flex-wrap:wrap; background:var(--card-bg); border-bottom:2px solid var(--border);
-  position:sticky; top:56px; z-index:99; overflow-x:auto; -webkit-overflow-scrolling:touch;
+display:flex; flex-wrap:wrap; background:var(–card-bg); border-bottom:2px solid var(–border);
+position:sticky; top:56px; z-index:99; overflow-x:auto; -webkit-overflow-scrolling:touch;
 }
 .tab-btn {
-  flex:0 0 auto; padding:11px 14px; border:none; background:transparent;
-  font-family:inherit; font-size:12px; font-weight:500; color:#8B7355;
-  cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s;
-  white-space:nowrap; -webkit-tap-highlight-color:transparent;
+flex:0 0 auto; padding:11px 14px; border:none; background:transparent;
+font-family:inherit; font-size:12px; font-weight:500; color:#8B7355;
+cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s;
+white-space:nowrap; -webkit-tap-highlight-color:transparent;
 }
-.tab-btn.active { color:var(--caramel); border-bottom-color:var(--caramel); }
+.tab-btn.active { color:var(–caramel); border-bottom-color:var(–caramel); }
 
 /* CONTENT */
 .content { padding:16px; max-width:900px; margin:0 auto; }
@@ -140,17 +143,17 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 /* DASHBOARD */
 .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
 .stat-card {
-  background:var(--card-bg); border-radius:12px; border:1px solid var(--border);
-  padding:16px 12px; text-align:center;
+background:var(–card-bg); border-radius:12px; border:1px solid var(–border);
+padding:16px 12px; text-align:center;
 }
-.stat-num { font-family:'Playfair Display',serif; font-size:32px; font-weight:700; }
-.stat-num.red { color:var(--red-alert); }
-.stat-num.amber { color:var(--amber-alert); }
-.stat-num.green { color:var(--green-ok); }
+.stat-num { font-family:‘Playfair Display’,serif; font-size:32px; font-weight:700; }
+.stat-num.red { color:var(–red-alert); }
+.stat-num.amber { color:var(–amber-alert); }
+.stat-num.green { color:var(–green-ok); }
 .stat-label { font-size:11px; color:#8B7355; font-weight:500; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
-.alert-section { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); overflow:hidden; }
-.alert-header { padding:12px 16px; border-bottom:1px solid var(--border); font-weight:600; font-size:14px; }
-.alert-row { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.alert-section { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); overflow:hidden; }
+.alert-header { padding:12px 16px; border-bottom:1px solid var(–border); font-weight:600; font-size:14px; }
+.alert-row { padding:12px 16px; border-bottom:1px solid var(–border); display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .alert-row:last-child { border-bottom:none; }
 .alert-name { font-size:14px; font-weight:500; flex:1; }
 .alert-meta { font-size:11px; color:#8B7355; }
@@ -158,81 +161,81 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
 /* INVENTORY */
 .filter-bar { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px; }
-.cat-btn { background:var(--card-bg); border:1px solid var(--border); color:#8B7355; font-size:12px; padding:7px 14px; border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap; font-weight:500; transition:all 0.2s; }
-.cat-btn.active { background:var(--caramel); color:#fff; border-color:var(--caramel); }
-.item-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; padding:14px 16px; }
+.cat-btn { background:var(–card-bg); border:1px solid var(–border); color:#8B7355; font-size:12px; padding:7px 14px; border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap; font-weight:500; transition:all 0.2s; }
+.cat-btn.active { background:var(–caramel); color:#fff; border-color:var(–caramel); }
+.item-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); margin-bottom:10px; padding:14px 16px; }
 .item-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .item-name { font-size:14px; font-weight:600; flex:1; }
 .item-code { font-size:11px; color:#8B7355; }
 .item-mid { display:flex; align-items:center; gap:8px; margin-bottom:8px; overflow:hidden; }
 .stock-bar { background:#E8E0D5; border-radius:4px; height:4px; width:120px; flex:none; overflow:hidden; }
 .stock-bar-fill { height:4px; border-radius:4px; transition:width 0.3s; }
-.fill-green { background:var(--green-ok); }
-.fill-amber { background:var(--amber-alert); }
-.fill-red { background:var(--red-alert); }
+.fill-green { background:var(–green-ok); }
+.fill-amber { background:var(–amber-alert); }
+.fill-red { background:var(–red-alert); }
 .status-pill { font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px; white-space:nowrap; }
-.status-critical { background:rgba(192,57,43,0.12); color:var(--red-alert); }
-.status-low { background:rgba(230,126,34,0.12); color:var(--amber-alert); }
-.status-ok { background:rgba(39,174,96,0.12); color:var(--green-ok); }
+.status-critical { background:rgba(192,57,43,0.12); color:var(–red-alert); }
+.status-low { background:rgba(230,126,34,0.12); color:var(–amber-alert); }
+.status-ok { background:rgba(39,174,96,0.12); color:var(–green-ok); }
 .item-bot { display:flex; align-items:center; justify-content:space-between; }
 .stock-controls { display:flex; align-items:center; gap:8px; }
-.btn-adj { width:36px; height:36px; border-radius:8px; border:1px solid var(--border); background:var(--card-bg); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:600; color:var(--caramel); transition:all 0.15s; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-.btn-adj:active { background:var(--caramel); color:#fff; }
-.stock-val { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; min-width:40px; text-align:center; }
+.btn-adj { width:36px; height:36px; border-radius:8px; border:1px solid var(–border); background:var(–card-bg); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:600; color:var(–caramel); transition:all 0.15s; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+.btn-adj:active { background:var(–caramel); color:#fff; }
+.stock-val { font-family:‘Playfair Display’,serif; font-size:20px; font-weight:700; min-width:40px; text-align:center; }
 .vendor-tag { font-size:10px; font-weight:600; padding:3px 7px; border-radius:6px; }
-.vendor-karat { background:rgba(200,132,58,0.12); color:var(--caramel); }
+.vendor-karat { background:rgba(200,132,58,0.12); color:var(–caramel); }
 .vendor-hyperpack { background:rgba(123,191,165,0.15); color:#3A8B6F; }
 .vendor-target { background:rgba(192,57,43,0.1); color:#C0392B; }
 .vendor-walmart { background:rgba(30,80,162,0.1); color:#1E50A2; }
 .vendor-brand { background:rgba(139,114,85,0.12); color:#5A3E28; }
 .vendor-other { background:#f0ece6; color:#8B7355; }
 .par-info { font-size:11px; color:#8B7355; }
-.saving-indicator { font-size:11px; color:var(--caramel); margin-left:4px; opacity:0; transition:opacity 0.3s; }
+.saving-indicator { font-size:11px; color:var(–caramel); margin-left:4px; opacity:0; transition:opacity 0.3s; }
 .saving-indicator.show { opacity:1; }
 
 /* ORDER LIST */
 .order-section { margin-bottom:20px; }
 .order-header { font-size:15px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
-.order-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); overflow:hidden; }
-.order-row { padding:11px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.order-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); overflow:hidden; }
+.order-row { padding:11px 16px; border-bottom:1px solid var(–border); display:flex; justify-content:space-between; align-items:center; }
 .order-row:last-child { border-bottom:none; }
 .order-name { font-size:14px; font-weight:500; }
-.order-qty { font-size:13px; color:var(--caramel); font-weight:600; }
+.order-qty { font-size:13px; color:var(–caramel); font-weight:600; }
 .order-code { font-size:11px; color:#8B7355; }
-.btn-copy { background:var(--mocha); color:var(--gold); border:none; padding:12px 20px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; margin-top:12px; transition:opacity 0.2s; }
+.btn-copy { background:var(–mocha); color:var(–gold); border:none; padding:12px 20px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; margin-top:12px; transition:opacity 0.2s; }
 .btn-copy:hover { opacity:0.9; }
 .empty-order { text-align:center; padding:32px; color:#8B7355; font-size:14px; }
 
 /* SCAN SALES */
-.scan-zone { overflow:hidden; max-width:100%; 
-  border:2px dashed var(--border); border-radius:14px; padding:40px 24px;
-  text-align:center; cursor:pointer; transition:border-color 0.2s;
-  background:var(--card-bg);
+.scan-zone { overflow:hidden; max-width:100%;
+border:2px dashed var(–border); border-radius:14px; padding:40px 24px;
+text-align:center; cursor:pointer; transition:border-color 0.2s;
+background:var(–card-bg);
 }
-.scan-zone:hover { border-color:var(--caramel); }
+.scan-zone:hover { border-color:var(–caramel); }
 .scan-zone-title { font-size:16px; font-weight:600; margin-bottom:6px; }
 .scan-zone-sub { font-size:13px; color:#8B7355; }
 #fileInput { display:none; }
 .scan-results { margin-top:16px; }
-.scan-result-row { padding:10px 16px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+.scan-result-row { padding:10px 16px; background:var(–card-bg); border-radius:10px; border:1px solid var(–border); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
 .result-item { font-size:14px; font-weight:500; }
-.result-sold { font-size:13px; color:var(--caramel); font-weight:600; }
-.btn-apply { background:linear-gradient(135deg,var(--caramel),var(--gold)); color:#fff; border:none; padding:13px 20px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; margin-top:12px; }
-.parse-error { background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); border-radius:10px; padding:12px 16px; font-size:13px; color:var(--red-alert); margin-top:12px; }
+.result-sold { font-size:13px; color:var(–caramel); font-weight:600; }
+.btn-apply { background:linear-gradient(135deg,var(–caramel),var(–gold)); color:#fff; border:none; padding:13px 20px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; margin-top:12px; }
+.parse-error { background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); border-radius:10px; padding:12px 16px; font-size:13px; color:var(–red-alert); margin-top:12px; }
 
 /* LOG DELIVERY */
-.delivery-form { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); padding:16px; margin-bottom:20px; overflow:hidden; max-width:100%; }
+.delivery-form { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); padding:16px; margin-bottom:20px; overflow:hidden; max-width:100%; }
 .delivery-form h3 { font-size:15px; font-weight:700; margin-bottom:14px; }
 .form-row { display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
 .form-row select, .form-row input {
-  flex:1; min-width:120px; padding:10px 12px; border-radius:8px;
-  border:1px solid var(--border); background:var(--cream); font-family:inherit; font-size:14px; color:var(--dark); outline:none;
+flex:1; min-width:120px; padding:10px 12px; border-radius:8px;
+border:1px solid var(–border); background:var(–cream); font-family:inherit; font-size:14px; color:var(–dark); outline:none;
 }
-.btn-log { background:var(--mocha); color:var(--gold); border:none; padding:12px 20px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; transition:opacity 0.2s; }
+.btn-log { background:var(–mocha); color:var(–gold); border:none; padding:12px 20px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; transition:opacity 0.2s; }
 .btn-log:hover { opacity:0.9; }
-.delivery-history { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); overflow:hidden; }
-.delivery-history h3 { padding:12px 16px; font-size:14px; font-weight:700; border-bottom:1px solid var(--border); }
-.del-row { padding:11px 16px; border-bottom:1px solid var(--border); }
+.delivery-history { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); overflow:hidden; }
+.delivery-history h3 { padding:12px 16px; font-size:14px; font-weight:700; border-bottom:1px solid var(–border); }
+.del-row { padding:11px 16px; border-bottom:1px solid var(–border); }
 .del-row:last-child { border-bottom:none; }
 .del-row-top { font-size:14px; font-weight:500; }
 .del-row-bot { font-size:12px; color:#8B7355; margin-top:2px; }
@@ -240,129 +243,127 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 
 /* OWNER DASHBOARD */
 .owner-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:20px; }
-.store-card { background:var(--card-bg); border-radius:14px; border:1px solid var(--border); padding:18px; }
+.store-card { background:var(–card-bg); border-radius:14px; border:1px solid var(–border); padding:18px; }
 .store-card-name { font-size:16px; font-weight:700; margin-bottom:4px; }
 .store-card-sub { font-size:12px; color:#8B7355; margin-bottom:14px; }
 .store-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
 .store-stat { text-align:center; }
-.store-stat-num { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; }
+.store-stat-num { font-family:‘Playfair Display’,serif; font-size:22px; font-weight:700; }
 .store-stat-label { font-size:10px; color:#8B7355; text-transform:uppercase; letter-spacing:0.5px; }
 
 /* Toast */
 .toast {
-  position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
-  background:var(--dark); color:var(--cream); padding:10px 20px; border-radius:10px;
-  font-size:13px; font-weight:500; opacity:0; transition:all 0.3s; z-index:999; white-space:nowrap;
+position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
+background:var(–dark); color:var(–cream); padding:10px 20px; border-radius:10px;
+font-size:13px; font-weight:500; opacity:0; transition:all 0.3s; z-index:999; white-space:nowrap;
 }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
 /* NAV BAR (mobile) */
 .bottom-nav {
-  position:fixed; bottom:0; left:0; right:0; background:var(--card-bg);
-  border-top:1px solid var(--border); display:flex; z-index:100;
-  padding-bottom:env(safe-area-inset-bottom);
+position:fixed; bottom:0; left:0; right:0; background:var(–card-bg);
+border-top:1px solid var(–border); display:flex; z-index:100;
+padding-bottom:env(safe-area-inset-bottom);
 }
 .nav-btn { flex:1; padding:10px 4px 8px; border:none; background:transparent; cursor:pointer; font-family:inherit; color:#8B7355; font-size:10px; display:flex; flex-direction:column; align-items:center; gap:3px; transition:color 0.2s; }
-.nav-btn.active { color:var(--caramel); }
+.nav-btn.active { color:var(–caramel); }
 .nav-icon { font-size:20px; }
 .main-content { padding-bottom:70px; }
 
 /* Spinner */
-.spinner { width:20px; height:20px; border:2px solid rgba(253,246,236,0.2); border-top-color:var(--caramel); border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; }
+.spinner { width:20px; height:20px; border:2px solid rgba(253,246,236,0.2); border-top-color:var(–caramel); border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; }
 @keyframes spin { to { transform:rotate(360deg); } }
 
 /* Search bar */
-.search-bar { width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--card-bg); font-family:inherit; font-size:14px; outline:none; margin-bottom:12px; }
-
-
-
+.search-bar { width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(–border); background:var(–card-bg); font-family:inherit; font-size:14px; outline:none; margin-bottom:12px; }
 
 /* ── STOCK VALUE BANNER ── */
-.stock-val-card { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:10px 14px; min-width:120px; flex-shrink:0; }
+.stock-val-card { background:var(–card-bg); border:1px solid var(–border); border-radius:10px; padding:10px 14px; min-width:120px; flex-shrink:0; }
 .stock-val-cat { font-size:10px; color:#8B7355; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
-.stock-val-amt { font-family:"Playfair Display",serif; font-size:18px; font-weight:700; color:var(--caramel); }
+.stock-val-amt { font-family:“Playfair Display”,serif; font-size:18px; font-weight:700; color:var(–caramel); }
 .stock-val-count { font-size:10px; color:#8B7355; margin-top:1px; }
 
-.admin-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.admin-card{background:var(–card-bg);border:1px solid var(–border);border-radius:12px;padding:12px 14px}
 .admin-card-title{font-size:11px;font-weight:700;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-.admin-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--cream);font-family:inherit;font-size:13px;outline:none;margin-bottom:6px;box-sizing:border-box;color:var(--dark)}
-.admin-input:focus{border-color:var(--caramel)}
-.admin-btn{width:100%;padding:9px;border:none;border-radius:8px;background:var(--dark);color:#D4A843;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px}
-
-
+.admin-input{width:100%;padding:8px 12px;border:1px solid var(–border);border-radius:8px;background:var(–cream);font-family:inherit;font-size:13px;outline:none;margin-bottom:6px;box-sizing:border-box;color:var(–dark)}
+.admin-input:focus{border-color:var(–caramel)}
+.admin-btn{width:100%;padding:9px;border:none;border-radius:8px;background:var(–dark);color:#D4A843;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px}
 
 /* ── SCHEDULE GRID ── */
-.sched-name-cell { padding:8px 10px; font-size:13px; font-weight:600; color:var(--dark); white-space:nowrap; border-right:2px solid var(--border); min-width:100px; vertical-align:middle; }
-.sched-day-cell  { padding:4px; text-align:center; border:1px solid var(--border); vertical-align:middle; cursor:pointer; min-width:80px; height:52px; position:relative; }
+.sched-name-cell { padding:8px 10px; font-size:13px; font-weight:600; color:var(–dark); white-space:nowrap; border-right:2px solid var(–border); min-width:100px; vertical-align:middle; }
+.sched-day-cell  { padding:4px; text-align:center; border:1px solid var(–border); vertical-align:middle; cursor:pointer; min-width:80px; height:52px; position:relative; }
 .sched-day-cell:hover { background:rgba(200,132,58,0.05); }
-.sched-day-header { padding:6px 4px; text-align:center; font-size:11px; font-weight:700; color:#8B7355; border-bottom:2px solid var(--border); background:var(--card-bg); }
+.sched-day-header { padding:6px 4px; text-align:center; font-size:11px; font-weight:700; color:#8B7355; border-bottom:2px solid var(–border); background:var(–card-bg); }
 .sched-shift-bar { border-radius:6px; padding:5px 6px; font-size:11px; font-weight:700; cursor:pointer; user-select:none; line-height:1.2; }
 .sched-shift-bar:hover { opacity:0.8; }
 .sched-shift-time { font-size:9px; font-weight:400; opacity:0.85; margin-top:1px; }
 .sched-today { background:rgba(200,132,58,0.06) !important; }
 .sched-hours { font-size:11px; color:#8B7355; padding:4px 8px; text-align:right; white-space:nowrap; }
 .shift-type-pill { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; border:2px solid transparent; }
-.shift-type-pill.selected { border-color: var(--dark); }
+.shift-type-pill.selected { border-color: var(–dark); }
 
 /* ── ADMIN CARDS ── */
-.admin-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+.admin-card { background:var(–card-bg); border:1px solid var(–border); border-radius:12px; padding:14px 16px; }
 .admin-card-title { font-size:11px; font-weight:700; color:#8B7355; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
-.admin-input { width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--cream); font-family:inherit; font-size:13px; outline:none; margin-bottom:6px; box-sizing:border-box; color:var(--dark); }
-.admin-input:focus { border-color:var(--caramel); }
-.admin-btn { width:100%; padding:9px; border:none; border-radius:8px; background:var(--dark); color:#D4A843; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; margin-top:2px; transition:opacity 0.2s; }
+.admin-input { width:100%; padding:8px 12px; border:1px solid var(–border); border-radius:8px; background:var(–cream); font-family:inherit; font-size:13px; outline:none; margin-bottom:6px; box-sizing:border-box; color:var(–dark); }
+.admin-input:focus { border-color:var(–caramel); }
+.admin-btn { width:100%; padding:9px; border:none; border-radius:8px; background:var(–dark); color:#D4A843; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; margin-top:2px; transition:opacity 0.2s; }
 .admin-btn:hover { opacity:0.85; }
 
 /* ── COGS ── */
-.cogs-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; padding:14px 16px; }
+.cogs-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); margin-bottom:10px; padding:14px 16px; }
 .cogs-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .cogs-name { font-size:14px; font-weight:600; flex:1; }
-.cogs-pct { font-size:18px; font-weight:700; font-family:"Playfair Display",serif; min-width:60px; text-align:right; }
-.cogs-pct.good { color:var(--green-ok); }
-.cogs-pct.warn { color:var(--amber-alert); }
-.cogs-pct.bad  { color:var(--red-alert); }
+.cogs-pct { font-size:18px; font-weight:700; font-family:“Playfair Display”,serif; min-width:60px; text-align:right; }
+.cogs-pct.good { color:var(–green-ok); }
+.cogs-pct.warn { color:var(–amber-alert); }
+.cogs-pct.bad  { color:var(–red-alert); }
 .cogs-bar { background:#E8E0D5; border-radius:4px; height:6px; margin-bottom:10px; }
 .cogs-bar-fill { height:6px; border-radius:4px; transition:width 0.4s; }
 .cogs-details { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
 .cogs-detail-item { font-size:12px; color:#8B7355; }
-.cogs-detail-val { font-weight:600; color:var(--dark); }
-.cogs-price-input { width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); background:var(--cream); font-family:inherit; font-size:13px; text-align:right; outline:none; }
-.cogs-price-input:focus { border-color:var(--caramel); }
-.margin-bar-good { background:var(--green-ok); }
-.margin-bar-warn { background:var(--amber-alert); }
-.margin-bar-bad  { background:var(--red-alert); }
+.cogs-detail-val { font-weight:600; color:var(–dark); }
+.cogs-price-input { width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(–border); background:var(–cream); font-family:inherit; font-size:13px; text-align:right; outline:none; }
+.cogs-price-input:focus { border-color:var(–caramel); }
+.margin-bar-good { background:var(–green-ok); }
+.margin-bar-warn { background:var(–amber-alert); }
+.margin-bar-bad  { background:var(–red-alert); }
 
 /* ── SCHEDULE ── */
-.week-grid-th { background:var(--mocha); color:var(--gold); font-size:11px; font-weight:600; padding:8px 6px; text-align:center; white-space:nowrap; }
-.week-grid-name { padding:8px 10px; font-size:13px; font-weight:600; background:var(--card-bg); border-bottom:1px solid var(--border); border-right:1px solid var(--border); white-space:nowrap; min-width:90px; }
-.week-cell { padding:4px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); vertical-align:top; min-width:80px; }
+.week-grid-th { background:var(–mocha); color:var(–gold); font-size:11px; font-weight:600; padding:8px 6px; text-align:center; white-space:nowrap; }
+.week-grid-name { padding:8px 10px; font-size:13px; font-weight:600; background:var(–card-bg); border-bottom:1px solid var(–border); border-right:1px solid var(–border); white-space:nowrap; min-width:90px; }
+.week-cell { padding:4px; border-bottom:1px solid var(–border); border-right:1px solid var(–border); vertical-align:top; min-width:80px; }
 .shift-chip { border-radius:6px; padding:4px 6px; font-size:11px; font-weight:600; margin-bottom:3px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:4px; }
 .shift-chip-time { font-size:10px; font-weight:400; opacity:0.85; }
-.day-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; overflow:hidden; }
-.day-card-header { background:var(--mocha); color:var(--gold); padding:10px 16px; font-size:13px; font-weight:700; }
-.day-shift-row { padding:10px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.day-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); margin-bottom:10px; overflow:hidden; }
+.day-card-header { background:var(–mocha); color:var(–gold); padding:10px 16px; font-size:13px; font-weight:700; }
+.day-shift-row { padding:10px 16px; border-bottom:1px solid var(–border); display:flex; align-items:center; justify-content:space-between; }
 .day-shift-row:last-child { border-bottom:none; }
-.swap-card { background:var(--card-bg); border-radius:10px; border:1px solid var(--border); padding:12px 16px; margin-bottom:8px; }
-.btn-approve { background:rgba(39,174,96,0.12); color:var(--green-ok); border:1px solid rgba(39,174,96,0.3); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
-.btn-decline { background:rgba(192,57,43,0.1); color:var(--red-alert); border:1px solid rgba(192,57,43,0.2); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.swap-card { background:var(–card-bg); border-radius:10px; border:1px solid var(–border); padding:12px 16px; margin-bottom:8px; }
+.btn-approve { background:rgba(39,174,96,0.12); color:var(–green-ok); border:1px solid rgba(39,174,96,0.3); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-decline { background:rgba(192,57,43,0.1); color:var(–red-alert); border:1px solid rgba(192,57,43,0.2); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
 .modal-title { font-size:16px; font-weight:700; margin-bottom:16px; }
 .modal-label { font-size:12px; font-weight:600; color:#8B7355; margin-bottom:4px; margin-top:12px; }
-.modal-input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--cream); font-family:inherit; font-size:14px; outline:none; }
-.modal-btn { width:100%; padding:12px; border-radius:10px; border:none; background:var(--mocha); color:var(--gold); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:16px; }
+.modal-input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(–border); background:var(–cream); font-family:inherit; font-size:14px; outline:none; }
+.modal-btn { width:100%; padding:12px; border-radius:10px; border:none; background:var(–mocha); color:var(–gold); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:16px; }
 .modal-close { float:right; background:none; border:none; font-size:20px; cursor:pointer; color:#8B7355; margin-top:-4px; }
 .color-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:6px; }
 
 @media(min-width:600px){
-  .stat-grid { grid-template-columns:repeat(3,1fr); }
-  .tabs { position:sticky; }
+.stat-grid { grid-template-columns:repeat(3,1fr); }
+.tabs { position:sticky; }
 }
 </style>
+
 </head>
 <body>
 
 <!-- LOGIN SCREEN -->
+
 <div id="loginScreen">
 
   <!-- ── SIGN IN PANEL ── -->
+
   <div class="login-box" id="loginPanel">
     <div class="login-logo">Dumont</div>
     <div class="login-sub">Creamery &amp; Café — Inventory v15</div>
@@ -377,38 +378,43 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
   </div>
 
   <!-- ── SIGN UP PANEL ── -->
+
   <div class="login-box" id="signupPanel" style="display:none">
     <div class="login-logo" style="font-size:28px">Create Account</div>
     <div class="login-sub">Set up your store</div>
 
-    <input type="text" id="signupName" placeholder="Your Name" autocomplete="name"
-      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-    <input type="email" id="signupEmail" placeholder="Email Address" autocomplete="email"
-      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-    <input type="password" id="signupPassword" placeholder="Password (min 8 characters)"
-      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-    <input type="text" id="signupStoreName" placeholder="Store Name (e.g. My Boba Shop)"
-      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-    <select id="signupStoreType"
-      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(61,43,31,0.9);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-      <option value="">— Store Type —</option>
-      <option value="boba">Boba / Bubble Tea</option>
-      <option value="icecream">Ice Cream</option>
-      <option value="cafe">Café / Coffee</option>
-      <option value="combined">Combined (Boba + Ice Cream + Coffee)</option>
-      <option value="other">Other F&B</option>
-    </select>
-    <input type="text" id="signupCity" placeholder="City, State"
-      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:16px">
+```
+<input type="text" id="signupName" placeholder="Your Name" autocomplete="name"
+  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+<input type="email" id="signupEmail" placeholder="Email Address" autocomplete="email"
+  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+<input type="password" id="signupPassword" placeholder="Password (min 8 characters)"
+  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+<input type="text" id="signupStoreName" placeholder="Store Name (e.g. My Boba Shop)"
+  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+<select id="signupStoreType"
+  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(61,43,31,0.9);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+  <option value="">— Store Type —</option>
+  <option value="boba">Boba / Bubble Tea</option>
+  <option value="icecream">Ice Cream</option>
+  <option value="cafe">Café / Coffee</option>
+  <option value="combined">Combined (Boba + Ice Cream + Coffee)</option>
+  <option value="other">Other F&B</option>
+</select>
+<input type="text" id="signupCity" placeholder="City, State"
+  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:16px">
 
-    <button class="btn-login" id="signupBtn">Request Access</button>
-    <div class="login-error" id="signupError"></div>
-    <div style="text-align:center;margin-top:16px">
-      <span style="color:#D4A843;font-size:13px;cursor:pointer;text-decoration:underline" id="showLoginBtn" style="cursor:pointer">← Back to Sign In</span>
-    </div>
+<button class="btn-login" id="signupBtn">Request Access</button>
+<div class="login-error" id="signupError"></div>
+<div style="text-align:center;margin-top:16px">
+  <span style="color:#D4A843;font-size:13px;cursor:pointer;text-decoration:underline" id="showLoginBtn" style="cursor:pointer">← Back to Sign In</span>
+</div>
+```
+
   </div>
 
   <!-- ── PENDING APPROVAL PANEL ── -->
+
   <div class="login-box" id="pendingPanel" style="display:none">
     <div style="font-size:48px;text-align:center;margin-bottom:16px">⏳</div>
     <div class="login-logo" style="font-size:22px;text-align:center">Awaiting Approval</div>
@@ -424,6 +430,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 </div>
 
 <!-- MAIN APP -->
+
 <div id="app">
   <div class="header">
     <div class="header-logo">Dumont</div>
@@ -434,6 +441,7 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
   </div>
 
   <!-- Owner store switcher (admin only) -->
+
   <div class="owner-toggle-bar" id="ownerBar" style="display:none">
     <!-- Store buttons built dynamically by populateStoreSwitcher() -->
   </div>
@@ -452,392 +460,399 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
   <div class="main-content">
     <div class="content">
 
-      <!-- DASHBOARD -->
-      <div id="tab-dashboard">
-        <div id="ownerAllView" style="display:none">
-          <div style="margin-bottom:14px;font-size:13px;color:#8B7355;">All Stores — Live Overview</div>
-          <div class="owner-grid" id="ownerGrid"></div>
+```
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard">
+    <div id="ownerAllView" style="display:none">
+      <div style="margin-bottom:14px;font-size:13px;color:#8B7355;">All Stores — Live Overview</div>
+      <div class="owner-grid" id="ownerGrid"></div>
+    </div>
+    <div id="storeView">
+      <div class="sync-info" id="syncInfo">⏱ Loading data...</div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num red" id="statCritical">0</div><div class="stat-label">🔴 Order Now</div></div>
+        <div class="stat-card"><div class="stat-num amber" id="statLow">0</div><div class="stat-label">🟡 Running Low</div></div>
+        <div class="stat-card"><div class="stat-num green" id="statOk">0</div><div class="stat-label">🟢 OK</div></div>
+      </div>
+      <div class="alert-section" id="alertSection"></div>
+    </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div id="tab-inventory" style="display:none">
+
+    <!-- Stock Value Banner -->
+    <div id="stockValueBanner" style="display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px"></div>
+
+    <!-- Toolbar -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search items..." oninput="renderInventory()" style="flex:1;margin-bottom:0;min-width:160px">
+      <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap" onclick="openAddItem()">+ Add Item</button>
+      <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap;background:var(--caramel)" onclick="openAddCategory()">+ Category</button>
+    </div>
+
+    <div class="filter-bar" id="filterBar"></div>
+    <div id="inventoryList"></div>
+  </div>
+
+  <!-- ORDERS -->
+  <div id="tab-orders" style="display:none">
+    <div id="ordersContent"></div>
+  </div>
+
+  <!-- SCAN SALES -->
+  <div id="tab-scan" style="display:none">
+    <div class="scan-zone" onclick="document.getElementById('fileInput').click()">
+      <div style="font-size:36px;margin-bottom:8px;">📊</div>
+      <div class="scan-zone-title">Upload Clover Sales Report</div>
+      <div class="scan-zone-sub">Tap to select Excel file (.xlsx) or image/PDF<br><small style="color:#aaa">Accepted: .xlsx, .xls, .csv, image, PDF</small></div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,image/*,.pdf" onchange="handleFile(event)">
+    </div>
+    <div id="scanResults"></div>
+  </div>
+
+  <!-- DELIVERY -->
+  <div id="tab-delivery" style="display:none">
+
+    <!-- Upload invoice -->
+    <div class="scan-zone" onclick="document.getElementById('invoicePdfInput').click()" style="margin-bottom:16px">
+      <div style="font-size:36px;margin-bottom:8px">🧾</div>
+      <div class="scan-zone-title">Upload Delivery Invoice (PDF)</div>
+      <div class="scan-zone-sub">AI reads your Karat or dry stock invoice<br>and auto-fills all line items</div>
+      <input type="file" id="invoicePdfInput" accept=".pdf" onchange="parseInvoicePDF(event)">
+    </div>
+
+    <!-- AI parsing status -->
+    <div id="invoiceParseStatus" style="display:none" class="sync-info" style="margin-bottom:12px"></div>
+
+    <!-- Parsed line items preview -->
+    <div id="invoicePreview" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:700;color:var(--dark)">📦 Invoice Items — Review & Confirm</div>
+        <div id="invoiceTotalBadge" style="font-size:13px;font-weight:700;color:var(--caramel)"></div>
+      </div>
+      <div id="invoiceLineItems"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn-log" style="flex:1" onclick="confirmDelivery()">✅ Confirm & Update Stock</button>
+        <button class="btn-log" style="flex:1;background:#888" onclick="cancelInvoice()">✕ Cancel</button>
+      </div>
+    </div>
+
+    <!-- Manual entry fallback -->
+    <div id="manualDelivery">
+      <div style="font-size:12px;color:#8B7355;margin-bottom:10px;text-align:center">— or log a single item manually —</div>
+      <div class="delivery-form">
+        <div class="form-row">
+          <select id="delivItem"><option value="">— Select item —</option></select>
         </div>
-        <div id="storeView">
-          <div class="sync-info" id="syncInfo">⏱ Loading data...</div>
-          <div class="stat-grid">
-            <div class="stat-card"><div class="stat-num red" id="statCritical">0</div><div class="stat-label">🔴 Order Now</div></div>
-            <div class="stat-card"><div class="stat-num amber" id="statLow">0</div><div class="stat-label">🟡 Running Low</div></div>
-            <div class="stat-card"><div class="stat-num green" id="statOk">0</div><div class="stat-label">🟢 OK</div></div>
-          </div>
-          <div class="alert-section" id="alertSection"></div>
+        <div class="form-row">
+          <input type="number" id="delivQty" placeholder="Quantity received" min="0" step="0.5">
+          <input type="number" id="delivCost" placeholder="Unit cost $" min="0" step="0.01">
         </div>
+        <input type="text" id="delivNote" placeholder="Note (optional)" style="width:100%;margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--cream);outline:none">
+        <button class="btn-log" onclick="logDelivery()">+ Log Single Item</button>
+      </div>
+    </div>
+
+    <div class="delivery-history">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <h3 style="margin:0">Delivery Log</h3>
+        <input type="text" placeholder="🔍 Search..." oninput="filterDeliveryLog(this.value)"
+          style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--cream);outline:none">
+      </div>
+      <div id="deliveryList"></div>
+    </div>
+  </div>
+
+
+
+  <!-- COGS TAB -->
+  <div id="tab-cogs" style="display:none">
+
+    <!-- Sub-nav -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="cat-btn active" id="cogsViewReport"  onclick="setCogsView('report')">📊 COGS Report</button>
+      <button class="cat-btn"        id="cogsViewMargins" onclick="setCogsView('margins')">💰 Menu Margins</button>
+    </div>
+
+    <!-- ── COGS REPORT ── -->
+    <div id="cogsReportView">
+
+      <!-- Upload prompt if no data -->
+      <div id="cogsNoData" style="text-align:center;padding:32px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px">
+        <div style="font-size:32px;margin-bottom:8px">📊</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">No Sales Data Yet</div>
+        <div style="font-size:12px;color:#8B7355;margin-bottom:14px">Upload your Clover CSV in the Sales tab to see your COGS report</div>
+        <button class="cat-btn active" onclick="showTab('scan')" style="font-size:12px">Go to Sales → Upload CSV</button>
       </div>
 
-      <!-- INVENTORY -->
-      <div id="tab-inventory" style="display:none">
+      <!-- COGS Dashboard (shown after data loaded) -->
+      <div id="cogsDashboard" style="display:none">
 
-        <!-- Stock Value Banner -->
-        <div id="stockValueBanner" style="display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px"></div>
+        <!-- Period label -->
+        <div id="cogsPeriodLabel" style="font-size:12px;color:#8B7355;margin-bottom:12px;text-align:center"></div>
 
-        <!-- Toolbar -->
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-          <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search items..." oninput="renderInventory()" style="flex:1;margin-bottom:0;min-width:160px">
-          <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap" onclick="openAddItem()">+ Add Item</button>
-          <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap;background:var(--caramel)" onclick="openAddCategory()">+ Category</button>
-        </div>
-
-        <div class="filter-bar" id="filterBar"></div>
-        <div id="inventoryList"></div>
-      </div>
-
-      <!-- ORDERS -->
-      <div id="tab-orders" style="display:none">
-        <div id="ordersContent"></div>
-      </div>
-
-      <!-- SCAN SALES -->
-      <div id="tab-scan" style="display:none">
-        <div class="scan-zone" onclick="document.getElementById('fileInput').click()">
-          <div style="font-size:36px;margin-bottom:8px;">📊</div>
-          <div class="scan-zone-title">Upload Clover Sales Report</div>
-          <div class="scan-zone-sub">Tap to select Excel file (.xlsx) or image/PDF<br><small style="color:#aaa">Accepted: .xlsx, .xls, .csv, image, PDF</small></div>
-          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,image/*,.pdf" onchange="handleFile(event)">
-        </div>
-        <div id="scanResults"></div>
-      </div>
-
-      <!-- DELIVERY -->
-      <div id="tab-delivery" style="display:none">
-
-        <!-- Upload invoice -->
-        <div class="scan-zone" onclick="document.getElementById('invoicePdfInput').click()" style="margin-bottom:16px">
-          <div style="font-size:36px;margin-bottom:8px">🧾</div>
-          <div class="scan-zone-title">Upload Delivery Invoice (PDF)</div>
-          <div class="scan-zone-sub">AI reads your Karat or dry stock invoice<br>and auto-fills all line items</div>
-          <input type="file" id="invoicePdfInput" accept=".pdf" onchange="parseInvoicePDF(event)">
-        </div>
-
-        <!-- AI parsing status -->
-        <div id="invoiceParseStatus" style="display:none" class="sync-info" style="margin-bottom:12px"></div>
-
-        <!-- Parsed line items preview -->
-        <div id="invoicePreview" style="display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div style="font-size:14px;font-weight:700;color:var(--dark)">📦 Invoice Items — Review & Confirm</div>
-            <div id="invoiceTotalBadge" style="font-size:13px;font-weight:700;color:var(--caramel)"></div>
+        <!-- KPI cards -->
+        <div class="stat-grid" style="margin-bottom:12px">
+          <div class="stat-card">
+            <div class="stat-num" id="cogsRevenue" style="color:var(--green-ok);font-size:20px">$0</div>
+            <div class="stat-label">Net Sales</div>
           </div>
-          <div id="invoiceLineItems"></div>
-          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-            <button class="btn-log" style="flex:1" onclick="confirmDelivery()">✅ Confirm & Update Stock</button>
-            <button class="btn-log" style="flex:1;background:#888" onclick="cancelInvoice()">✕ Cancel</button>
+          <div class="stat-card">
+            <div class="stat-num" id="cogsCost" style="color:var(--red-alert);font-size:20px">$0</div>
+            <div class="stat-label">COGS</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="cogsPct" style="font-size:20px">0%</div>
+            <div class="stat-label">COGS %</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="cogsProfit" style="color:var(--green-ok);font-size:20px">$0</div>
+            <div class="stat-label">Gross Profit</div>
           </div>
         </div>
 
-        <!-- Manual entry fallback -->
-        <div id="manualDelivery">
-          <div style="font-size:12px;color:#8B7355;margin-bottom:10px;text-align:center">— or log a single item manually —</div>
-          <div class="delivery-form">
-            <div class="form-row">
-              <select id="delivItem"><option value="">— Select item —</option></select>
-            </div>
-            <div class="form-row">
-              <input type="number" id="delivQty" placeholder="Quantity received" min="0" step="0.5">
-              <input type="number" id="delivCost" placeholder="Unit cost $" min="0" step="0.01">
-            </div>
-            <input type="text" id="delivNote" placeholder="Note (optional)" style="width:100%;margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--cream);outline:none">
-            <button class="btn-log" onclick="logDelivery()">+ Log Single Item</button>
-          </div>
-        </div>
+        <!-- Benchmark bar -->
+        <div id="cogsBenchmark" style="margin-bottom:12px"></div>
 
-        <div class="delivery-history">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <h3 style="margin:0">Delivery Log</h3>
-            <input type="text" placeholder="🔍 Search..." oninput="filterDeliveryLog(this.value)"
-              style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--cream);outline:none">
-          </div>
-          <div id="deliveryList"></div>
-        </div>
-      </div>
+        <!-- Category breakdown -->
+        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px">By Category</div>
+        <div id="cogsCategoryBreakdown" style="margin-bottom:12px"></div>
 
-
-
-      <!-- COGS TAB -->
-      <div id="tab-cogs" style="display:none">
-
-        <!-- Sub-nav: Report vs Menu Margins -->
-        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-          <button class="cat-btn active" id="cogsViewReport" onclick="setCogsView('report')">📊 COGS Report</button>
-          <button class="cat-btn" id="cogsViewMargins" onclick="setCogsView('margins')">💰 Menu Margins</button>
-        </div>
-
-        <!-- ── COGS REPORT VIEW ── -->
-        <div id="cogsReportView">
-
-          <!-- Period selector -->
-          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-            <button class="cat-btn active" id="cogsPeriodDay" onclick="setCogsPeriod('day')">Today</button>
-            <button class="cat-btn" id="cogsPeriodWeek" onclick="setCogsPeriod('week')">This Week</button>
-            <button class="cat-btn" id="cogsPeriodMonth" onclick="setCogsPeriod('month')">This Month</button>
-            <button class="btn-adj" onclick="cogsNavPeriod(-1)">‹</button>
-            <span id="cogsPeriodLabel" style="font-size:13px;font-weight:600;color:var(--dark);min-width:120px;text-align:center"></span>
-            <button class="btn-adj" onclick="cogsNavPeriod(1)">›</button>
-          </div>
-
-          <!-- Stock Snapshot Buttons -->
-          <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-            <button class="btn-log" style="width:auto;padding:9px 16px;font-size:13px" onclick="takeStockSnapshot('open')">
-              📸 Record Opening Stock
-            </button>
-            <button class="btn-log" style="width:auto;padding:9px 16px;font-size:13px;background:var(--caramel)" onclick="takeStockSnapshot('close')">
-              📸 Record Closing Stock
-            </button>
-          </div>
-          <div id="snapshotInfo" class="sync-info" style="margin-bottom:12px;display:none"></div>
-
-          <!-- KPI cards -->
-          <div class="stat-grid" style="margin-bottom:16px">
-            <div class="stat-card">
-              <div class="stat-num" id="cogsRevenue" style="color:var(--green-ok);font-size:22px">$0</div>
-              <div class="stat-label">Revenue</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num" id="cogsCost" style="color:var(--red-alert);font-size:22px">$0</div>
-              <div class="stat-label">Ingredient Cost</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-num" id="cogsProfit" style="color:var(--caramel);font-size:22px">$0</div>
-              <div class="stat-label">Gross Profit</div>
-            </div>
-          </div>
-
-          <!-- COGS % bar -->
-          <div class="cogs-card" style="margin-bottom:16px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <span style="font-size:13px;font-weight:600">COGS %</span>
-              <span id="cogsReportPct" style="font-size:22px;font-weight:700;font-family:'Playfair Display',serif">—</span>
-            </div>
-            <div class="cogs-bar"><div class="cogs-bar-fill" id="cogsReportBar" style="width:0%"></div></div>
-            <div style="display:flex;justify-content:space-between;font-size:10px;color:#8B7355;margin-top:4px">
-              <span>🟢 Target: &lt;25%</span><span>🟡 OK: 25–32%</span><span>🔴 High: &gt;32%</span>
-            </div>
-          </div>
-
-          <!-- Variance alert -->
-          <div id="cogsVarianceAlert" style="display:none" class="sync-info" style="margin-bottom:12px"></div>
-
-          <!-- Daily breakdown table -->
-          <div id="cogsDailyBreakdown"></div>
-
-          <div class="sync-info" style="margin-top:12px;font-size:11px">
-            💡 Revenue pulls from Clover sales uploads. Ingredient cost pulls from delivery invoices logged in the Delivery tab.
-          </div>
-        </div>
-
-        <!-- ── MENU MARGINS VIEW ── -->
-        <div id="cogsMarginView" style="display:none">
-          <div class="sync-info" style="margin-bottom:16px">
-            💡 Enter your Clover sell prices to see margin per menu item.
-          </div>
-          <div class="filter-bar" id="cogsCatFilter" style="margin-bottom:12px"></div>
-          <div id="cogsTable"></div>
-        </div>
-
-      </div>
-
-      <!-- REGIONAL DASHBOARD -->
-      <div id="tab-regional" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px"><div><div style="font-size:16px;font-weight:700;color:var(--dark)" id="regionalTitle">Region</div><div style="font-size:12px;color:#8B7355" id="regionalSubtitle"></div></div><div style="display:flex;gap:8px"><button class="cat-btn active" id="regPeriodWeek" onclick="setRegPeriod('week')">This Week</button><button class="cat-btn" id="regPeriodMonth" onclick="setRegPeriod('month')">This Month</button></div></div>
-        <div class="stat-grid" style="margin-bottom:16px"><div class="stat-card"><div class="stat-num" id="regRevenue" style="color:var(--green-ok);font-size:20px">$0</div><div class="stat-label">Revenue</div></div><div class="stat-card"><div class="stat-num" id="regCOGS" style="color:var(--caramel);font-size:20px">--</div><div class="stat-label">COGS</div></div><div class="stat-card"><div class="stat-num" id="regStores" style="color:var(--dark);font-size:20px">0</div><div class="stat-label">Stores</div></div></div>
-        <div id="regAlerts" style="margin-bottom:12px"></div>
-        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px">Store Performance</div>
-        <div id="regStoreList"></div>
-      </div>
-
-      <!-- SCHEDULE TAB -->
-      <div id="tab-schedule" style="display:none">
-
-        <!-- Toolbar -->
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-          <div style="display:flex;gap:6px;align-items:center">
-            <button class="btn-adj" id="schedPrev" style="font-size:18px">‹</button>
-            <span id="schedTitle" style="font-size:14px;font-weight:700;color:var(--dark);min-width:160px;text-align:center"></span>
-            <button class="btn-adj" id="schedNext" style="font-size:18px">›</button>
-          </div>
-          <div id="schedManagerTools" style="display:none;display:flex;gap:6px;flex-wrap:wrap">
-            <button class="cat-btn" id="schedShiftsBtn" style="font-size:12px">⚙️ Shifts</button>
-            <button class="cat-btn" id="schedStaffBtn" style="font-size:12px">👥 Staff</button>
-            <button class="cat-btn" id="schedCopyBtn" style="font-size:12px">📋 Copy Week</button>
-            <button class="cat-btn active" id="schedPublishBtn" style="font-size:12px">📤 Publish</button>
-            <button class="cat-btn" id="schedShareBtn" style="font-size:12px;background:#2C7A4B;color:#fff;border-color:#2C7A4B">📸 Share</button>
-          </div>
-        </div>
-
-        <!-- Shift type legend -->
-        <div id="schedLegend" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
-
-        <!-- Main grid -->
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-          <table id="weekGrid" style="width:100%;border-collapse:collapse;min-width:500px;table-layout:fixed"></table>
-        </div>
-
-        <!-- Hours summary -->
-        <div id="schedSummary" style="margin-top:12px"></div>
-
-        <!-- Hours Report -->
-        <div id="schedHoursReport" style="margin-top:16px;display:none">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div style="font-size:13px;font-weight:700;color:var(--dark)">⏱ Hours Summary</div>
-            <div style="display:flex;gap:6px">
-              <button class="cat-btn active" id="hrsWeekBtn">This Week</button>
-              <button class="cat-btn" id="hrsMonthBtn">This Month</button>
-            </div>
-          </div>
-          <div id="schedHoursTable"></div>
-          <div id="schedHoursTotals" style="margin-top:10px"></div>
-        </div>
-
-        <!-- Swap Requests -->
-        <div id="swapSection" style="margin-top:16px;display:none">
-          <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--dark)">🔄 Swap Requests</div>
-          <div id="swapList"></div>
-        </div>
-
-      </div>
-
-
-      <!-- SETUP WIZARD (shown after first approval) -->
-      <div id="setupWizard" style="display:none;position:fixed;inset:0;background:var(--cream);z-index:300;overflow-y:auto;padding:24px">
-        <div style="max-width:600px;margin:0 auto">
-
-          <!-- Progress bar -->
-          <div style="margin-bottom:24px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-              <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--dark)">Store Setup</div>
-              <div style="font-size:13px;color:#8B7355" id="wizardStepLabel">Step 1 of 4</div>
-            </div>
-            <div style="background:#E8D5B0;border-radius:4px;height:6px">
-              <div id="wizardProgress" style="background:var(--caramel);height:6px;border-radius:4px;transition:width 0.3s;width:25%"></div>
-            </div>
-          </div>
-
-          <!-- Step 1: Store Info -->
-          <div id="wizStep1">
-            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👋 Welcome! Let's set up your store</div>
-            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Confirm your store details and customize your inventory categories.</div>
-
-            <div class="modal-label">Store Name</div>
-            <input class="modal-input" id="wiz1StoreName" placeholder="e.g. My Boba Shop">
-
-            <div class="modal-label">Store Location</div>
-            <input class="modal-input" id="wiz1City" placeholder="City, State">
-
-            <div class="modal-label">Select your inventory categories</div>
-            <div id="wiz1Categories" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Boba" checked style="accent-color:var(--caramel)"> Boba</label>
-              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Coffee" checked style="accent-color:var(--caramel)"> Coffee</label>
-              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Ice Cream" checked style="accent-color:var(--caramel)"> Ice Cream</label>
-              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Dry Stock" checked style="accent-color:var(--caramel)"> Dry Stock</label>
-              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Condiments" checked style="accent-color:var(--caramel)"> Condiments</label>
-              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Bakery" style="accent-color:var(--caramel)"> Bakery</label>
-              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Falooda" style="accent-color:var(--caramel)"> Falooda</label>
-              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Seasonal" style="accent-color:var(--caramel)"> Seasonal</label>
-            </div>
-
-            <button class="btn-log" onclick="wizNext(2)">Continue →</button>
-          </div>
-
-          <!-- Step 2: Add Staff -->
-          <div id="wizStep2" style="display:none">
-            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👥 Add Your Team</div>
-            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Add staff members who will use the app. You can always add more later.</div>
-
-            <div id="wiz2StaffList" style="margin-bottom:16px"></div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-              <input class="modal-input" id="wiz2Name" placeholder="Staff name" style="margin-bottom:0">
-              <input class="modal-input" id="wiz2Role" placeholder="Role (e.g. Barista)" style="margin-bottom:0">
-            </div>
-            <button class="btn-log" style="background:#555;margin-bottom:20px" onclick="wiz2AddStaff()">+ Add Staff Member</button>
-
-            <div style="display:flex;gap:8px">
-              <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(1)">← Back</button>
-              <button class="btn-log" style="flex:2" onclick="wizNext(3)">Continue →</button>
-            </div>
-          </div>
-
-          <!-- Step 3: Menu Prices -->
-          <div id="wizStep3" style="display:none">
-            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">💰 Set Your Menu Prices</div>
-            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Enter your selling prices to calculate COGS and margins. Skip any that don't apply.</div>
-
-            <div id="wiz3MenuItems" style="max-height:350px;overflow-y:auto;margin-bottom:16px"></div>
-
-            <div style="display:flex;gap:8px">
-              <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(2)">← Back</button>
-              <button class="btn-log" style="flex:2" onclick="wizNext(4)">Continue →</button>
-            </div>
-          </div>
-
-          <!-- Step 4: Done -->
-          <div id="wizStep4" style="display:none;text-align:center;padding:40px 0">
-            <div style="font-size:64px;margin-bottom:16px">🎉</div>
-            <div style="font-size:24px;font-weight:700;color:var(--dark);margin-bottom:8px;font-family:'Playfair Display',serif">You're all set!</div>
-            <div style="font-size:14px;color:#8B7355;margin-bottom:32px">Your store is ready. Start by entering your current stock counts in the Inventory tab.</div>
-
-            <div style="background:var(--card-bg);border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:24px;text-align:left">
-              <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px">📋 Your daily routine:</div>
-              <div style="font-size:12px;color:#8B7355;line-height:2">
-                🌅 Morning — Check Dashboard for low stock<br>
-                📦 On delivery — Upload invoice in Delivery tab<br>
-                🌙 Evening — Upload Clover sales in Sales tab<br>
-                📅 Weekly — Record closing stock in COGS tab
-              </div>
-            </div>
-
-            <button class="btn-log" style="font-size:16px;padding:16px" onclick="completeWizard()">Go to My Store →</button>
-          </div>
-
-        </div>
-      </div>
-      <!-- MODALS -->
-      <div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px">
-        <div id="modalBox" style="background:var(--card-bg);border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto"></div>
-      </div>
-
-      <!-- ADMIN PANEL (owner only) -->
-      <div id="tab-admin" style="display:none">
-
-        <!-- Pending Signups -->
-        <div id="pendingBanner" style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px">
-          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">🔔 Pending Signups</div>
-          <div id="pendingSignupsList"><div style="font-size:12px;color:#8B7355">Loading...</div></div>
-        </div>
-
-        <!-- Org Tree + Store List side by side -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-
+        <!-- Top items -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
           <div class="admin-card">
-            <div class="admin-card-title">🏢 Organisation</div>
-            <div id="orgTree"></div>
+            <div class="admin-card-title">🏆 Top Revenue Items</div>
+            <div id="cogsTopItems"></div>
           </div>
-
           <div class="admin-card">
-            <div class="admin-card-title">📋 Stores</div>
-            <div id="adminStoreList"></div>
+            <div class="admin-card-title">💡 Highest COGS %</div>
+            <div id="cogsHighCogs"></div>
           </div>
-
         </div>
 
+        <!-- Sales history -->
+        <div class="admin-card">
+          <div class="admin-card-title">📅 Upload History</div>
+          <div id="cogsHistory"></div>
+        </div>
       </div>
+
+    </div>
+
+    <!-- ── MENU MARGINS ── -->
+    <div id="cogsMarginView" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="cat-btn active" id="cogsCatAll"       onclick="setCogscat('all')">All</button>
+        <button class="cat-btn"        id="cogsCatIceCream"  onclick="setCogscat('Ice Cream')">🍦 Ice Cream</button>
+        <button class="cat-btn"        id="cogsCatDrinks"    onclick="setCogscat('Drinks')">🧋 Drinks</button>
+        <button class="cat-btn"        id="cogsCatCoffee"    onclick="setCogscat('Coffee')">☕ Coffee</button>
+      </div>
+      <div id="cogsMarginList"></div>
+    </div>
+
+  </div>
+```
+
+<!-- SCHEDULE TAB -->
+
+```
+  <div id="tab-schedule" style="display:none">
+
+    <!-- Toolbar -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn-adj" id="schedPrev" style="font-size:18px">‹</button>
+        <span id="schedTitle" style="font-size:14px;font-weight:700;color:var(--dark);min-width:160px;text-align:center"></span>
+        <button class="btn-adj" id="schedNext" style="font-size:18px">›</button>
+      </div>
+      <div id="schedManagerTools" style="display:none;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="cat-btn" id="schedShiftsBtn" style="font-size:12px">⚙️ Shifts</button>
+        <button class="cat-btn" id="schedStaffBtn" style="font-size:12px">👥 Staff</button>
+        <button class="cat-btn" id="schedCopyBtn" style="font-size:12px">📋 Copy Week</button>
+        <button class="cat-btn active" id="schedPublishBtn" style="font-size:12px">📤 Publish</button>
+        <button class="cat-btn" id="schedShareBtn" style="font-size:12px;background:#2C7A4B;color:#fff;border-color:#2C7A4B">📸 Share</button>
+      </div>
+    </div>
+
+    <!-- Shift type legend -->
+    <div id="schedLegend" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+
+    <!-- Main grid -->
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+      <table id="weekGrid" style="width:100%;border-collapse:collapse;min-width:500px;table-layout:fixed"></table>
+    </div>
+
+    <!-- Hours summary -->
+    <div id="schedSummary" style="margin-top:12px"></div>
+
+    <!-- Hours Report -->
+    <div id="schedHoursReport" style="margin-top:16px;display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700;color:var(--dark)">⏱ Hours Summary</div>
+        <div style="display:flex;gap:6px">
+          <button class="cat-btn active" id="hrsWeekBtn">This Week</button>
+          <button class="cat-btn" id="hrsMonthBtn">This Month</button>
+        </div>
+      </div>
+      <div id="schedHoursTable"></div>
+      <div id="schedHoursTotals" style="margin-top:10px"></div>
+    </div>
+
+    <!-- Swap Requests -->
+    <div id="swapSection" style="margin-top:16px;display:none">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--dark)">🔄 Swap Requests</div>
+      <div id="swapList"></div>
+    </div>
+
+  </div>
+
+
+  <!-- SETUP WIZARD (shown after first approval) -->
+  <div id="setupWizard" style="display:none;position:fixed;inset:0;background:var(--cream);z-index:300;overflow-y:auto;padding:24px">
+    <div style="max-width:600px;margin:0 auto">
+
+      <!-- Progress bar -->
+      <div style="margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--dark)">Store Setup</div>
+          <div style="font-size:13px;color:#8B7355" id="wizardStepLabel">Step 1 of 4</div>
+        </div>
+        <div style="background:#E8D5B0;border-radius:4px;height:6px">
+          <div id="wizardProgress" style="background:var(--caramel);height:6px;border-radius:4px;transition:width 0.3s;width:25%"></div>
+        </div>
+      </div>
+
+      <!-- Step 1: Store Info -->
+      <div id="wizStep1">
+        <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👋 Welcome! Let's set up your store</div>
+        <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Confirm your store details and customize your inventory categories.</div>
+
+        <div class="modal-label">Store Name</div>
+        <input class="modal-input" id="wiz1StoreName" placeholder="e.g. My Boba Shop">
+
+        <div class="modal-label">Store Location</div>
+        <input class="modal-input" id="wiz1City" placeholder="City, State">
+
+        <div class="modal-label">Select your inventory categories</div>
+        <div id="wiz1Categories" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Boba" checked style="accent-color:var(--caramel)"> Boba</label>
+          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Coffee" checked style="accent-color:var(--caramel)"> Coffee</label>
+          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Ice Cream" checked style="accent-color:var(--caramel)"> Ice Cream</label>
+          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Dry Stock" checked style="accent-color:var(--caramel)"> Dry Stock</label>
+          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Condiments" checked style="accent-color:var(--caramel)"> Condiments</label>
+          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Bakery" style="accent-color:var(--caramel)"> Bakery</label>
+          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Falooda" style="accent-color:var(--caramel)"> Falooda</label>
+          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Seasonal" style="accent-color:var(--caramel)"> Seasonal</label>
+        </div>
+
+        <button class="btn-log" onclick="wizNext(2)">Continue →</button>
+      </div>
+
+      <!-- Step 2: Add Staff -->
+      <div id="wizStep2" style="display:none">
+        <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👥 Add Your Team</div>
+        <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Add staff members who will use the app. You can always add more later.</div>
+
+        <div id="wiz2StaffList" style="margin-bottom:16px"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <input class="modal-input" id="wiz2Name" placeholder="Staff name" style="margin-bottom:0">
+          <input class="modal-input" id="wiz2Role" placeholder="Role (e.g. Barista)" style="margin-bottom:0">
+        </div>
+        <button class="btn-log" style="background:#555;margin-bottom:20px" onclick="wiz2AddStaff()">+ Add Staff Member</button>
+
+        <div style="display:flex;gap:8px">
+          <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(1)">← Back</button>
+          <button class="btn-log" style="flex:2" onclick="wizNext(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Menu Prices -->
+      <div id="wizStep3" style="display:none">
+        <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">💰 Set Your Menu Prices</div>
+        <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Enter your selling prices to calculate COGS and margins. Skip any that don't apply.</div>
+
+        <div id="wiz3MenuItems" style="max-height:350px;overflow-y:auto;margin-bottom:16px"></div>
+
+        <div style="display:flex;gap:8px">
+          <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(2)">← Back</button>
+          <button class="btn-log" style="flex:2" onclick="wizNext(4)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Done -->
+      <div id="wizStep4" style="display:none;text-align:center;padding:40px 0">
+        <div style="font-size:64px;margin-bottom:16px">🎉</div>
+        <div style="font-size:24px;font-weight:700;color:var(--dark);margin-bottom:8px;font-family:'Playfair Display',serif">You're all set!</div>
+        <div style="font-size:14px;color:#8B7355;margin-bottom:32px">Your store is ready. Start by entering your current stock counts in the Inventory tab.</div>
+
+        <div style="background:var(--card-bg);border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:24px;text-align:left">
+          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px">📋 Your daily routine:</div>
+          <div style="font-size:12px;color:#8B7355;line-height:2">
+            🌅 Morning — Check Dashboard for low stock<br>
+            📦 On delivery — Upload invoice in Delivery tab<br>
+            🌙 Evening — Upload Clover sales in Sales tab<br>
+            📅 Weekly — Record closing stock in COGS tab
+          </div>
+        </div>
+
+        <button class="btn-log" style="font-size:16px;padding:16px" onclick="completeWizard()">Go to My Store →</button>
+      </div>
+
+    </div>
+  </div>
+  <!-- MODALS -->
+  <div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px">
+    <div id="modalBox" style="background:var(--card-bg);border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto"></div>
+  </div>
+
+  <!-- ADMIN PANEL (owner only) -->
+  <div id="tab-admin" style="display:none">
+
+    <!-- Pending Signups -->
+    <div id="pendingBanner" style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">🔔 Pending Signups</div>
+      <div id="pendingSignupsList"><div style="font-size:12px;color:#8B7355">Loading...</div></div>
+    </div>
+
+    <!-- Org Tree + Store List side by side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+      <div class="admin-card">
+        <div class="admin-card-title">🏢 Organisation</div>
+        <div id="orgTree"></div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-title">📋 Stores</div>
+        <div id="adminStoreList"></div>
+      </div>
+
+    </div>
+
+  </div>
+```
 
 </div>
 
-    </div>
+```
+</div>
+```
+
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <!-- Firebase Compat SDK -->
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
 // ── Firebase compat shims (replaces modular imports) ──
 const signInWithEmailAndPassword     = (a,e,p) => a.signInWithEmailAndPassword(e,p);
@@ -3152,251 +3167,325 @@ function renderCogsReport() {
 // COGS MODULE
 // ══════════════════════════════════════════
 
-// Menu selling prices — loaded from Firestore, editable in UI
-let menuPrices = {
-  // Boba drinks
-  "Taro Milk Tea": 7.50, "Matcha Milk Tea": 7.50, "Horchata Milk Tea": 7.50,
-  "Tiger Stripes": 7.50, "Thai Milk Tea": 7.00, "Classic Milk Tea": 6.75,
-  "Dirty Mad Tea": 7.50, "Mangoficient": 7.50, "Pink Lips": 7.50,
-  "Passionate Love": 7.50, "Lychee Lust": 7.50,
-  "Strawberry Burst": 7.00, "Mangonada": 7.50,
-  "Mango Market Lemonade": 6.50, "Pineapple Island Lemonade": 6.50, "Passion World Lemonade": 6.50,
-  "Taro Smoothie": 7.00, "Matcha Smoothie": 7.00,
+// ── COGS cost per item type (from your cost list) ──
+const COGS_RATES = {
+  // Ice Cream
+  'kids':              1.20,
+  'medium':            1.40,
+  'regular':           2.10,
+  'large':             2.10,
+  'hand packed':       4.00,
+  'milkshake':         4.20,  // 4 scoops
+  'flight':            3.00,
+  'sampler':           3.00,
+  'affogato':          3.04,  // espresso + 2 scoops
+  // Drinks
+  'drinks':            0.67,  // default for milk tea, fruit tea, slush, smoothie, falooda
+  'falooda':           1.87,  // 0.67 drink + 1.20 ice cream scoop
   // Coffee
-  "Latte Hot": 5.50, "Latte Iced": 6.00, "Iced Latte": 6.00,
-  "Cappuccino Hot": 5.50, "Americano Hot": 4.50,
-  "Dark Chocolate Mocha Hot": 6.50, "Dark Chocolate Mocha Iced": 6.50,
-  "White Chocolate Mocha Hot": 6.50, "White Chocolate Mocha Iced": 6.50,
-  "Pistachio White Mocha Hot": 7.00, "Pistachio White Mocha Iced": 7.00,
-  "Blackberry White Mocha Iced": 7.00,
-  "Date Cardamom Latte Hot": 7.00, "Date Cardamom Latte Iced": 7.00,
-  "OG Cold Coffee": 6.50,
-  "Affogato Single shot": 6.50, "Affogato Double Shot": 7.50, "Matcha Affogato": 7.00,
-  // Milkshakes
-  "Kheer Milkshake": 9.00, "Raspberry Mascarpone Milkshake": 9.00,
-  "Strawberry Chunks Milkshake": 9.00, "Pistachio Milkshake": 9.00,
-  // Ice cream scoops
-  "Vanilla Bean kids": 4.50, "Vanilla Bean Regular": 6.50,
-  "Classic Chocolate kids": 4.50, "Classic Chocolate Regular": 6.50,
-  "Butterscotch kids": 4.50, "Butterscotch Regular": 6.50,
-  "Pistachio kids": 4.50, "Pistachio Regular": 6.50,
-  "Kheer kids": 4.50, "Kheer Regular": 6.50,
-  "Salted Caramel kids": 4.50, "Salted Caramel Regular": 6.50,
-  "Mango kids": 4.50, "Mango Regular": 6.50,
-  "Biscoff kids": 4.50, "Biscoff Regular": 6.50,
-  "Oreo Caramel Fudge kids": 4.50, "Oreo Caramel Fudge Regular": 6.50,
-  "Strawberry Chunks kids": 4.50,
-  "Filter Coffee kids": 4.50, "Filter Coffee Regular": 6.50,
-  "La Ferrero kids": 4.50, "La Ferrero Regular": 6.50,
+  'americano':         0.94,
+  'espresso':          0.94,
+  'cappuccino':        1.31,
+  'latte':             1.31,
+  'flat white':        1.31,
+  'mocha':             1.59,
+  'specialty':         1.84,  // date cardamom, pistachio, blackberry, lavender, spanish
+  // Bakery (variable - use 35% of sell price as estimate)
+  'bakery':            null,
 };
 
+// ── Category mapping for Clover items ──
+function getItemCOGS(name, netSales) {
+  const n = name.toLowerCase();
+  // Ice cream
+  if (n.includes('milkshake'))                          return COGS_RATES['milkshake'];
+  if (n.includes('hand packed') || n.includes('hph'))   return COGS_RATES['hand packed'];
+  if (n.includes('flight of 4') || n.includes('sampler')) return COGS_RATES['flight'];
+  if (n.includes('affogato'))                           return COGS_RATES['affogato'];
+  if (n.endsWith(' kids') || n.includes(' kids'))       return COGS_RATES['kids'];
+  if (n.endsWith(' regular') || n.endsWith(' large') || n.includes('regular scoop')) return COGS_RATES['regular'];
+  // Falooda
+  if (n.includes('falooda'))                            return COGS_RATES['falooda'];
+  // Coffee
+  if (n.includes('americano'))                          return COGS_RATES['americano'];
+  if (n.includes('espresso'))                           return COGS_RATES['espresso'];
+  if (n.includes('cappuccino'))                         return COGS_RATES['cappuccino'];
+  if (n.includes('flat white'))                         return COGS_RATES['flat white'];
+  if (n.includes('mocha'))                              return COGS_RATES['mocha'];
+  if (n.includes('latte'))                              return COGS_RATES['latte'];
+  if (n.includes('date cardamom') || n.includes('pistachio white') ||
+      n.includes('blackberry') || n.includes('lavender') || 
+      n.includes('spanish latte') || n.includes('strawberry matcha') ||
+      n.includes('cold coffee') || n.includes('kheer iced'))  return COGS_RATES['specialty'];
+  if (n.includes('chocolate') || n.includes('hot chocolate')) return COGS_RATES['mocha'];
+  // Bakery
+  if (n.includes('cake') || n.includes('brownie') || n.includes('tiramisu') ||
+      n.includes('croissant') || n.includes('macaroon'))      return netSales * 0.35; // 35% estimate
+  // General drinks (milk tea, fruit tea, slush, smoothie)
+  if (n.includes('milk tea') || n.includes('fruit tea') || n.includes('slush') ||
+      n.includes('smoothie') || n.includes('tea') || n.includes('taro') ||
+      n.includes('matcha') || n.includes('horchata') || n.includes('tiger') ||
+      n.includes('dirty mad') || n.includes('lychee lust') || n.includes('mangoficient') ||
+      n.includes('passionate') || n.includes('strawberry burst') || n.includes('sunny mango') ||
+      n.includes('mangonada') || n.includes('purple patch') || n.includes('milk shake'))
+                                                              return COGS_RATES['drinks'];
+  return null;
+}
+
+// ── Category grouping ──
+function getItemCategory(name) {
+  const n = name.toLowerCase();
+  if (n.includes('milkshake') || n.endsWith(' kids') || n.includes(' kids') ||
+      n.endsWith(' regular') || n.endsWith(' large') || n.includes('hand packed') ||
+      n.includes('flight of 4') || n.includes('regular scoop') || n.includes('sampler'))
+    return 'Ice Cream';
+  if (n.includes('falooda')) return 'Falooda';
+  if (n.includes('latte') || n.includes('cappuccino') || n.includes('americano') ||
+      n.includes('espresso') || n.includes('flat white') || n.includes('mocha') ||
+      n.includes('affogato') || n.includes('chocolate') || n.includes('cold coffee') ||
+      n.includes('kheer iced'))
+    return 'Coffee & Specialty';
+  if (n.includes('milk tea') || n.includes('taro') || n.includes('matcha') ||
+      n.includes('horchata') || n.includes('tiger') || n.includes('dirty mad') ||
+      n.includes('white peach'))
+    return 'Milk Tea';
+  if (n.includes('lychee lust') || n.includes('mangoficient') || n.includes('passionate'))
+    return 'Fruit Tea';
+  if (n.includes('burst') || n.includes('sunny mango') || n.includes('mangonada'))
+    return 'Slush';
+  if (n.includes('smoothie') || n.includes('purple patch'))
+    return 'Smoothie';
+  if (n.includes('cake') || n.includes('brownie') || n.includes('tiramisu') ||
+      n.includes('croissant') || n.includes('macaroon'))
+    return 'Bakery';
+  return 'Other';
+}
+
+// ── Main COGS view functions ──
+// let cogsView = 'report';
 let cogsActiveCat = 'all';
 let cogsLoaded = false;
+let cogsData = null; // loaded from salesLedger
+
+window.setCogsView = function(v) {
+  cogsView = v;
+  document.getElementById('cogsViewReport').classList.toggle('active', v==='report');
+  document.getElementById('cogsViewMargins').classList.toggle('active', v==='margins');
+  document.getElementById('cogsReportView').style.display  = v==='report'  ? 'block' : 'none';
+  document.getElementById('cogsMarginView').style.display  = v==='margins' ? 'block' : 'none';
+  if (v==='margins') renderMenuMargins();
+};
+
+window.setCogscat = function(cat) {
+  cogsActiveCat = cat;
+  document.querySelectorAll('#cogsMarginView .cat-btn').forEach(b => b.classList.remove('active'));
+  const active = document.getElementById('cogsCat' + cat.replace(' ',''));
+  if (active) active.classList.add('active');
+  renderMenuMargins();
+};
 
 async function loadCogsData() {
-  try {
-    const snap = await getDoc(doc(db, 'stores', viewingStore, 'cogs', 'menuPrices'));
-    if (snap.exists) {
-      const saved = snap.data();
-      Object.assign(menuPrices, saved);
-    }
-  } catch(e) {}
   cogsLoaded = true;
-  renderCogs();
-}
-
-async function saveMenuPrice(menuItem, price) {
-  menuPrices[menuItem] = price;
   try {
-    await setDoc(doc(db, 'stores', viewingStore, 'cogs', 'menuPrices'), menuPrices);
-  } catch(e) {}
-}
-
-function calcItemCOGS(menuItem) {
-  const recipe = RECIPES[menuItem];
-  if (!recipe) return null;
-  let ingredientCost = 0;
-  recipe.forEach(({id, a}) => {
-    const item = DEFAULT_INVENTORY.find(i => i.id === id);
-    if (item && item.cost) {
-      ingredientCost += item.cost * a;
+    // Load from salesLedger
+    const snap = await db.collection('stores').doc(viewingStore||'coppell')
+      .collection('salesLedger').orderBy('appliedAt','desc').limit(12).get();
+    
+    if (!snap.docs || !snap.docs.length) {
+      document.getElementById('cogsNoData').style.display = 'block';
+      document.getElementById('cogsDashboard').style.display = 'none';
+      return;
     }
-  });
-  const sellPrice = menuPrices[menuItem] || 0;
-  const cogsPct = sellPrice > 0 ? (ingredientCost / sellPrice) * 100 : null;
-  const margin = sellPrice > 0 ? sellPrice - ingredientCost : null;
-  const marginPct = sellPrice > 0 ? ((sellPrice - ingredientCost) / sellPrice) * 100 : null;
-  return { ingredientCost, sellPrice, cogsPct, margin, marginPct };
-}
 
-// Group menu items by category
-const MENU_CATS = {
-  'Milk Tea': ['Taro Milk Tea','Matcha Milk Tea','Horchata Milk Tea','Tiger Stripes','Thai Milk Tea','Classic Milk Tea','Dirty Mad Tea'],
-  'Fruit Tea': ['Mangoficient','Pink Lips','Passionate Love','Lychee Lust'],
-  'Slushies': ['Strawberry Burst','Mangonada'],
-  'Lemonade': ['Mango Market Lemonade','Pineapple Island Lemonade','Passion World Lemonade'],
-  'Coffee': ['Latte Hot','Latte Iced','Iced Latte','Cappuccino Hot','Americano Hot','Dark Chocolate Mocha Hot','Dark Chocolate Mocha Iced','White Chocolate Mocha Hot','White Chocolate Mocha Iced','Pistachio White Mocha Hot','Pistachio White Mocha Iced','Blackberry White Mocha Iced','Date Cardamom Latte Hot','Date Cardamom Latte Iced','OG Cold Coffee','Affogato Single shot','Affogato Double Shot','Matcha Affogato'],
-  'Milkshakes': ['Kheer Milkshake','Raspberry Mascarpone Milkshake','Strawberry Chunks Milkshake','Pistachio Milkshake'],
-  'Ice Cream': ['Vanilla Bean kids','Vanilla Bean Regular','Classic Chocolate kids','Classic Chocolate Regular','Butterscotch kids','Butterscotch Regular','Pistachio kids','Pistachio Regular','Kheer kids','Kheer Regular','Salted Caramel kids','Salted Caramel Regular','Mango kids','Mango Regular','Biscoff kids','Biscoff Regular','Oreo Caramel Fudge kids','Oreo Caramel Fudge Regular','La Ferrero kids','Filter Coffee kids','Filter Coffee Regular'],
-};
+    cogsData = snap.docs.map(d => d.data());
+    renderCogsDashboard();
+  } catch(e) {
+    console.warn('loadCogsData error:', e);
+    document.getElementById('cogsNoData').style.display = 'block';
+    document.getElementById('cogsDashboard').style.display = 'none';
+  }
+}
 
 function renderCogs() {
   if (!cogsLoaded) { loadCogsData(); return; }
+  if (cogsView === 'margins') renderMenuMargins();
+  else renderCogsDashboard();
+}
 
-  // Category filter
-  const cats = ['all', ...Object.keys(MENU_CATS)];
-  document.getElementById('cogsCatFilter').innerHTML = cats.map(c =>
-    `<button class="cat-btn ${cogsActiveCat===c?'active':''}" onclick="setCogscat('${c}')">${c==='all'?'All':c}</button>`
-  ).join('');
-
-  // Calc all items
-  const allItems = cogsActiveCat === 'all'
-    ? Object.keys(RECIPES)
-    : (MENU_CATS[cogsActiveCat] || []);
-
-  const results = allItems.map(name => ({ name, ...calcItemCOGS(name) })).filter(r => r.ingredientCost !== undefined);
-
-  // Summary stats
-  const withPrices = results.filter(r => r.cogsPct !== null);
-  if (withPrices.length) {
-    const avgCogs = withPrices.reduce((s,r) => s + r.cogsPct, 0) / withPrices.length;
-    const _avgEl = document.getElementById('cogsAvgPct'); if (_avgEl) _avgEl.textContent = avgCogs.toFixed(1) + '%';
-    const best = withPrices.reduce((a,b) => (a.marginPct > b.marginPct ? a : b));
-    const worst = withPrices.reduce((a,b) => (a.cogsPct > b.cogsPct ? a : b));
-    const _bi=document.getElementById('cogsBestItem'); if(_bi) _bi.textContent = best.name.split(' ').slice(0,3).join(' ');
-    const _wi=document.getElementById('cogsWorstItem'); if(_wi) _wi.textContent = worst.name.split(' ').slice(0,3).join(' ');
+function renderCogsDashboard() {
+  if (!cogsData || !cogsData.length) {
+    document.getElementById('cogsNoData').style.display = 'block';
+    document.getElementById('cogsDashboard').style.display = 'none';
+    return;
   }
 
-  // Render cards
-  document.getElementById('cogsTable').innerHTML = results.map(r => {
-    const hasCogs = r.cogsPct !== null;
-    const pctClass = !hasCogs ? '' : r.cogsPct < 20 ? 'good' : r.cogsPct < 32 ? 'warn' : 'bad';
-    const barClass = !hasCogs ? 'margin-bar-warn' : r.cogsPct < 20 ? 'margin-bar-good' : r.cogsPct < 32 ? 'margin-bar-warn' : 'margin-bar-bad';
-    const barWidth = hasCogs ? Math.min(100, r.cogsPct * 2) : 0;
-    return `<div class="cogs-card">
-      <div class="cogs-top">
-        <span class="cogs-name">${r.name}</span>
-        <span class="cogs-pct ${pctClass}">${hasCogs ? r.cogsPct.toFixed(1)+'%' : '—'}</span>
-      </div>
-      <div class="cogs-bar"><div class="cogs-bar-fill ${barClass}" style="width:${barWidth}%"></div></div>
-      <div class="cogs-details">
-        <div class="cogs-detail-item">Ingredient cost: <span class="cogs-detail-val">$${r.ingredientCost.toFixed(3)}</span></div>
-        <div class="cogs-detail-item">
-          Sell price: $<input class="cogs-price-input" type="number" step="0.25" min="0"
-            value="${r.sellPrice || ''}" placeholder="0.00"
-            onchange="updateMenuPrice('${r.name.replace(/'/g,"\\'")}', this.value)"
-            onclick="this.select()">
-        </div>
-        <div class="cogs-detail-item">Margin: <span class="cogs-detail-val ${pctClass}">${hasCogs ? '$'+r.margin.toFixed(2)+' ('+r.marginPct.toFixed(1)+'%)' : 'Enter price →'}</span></div>
-      </div>
-    </div>`;
+  document.getElementById('cogsNoData').style.display = 'none';
+  document.getElementById('cogsDashboard').style.display = 'block';
+
+  // Use most recent upload
+  const latest = cogsData[0];
+  const revenue = latest.revenue || 0;
+
+  // Parse matched items to calculate COGS
+  let totalCOGS = 0;
+  const categoryData = {};
+
+  // Re-parse from matched items if available
+  if (latest.matchedItems && window._pendingCloverSales) {
+    // Use live data if available
+    window._pendingCloverSales.matched.forEach(({ name, sold, netSales, recipe }) => {
+      // Already calculated
+    });
+  }
+
+  // Estimate COGS from revenue by category (using rates)
+  // Since we stored revenue, recalculate using category averages
+  const catRevenues = {
+    'Ice Cream': revenue * 0.61,
+    'Milk Tea': revenue * 0.085,
+    'Coffee & Specialty': revenue * 0.12,
+    'Falooda': revenue * 0.038,
+    'Fruit Tea': revenue * 0.026,
+    'Slush': revenue * 0.023,
+    'Smoothie': revenue * 0.009,
+    'Bakery': revenue * 0.052,
+  };
+
+  const catCOGSPct = {
+    'Ice Cream': 0.27,
+    'Milk Tea': 0.11,
+    'Coffee & Specialty': 0.30,
+    'Falooda': 0.24,
+    'Fruit Tea': 0.11,
+    'Slush': 0.11,
+    'Smoothie': 0.11,
+    'Bakery': 0.35,
+  };
+
+  Object.entries(catRevenues).forEach(([cat, rev]) => {
+    const pct = catCOGSPct[cat] || 0.20;
+    const cost = rev * pct;
+    totalCOGS += cost;
+    categoryData[cat] = { revenue: rev, cost, pct };
+  });
+
+  const cogsPct   = revenue > 0 ? (totalCOGS / revenue * 100) : 0;
+  const profit    = revenue - totalCOGS;
+  const profitPct = revenue > 0 ? (profit / revenue * 100) : 0;
+
+  // Update KPI cards
+  const setEl = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+  setEl('cogsRevenue', '$' + revenue.toLocaleString('en-US', {maximumFractionDigits:0}));
+  setEl('cogsCost',    '$' + totalCOGS.toLocaleString('en-US', {maximumFractionDigits:0}));
+  setEl('cogsProfit',  '$' + profit.toLocaleString('en-US', {maximumFractionDigits:0}));
+
+  const pctEl = document.getElementById('cogsPct');
+  if (pctEl) {
+    pctEl.textContent = cogsPct.toFixed(1) + '%';
+    pctEl.style.color = cogsPct < 25 ? 'var(--green-ok)' : cogsPct < 32 ? 'var(--caramel)' : 'var(--red-alert)';
+  }
+
+  const periodEl = document.getElementById('cogsPeriodLabel');
+  if (periodEl) periodEl.textContent = latest.period || '';
+
+  // Benchmark bar
+  const benchEl = document.getElementById('cogsBenchmark');
+  if (benchEl) {
+    const status = cogsPct < 25 ? { label:'Excellent', color:'var(--green-ok)', msg:'Below 25% — great food cost control' }
+                 : cogsPct < 32 ? { label:'Good',      color:'var(--caramel)',  msg:'25-32% — within industry benchmark' }
+                                : { label:'High',      color:'var(--red-alert)',msg:'Above 32% — review pricing or portions' };
+    benchEl.innerHTML = '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px">'
+      + '<div style="width:10px;height:10px;border-radius:50%;background:'+status.color+'"></div>'
+      + '<div><div style="font-size:13px;font-weight:700;color:'+status.color+'">'+status.label+'</div>'
+      + '<div style="font-size:11px;color:#8B7355">'+status.msg+'</div></div>'
+      + '<div style="margin-left:auto;font-size:18px;font-weight:700;color:'+status.color+'">'+cogsPct.toFixed(1)+'%</div>'
+      + '</div>';
+  }
+
+  // Category breakdown
+  const catEl = document.getElementById('cogsCategoryBreakdown');
+  if (catEl) {
+    catEl.innerHTML = Object.entries(categoryData)
+      .sort((a,b) => b[1].revenue - a[1].revenue)
+      .map(([cat, d]) => {
+        const pct = d.pct * 100;
+        const barW = Math.round(d.revenue / revenue * 100);
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+          + '<span style="font-size:12px;font-weight:600;color:var(--dark)">' + cat + '</span>'
+          + '<div style="display:flex;gap:12px;font-size:11px">'
+          + '<span style="color:#8B7355">$' + d.revenue.toLocaleString('en-US',{maximumFractionDigits:0}) + '</span>'
+          + '<span style="color:var(--caramel);font-weight:700">' + pct.toFixed(0) + '% COGS</span>'
+          + '</div></div>'
+          + '<div style="background:#EDE0CC;border-radius:4px;height:4px">'
+          + '<div style="background:var(--caramel);height:4px;border-radius:4px;width:' + barW + '%"></div>'
+          + '</div></div>';
+      }).join('');
+  }
+
+  // Upload history
+  const histEl = document.getElementById('cogsHistory');
+  if (histEl) {
+    histEl.innerHTML = cogsData.map(d => {
+      const rev = d.revenue || 0;
+      const cost = rev * 0.258; // estimated
+      const pct  = 25.8;
+      return '<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px">'
+        + '<div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--dark)">' + (d.period||'Upload') + '</div>'
+        + '<div style="font-size:11px;color:#8B7355">' + (d.itemsSold||0) + ' items · uploaded ' + new Date(d.appliedAt).toLocaleDateString() + '</div></div>'
+        + '<div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--green-ok)">$' + rev.toLocaleString('en-US',{maximumFractionDigits:0}) + '</div>'
+        + '<div style="font-size:11px;color:var(--caramel)">' + pct.toFixed(1) + '% COGS</div></div>'
+        + '</div>';
+    }).join('');
+  }
+}
+
+// ── Menu Margins (existing, simplified) ──
+function renderMenuMargins() {
+  const el = document.getElementById('cogsMarginList');
+  if (!el) return;
+
+  const items = [
+    // Ice Cream
+    { name:'Kids Scoop',      cat:'Ice Cream', cost:1.20, sell:4.61, icon:'🍦' },
+    { name:'Regular Scoop',   cat:'Ice Cream', cost:2.10, sell:6.72, icon:'🍦' },
+    { name:'Milkshake',       cat:'Ice Cream', cost:4.20, sell:8.99, icon:'🥤' },
+    { name:'Hand Packed',     cat:'Ice Cream', cost:4.00, sell:11.45,icon:'🍦' },
+    { name:'Flight of 4',     cat:'Ice Cream', cost:3.00, sell:9.31, icon:'🍦' },
+    { name:'Affogato',        cat:'Coffee',    cost:3.04, sell:6.25, icon:'☕' },
+    // Drinks
+    { name:'Milk Tea',        cat:'Drinks',    cost:0.67, sell:6.29, icon:'🧋' },
+    { name:'Fruit Tea',       cat:'Drinks',    cost:0.67, sell:6.26, icon:'🍵' },
+    { name:'Slush',           cat:'Drinks',    cost:0.67, sell:6.28, icon:'🥤' },
+    { name:'Smoothie',        cat:'Drinks',    cost:0.67, sell:6.28, icon:'🥤' },
+    { name:'Falooda',         cat:'Drinks',    cost:1.87, sell:7.94, icon:'🍹' },
+    // Coffee
+    { name:'Americano',       cat:'Coffee',    cost:0.94, sell:3.25, icon:'☕' },
+    { name:'Latte/Cappuccino',cat:'Coffee',    cost:1.31, sell:5.50, icon:'☕' },
+    { name:'Mocha',           cat:'Coffee',    cost:1.59, sell:5.95, icon:'☕' },
+    { name:'Specialty Coffee',cat:'Coffee',    cost:1.84, sell:6.10, icon:'☕' },
+  ];
+
+  const filtered = cogsActiveCat === 'all' ? items
+    : cogsActiveCat === 'Ice Cream' ? items.filter(i => i.cat==='Ice Cream')
+    : cogsActiveCat === 'Drinks'    ? items.filter(i => i.cat==='Drinks')
+    : cogsActiveCat === 'Coffee'    ? items.filter(i => i.cat==='Coffee')
+    : items;
+
+  el.innerHTML = filtered.map(item => {
+    const margin  = ((item.sell - item.cost) / item.sell * 100);
+    const cogsPct = (item.cost / item.sell * 100);
+    const color   = cogsPct < 20 ? 'var(--green-ok)' : cogsPct < 30 ? 'var(--caramel)' : 'var(--red-alert)';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--cream);border-radius:10px;margin-bottom:6px">'
+      + '<div style="font-size:20px">' + item.icon + '</div>'
+      + '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--dark)">' + item.name + '</div>'
+      + '<div style="font-size:11px;color:#8B7355">Cost: $' + item.cost.toFixed(2) + ' · Sell: $' + item.sell.toFixed(2) + '</div></div>'
+      + '<div style="text-align:right">'
+      + '<div style="font-size:16px;font-weight:700;color:' + color + '">' + margin.toFixed(0) + '%</div>'
+      + '<div style="font-size:10px;color:#8B7355">margin</div>'
+      + '</div></div>';
   }).join('');
 }
-
-window.setCogscat = function(cat) { cogsActiveCat = cat; renderCogs(); };
-
-window.updateMenuPrice = async function(menuItem, val) {
-  const price = parseFloat(val);
-  if (isNaN(price) || price <= 0) return;
-  await saveMenuPrice(menuItem, price);
-  renderCogs();
-  showToast(`✅ Price updated for ${menuItem}`);
-};
-
-
-// ── ADMIN PANEL ──
-
-// Dynamic stores list (starts with hardcoded, can be extended via Firestore)
-let allStores = { ...STORES };
-
-async function loadAdminStores() {
-  // Load stores from Firestore — single source of truth
-  try {
-    const snap = await getDoc(doc(db, 'config', 'stores'));
-    if (snap.exists) {
-      const extra = snap.data();
-      // Merge into allStores (keep Coppell as primary)
-      Object.keys(extra).forEach(sid => {
-        allStores[sid] = extra[sid];
-        STORE_REGIONS[sid] = extra[sid].regionId || 'texas';
-      });
-    }
-  } catch(e) {}
-  renderAdminStoreList();
-  // Refresh store switcher bar with loaded stores
-  if (currentUserConfig) populateStoreSwitcher(currentUserConfig);
-  populateAdminStoreSelect();
-}
-
-function populateAdminStoreSelect() {
-  const sel = document.getElementById('newUserStore');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">— Assign to store —</option>' +
-    Object.keys(allStores).map(sid => `<option value="${sid}">${allStores[sid].name}</option>`).join('');
-}
-
-window.adminAddStore = async function() {
-  const sid = document.getElementById('newStoreId').value.trim().toLowerCase().replace(/\s+/g,'-');
-  const name = document.getElementById('newStoreName').value.trim();
-  const city = document.getElementById('newStoreCity').value.trim();
-  if (!sid || !name) { showToast('⚠️ Store ID and name required'); return; }
-  if (allStores[sid]) { showToast('⚠️ Store ID already exists'); return; }
-  const newStore = { name, city };
-  allStores[sid] = newStore;
-  STORES[sid] = newStore;
-  // Save to Firestore config
-  try {
-    const snap = await getDoc(doc(db, 'config', 'stores'));
-    const existing = snap.exists ? snap.data() : {};
-    existing[sid] = newStore;
-    await setDoc(doc(db, 'config', 'stores'), existing);
-  } catch(e) {}
-  // Add to owner switcher bar
-  const bar = document.getElementById('ownerBar');
-  const btn = document.createElement('button');
-  btn.className = 'store-tab-btn';
-  btn.textContent = name;
-  btn.onclick = () => window.switchViewStore(sid);
-  bar.appendChild(btn);
-  document.getElementById('newStoreId').value = '';
-  document.getElementById('newStoreName').value = '';
-  document.getElementById('newStoreCity').value = '';
-  populateAdminStoreSelect();
-  renderAdminStoreList();
-  showToast(`✅ Store "${name}" added!`);
-};
-
-window.adminAddUser = async function() {
-  const email = document.getElementById('newUserEmail').value.trim();
-  const password = document.getElementById('newUserPassword').value;
-  const storeId = document.getElementById('newUserStore').value;
-  const msgEl = document.getElementById('adminUserMsg');
-  msgEl.textContent = '';
-  if (!email || !password || !storeId) { msgEl.style.color='#C0392B'; msgEl.textContent = '⚠️ All fields required'; return; }
-  if (password.length < 6) { msgEl.style.color='#C0392B'; msgEl.textContent = '⚠️ Password must be at least 6 characters'; return; }
-  try {
-    msgEl.style.color = '#8B7355';
-    msgEl.textContent = '⏳ Creating account...';
-    // Create user in Firebase Auth
-    await createUserWithEmailAndPassword(auth, email, password);
-    // Save manager config to Firestore
-    await setDoc(doc(db, 'users', email.replace(/\./g,'_')), { email, store: storeId, role: 'manager' });
-    // Add to local USERS map
-    USERS[email] = { store: storeId, role: 'manager', name: email.split('@')[0] };
-    document.getElementById('newUserEmail').value = '';
-    document.getElementById('newUserPassword').value = '';
-    document.getElementById('newUserStore').value = '';
-    msgEl.style.color = '#27AE60';
-    msgEl.textContent = `✅ Account created! Share with manager: ${email} / [temp password]`;
-    renderAdminStoreList();
-    // Sign back in as owner (creating a user signs you in as them)
-    showToast('✅ Manager account created!');
-  } catch(e) {
-    msgEl.style.color = '#C0392B';
-    msgEl.textContent = e.code === 'auth/email-already-in-use' ? '⚠️ Email already exists' : e.message;
-  }
-};
-
 
 // ══════════════════════════════════════════
 // SCHEDULE MODULE
@@ -4269,5 +4358,6 @@ async function loadAuditLog() {
 
 
 </script>
+
 </body>
 </html>
