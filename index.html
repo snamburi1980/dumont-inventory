@@ -988,6 +988,7 @@ const DEFAULT_INVENTORY = [
   { id:49, name:"Ghirardelli Choc Sauce 64oz",code:"I-Chocolate-S",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:18.99 },
   { id:50, name:"Ghirardelli Caramel Sauce",code:"I-Caramel-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
   { id:51, name:"Coffee Beans",             code:"D-Coffeebeans", cat:"Coffee",    vendor:"DUMONT",    uom:"BAG",    par:2,  order_qty:"1 BAG", cost:20.0 },
+  { id:52, name:"Milk",                     code:"D-Milk",       cat:"Coffee",    vendor:"LOCAL",     uom:"GALLON", par:4,  order_qty:"1 GALLON", cost:4.69 },
   { id:60, name:"Kids Scoop Cup",           code:"HP-KSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.108 },
   { id:61, name:"Regular Scoop Cup",        code:"HP-RSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.12 },
   { id:62, name:"Triple Scoop Cup",         code:"HP-TSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.15 },
@@ -1526,82 +1527,381 @@ window.copyOrder = function(sectionId, title) {
 window.handleFile = async function(e) {
   const file = e.target.files[0];
   if (!file) return;
-  document.getElementById('scanResults').innerHTML = '<div style="text-align:center;padding:24px;color:#8B7355;">⏳ Processing file...</div>';
+  document.getElementById('scanResults').innerHTML = '<div style="text-align:center;padding:24px;color:#8B7355;">⏳ Reading Clover report...</div>';
   const ext = file.name.split('.').pop().toLowerCase();
   if (['xlsx','xls','csv'].includes(ext)) {
-    parseExcelFile(file);
+    parseCloverFile(file);
   } else {
-    document.getElementById('scanResults').innerHTML = `<div class="parse-error">Image/PDF parsing requires manual entry. Excel (.xlsx) is recommended for automatic parsing.</div>
-    <div style="margin-top:16px">${buildManualEntry()}</div>`;
+    document.getElementById('scanResults').innerHTML = '<div class="parse-error">Please upload a Clover CSV or Excel file.</div>';
   }
   e.target.value = '';
 };
-function parseExcelFile(file) {
-  const script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-  script.onload = () => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        const wb = XLSX.read(ev.target.result, {type:'array'});
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-        let nameCol=-1, soldCol=-1, headerRow=-1;
-        for (let r=0;r<Math.min(20,rows.length);r++) {
-          const row = rows[r].map(c=>String(c).toLowerCase());
-          const ni = row.findIndex(c=>c.includes('item')||c.includes('name'));
-          const si = row.findIndex(c=>c.includes('sold')||c.includes('qty')||c.includes('quantity'));
-          if (ni>=0 && si>=0) { nameCol=ni; soldCol=si; headerRow=r; break; }
-        }
-        const sales = [];
-        if (nameCol>=0) {
-          for (let r=headerRow+1;r<rows.length;r++) {
-            const row = rows[r];
-            const name = String(row[nameCol]||'').trim();
-            const sold = parseInt(row[soldCol])||0;
-            if (name && sold>0 && RECIPES[name]) sales.push({name,sold});
-          }
-        }
-        if (sales.length) {
-          pendingScan = sales;
-          renderScanResults(sales);
-        } else {
-          document.getElementById('scanResults').innerHTML = `<div class="parse-error">Could not auto-match items to recipes. Try manual entry below.</div><div style="margin-top:12px">${buildManualEntry()}</div>`;
-        }
-      } catch(err) {
-        document.getElementById('scanResults').innerHTML = `<div class="parse-error">Parse error: ${err.message}</div>`;
-      }
-    };
-    reader.readAsArrayBuffer(file);
+
+// ══════════════════════════════════════════
+// CLOVER SALES → INVENTORY DEDUCTION
+// ══════════════════════════════════════════
+
+// ── Recipe definitions (from SOP) ──
+// Each recipe: array of {item: inventoryItemName, qty: number, unit: 'scoop'|'g'|'ml'}
+const CLOVER_RECIPES = {
+  // ── ICE CREAM ──
+  '_kids':     [{ item:'Ice Cream', qty:1, unit:'scoop' }],
+  '_regular':  [{ item:'Ice Cream', qty:2, unit:'scoop' }],
+  '_milkshake':[{ item:'Ice Cream', qty:4, unit:'scoop' }, { item:'Milk', qty:120, unit:'ml' }],
+  '_hph':      [{ item:'Ice Cream', qty:6, unit:'scoop' }],
+  '_flight':   [{ item:'Ice Cream', qty:4, unit:'scoop' }],
+  // ── MILK TEA ──
+  'Taro Milk Tea':    [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Matcha Milk Tea':  [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Horchata Milk Tea':[{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Classic Milk Tea': [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Golden Milk Tea', qty:2.4, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Thai Mlik Tea':    [{ item:'Thai Tea', qty:12, unit:'g' }, { item:'NDC (Creamer)', qty:30, unit:'g' }],
+  'Tiger Stripes':    [{ item:'Thai Tea', qty:12, unit:'g' }, { item:'NDC (Creamer)', qty:30, unit:'g' }],
+  'Dirty Mad Tea':    [{ item:'Golden Milk Tea', qty:2.4, unit:'g' }, { item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Dark Brown Sugar Syrup', qty:24, unit:'g' }],
+  'White Peach Green Milk Tea': [{ item:'White Peach Tea', qty:3, unit:'g' }, { item:'NDC (Creamer)', qty:30, unit:'g' }],
+  // ── FRUIT TEA ──
+  'Lychee Lust':    [{ item:'Black Tea', qty:2.4, unit:'g' }, { item:'Lychee Syrup', qty:24, unit:'g' }],
+  'Mangoficient':   [{ item:'Jasmine Green Tea', qty:2.4, unit:'g' }, { item:'Grapefruit Syrup', qty:24, unit:'g' }],
+  'Passionate Love':[{ item:'Jasmine Green Tea', qty:2.4, unit:'g' }, { item:'Grapefruit Syrup', qty:24, unit:'g' }],
+  // ── SLUSH ──
+  'Strawberry Burst':[{ item:'Lychee Syrup', qty:48, unit:'g' }],
+  'Sunny Mango':     [{ item:'Grapefruit Syrup', qty:48, unit:'g' }],
+  'Mangonada':       [{ item:'Grapefruit Syrup', qty:48, unit:'g' }],
+  // ── SMOOTHIE ──
+  'Purple Patch':    [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Matcha Smoothie': [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  // ── COFFEE ──
+  'Latte Hot':            [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Latte Iced':           [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:320, unit:'ml' }],
+  'Cappuccino Hot':       [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Cappuccino Iced':      [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Americano Hot':        [{ item:'Coffee Beans', qty:18, unit:'g' }],
+  'Americano Iced':       [{ item:'Coffee Beans', qty:18, unit:'g' }],
+  'Flat white':           [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:180, unit:'ml' }],
+  'Single shot Espresso': [{ item:'Coffee Beans', qty:9,  unit:'g' }],
+  'Double shot espresso': [{ item:'Coffee Beans', qty:18, unit:'g' }],
+  'Affogato Single shot': [{ item:'Coffee Beans', qty:9,  unit:'g' }, { item:'Ice Cream', qty:2, unit:'scoop' }],
+  'Affogato Double Shot': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Ice Cream', qty:2, unit:'scoop' }],
+  'Dark Chocolate Mocha Hot':  [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:270, unit:'ml' }],
+  'Dark Chocolate Mocha Iced': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'White Chocolate Mocha Hot': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:290, unit:'ml' }],
+  'White Chocolate Mocha Iced':[{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Dumont Hot Chocolate':      [{ item:'Milk', qty:300, unit:'ml' }],
+  // ── SPECIALTY ──
+  'Date Cardamom Latte Hot':  [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Date Cardamom Latte Iced': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Pistachio White Mocha Hot': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Pistachio White Mocha Iced':[{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Blackberry White Mocha Hot':[{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Blackberry White Mocha Iced':[{item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Lavender Latte Hot':  [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Lavender Latte Iced': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Spanish Latte Hot':   [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Spanish Latte Iced':  [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Lavender Matcha Latte Iced':     [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Strawberry Matcha Latte Iced':   [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Strawberry Matcha Latte Hot':    [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'OG Cold Coffee': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:200, unit:'ml' }],
+  'Kheer Iced':     [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:200, unit:'ml' }],
+  // ── FALOODA ──
+  'Kheer Falooda':        [{ item:'Ice Cream', qty:1, unit:'scoop' }, { item:'NDC (Creamer)', qty:50, unit:'g' }],
+  'Butterscotch Falooda': [{ item:'Ice Cream', qty:1, unit:'scoop' }, { item:'NDC (Creamer)', qty:50, unit:'g' }],
+  'Mango Falooda':        [{ item:'Ice Cream', qty:1, unit:'scoop' }, { item:'NDC (Creamer)', qty:50, unit:'g' }],
+};
+
+// ── Item size constants ──
+const ITEM_SIZES = {
+  'NDC (Creamer)':       600,    // grams per bag
+  'Fructose':            1200,   // grams per bottle
+  'Dark Brown Sugar Syrup': 1200,
+  'Lychee Syrup':        1200,
+  'Grapefruit Syrup':    1200,
+  'Jasmine Green Tea':   25,     // bags per case, each ~3.6g per cup usage
+  'Golden Milk Tea':     25,
+  'Black Tea':           25,
+  'Thai Tea':            1,      // sold individually
+  'White Peach Tea':     50,
+  'Coffee Beans':        500,    // grams per bag
+  'Ice Cream':           60,     // scoops per bucket
+  'Milk':                3785,   // ml per gallon
+};
+
+// ── Match Clover item name to recipe ──
+function matchCloverItem(name) {
+  const n = name.toLowerCase().trim();
+  // Direct match first
+  if (CLOVER_RECIPES[name]) return CLOVER_RECIPES[name];
+  // Ice cream pattern matching
+  if (n.includes('milkshake'))                          return CLOVER_RECIPES['_milkshake'];
+  if (n.includes('hand packed happiness') || n.includes('hand packed')) return CLOVER_RECIPES['_hph'];
+  if (n.includes('flight of 4'))                        return CLOVER_RECIPES['_flight'];
+  if (n.includes('regular scoop'))                      return CLOVER_RECIPES['_regular'];
+  if (n.endsWith(' kids') || n.includes(' kids'))       return CLOVER_RECIPES['_kids'];
+  if (n.endsWith(' regular') || n.endsWith(' large'))   return CLOVER_RECIPES['_regular'];
+  // Drinks
+  if (n.includes('affogato single'))    return CLOVER_RECIPES['Affogato Single shot'];
+  if (n.includes('affogato double'))    return CLOVER_RECIPES['Affogato Double Shot'];
+  if (n.includes('affogato'))           return CLOVER_RECIPES['Affogato Single shot'];
+  if (n.includes('taro milk tea'))      return CLOVER_RECIPES['Taro Milk Tea'];
+  if (n.includes('matcha milk tea'))    return CLOVER_RECIPES['Matcha Milk Tea'];
+  if (n.includes('horchata milk tea'))  return CLOVER_RECIPES['Horchata Milk Tea'];
+  if (n.includes('classic milk tea'))   return CLOVER_RECIPES['Classic Milk Tea'];
+  if (n.includes('tiger stripes'))      return CLOVER_RECIPES['Tiger Stripes'];
+  if (n.includes('dirty mad tea'))      return CLOVER_RECIPES['Dirty Mad Tea'];
+  if (n.includes('thai'))               return CLOVER_RECIPES['Thai Mlik Tea'];
+  if (n.includes('white peach'))        return CLOVER_RECIPES['White Peach Green Milk Tea'];
+  if (n.includes('lychee lust'))        return CLOVER_RECIPES['Lychee Lust'];
+  if (n.includes('mangoficient'))       return CLOVER_RECIPES['Mangoficient'];
+  if (n.includes('passionate love'))    return CLOVER_RECIPES['Passionate Love'];
+  if (n.includes('strawberry burst'))   return CLOVER_RECIPES['Strawberry Burst'];
+  if (n.includes('sunny mango'))        return CLOVER_RECIPES['Sunny Mango'];
+  if (n.includes('mangonada'))          return CLOVER_RECIPES['Mangonada'];
+  if (n.includes('purple patch'))       return CLOVER_RECIPES['Purple Patch'];
+  if (n.includes('matcha smoothie'))    return CLOVER_RECIPES['Matcha Smoothie'];
+  if (n.includes('kheer falooda'))      return CLOVER_RECIPES['Kheer Falooda'];
+  if (n.includes('butterscotch falooda')) return CLOVER_RECIPES['Butterscotch Falooda'];
+  if (n.includes('mango falooda'))      return CLOVER_RECIPES['Mango Falooda'];
+  if (n.includes('date cardamom') && n.includes('iced')) return CLOVER_RECIPES['Date Cardamom Latte Iced'];
+  if (n.includes('date cardamom'))      return CLOVER_RECIPES['Date Cardamom Latte Hot'];
+  if (n.includes('pistachio white mocha') && n.includes('iced')) return CLOVER_RECIPES['Pistachio White Mocha Iced'];
+  if (n.includes('pistachio white mocha')) return CLOVER_RECIPES['Pistachio White Mocha Hot'];
+  if (n.includes('blackberry white mocha') && n.includes('iced')) return CLOVER_RECIPES['Blackberry White Mocha Iced'];
+  if (n.includes('blackberry'))         return CLOVER_RECIPES['Blackberry White Mocha Hot'];
+  if (n.includes('lavender matcha'))    return CLOVER_RECIPES['Lavender Matcha Latte Iced'];
+  if (n.includes('lavender'))          return CLOVER_RECIPES['Lavender Latte Hot'];
+  if (n.includes('strawberry matcha') && n.includes('hot')) return CLOVER_RECIPES['Strawberry Matcha Latte Hot'];
+  if (n.includes('strawberry matcha')) return CLOVER_RECIPES['Strawberry Matcha Latte Iced'];
+  if (n.includes('spanish latte') && n.includes('iced')) return CLOVER_RECIPES['Spanish Latte Iced'];
+  if (n.includes('spanish latte'))     return CLOVER_RECIPES['Spanish Latte Hot'];
+  if (n.includes('og cold coffee') || n.includes('cold coffee')) return CLOVER_RECIPES['OG Cold Coffee'];
+  if (n.includes('kheer iced'))        return CLOVER_RECIPES['Kheer Iced'];
+  if (n.includes('latte iced') || n.includes('iced latte'))  return CLOVER_RECIPES['Latte Iced'];
+  if (n.includes('latte hot') || (n.includes('latte') && !n.includes('iced'))) return CLOVER_RECIPES['Latte Hot'];
+  if (n.includes('cappuccino iced'))   return CLOVER_RECIPES['Cappuccino Iced'];
+  if (n.includes('cappuccino'))        return CLOVER_RECIPES['Cappuccino Hot'];
+  if (n.includes('americano iced') || n.includes('iced americano')) return CLOVER_RECIPES['Americano Iced'];
+  if (n.includes('americano'))         return CLOVER_RECIPES['Americano Hot'];
+  if (n.includes('flat white'))        return CLOVER_RECIPES['Flat white'];
+  if (n.includes('dark chocolate mocha iced')) return CLOVER_RECIPES['Dark Chocolate Mocha Iced'];
+  if (n.includes('dark chocolate mocha'))      return CLOVER_RECIPES['Dark Chocolate Mocha Hot'];
+  if (n.includes('white chocolate mocha iced')) return CLOVER_RECIPES['White Chocolate Mocha Iced'];
+  if (n.includes('white chocolate mocha'))     return CLOVER_RECIPES['White Chocolate Mocha Hot'];
+  if (n.includes('hot chocolate'))     return CLOVER_RECIPES['Dumont Hot Chocolate'];
+  if (n.includes('double shot') || n.includes('doppio')) return CLOVER_RECIPES['Double shot espresso'];
+  if (n.includes('single shot') || n.includes('espresso')) return CLOVER_RECIPES['Single shot Espresso'];
+  return null;
+}
+
+// ── Parse Clover CSV/Excel ──
+function parseCloverFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const text = ev.target.result;
+      parseCloverCSV(text);
+    } catch(e) {
+      document.getElementById('scanResults').innerHTML = '<div class="parse-error">Error reading file: ' + e.message + '</div>';
+    }
   };
-  document.head.appendChild(script);
+  // Try reading as text first (CSV)
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'csv') {
+    reader.readAsText(file);
+  } else {
+    // Excel - load SheetJS
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = () => {
+      const r2 = new FileReader();
+      r2.onload = ev2 => {
+        const wb = XLSX.read(ev2.target.result, {type:'array'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const csv = XLSX.utils.sheet_to_csv(ws);
+        parseCloverCSV(csv);
+      };
+      r2.readAsArrayBuffer(file);
+    };
+    document.head.appendChild(script);
+  }
 }
-function renderScanResults(sales) {
-  document.getElementById('scanResults').innerHTML = `
-    <div style="margin-top:16px">
-      <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Matched ${sales.length} items with recipes:</div>
-      ${sales.map(s=>`<div class="scan-result-row"><span class="result-item">${s.name}</span><span class="result-sold">×${s.sold} sold</span></div>`).join('')}
-      <button class="btn-apply" onclick="applyScan()">⚡ Deduct from Inventory</button>
-    </div>`;
-}
-function buildManualEntry() { return '<div style="color:#8B7355;font-size:13px;text-align:center;padding:12px;">Manual entry coming soon.</div>'; }
-window.applyScan = async function() {
-  if (!pendingScan) return;
-  let deducted = 0;
-  pendingScan.forEach(({name,sold}) => {
-    const recipe = RECIPES[name];
-    if (!recipe) return;
-    recipe.forEach(({id,a}) => {
-      const item = inventory.find(i=>i.id===id);
-      if (item) { item.stock = Math.max(0, Math.round((item.stock - a*sold)*100)/100); deducted++; }
+
+function parseCloverCSV(text) {
+  const lines = text.split('\n').map(l => l.trim());
+  
+  // Parse header info
+  let periodLabel = '';
+  for (let i = 0; i < 5; i++) {
+    if (lines[i] && lines[i].includes('202')) {
+      periodLabel = lines[i].replace(/"/g, '');
+      break;
+    }
+  }
+  
+  // Find all item rows: format is ",ItemName,GrossSales,NetSales,Sold,..."
+  const salesData = [];
+  for (const line of lines) {
+    if (!line.startsWith(',')) continue;
+    const cols = line.split(',').map(c => c.replace(/"/g,'').trim());
+    if (cols.length < 5) continue;
+    const name = cols[1];
+    const sold = parseInt(cols[4]);
+    const netSales = parseFloat(cols[3].replace('$','')) || 0;
+    if (!name || name === 'Name' || name === '' || isNaN(sold) || sold <= 0) continue;
+    // Skip modifier rows (they have modifier name in col 6)
+    if (cols[6] && cols[6] !== '' && !cols[4]) continue;
+    salesData.push({ name, sold, netSales });
+  }
+  
+  if (!salesData.length) {
+    document.getElementById('scanResults').innerHTML = '<div class="parse-error">Could not parse Clover CSV. Make sure you export "Item Sales" report as CSV.</div>';
+    return;
+  }
+  
+  // Match recipes
+  const matched = [], unmatched = [];
+  let totalSales = 0, totalItems = 0;
+  
+  salesData.forEach(({ name, sold, netSales }) => {
+    totalSales += netSales;
+    const recipe = matchCloverItem(name);
+    if (recipe) {
+      matched.push({ name, sold, netSales, recipe });
+      totalItems += sold;
+    } else {
+      unmatched.push({ name, sold, netSales });
+    }
+  });
+  
+  // Calculate ingredient totals
+  const ingredientTotals = {};
+  matched.forEach(({ name, sold, recipe }) => {
+    recipe.forEach(({ item, qty, unit }) => {
+      const key = item;
+      if (!ingredientTotals[key]) ingredientTotals[key] = { qty: 0, unit, invItem: null };
+      ingredientTotals[key].qty += qty * sold;
     });
   });
+  
+  // Convert to inventory units
+  const deductions = [];
+  Object.entries(ingredientTotals).forEach(([itemName, data]) => {
+    const invItem = inventory.find(i => i.name === itemName);
+    let deductUnits = 0;
+    let deductDisplay = '';
+    
+    if (itemName === 'Ice Cream') {
+      deductUnits = data.qty / 60; // scoops → buckets
+      deductDisplay = data.qty.toFixed(0) + ' scoops = ' + deductUnits.toFixed(2) + ' buckets';
+    } else if (data.unit === 'g' && ITEM_SIZES[itemName]) {
+      deductUnits = data.qty / ITEM_SIZES[itemName];
+      deductDisplay = data.qty.toFixed(0) + 'g = ' + deductUnits.toFixed(2) + ' bags/bottles';
+    } else if (data.unit === 'ml' && itemName === 'Milk') {
+      deductUnits = data.qty / 3785; // ml → gallons
+      deductDisplay = (data.qty/1000).toFixed(1) + 'L = ' + deductUnits.toFixed(2) + ' gallons';
+    } else {
+      deductUnits = data.qty;
+      deductDisplay = data.qty.toFixed(2) + ' ' + data.unit;
+    }
+    
+    deductions.push({
+      itemName, invItem, deductUnits, deductDisplay,
+      currentStock: invItem ? invItem.stock : null,
+      newStock: invItem ? Math.max(0, invItem.stock - deductUnits) : null,
+    });
+  });
+  
+  // Store for apply
+  window._pendingCloverSales = { matched, unmatched, deductions, totalSales, periodLabel };
+  renderCloverResults(window._pendingCloverSales);
+}
+
+function renderCloverResults({ matched, unmatched, deductions, totalSales, periodLabel }) {
+  const matchPct = matched.length / (matched.length + unmatched.length) * 100;
+  const totalSold = matched.reduce((s,r) => s+r.sold, 0);
+  
+  document.getElementById('scanResults').innerHTML = `
+    <div style="margin-top:12px">
+      
+      <!-- Summary banner -->
+      <div style="background:var(--dark);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        <div><div style="font-size:20px;font-weight:700;color:#D4A843">$${totalSales.toLocaleString('en-US',{maximumFractionDigits:0})}</div><div style="font-size:10px;color:#aaa;text-transform:uppercase">Net Sales</div></div>
+        <div><div style="font-size:20px;font-weight:700;color:var(--green-ok)">${totalSold}</div><div style="font-size:10px;color:#aaa;text-transform:uppercase">Items Sold</div></div>
+        <div><div style="font-size:20px;font-weight:700;color:var(--caramel)">${matchPct.toFixed(0)}%</div><div style="font-size:10px;color:#aaa;text-transform:uppercase">Matched</div></div>
+      </div>
+      ${periodLabel ? '<div style="font-size:11px;color:#8B7355;margin-bottom:12px;text-align:center">📅 ' + periodLabel + '</div>' : ''}
+      
+      <!-- Ingredient deductions -->
+      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px">📦 Inventory to Deduct</div>
+      ${deductions.map(d => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--cream);border-radius:10px;margin-bottom:6px;border-left:4px solid ${d.invItem ? (d.newStock < (d.invItem.par||0) ? 'var(--red-alert)' : 'var(--green-ok)') : '#ccc'}">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--dark)">${d.itemName}</div>
+            <div style="font-size:11px;color:#8B7355">Used: ${d.deductDisplay}</div>
+          </div>
+          <div style="text-align:right">
+            ${d.invItem ? `
+              <div style="font-size:12px;color:#8B7355">${d.currentStock?.toFixed(1)} → <strong style="color:${d.newStock < (d.invItem.par||0) ? 'var(--red-alert)' : 'var(--green-ok)'}">${d.newStock?.toFixed(1)}</strong></div>
+              ${d.newStock < (d.invItem.par||0) ? '<div style="font-size:10px;color:var(--red-alert)">⚠️ Below PAR</div>' : ''}
+            ` : '<div style="font-size:11px;color:#aaa">Not in inventory</div>'}
+          </div>
+        </div>`).join('')}
+      
+      ${unmatched.length ? `
+        <details style="margin-top:10px">
+          <summary style="font-size:12px;color:#8B7355;cursor:pointer">${unmatched.length} items not matched (Bakery, Custom items etc.)</summary>
+          <div style="margin-top:6px">
+            ${unmatched.slice(0,20).map(u => '<div style="font-size:11px;color:#aaa;padding:3px 8px">'+u.name+' (×'+u.sold+')</div>').join('')}
+          </div>
+        </details>` : ''}
+      
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn-log" style="flex:1;background:var(--green-ok)" onclick="applyCloverDeductions()">⚡ Apply — Deduct from Inventory</button>
+        <button class="btn-log" style="flex:0;padding:12px 16px;background:#888" onclick="document.getElementById('scanResults').innerHTML=''">✕</button>
+      </div>
+    </div>`;
+}
+
+window.applyCloverDeductions = async function() {
+  const data = window._pendingCloverSales;
+  if (!data) return;
+  
+  let deducted = 0;
+  const log = [];
+  
+  data.deductions.forEach(({ itemName, invItem, deductUnits, deductDisplay }) => {
+    if (!invItem) return;
+    const before = invItem.stock;
+    invItem.stock = Math.max(0, Math.round((invItem.stock - deductUnits) * 100) / 100);
+    deducted++;
+    log.push(itemName + ': ' + before.toFixed(2) + ' → ' + invItem.stock.toFixed(2));
+  });
+  
   await saveStock();
-  pendingScan = null;
+  
+  // Log to sales ledger
+  try {
+    await db.collection('stores').doc(viewingStore).collection('salesLedger').add({
+      period: data.periodLabel,
+      revenue: data.totalSales,
+      itemsSold: data.matched.reduce((s,r) => s+r.sold, 0),
+      matchedItems: data.matched.length,
+      deductions: log,
+      appliedAt: Date.now(),
+      appliedBy: currentUser?.email,
+      dateTs: Date.now(),
+    });
+  } catch(e) { console.warn('Sales ledger save failed', e); }
+  
+  window._pendingCloverSales = null;
   document.getElementById('scanResults').innerHTML = '';
   renderDashboard(); renderInventory(); renderOrders();
-  showToast(`✅ Applied! ${deducted} ingredient adjustments saved`);
+  showToast('✅ Inventory updated! ' + deducted + ' items deducted from stock');
+  logAudit('clover_sales_applied', { period: data.periodLabel, revenue: data.totalSales });
 };
+
+function buildManualEntry() { return ''; }
+
+
 
 // ── DELIVERY ──
 function populateDelivSelect() {
