@@ -1941,12 +1941,26 @@ window.applyCloverDeductions = async function() {
   
   // Log to sales ledger
   try {
+    // Build top items for COGS display
+    const topItems = data.matched
+      .map(({ name, sold, netSales, recipe }) => ({
+        name,
+        sold,
+        netSales,
+        cogsRate: netSales > 0 ? (recipe.reduce((s,r) => {
+          if (r.unit==='scoop') return s + (r.qty/60 * 63) / (netSales/sold);
+          return s;
+        }, 0)) : 0
+      }))
+      .sort((a,b) => b.netSales - a.netSales);
+
     await db.collection('stores').doc(viewingStore).collection('salesLedger').add({
       period: data.periodLabel,
       revenue: data.totalSales,
       itemsSold: data.matched.reduce((s,r) => s+r.sold, 0),
       matchedItems: data.matched.length,
       deductions: log,
+      topItems: topItems.slice(0,20),
       appliedAt: Date.now(),
       appliedBy: currentUser?.email,
       dateTs: Date.now(),
@@ -3469,6 +3483,33 @@ function renderCogsDashboard() {
       }).join('');
   }
 
+  // Top Revenue Items
+  const topEl = document.getElementById('cogsTopItems');
+  if (topEl && latest.topItems && latest.topItems.length) {
+    topEl.innerHTML = latest.topItems.slice(0,5).map((item,i) =>
+      '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">'
+      + '<span>' + ['🥇','🥈','🥉','4.','5.'][i] + ' ' + item.name + '</span>'
+      + '<span style="font-weight:600;color:var(--green-ok)">$' + (item.netSales||0).toFixed(0) + '</span>'
+      + '</div>'
+    ).join('');
+  } else if (topEl) {
+    topEl.innerHTML = '<div style="font-size:11px;color:#8B7355;padding:8px 0">Upload a Clover CSV to see top items</div>';
+  }
+
+  // Highest COGS %
+  const highEl = document.getElementById('cogsHighCogs');
+  if (highEl && latest.topItems && latest.topItems.length) {
+    const withCogs = latest.topItems.filter(i => i.cogsRate).sort((a,b) => b.cogsRate - a.cogsRate);
+    highEl.innerHTML = withCogs.slice(0,5).map(item =>
+      '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">'
+      + '<span>' + item.name + '</span>'
+      + '<span style="font-weight:600;color:var(--red-alert)">' + ((item.cogsRate||0)*100).toFixed(0) + '%</span>'
+      + '</div>'
+    ).join('') || '<div style="font-size:11px;color:#8B7355;padding:8px 0">No data</div>';
+  } else if (highEl) {
+    highEl.innerHTML = '<div style="font-size:11px;color:#8B7355;padding:8px 0">Upload a Clover CSV to see data</div>';
+  }
+
   // Upload history
   const histEl = document.getElementById('cogsHistory');
   if (histEl) {
@@ -3931,8 +3972,15 @@ window.openAddStaff = function() {
     </div>
     ${schedStaff.map((s,i)=>`
       <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--cream);border-radius:8px;margin-bottom:6px">
-        <div style="width:10px;height:10px;border-radius:50%;background:${s.color}"></div>
-        <span style="flex:1;font-size:13px"><strong>${s.name}</strong> <span style="color:#8B7355">${s.role||''}</span></span>
+        <div style="width:10px;height:10px;border-radius:50%;background:${s.color};flex-shrink:0"></div>
+        <div style="flex:1">
+          <input value="${s.name}" onchange="updateStaffName('${s.id}',this.value)"
+            style="font-size:13px;font-weight:600;border:none;background:transparent;width:100%;outline:none;cursor:text"
+            onclick="this.select()">
+          <input value="${s.role||''}" onchange="updateStaffRole('${s.id}',this.value)"
+            placeholder="Role"
+            style="font-size:11px;color:#8B7355;border:none;background:transparent;width:100%;outline:none;cursor:text">
+        </div>
         <button onclick="removeStaff('${s.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px">×</button>
       </div>`).join('')}
     <div style="margin-top:12px;font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Add Staff Member</div>
@@ -3967,6 +4015,22 @@ window.addStaffMember = async function() {
   renderSchedule();
 };
 
+
+window.updateStaffName = async function(id, newName) {
+  const staff = schedStaff.find(s => s.id === id);
+  if (!staff || !newName.trim()) return;
+  staff.name = newName.trim();
+  await saveScheduleData();
+  renderSchedule();
+};
+
+window.updateStaffRole = async function(id, newRole) {
+  const staff = schedStaff.find(s => s.id === id);
+  if (!staff) return;
+  staff.role = newRole.trim();
+  await saveScheduleData();
+  renderSchedule();
+};
 window.removeStaff = async function(id) {
   schedStaff  = schedStaff.filter(s=>s.id!==id);
   schedShifts = schedShifts.filter(s=>s.staffId!==id);
