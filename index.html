@@ -1783,9 +1783,11 @@ function parseCloverCSV(text) {
     let deductUnits = 0;
     let deductDisplay = '';
     
-    if (itemName === 'Ice Cream') {
-      deductUnits = data.qty / 60; // scoops → buckets
-      deductDisplay = data.qty.toFixed(0) + ' scoops = ' + deductUnits.toFixed(2) + ' buckets';
+    if (data.unit === 'scoop') {
+      // Ice cream flavor - deduct from specific TUB (60 scoops per bucket)
+      const scoopsPerBucket = invItem?.scoops_per_bucket || 60;
+      deductUnits = data.qty / scoopsPerBucket;
+      deductDisplay = data.qty.toFixed(0) + ' scoops = ' + deductUnits.toFixed(2) + ' tubs';
     } else if (data.unit === 'g' && ITEM_SIZES[itemName]) {
       deductUnits = data.qty / ITEM_SIZES[itemName];
       deductDisplay = data.qty.toFixed(0) + 'g = ' + deductUnits.toFixed(2) + ' bags/bottles';
