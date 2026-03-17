@@ -1112,6 +1112,7 @@ let activeTab = 'dashboard';
 let viewingStore = null;
 let unsubscribeInventory = null;
 let allStoresData = {};
+let allStores = { "coppell": { name:"Coppell", city:"Coppell, TX", regionId:"texas" } }; // loaded from Firestore
 let pendingScan = null;
 
 // ── AUTH ──
@@ -1376,24 +1377,22 @@ function showToast(msg) {
 }
 
 // ── TABS ──
-window.showTab = function(tab) {
+window.showTab = function(tab, fromClick) {
   document.querySelectorAll('[id^="tab-"]').forEach(el=>el.style.display='none');
-  document.getElementById('tab-'+tab).style.display='block';
+  const tabEl = document.getElementById('tab-'+tab);
+  if (tabEl) tabEl.style.display='block';
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
+  // Only update active button if called from a real click
+  try { if (event && event.target) event.target.classList.add('active'); } catch(e) {}
   activeTab = tab;
   if (tab==='dashboard') renderDashboard();
   if (tab==='inventory') renderInventory();
-  if (tab==='orders') renderOrders();
-  if (tab==='delivery') renderDelivery();
-  if (tab==='admin') loadAdminStores();
-  if (tab==='schedule') { schedLoaded=false; loadScheduleData(); }
-  if (tab==='regional') { loadRegionalData(); }
-  if (tab==='admin') { loadPendingSignups(); loadOrgStructure(); loadAuditLog(); }
-  if (tab==='regional') { loadRegionalData(); }
-  if (tab==='admin') { loadPendingSignups(); if(typeof loadOrgStructure==="function")loadOrgStructure(); }
-  if (tab==='admin') { loadPendingSignups(); }
-  if (tab==='cogs') { cogsLoaded=false; loadCogsData(); loadCogsLedgers(); }
+  if (tab==='orders')    renderOrders();
+  if (tab==='delivery')  renderDelivery();
+  if (tab==='schedule')  { schedLoaded=false; loadScheduleData(); }
+  if (tab==='regional')  { if(typeof loadRegionalData==='function') loadRegionalData(); }
+  if (tab==='cogs')      { cogsLoaded=false; if(typeof loadCogsData==='function') loadCogsData(); if(typeof loadCogsLedgers==='function') loadCogsLedgers(); }
+  if (tab==='admin')     { if(typeof loadPendingSignups==='function') loadPendingSignups(); if(typeof loadOrgStructure==='function') loadOrgStructure(); if(typeof loadAuditLog==='function') loadAuditLog(); }
 };
 
 // ── DASHBOARD ──
