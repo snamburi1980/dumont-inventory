@@ -160,7 +160,9 @@ body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; backgr
 .filter-bar { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px; }
 .cat-btn { background:var(--card-bg); border:1px solid var(--border); color:#8B7355; font-size:12px; padding:7px 14px; border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap; font-weight:500; transition:all 0.2s; }
 .cat-btn.active { background:var(--caramel); color:#fff; border-color:var(--caramel); }
-.item-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; padding:14px 16px; }
+.item-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); padding:14px 16px; }
+#inventoryList { display:grid; grid-template-columns:1fr; gap:10px; }
+@media (min-width:700px) { #inventoryList { grid-template-columns:1fr 1fr; } }
 .item-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .item-name { font-size:14px; font-weight:600; flex:1; }
 .item-code { font-size:11px; color:#8B7355; }
@@ -1672,8 +1674,15 @@ function matchCloverItem(name) {
   if (n.includes('hand packed happiness') || n.includes('hand packed')) return CLOVER_RECIPES['_hph'];
   if (n.includes('flight of 4'))                        return CLOVER_RECIPES['_flight'];
   if (n.includes('regular scoop'))                      return CLOVER_RECIPES['_regular'];
-  if (n.endsWith(' kids') || n.includes(' kids'))       return CLOVER_RECIPES['_kids'];
-  if (n.endsWith(' regular') || n.endsWith(' large'))   return CLOVER_RECIPES['_regular'];
+  // Ice cream — flavor-specific deduction
+  if (n.endsWith(' kids') || n.includes(' kids')) {
+    const flavor = name.replace(/ kids$/i,'').replace(/ Kids$/,'').trim();
+    return [{ item: flavor, qty: 1, unit: 'scoop' }];
+  }
+  if (n.endsWith(' regular') || n.endsWith(' large')) {
+    const flavor = name.replace(/ regular$/i,'').replace(/ large$/i,'').replace(/ Regular$/,'').replace(/ Large$/,'').trim();
+    return [{ item: flavor, qty: 2, unit: 'scoop' }];
+  }
   // Drinks
   if (n.includes('affogato single'))    return CLOVER_RECIPES['Affogato Single shot'];
   if (n.includes('affogato double'))    return CLOVER_RECIPES['Affogato Double Shot'];
