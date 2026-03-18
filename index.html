@@ -19,9 +19,7 @@
   ║  - Admin (owner only)                                    ║
   ╚══════════════════════════════════════════════════════════╝
 -->
-
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -40,48 +38,47 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-–cream: #FDF6EC;
-–caramel: #C8843A;
-–dark: #1A1209;
-–mocha: #3D2B1F;
-–rose: #E8A598;
-–mint: #7BBFA5;
-–gold: #D4A843;
-–red-alert: #C0392B;
-–amber-alert: #E67E22;
-–green-ok: #27AE60;
-–card-bg: #FFFDF8;
-–border: #EDE0CC;
+  --cream: #FDF6EC;
+  --caramel: #C8843A;
+  --dark: #1A1209;
+  --mocha: #3D2B1F;
+  --rose: #E8A598;
+  --mint: #7BBFA5;
+  --gold: #D4A843;
+  --red-alert: #C0392B;
+  --amber-alert: #E67E22;
+  --green-ok: #27AE60;
+  --card-bg: #FFFDF8;
+  --border: #EDE0CC;
 }
-
-- { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:‘DM Sans’,-apple-system,BlinkMacSystemFont,sans-serif; background:var(–cream); color:var(–dark); min-height:100vh; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--cream); color:var(--dark); min-height:100vh; }
 
 /* ── LOGIN SCREEN ── */
 #loginScreen {
-min-height:100vh; display:flex; align-items:center; justify-content:center;
-background:linear-gradient(145deg,#1A1209 0%,#3D2B1F 50%,#1A1209 100%);
-padding:24px;
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(145deg,#1A1209 0%,#3D2B1F 50%,#1A1209 100%);
+  padding:24px;
 }
 .login-box {
-background:rgba(253,246,236,0.04); border:1px solid rgba(200,132,58,0.3);
-border-radius:20px; padding:40px 32px; width:100%; max-width:380px;
-backdrop-filter:blur(20px); text-align:center;
+  background:rgba(253,246,236,0.04); border:1px solid rgba(200,132,58,0.3);
+  border-radius:20px; padding:40px 32px; width:100%; max-width:380px;
+  backdrop-filter:blur(20px); text-align:center;
 }
-.login-logo { font-family:‘Playfair Display’,serif; font-size:36px; color:#D4A843; font-weight:900; letter-spacing:-1px; }
+.login-logo { font-family:'Playfair Display',serif; font-size:36px; color:#D4A843; font-weight:900; letter-spacing:-1px; }
 .login-sub { color:rgba(253,246,236,0.6); font-size:13px; margin-top:4px; margin-bottom:32px; letter-spacing:1px; text-transform:uppercase; }
 .login-box input {
-width:100%; padding:14px 16px; border-radius:10px; border:1px solid rgba(200,132,58,0.3);
-background:rgba(253,246,236,0.06); color:#FDF6EC; font-size:15px; margin-bottom:12px;
-outline:none; font-family:inherit;
+  width:100%; padding:14px 16px; border-radius:10px; border:1px solid rgba(200,132,58,0.3);
+  background:rgba(253,246,236,0.06); color:#FDF6EC; font-size:15px; margin-bottom:12px;
+  outline:none; font-family:inherit;
 }
-.login-box input:focus { border-color:var(–caramel); }
+.login-box input:focus { border-color:var(--caramel); }
 .login-box input::placeholder { color:rgba(253,246,236,0.35); }
 .btn-login {
-width:100%; padding:15px; border-radius:10px; border:none; cursor:pointer;
-background:linear-gradient(135deg,#C8843A,#D4A843); color:#1A1209;
-font-size:15px; font-weight:600; font-family:inherit; margin-top:4px; letter-spacing:0.3px;
-transition:opacity 0.2s;
+  width:100%; padding:15px; border-radius:10px; border:none; cursor:pointer;
+  background:linear-gradient(135deg,#C8843A,#D4A843); color:#1A1209;
+  font-size:15px; font-weight:600; font-family:inherit; margin-top:4px; letter-spacing:0.3px;
+  transition:opacity 0.2s;
 }
 .btn-login:hover { opacity:0.9; }
 .login-error { color:#E8A598; font-size:13px; margin-top:10px; min-height:18px; }
@@ -92,50 +89,50 @@ transition:opacity 0.2s;
 
 /* HEADER */
 .header {
-background:var(–mocha); color:var(–cream); padding:0 16px;
-display:flex; align-items:center; justify-content:space-between;
-height:56px; position:sticky; top:0; z-index:100;
-box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  background:var(--mocha); color:var(--cream); padding:0 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  height:56px; position:sticky; top:0; z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
 }
-.header-logo { font-family:‘Playfair Display’,serif; font-size:20px; color:var(–gold); font-weight:700; }
+.header-logo { font-family:'Playfair Display',serif; font-size:20px; color:var(--gold); font-weight:700; }
 .header-right { display:flex; align-items:center; gap:12px; }
 .store-badge {
-background:rgba(212,168,67,0.2); border:1px solid rgba(212,168,67,0.4);
-color:var(–gold); font-size:11px; font-weight:600; padding:4px 10px;
-border-radius:20px; letter-spacing:0.5px; text-transform:uppercase;
+  background:rgba(212,168,67,0.2); border:1px solid rgba(212,168,67,0.4);
+  color:var(--gold); font-size:11px; font-weight:600; padding:4px 10px;
+  border-radius:20px; letter-spacing:0.5px; text-transform:uppercase;
 }
 .btn-logout {
-background:rgba(232,165,152,0.15); border:1px solid rgba(232,165,152,0.3);
-color:var(–rose); font-size:12px; padding:5px 10px; border-radius:8px;
-cursor:pointer; font-family:inherit; font-weight:500;
+  background:rgba(232,165,152,0.15); border:1px solid rgba(232,165,152,0.3);
+  color:var(--rose); font-size:12px; padding:5px 10px; border-radius:8px;
+  cursor:pointer; font-family:inherit; font-weight:500;
 }
 .header-sync { font-size:11px; color:rgba(253,246,236,0.5); }
 
 /* OWNER TOGGLE (admin only) */
 .owner-toggle-bar {
-background:var(–dark); padding:8px 16px; display:flex; gap:8px; overflow-x:auto;
-border-bottom:1px solid rgba(212,168,67,0.2);
+  background:var(--dark); padding:8px 16px; display:flex; gap:8px; overflow-x:auto;
+  border-bottom:1px solid rgba(212,168,67,0.2);
 }
 .store-tab-btn {
-background:rgba(212,168,67,0.1); border:1px solid rgba(212,168,67,0.2);
-color:rgba(253,246,236,0.7); font-size:12px; font-weight:500; padding:6px 14px;
-border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap;
-transition:all 0.2s;
+  background:rgba(212,168,67,0.1); border:1px solid rgba(212,168,67,0.2);
+  color:rgba(253,246,236,0.7); font-size:12px; font-weight:500; padding:6px 14px;
+  border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap;
+  transition:all 0.2s;
 }
-.store-tab-btn.active { background:var(–caramel); color:#fff; border-color:var(–caramel); }
+.store-tab-btn.active { background:var(--caramel); color:#fff; border-color:var(--caramel); }
 
 /* TABS */
 .tabs {
-display:flex; flex-wrap:wrap; background:var(–card-bg); border-bottom:2px solid var(–border);
-position:sticky; top:56px; z-index:99; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  display:flex; flex-wrap:wrap; background:var(--card-bg); border-bottom:2px solid var(--border);
+  position:sticky; top:56px; z-index:99; overflow-x:auto; -webkit-overflow-scrolling:touch;
 }
 .tab-btn {
-flex:0 0 auto; padding:11px 14px; border:none; background:transparent;
-font-family:inherit; font-size:12px; font-weight:500; color:#8B7355;
-cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s;
-white-space:nowrap; -webkit-tap-highlight-color:transparent;
+  flex:0 0 auto; padding:11px 14px; border:none; background:transparent;
+  font-family:inherit; font-size:12px; font-weight:500; color:#8B7355;
+  cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s;
+  white-space:nowrap; -webkit-tap-highlight-color:transparent;
 }
-.tab-btn.active { color:var(–caramel); border-bottom-color:var(–caramel); }
+.tab-btn.active { color:var(--caramel); border-bottom-color:var(--caramel); }
 
 /* CONTENT */
 .content { padding:16px; max-width:900px; margin:0 auto; }
@@ -143,17 +140,17 @@ white-space:nowrap; -webkit-tap-highlight-color:transparent;
 /* DASHBOARD */
 .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
 .stat-card {
-background:var(–card-bg); border-radius:12px; border:1px solid var(–border);
-padding:16px 12px; text-align:center;
+  background:var(--card-bg); border-radius:12px; border:1px solid var(--border);
+  padding:16px 12px; text-align:center;
 }
-.stat-num { font-family:‘Playfair Display’,serif; font-size:32px; font-weight:700; }
-.stat-num.red { color:var(–red-alert); }
-.stat-num.amber { color:var(–amber-alert); }
-.stat-num.green { color:var(–green-ok); }
+.stat-num { font-family:'Playfair Display',serif; font-size:32px; font-weight:700; }
+.stat-num.red { color:var(--red-alert); }
+.stat-num.amber { color:var(--amber-alert); }
+.stat-num.green { color:var(--green-ok); }
 .stat-label { font-size:11px; color:#8B7355; font-weight:500; text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
-.alert-section { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); overflow:hidden; }
-.alert-header { padding:12px 16px; border-bottom:1px solid var(–border); font-weight:600; font-size:14px; }
-.alert-row { padding:12px 16px; border-bottom:1px solid var(–border); display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.alert-section { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); overflow:hidden; }
+.alert-header { padding:12px 16px; border-bottom:1px solid var(--border); font-weight:600; font-size:14px; }
+.alert-row { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .alert-row:last-child { border-bottom:none; }
 .alert-name { font-size:14px; font-weight:500; flex:1; }
 .alert-meta { font-size:11px; color:#8B7355; }
@@ -161,81 +158,81 @@ padding:16px 12px; text-align:center;
 
 /* INVENTORY */
 .filter-bar { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px; }
-.cat-btn { background:var(–card-bg); border:1px solid var(–border); color:#8B7355; font-size:12px; padding:7px 14px; border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap; font-weight:500; transition:all 0.2s; }
-.cat-btn.active { background:var(–caramel); color:#fff; border-color:var(–caramel); }
-.item-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); margin-bottom:10px; padding:14px 16px; }
+.cat-btn { background:var(--card-bg); border:1px solid var(--border); color:#8B7355; font-size:12px; padding:7px 14px; border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap; font-weight:500; transition:all 0.2s; }
+.cat-btn.active { background:var(--caramel); color:#fff; border-color:var(--caramel); }
+.item-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; padding:14px 16px; }
 .item-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .item-name { font-size:14px; font-weight:600; flex:1; }
 .item-code { font-size:11px; color:#8B7355; }
 .item-mid { display:flex; align-items:center; gap:8px; margin-bottom:8px; overflow:hidden; }
 .stock-bar { background:#E8E0D5; border-radius:4px; height:4px; width:120px; flex:none; overflow:hidden; }
 .stock-bar-fill { height:4px; border-radius:4px; transition:width 0.3s; }
-.fill-green { background:var(–green-ok); }
-.fill-amber { background:var(–amber-alert); }
-.fill-red { background:var(–red-alert); }
+.fill-green { background:var(--green-ok); }
+.fill-amber { background:var(--amber-alert); }
+.fill-red { background:var(--red-alert); }
 .status-pill { font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px; white-space:nowrap; }
-.status-critical { background:rgba(192,57,43,0.12); color:var(–red-alert); }
-.status-low { background:rgba(230,126,34,0.12); color:var(–amber-alert); }
-.status-ok { background:rgba(39,174,96,0.12); color:var(–green-ok); }
+.status-critical { background:rgba(192,57,43,0.12); color:var(--red-alert); }
+.status-low { background:rgba(230,126,34,0.12); color:var(--amber-alert); }
+.status-ok { background:rgba(39,174,96,0.12); color:var(--green-ok); }
 .item-bot { display:flex; align-items:center; justify-content:space-between; }
 .stock-controls { display:flex; align-items:center; gap:8px; }
-.btn-adj { width:36px; height:36px; border-radius:8px; border:1px solid var(–border); background:var(–card-bg); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:600; color:var(–caramel); transition:all 0.15s; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-.btn-adj:active { background:var(–caramel); color:#fff; }
-.stock-val { font-family:‘Playfair Display’,serif; font-size:20px; font-weight:700; min-width:40px; text-align:center; }
+.btn-adj { width:36px; height:36px; border-radius:8px; border:1px solid var(--border); background:var(--card-bg); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:600; color:var(--caramel); transition:all 0.15s; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+.btn-adj:active { background:var(--caramel); color:#fff; }
+.stock-val { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; min-width:40px; text-align:center; }
 .vendor-tag { font-size:10px; font-weight:600; padding:3px 7px; border-radius:6px; }
-.vendor-karat { background:rgba(200,132,58,0.12); color:var(–caramel); }
+.vendor-karat { background:rgba(200,132,58,0.12); color:var(--caramel); }
 .vendor-hyperpack { background:rgba(123,191,165,0.15); color:#3A8B6F; }
 .vendor-target { background:rgba(192,57,43,0.1); color:#C0392B; }
 .vendor-walmart { background:rgba(30,80,162,0.1); color:#1E50A2; }
 .vendor-brand { background:rgba(139,114,85,0.12); color:#5A3E28; }
 .vendor-other { background:#f0ece6; color:#8B7355; }
 .par-info { font-size:11px; color:#8B7355; }
-.saving-indicator { font-size:11px; color:var(–caramel); margin-left:4px; opacity:0; transition:opacity 0.3s; }
+.saving-indicator { font-size:11px; color:var(--caramel); margin-left:4px; opacity:0; transition:opacity 0.3s; }
 .saving-indicator.show { opacity:1; }
 
 /* ORDER LIST */
 .order-section { margin-bottom:20px; }
 .order-header { font-size:15px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
-.order-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); overflow:hidden; }
-.order-row { padding:11px 16px; border-bottom:1px solid var(–border); display:flex; justify-content:space-between; align-items:center; }
+.order-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); overflow:hidden; }
+.order-row { padding:11px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
 .order-row:last-child { border-bottom:none; }
 .order-name { font-size:14px; font-weight:500; }
-.order-qty { font-size:13px; color:var(–caramel); font-weight:600; }
+.order-qty { font-size:13px; color:var(--caramel); font-weight:600; }
 .order-code { font-size:11px; color:#8B7355; }
-.btn-copy { background:var(–mocha); color:var(–gold); border:none; padding:12px 20px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; margin-top:12px; transition:opacity 0.2s; }
+.btn-copy { background:var(--mocha); color:var(--gold); border:none; padding:12px 20px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; margin-top:12px; transition:opacity 0.2s; }
 .btn-copy:hover { opacity:0.9; }
 .empty-order { text-align:center; padding:32px; color:#8B7355; font-size:14px; }
 
 /* SCAN SALES */
-.scan-zone { overflow:hidden; max-width:100%;
-border:2px dashed var(–border); border-radius:14px; padding:40px 24px;
-text-align:center; cursor:pointer; transition:border-color 0.2s;
-background:var(–card-bg);
+.scan-zone { overflow:hidden; max-width:100%; 
+  border:2px dashed var(--border); border-radius:14px; padding:40px 24px;
+  text-align:center; cursor:pointer; transition:border-color 0.2s;
+  background:var(--card-bg);
 }
-.scan-zone:hover { border-color:var(–caramel); }
+.scan-zone:hover { border-color:var(--caramel); }
 .scan-zone-title { font-size:16px; font-weight:600; margin-bottom:6px; }
 .scan-zone-sub { font-size:13px; color:#8B7355; }
 #fileInput { display:none; }
 .scan-results { margin-top:16px; }
-.scan-result-row { padding:10px 16px; background:var(–card-bg); border-radius:10px; border:1px solid var(–border); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+.scan-result-row { padding:10px 16px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
 .result-item { font-size:14px; font-weight:500; }
-.result-sold { font-size:13px; color:var(–caramel); font-weight:600; }
-.btn-apply { background:linear-gradient(135deg,var(–caramel),var(–gold)); color:#fff; border:none; padding:13px 20px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; margin-top:12px; }
-.parse-error { background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); border-radius:10px; padding:12px 16px; font-size:13px; color:var(–red-alert); margin-top:12px; }
+.result-sold { font-size:13px; color:var(--caramel); font-weight:600; }
+.btn-apply { background:linear-gradient(135deg,var(--caramel),var(--gold)); color:#fff; border:none; padding:13px 20px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; margin-top:12px; }
+.parse-error { background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); border-radius:10px; padding:12px 16px; font-size:13px; color:var(--red-alert); margin-top:12px; }
 
 /* LOG DELIVERY */
-.delivery-form { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); padding:16px; margin-bottom:20px; overflow:hidden; max-width:100%; }
+.delivery-form { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); padding:16px; margin-bottom:20px; overflow:hidden; max-width:100%; }
 .delivery-form h3 { font-size:15px; font-weight:700; margin-bottom:14px; }
 .form-row { display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
 .form-row select, .form-row input {
-flex:1; min-width:120px; padding:10px 12px; border-radius:8px;
-border:1px solid var(–border); background:var(–cream); font-family:inherit; font-size:14px; color:var(–dark); outline:none;
+  flex:1; min-width:120px; padding:10px 12px; border-radius:8px;
+  border:1px solid var(--border); background:var(--cream); font-family:inherit; font-size:14px; color:var(--dark); outline:none;
 }
-.btn-log { background:var(–mocha); color:var(–gold); border:none; padding:12px 20px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; transition:opacity 0.2s; }
+.btn-log { background:var(--mocha); color:var(--gold); border:none; padding:12px 20px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%; transition:opacity 0.2s; }
 .btn-log:hover { opacity:0.9; }
-.delivery-history { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); overflow:hidden; }
-.delivery-history h3 { padding:12px 16px; font-size:14px; font-weight:700; border-bottom:1px solid var(–border); }
-.del-row { padding:11px 16px; border-bottom:1px solid var(–border); }
+.delivery-history { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); overflow:hidden; }
+.delivery-history h3 { padding:12px 16px; font-size:14px; font-weight:700; border-bottom:1px solid var(--border); }
+.del-row { padding:11px 16px; border-bottom:1px solid var(--border); }
 .del-row:last-child { border-bottom:none; }
 .del-row-top { font-size:14px; font-weight:500; }
 .del-row-bot { font-size:12px; color:#8B7355; margin-top:2px; }
@@ -243,127 +240,129 @@ border:1px solid var(–border); background:var(–cream); font-family:inherit; 
 
 /* OWNER DASHBOARD */
 .owner-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:20px; }
-.store-card { background:var(–card-bg); border-radius:14px; border:1px solid var(–border); padding:18px; }
+.store-card { background:var(--card-bg); border-radius:14px; border:1px solid var(--border); padding:18px; }
 .store-card-name { font-size:16px; font-weight:700; margin-bottom:4px; }
 .store-card-sub { font-size:12px; color:#8B7355; margin-bottom:14px; }
 .store-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
 .store-stat { text-align:center; }
-.store-stat-num { font-family:‘Playfair Display’,serif; font-size:22px; font-weight:700; }
+.store-stat-num { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; }
 .store-stat-label { font-size:10px; color:#8B7355; text-transform:uppercase; letter-spacing:0.5px; }
 
 /* Toast */
 .toast {
-position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
-background:var(–dark); color:var(–cream); padding:10px 20px; border-radius:10px;
-font-size:13px; font-weight:500; opacity:0; transition:all 0.3s; z-index:999; white-space:nowrap;
+  position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--dark); color:var(--cream); padding:10px 20px; border-radius:10px;
+  font-size:13px; font-weight:500; opacity:0; transition:all 0.3s; z-index:999; white-space:nowrap;
 }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
 /* NAV BAR (mobile) */
 .bottom-nav {
-position:fixed; bottom:0; left:0; right:0; background:var(–card-bg);
-border-top:1px solid var(–border); display:flex; z-index:100;
-padding-bottom:env(safe-area-inset-bottom);
+  position:fixed; bottom:0; left:0; right:0; background:var(--card-bg);
+  border-top:1px solid var(--border); display:flex; z-index:100;
+  padding-bottom:env(safe-area-inset-bottom);
 }
 .nav-btn { flex:1; padding:10px 4px 8px; border:none; background:transparent; cursor:pointer; font-family:inherit; color:#8B7355; font-size:10px; display:flex; flex-direction:column; align-items:center; gap:3px; transition:color 0.2s; }
-.nav-btn.active { color:var(–caramel); }
+.nav-btn.active { color:var(--caramel); }
 .nav-icon { font-size:20px; }
 .main-content { padding-bottom:70px; }
 
 /* Spinner */
-.spinner { width:20px; height:20px; border:2px solid rgba(253,246,236,0.2); border-top-color:var(–caramel); border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; }
+.spinner { width:20px; height:20px; border:2px solid rgba(253,246,236,0.2); border-top-color:var(--caramel); border-radius:50%; animation:spin 0.8s linear infinite; display:inline-block; }
 @keyframes spin { to { transform:rotate(360deg); } }
 
 /* Search bar */
-.search-bar { width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(–border); background:var(–card-bg); font-family:inherit; font-size:14px; outline:none; margin-bottom:12px; }
+.search-bar { width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--card-bg); font-family:inherit; font-size:14px; outline:none; margin-bottom:12px; }
+
+
+
 
 /* ── STOCK VALUE BANNER ── */
-.stock-val-card { background:var(–card-bg); border:1px solid var(–border); border-radius:10px; padding:10px 14px; min-width:120px; flex-shrink:0; }
+.stock-val-card { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:10px 14px; min-width:120px; flex-shrink:0; }
 .stock-val-cat { font-size:10px; color:#8B7355; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
-.stock-val-amt { font-family:“Playfair Display”,serif; font-size:18px; font-weight:700; color:var(–caramel); }
+.stock-val-amt { font-family:"Playfair Display",serif; font-size:18px; font-weight:700; color:var(--caramel); }
 .stock-val-count { font-size:10px; color:#8B7355; margin-top:1px; }
 
-.admin-card{background:var(–card-bg);border:1px solid var(–border);border-radius:12px;padding:12px 14px}
+.admin-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
 .admin-card-title{font-size:11px;font-weight:700;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-.admin-input{width:100%;padding:8px 12px;border:1px solid var(–border);border-radius:8px;background:var(–cream);font-family:inherit;font-size:13px;outline:none;margin-bottom:6px;box-sizing:border-box;color:var(–dark)}
-.admin-input:focus{border-color:var(–caramel)}
-.admin-btn{width:100%;padding:9px;border:none;border-radius:8px;background:var(–dark);color:#D4A843;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px}
+.admin-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--cream);font-family:inherit;font-size:13px;outline:none;margin-bottom:6px;box-sizing:border-box;color:var(--dark)}
+.admin-input:focus{border-color:var(--caramel)}
+.admin-btn{width:100%;padding:9px;border:none;border-radius:8px;background:var(--dark);color:#D4A843;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin-top:2px}
+
+
 
 /* ── SCHEDULE GRID ── */
-.sched-name-cell { padding:8px 10px; font-size:13px; font-weight:600; color:var(–dark); white-space:nowrap; border-right:2px solid var(–border); min-width:100px; vertical-align:middle; }
-.sched-day-cell  { padding:4px; text-align:center; border:1px solid var(–border); vertical-align:middle; cursor:pointer; min-width:80px; height:52px; position:relative; }
+.sched-name-cell { padding:8px 10px; font-size:13px; font-weight:600; color:var(--dark); white-space:nowrap; border-right:2px solid var(--border); min-width:100px; vertical-align:middle; }
+.sched-day-cell  { padding:4px; text-align:center; border:1px solid var(--border); vertical-align:middle; cursor:pointer; min-width:80px; height:52px; position:relative; }
 .sched-day-cell:hover { background:rgba(200,132,58,0.05); }
-.sched-day-header { padding:6px 4px; text-align:center; font-size:11px; font-weight:700; color:#8B7355; border-bottom:2px solid var(–border); background:var(–card-bg); }
+.sched-day-header { padding:6px 4px; text-align:center; font-size:11px; font-weight:700; color:#8B7355; border-bottom:2px solid var(--border); background:var(--card-bg); }
 .sched-shift-bar { border-radius:6px; padding:5px 6px; font-size:11px; font-weight:700; cursor:pointer; user-select:none; line-height:1.2; }
 .sched-shift-bar:hover { opacity:0.8; }
 .sched-shift-time { font-size:9px; font-weight:400; opacity:0.85; margin-top:1px; }
 .sched-today { background:rgba(200,132,58,0.06) !important; }
 .sched-hours { font-size:11px; color:#8B7355; padding:4px 8px; text-align:right; white-space:nowrap; }
 .shift-type-pill { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; border:2px solid transparent; }
-.shift-type-pill.selected { border-color: var(–dark); }
+.shift-type-pill.selected { border-color: var(--dark); }
 
 /* ── ADMIN CARDS ── */
-.admin-card { background:var(–card-bg); border:1px solid var(–border); border-radius:12px; padding:14px 16px; }
+.admin-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
 .admin-card-title { font-size:11px; font-weight:700; color:#8B7355; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
-.admin-input { width:100%; padding:8px 12px; border:1px solid var(–border); border-radius:8px; background:var(–cream); font-family:inherit; font-size:13px; outline:none; margin-bottom:6px; box-sizing:border-box; color:var(–dark); }
-.admin-input:focus { border-color:var(–caramel); }
-.admin-btn { width:100%; padding:9px; border:none; border-radius:8px; background:var(–dark); color:#D4A843; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; margin-top:2px; transition:opacity 0.2s; }
+.admin-input { width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--cream); font-family:inherit; font-size:13px; outline:none; margin-bottom:6px; box-sizing:border-box; color:var(--dark); }
+.admin-input:focus { border-color:var(--caramel); }
+.admin-btn { width:100%; padding:9px; border:none; border-radius:8px; background:var(--dark); color:#D4A843; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; margin-top:2px; transition:opacity 0.2s; }
 .admin-btn:hover { opacity:0.85; }
 
 /* ── COGS ── */
-.cogs-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); margin-bottom:10px; padding:14px 16px; }
+.cogs-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; padding:14px 16px; }
 .cogs-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .cogs-name { font-size:14px; font-weight:600; flex:1; }
-.cogs-pct { font-size:18px; font-weight:700; font-family:“Playfair Display”,serif; min-width:60px; text-align:right; }
-.cogs-pct.good { color:var(–green-ok); }
-.cogs-pct.warn { color:var(–amber-alert); }
-.cogs-pct.bad  { color:var(–red-alert); }
+.cogs-pct { font-size:18px; font-weight:700; font-family:"Playfair Display",serif; min-width:60px; text-align:right; }
+.cogs-pct.good { color:var(--green-ok); }
+.cogs-pct.warn { color:var(--amber-alert); }
+.cogs-pct.bad  { color:var(--red-alert); }
 .cogs-bar { background:#E8E0D5; border-radius:4px; height:6px; margin-bottom:10px; }
 .cogs-bar-fill { height:6px; border-radius:4px; transition:width 0.4s; }
 .cogs-details { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
 .cogs-detail-item { font-size:12px; color:#8B7355; }
-.cogs-detail-val { font-weight:600; color:var(–dark); }
-.cogs-price-input { width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(–border); background:var(–cream); font-family:inherit; font-size:13px; text-align:right; outline:none; }
-.cogs-price-input:focus { border-color:var(–caramel); }
-.margin-bar-good { background:var(–green-ok); }
-.margin-bar-warn { background:var(–amber-alert); }
-.margin-bar-bad  { background:var(–red-alert); }
+.cogs-detail-val { font-weight:600; color:var(--dark); }
+.cogs-price-input { width:80px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); background:var(--cream); font-family:inherit; font-size:13px; text-align:right; outline:none; }
+.cogs-price-input:focus { border-color:var(--caramel); }
+.margin-bar-good { background:var(--green-ok); }
+.margin-bar-warn { background:var(--amber-alert); }
+.margin-bar-bad  { background:var(--red-alert); }
 
 /* ── SCHEDULE ── */
-.week-grid-th { background:var(–mocha); color:var(–gold); font-size:11px; font-weight:600; padding:8px 6px; text-align:center; white-space:nowrap; }
-.week-grid-name { padding:8px 10px; font-size:13px; font-weight:600; background:var(–card-bg); border-bottom:1px solid var(–border); border-right:1px solid var(–border); white-space:nowrap; min-width:90px; }
-.week-cell { padding:4px; border-bottom:1px solid var(–border); border-right:1px solid var(–border); vertical-align:top; min-width:80px; }
+.week-grid-th { background:var(--mocha); color:var(--gold); font-size:11px; font-weight:600; padding:8px 6px; text-align:center; white-space:nowrap; }
+.week-grid-name { padding:8px 10px; font-size:13px; font-weight:600; background:var(--card-bg); border-bottom:1px solid var(--border); border-right:1px solid var(--border); white-space:nowrap; min-width:90px; }
+.week-cell { padding:4px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); vertical-align:top; min-width:80px; }
 .shift-chip { border-radius:6px; padding:4px 6px; font-size:11px; font-weight:600; margin-bottom:3px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:4px; }
 .shift-chip-time { font-size:10px; font-weight:400; opacity:0.85; }
-.day-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); margin-bottom:10px; overflow:hidden; }
-.day-card-header { background:var(–mocha); color:var(–gold); padding:10px 16px; font-size:13px; font-weight:700; }
-.day-shift-row { padding:10px 16px; border-bottom:1px solid var(–border); display:flex; align-items:center; justify-content:space-between; }
+.day-card { background:var(--card-bg); border-radius:12px; border:1px solid var(--border); margin-bottom:10px; overflow:hidden; }
+.day-card-header { background:var(--mocha); color:var(--gold); padding:10px 16px; font-size:13px; font-weight:700; }
+.day-shift-row { padding:10px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
 .day-shift-row:last-child { border-bottom:none; }
-.swap-card { background:var(–card-bg); border-radius:10px; border:1px solid var(–border); padding:12px 16px; margin-bottom:8px; }
-.btn-approve { background:rgba(39,174,96,0.12); color:var(–green-ok); border:1px solid rgba(39,174,96,0.3); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
-.btn-decline { background:rgba(192,57,43,0.1); color:var(–red-alert); border:1px solid rgba(192,57,43,0.2); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.swap-card { background:var(--card-bg); border-radius:10px; border:1px solid var(--border); padding:12px 16px; margin-bottom:8px; }
+.btn-approve { background:rgba(39,174,96,0.12); color:var(--green-ok); border:1px solid rgba(39,174,96,0.3); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-decline { background:rgba(192,57,43,0.1); color:var(--red-alert); border:1px solid rgba(192,57,43,0.2); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
 .modal-title { font-size:16px; font-weight:700; margin-bottom:16px; }
 .modal-label { font-size:12px; font-weight:600; color:#8B7355; margin-bottom:4px; margin-top:12px; }
-.modal-input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(–border); background:var(–cream); font-family:inherit; font-size:14px; outline:none; }
-.modal-btn { width:100%; padding:12px; border-radius:10px; border:none; background:var(–mocha); color:var(–gold); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:16px; }
+.modal-input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--cream); font-family:inherit; font-size:14px; outline:none; }
+.modal-btn { width:100%; padding:12px; border-radius:10px; border:none; background:var(--mocha); color:var(--gold); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; margin-top:16px; }
 .modal-close { float:right; background:none; border:none; font-size:20px; cursor:pointer; color:#8B7355; margin-top:-4px; }
 .color-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:6px; }
 
 @media(min-width:600px){
-.stat-grid { grid-template-columns:repeat(3,1fr); }
-.tabs { position:sticky; }
+  .stat-grid { grid-template-columns:repeat(3,1fr); }
+  .tabs { position:sticky; }
 }
 </style>
-
 </head>
 <body>
 
 <!-- LOGIN SCREEN -->
-
 <div id="loginScreen">
 
   <!-- ── SIGN IN PANEL ── -->
-
   <div class="login-box" id="loginPanel">
     <div class="login-logo">Dumont</div>
     <div class="login-sub">Creamery &amp; Café — Inventory v15</div>
@@ -378,43 +377,38 @@ padding-bottom:env(safe-area-inset-bottom);
   </div>
 
   <!-- ── SIGN UP PANEL ── -->
-
   <div class="login-box" id="signupPanel" style="display:none">
     <div class="login-logo" style="font-size:28px">Create Account</div>
     <div class="login-sub">Set up your store</div>
 
-```
-<input type="text" id="signupName" placeholder="Your Name" autocomplete="name"
-  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-<input type="email" id="signupEmail" placeholder="Email Address" autocomplete="email"
-  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-<input type="password" id="signupPassword" placeholder="Password (min 8 characters)"
-  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-<input type="text" id="signupStoreName" placeholder="Store Name (e.g. My Boba Shop)"
-  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-<select id="signupStoreType"
-  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(61,43,31,0.9);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
-  <option value="">— Store Type —</option>
-  <option value="boba">Boba / Bubble Tea</option>
-  <option value="icecream">Ice Cream</option>
-  <option value="cafe">Café / Coffee</option>
-  <option value="combined">Combined (Boba + Ice Cream + Coffee)</option>
-  <option value="other">Other F&B</option>
-</select>
-<input type="text" id="signupCity" placeholder="City, State"
-  style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:16px">
+    <input type="text" id="signupName" placeholder="Your Name" autocomplete="name"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+    <input type="email" id="signupEmail" placeholder="Email Address" autocomplete="email"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+    <input type="password" id="signupPassword" placeholder="Password (min 8 characters)"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+    <input type="text" id="signupStoreName" placeholder="Store Name (e.g. My Boba Shop)"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+    <select id="signupStoreType"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(61,43,31,0.9);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:10px">
+      <option value="">— Store Type —</option>
+      <option value="boba">Boba / Bubble Tea</option>
+      <option value="icecream">Ice Cream</option>
+      <option value="cafe">Café / Coffee</option>
+      <option value="combined">Combined (Boba + Ice Cream + Coffee)</option>
+      <option value="other">Other F&B</option>
+    </select>
+    <input type="text" id="signupCity" placeholder="City, State"
+      style="width:100%;padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#FDF6EC;font-family:inherit;font-size:14px;outline:none;margin-bottom:16px">
 
-<button class="btn-login" id="signupBtn">Request Access</button>
-<div class="login-error" id="signupError"></div>
-<div style="text-align:center;margin-top:16px">
-  <span style="color:#D4A843;font-size:13px;cursor:pointer;text-decoration:underline" id="showLoginBtn" style="cursor:pointer">← Back to Sign In</span>
-</div>
-```
-
+    <button class="btn-login" id="signupBtn">Request Access</button>
+    <div class="login-error" id="signupError"></div>
+    <div style="text-align:center;margin-top:16px">
+      <span style="color:#D4A843;font-size:13px;cursor:pointer;text-decoration:underline" id="showLoginBtn" style="cursor:pointer">← Back to Sign In</span>
+    </div>
   </div>
 
   <!-- ── PENDING APPROVAL PANEL ── -->
-
   <div class="login-box" id="pendingPanel" style="display:none">
     <div style="font-size:48px;text-align:center;margin-bottom:16px">⏳</div>
     <div class="login-logo" style="font-size:22px;text-align:center">Awaiting Approval</div>
@@ -430,7 +424,6 @@ padding-bottom:env(safe-area-inset-bottom);
 </div>
 
 <!-- MAIN APP -->
-
 <div id="app">
   <div class="header">
     <div class="header-logo">Dumont</div>
@@ -441,7 +434,6 @@ padding-bottom:env(safe-area-inset-bottom);
   </div>
 
   <!-- Owner store switcher (admin only) -->
-
   <div class="owner-toggle-bar" id="ownerBar" style="display:none">
     <!-- Store buttons built dynamically by populateStoreSwitcher() -->
   </div>
@@ -460,399 +452,387 @@ padding-bottom:env(safe-area-inset-bottom);
   <div class="main-content">
     <div class="content">
 
-```
-  <!-- DASHBOARD -->
-  <div id="tab-dashboard">
-    <div id="ownerAllView" style="display:none">
-      <div style="margin-bottom:14px;font-size:13px;color:#8B7355;">All Stores — Live Overview</div>
-      <div class="owner-grid" id="ownerGrid"></div>
-    </div>
-    <div id="storeView">
-      <div class="sync-info" id="syncInfo">⏱ Loading data...</div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-num red" id="statCritical">0</div><div class="stat-label">🔴 Order Now</div></div>
-        <div class="stat-card"><div class="stat-num amber" id="statLow">0</div><div class="stat-label">🟡 Running Low</div></div>
-        <div class="stat-card"><div class="stat-num green" id="statOk">0</div><div class="stat-label">🟢 OK</div></div>
-      </div>
-      <div class="alert-section" id="alertSection"></div>
-    </div>
-  </div>
-
-  <!-- INVENTORY -->
-  <div id="tab-inventory" style="display:none">
-
-    <!-- Stock Value Banner -->
-    <div id="stockValueBanner" style="display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px"></div>
-
-    <!-- Toolbar -->
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-      <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search items..." oninput="renderInventory()" style="flex:1;margin-bottom:0;min-width:160px">
-      <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap" onclick="openAddItem()">+ Add Item</button>
-      <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap;background:var(--caramel)" onclick="openAddCategory()">+ Category</button>
-    </div>
-
-    <div class="filter-bar" id="filterBar"></div>
-    <div id="inventoryList"></div>
-  </div>
-
-  <!-- ORDERS -->
-  <div id="tab-orders" style="display:none">
-    <div id="ordersContent"></div>
-  </div>
-
-  <!-- SCAN SALES -->
-  <div id="tab-scan" style="display:none">
-    <div class="scan-zone" onclick="document.getElementById('fileInput').click()">
-      <div style="font-size:36px;margin-bottom:8px;">📊</div>
-      <div class="scan-zone-title">Upload Clover Sales Report</div>
-      <div class="scan-zone-sub">Tap to select Excel file (.xlsx) or image/PDF<br><small style="color:#aaa">Accepted: .xlsx, .xls, .csv, image, PDF</small></div>
-      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,image/*,.pdf" onchange="handleFile(event)">
-    </div>
-    <div id="scanResults"></div>
-  </div>
-
-  <!-- DELIVERY -->
-  <div id="tab-delivery" style="display:none">
-
-    <!-- Upload invoice -->
-    <div class="scan-zone" onclick="document.getElementById('invoicePdfInput').click()" style="margin-bottom:16px">
-      <div style="font-size:36px;margin-bottom:8px">🧾</div>
-      <div class="scan-zone-title">Upload Delivery Invoice (PDF)</div>
-      <div class="scan-zone-sub">AI reads your Karat or dry stock invoice<br>and auto-fills all line items</div>
-      <input type="file" id="invoicePdfInput" accept=".pdf" onchange="parseInvoicePDF(event)">
-    </div>
-
-    <!-- AI parsing status -->
-    <div id="invoiceParseStatus" style="display:none" class="sync-info" style="margin-bottom:12px"></div>
-
-    <!-- Parsed line items preview -->
-    <div id="invoicePreview" style="display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:14px;font-weight:700;color:var(--dark)">📦 Invoice Items — Review & Confirm</div>
-        <div id="invoiceTotalBadge" style="font-size:13px;font-weight:700;color:var(--caramel)"></div>
-      </div>
-      <div id="invoiceLineItems"></div>
-      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-        <button class="btn-log" style="flex:1" onclick="confirmDelivery()">✅ Confirm & Update Stock</button>
-        <button class="btn-log" style="flex:1;background:#888" onclick="cancelInvoice()">✕ Cancel</button>
-      </div>
-    </div>
-
-    <!-- Manual entry fallback -->
-    <div id="manualDelivery">
-      <div style="font-size:12px;color:#8B7355;margin-bottom:10px;text-align:center">— or log a single item manually —</div>
-      <div class="delivery-form">
-        <div class="form-row">
-          <select id="delivItem"><option value="">— Select item —</option></select>
+      <!-- DASHBOARD -->
+      <div id="tab-dashboard">
+        <div id="ownerAllView" style="display:none">
+          <div style="margin-bottom:14px;font-size:13px;color:#8B7355;">All Stores — Live Overview</div>
+          <div class="owner-grid" id="ownerGrid"></div>
         </div>
-        <div class="form-row">
-          <input type="number" id="delivQty" placeholder="Quantity received" min="0" step="0.5">
-          <input type="number" id="delivCost" placeholder="Unit cost $" min="0" step="0.01">
-        </div>
-        <input type="text" id="delivNote" placeholder="Note (optional)" style="width:100%;margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--cream);outline:none">
-        <button class="btn-log" onclick="logDelivery()">+ Log Single Item</button>
-      </div>
-    </div>
-
-    <div class="delivery-history">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <h3 style="margin:0">Delivery Log</h3>
-        <input type="text" placeholder="🔍 Search..." oninput="filterDeliveryLog(this.value)"
-          style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--cream);outline:none">
-      </div>
-      <div id="deliveryList"></div>
-    </div>
-  </div>
-
-
-
-  <!-- COGS TAB -->
-  <div id="tab-cogs" style="display:none">
-
-    <!-- Sub-nav -->
-    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-      <button class="cat-btn active" id="cogsViewReport"  onclick="setCogsView('report')">📊 COGS Report</button>
-      <button class="cat-btn"        id="cogsViewMargins" onclick="setCogsView('margins')">💰 Menu Margins</button>
-    </div>
-
-    <!-- ── COGS REPORT ── -->
-    <div id="cogsReportView">
-
-      <!-- Upload prompt if no data -->
-      <div id="cogsNoData" style="text-align:center;padding:32px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px">
-        <div style="font-size:32px;margin-bottom:8px">📊</div>
-        <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">No Sales Data Yet</div>
-        <div style="font-size:12px;color:#8B7355;margin-bottom:14px">Upload your Clover CSV in the Sales tab to see your COGS report</div>
-        <button class="cat-btn active" onclick="showTab('scan')" style="font-size:12px">Go to Sales → Upload CSV</button>
-      </div>
-
-      <!-- COGS Dashboard (shown after data loaded) -->
-      <div id="cogsDashboard" style="display:none">
-
-        <!-- Period label -->
-        <div id="cogsPeriodLabel" style="font-size:12px;color:#8B7355;margin-bottom:12px;text-align:center"></div>
-
-        <!-- KPI cards -->
-        <div class="stat-grid" style="margin-bottom:12px">
-          <div class="stat-card">
-            <div class="stat-num" id="cogsRevenue" style="color:var(--green-ok);font-size:20px">$0</div>
-            <div class="stat-label">Net Sales</div>
+        <div id="storeView">
+          <div class="sync-info" id="syncInfo">⏱ Loading data...</div>
+          <div class="stat-grid">
+            <div class="stat-card"><div class="stat-num red" id="statCritical">0</div><div class="stat-label">🔴 Order Now</div></div>
+            <div class="stat-card"><div class="stat-num amber" id="statLow">0</div><div class="stat-label">🟡 Running Low</div></div>
+            <div class="stat-card"><div class="stat-num green" id="statOk">0</div><div class="stat-label">🟢 OK</div></div>
           </div>
-          <div class="stat-card">
-            <div class="stat-num" id="cogsCost" style="color:var(--red-alert);font-size:20px">$0</div>
-            <div class="stat-label">COGS</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" id="cogsPct" style="font-size:20px">0%</div>
-            <div class="stat-label">COGS %</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-num" id="cogsProfit" style="color:var(--green-ok);font-size:20px">$0</div>
-            <div class="stat-label">Gross Profit</div>
-          </div>
-        </div>
-
-        <!-- Benchmark bar -->
-        <div id="cogsBenchmark" style="margin-bottom:12px"></div>
-
-        <!-- Category breakdown -->
-        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px">By Category</div>
-        <div id="cogsCategoryBreakdown" style="margin-bottom:12px"></div>
-
-        <!-- Top items -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-          <div class="admin-card">
-            <div class="admin-card-title">🏆 Top Revenue Items</div>
-            <div id="cogsTopItems"></div>
-          </div>
-          <div class="admin-card">
-            <div class="admin-card-title">💡 Highest COGS %</div>
-            <div id="cogsHighCogs"></div>
-          </div>
-        </div>
-
-        <!-- Sales history -->
-        <div class="admin-card">
-          <div class="admin-card-title">📅 Upload History</div>
-          <div id="cogsHistory"></div>
+          <div class="alert-section" id="alertSection"></div>
         </div>
       </div>
 
-    </div>
+      <!-- INVENTORY -->
+      <div id="tab-inventory" style="display:none">
 
-    <!-- ── MENU MARGINS ── -->
-    <div id="cogsMarginView" style="display:none">
-      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-        <button class="cat-btn active" id="cogsCatAll"       onclick="setCogscat('all')">All</button>
-        <button class="cat-btn"        id="cogsCatIceCream"  onclick="setCogscat('Ice Cream')">🍦 Ice Cream</button>
-        <button class="cat-btn"        id="cogsCatDrinks"    onclick="setCogscat('Drinks')">🧋 Drinks</button>
-        <button class="cat-btn"        id="cogsCatCoffee"    onclick="setCogscat('Coffee')">☕ Coffee</button>
+        <!-- Stock Value Banner -->
+        <div id="stockValueBanner" style="display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px"></div>
+
+        <!-- Toolbar -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <input type="text" class="search-bar" id="searchBar" placeholder="🔍 Search items..." oninput="renderInventory()" style="flex:1;margin-bottom:0;min-width:160px">
+          <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap" onclick="openAddItem()">+ Add Item</button>
+          <button class="btn-log" style="width:auto;padding:9px 14px;font-size:13px;white-space:nowrap;background:var(--caramel)" onclick="openAddCategory()">+ Category</button>
+        </div>
+
+        <div class="filter-bar" id="filterBar"></div>
+        <div id="inventoryList"></div>
       </div>
-      <div id="cogsMarginList"></div>
-    </div>
 
-  </div>
-```
+      <!-- ORDERS -->
+      <div id="tab-orders" style="display:none">
+        <div id="ordersContent"></div>
+      </div>
+
+      <!-- SCAN SALES -->
+      <div id="tab-scan" style="display:none">
+        <div class="scan-zone" onclick="document.getElementById('fileInput').click()">
+          <div style="font-size:36px;margin-bottom:8px;">📊</div>
+          <div class="scan-zone-title">Upload Clover Sales Report</div>
+          <div class="scan-zone-sub">Tap to select Excel file (.xlsx) or image/PDF<br><small style="color:#aaa">Accepted: .xlsx, .xls, .csv, image, PDF</small></div>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,image/*,.pdf" onchange="handleFile(event)">
+        </div>
+        <div id="scanResults"></div>
+      </div>
+
+      <!-- DELIVERY -->
+      <div id="tab-delivery" style="display:none">
+
+        <!-- Upload invoice -->
+        <div class="scan-zone" onclick="document.getElementById('invoicePdfInput').click()" style="margin-bottom:16px">
+          <div style="font-size:36px;margin-bottom:8px">🧾</div>
+          <div class="scan-zone-title">Upload Delivery Invoice (PDF)</div>
+          <div class="scan-zone-sub">AI reads your Karat or dry stock invoice<br>and auto-fills all line items</div>
+          <input type="file" id="invoicePdfInput" accept=".pdf" onchange="parseInvoicePDF(event)">
+        </div>
+
+        <!-- AI parsing status -->
+        <div id="invoiceParseStatus" style="display:none" class="sync-info" style="margin-bottom:12px"></div>
+
+        <!-- Parsed line items preview -->
+        <div id="invoicePreview" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:700;color:var(--dark)">📦 Invoice Items — Review & Confirm</div>
+            <div id="invoiceTotalBadge" style="font-size:13px;font-weight:700;color:var(--caramel)"></div>
+          </div>
+          <div id="invoiceLineItems"></div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button class="btn-log" style="flex:1" onclick="confirmDelivery()">✅ Confirm & Update Stock</button>
+            <button class="btn-log" style="flex:1;background:#888" onclick="cancelInvoice()">✕ Cancel</button>
+          </div>
+        </div>
+
+        <!-- Manual entry fallback -->
+        <div id="manualDelivery">
+          <div style="font-size:12px;color:#8B7355;margin-bottom:10px;text-align:center">— or log a single item manually —</div>
+          <div class="delivery-form">
+            <div class="form-row">
+              <select id="delivItem"><option value="">— Select item —</option></select>
+            </div>
+            <div class="form-row">
+              <input type="number" id="delivQty" placeholder="Quantity received" min="0" step="0.5">
+              <input type="number" id="delivCost" placeholder="Unit cost $" min="0" step="0.01">
+            </div>
+            <input type="text" id="delivNote" placeholder="Note (optional)" style="width:100%;margin-bottom:10px;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--cream);outline:none">
+            <button class="btn-log" onclick="logDelivery()">+ Log Single Item</button>
+          </div>
+        </div>
+
+        <div class="delivery-history">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <h3 style="margin:0">Delivery Log</h3>
+            <input type="text" placeholder="🔍 Search..." oninput="filterDeliveryLog(this.value)"
+              style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--cream);outline:none">
+          </div>
+          <div id="deliveryList"></div>
+        </div>
+      </div>
+
+
+
+      <!-- COGS TAB -->
+      <div id="tab-cogs" style="display:none">
+
+        <!-- Sub-nav -->
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <button class="cat-btn active" id="cogsViewReport"  onclick="setCogsView('report')">📊 COGS Report</button>
+          <button class="cat-btn"        id="cogsViewMargins" onclick="setCogsView('margins')">💰 Menu Margins</button>
+        </div>
+
+        <!-- ── COGS REPORT ── -->
+        <div id="cogsReportView">
+
+          <!-- Upload prompt if no data -->
+          <div id="cogsNoData" style="text-align:center;padding:32px;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;margin-bottom:12px">
+            <div style="font-size:32px;margin-bottom:8px">📊</div>
+            <div style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:6px">No Sales Data Yet</div>
+            <div style="font-size:12px;color:#8B7355;margin-bottom:14px">Upload your Clover CSV in the Sales tab to see your COGS report</div>
+            <button class="cat-btn active" onclick="showTab('scan')" style="font-size:12px">Go to Sales → Upload CSV</button>
+          </div>
+
+          <!-- COGS Dashboard (shown after data loaded) -->
+          <div id="cogsDashboard" style="display:none">
+
+            <!-- Period label -->
+            <div id="cogsPeriodLabel" style="font-size:12px;color:#8B7355;margin-bottom:12px;text-align:center"></div>
+
+            <!-- KPI cards -->
+            <div class="stat-grid" style="margin-bottom:12px">
+              <div class="stat-card">
+                <div class="stat-num" id="cogsRevenue" style="color:var(--green-ok);font-size:20px">$0</div>
+                <div class="stat-label">Net Sales</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="cogsCost" style="color:var(--red-alert);font-size:20px">$0</div>
+                <div class="stat-label">COGS</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="cogsPct" style="font-size:20px">0%</div>
+                <div class="stat-label">COGS %</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="cogsProfit" style="color:var(--green-ok);font-size:20px">$0</div>
+                <div class="stat-label">Gross Profit</div>
+              </div>
+            </div>
+
+            <!-- Benchmark bar -->
+            <div id="cogsBenchmark" style="margin-bottom:12px"></div>
+
+            <!-- Category breakdown -->
+            <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px">By Category</div>
+            <div id="cogsCategoryBreakdown" style="margin-bottom:12px"></div>
+
+            <!-- Top items -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+              <div class="admin-card">
+                <div class="admin-card-title">🏆 Top Revenue Items</div>
+                <div id="cogsTopItems"></div>
+              </div>
+              <div class="admin-card">
+                <div class="admin-card-title">💡 Highest COGS %</div>
+                <div id="cogsHighCogs"></div>
+              </div>
+            </div>
+
+            <!-- Sales history -->
+            <div class="admin-card">
+              <div class="admin-card-title">📅 Upload History</div>
+              <div id="cogsHistory"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── MENU MARGINS ── -->
+        <div id="cogsMarginView" style="display:none">
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <button class="cat-btn active" id="cogsCatAll"       onclick="setCogscat('all')">All</button>
+            <button class="cat-btn"        id="cogsCatIceCream"  onclick="setCogscat('Ice Cream')">🍦 Ice Cream</button>
+            <button class="cat-btn"        id="cogsCatDrinks"    onclick="setCogscat('Drinks')">🧋 Drinks</button>
+            <button class="cat-btn"        id="cogsCatCoffee"    onclick="setCogscat('Coffee')">☕ Coffee</button>
+          </div>
+          <div id="cogsMarginList"></div>
+        </div>
+
+      </div>
 
 <!-- SCHEDULE TAB -->
+      <div id="tab-schedule" style="display:none">
 
-```
-  <div id="tab-schedule" style="display:none">
-
-    <!-- Toolbar -->
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn-adj" id="schedPrev" style="font-size:18px">‹</button>
-        <span id="schedTitle" style="font-size:14px;font-weight:700;color:var(--dark);min-width:160px;text-align:center"></span>
-        <button class="btn-adj" id="schedNext" style="font-size:18px">›</button>
-      </div>
-      <div id="schedManagerTools" style="display:none;display:flex;gap:6px;flex-wrap:wrap">
-        <button class="cat-btn" id="schedShiftsBtn" style="font-size:12px">⚙️ Shifts</button>
-        <button class="cat-btn" id="schedStaffBtn" style="font-size:12px">👥 Staff</button>
-        <button class="cat-btn" id="schedCopyBtn" style="font-size:12px">📋 Copy Week</button>
-        <button class="cat-btn active" id="schedPublishBtn" style="font-size:12px">📤 Publish</button>
-        <button class="cat-btn" id="schedShareBtn" style="font-size:12px;background:#2C7A4B;color:#fff;border-color:#2C7A4B">📸 Share</button>
-      </div>
-    </div>
-
-    <!-- Shift type legend -->
-    <div id="schedLegend" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
-
-    <!-- Main grid -->
-    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-      <table id="weekGrid" style="width:100%;border-collapse:collapse;min-width:500px;table-layout:fixed"></table>
-    </div>
-
-    <!-- Hours summary -->
-    <div id="schedSummary" style="margin-top:12px"></div>
-
-    <!-- Hours Report -->
-    <div id="schedHoursReport" style="margin-top:16px;display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:700;color:var(--dark)">⏱ Hours Summary</div>
-        <div style="display:flex;gap:6px">
-          <button class="cat-btn active" id="hrsWeekBtn">This Week</button>
-          <button class="cat-btn" id="hrsMonthBtn">This Month</button>
-        </div>
-      </div>
-      <div id="schedHoursTable"></div>
-      <div id="schedHoursTotals" style="margin-top:10px"></div>
-    </div>
-
-    <!-- Swap Requests -->
-    <div id="swapSection" style="margin-top:16px;display:none">
-      <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--dark)">🔄 Swap Requests</div>
-      <div id="swapList"></div>
-    </div>
-
-  </div>
-
-
-  <!-- SETUP WIZARD (shown after first approval) -->
-  <div id="setupWizard" style="display:none;position:fixed;inset:0;background:var(--cream);z-index:300;overflow-y:auto;padding:24px">
-    <div style="max-width:600px;margin:0 auto">
-
-      <!-- Progress bar -->
-      <div style="margin-bottom:24px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--dark)">Store Setup</div>
-          <div style="font-size:13px;color:#8B7355" id="wizardStepLabel">Step 1 of 4</div>
-        </div>
-        <div style="background:#E8D5B0;border-radius:4px;height:6px">
-          <div id="wizardProgress" style="background:var(--caramel);height:6px;border-radius:4px;transition:width 0.3s;width:25%"></div>
-        </div>
-      </div>
-
-      <!-- Step 1: Store Info -->
-      <div id="wizStep1">
-        <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👋 Welcome! Let's set up your store</div>
-        <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Confirm your store details and customize your inventory categories.</div>
-
-        <div class="modal-label">Store Name</div>
-        <input class="modal-input" id="wiz1StoreName" placeholder="e.g. My Boba Shop">
-
-        <div class="modal-label">Store Location</div>
-        <input class="modal-input" id="wiz1City" placeholder="City, State">
-
-        <div class="modal-label">Select your inventory categories</div>
-        <div id="wiz1Categories" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Boba" checked style="accent-color:var(--caramel)"> Boba</label>
-          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Coffee" checked style="accent-color:var(--caramel)"> Coffee</label>
-          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Ice Cream" checked style="accent-color:var(--caramel)"> Ice Cream</label>
-          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Dry Stock" checked style="accent-color:var(--caramel)"> Dry Stock</label>
-          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Condiments" checked style="accent-color:var(--caramel)"> Condiments</label>
-          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Bakery" style="accent-color:var(--caramel)"> Bakery</label>
-          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Falooda" style="accent-color:var(--caramel)"> Falooda</label>
-          <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Seasonal" style="accent-color:var(--caramel)"> Seasonal</label>
-        </div>
-
-        <button class="btn-log" onclick="wizNext(2)">Continue →</button>
-      </div>
-
-      <!-- Step 2: Add Staff -->
-      <div id="wizStep2" style="display:none">
-        <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👥 Add Your Team</div>
-        <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Add staff members who will use the app. You can always add more later.</div>
-
-        <div id="wiz2StaffList" style="margin-bottom:16px"></div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <input class="modal-input" id="wiz2Name" placeholder="Staff name" style="margin-bottom:0">
-          <input class="modal-input" id="wiz2Role" placeholder="Role (e.g. Barista)" style="margin-bottom:0">
-        </div>
-        <button class="btn-log" style="background:#555;margin-bottom:20px" onclick="wiz2AddStaff()">+ Add Staff Member</button>
-
-        <div style="display:flex;gap:8px">
-          <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(1)">← Back</button>
-          <button class="btn-log" style="flex:2" onclick="wizNext(3)">Continue →</button>
-        </div>
-      </div>
-
-      <!-- Step 3: Menu Prices -->
-      <div id="wizStep3" style="display:none">
-        <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">💰 Set Your Menu Prices</div>
-        <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Enter your selling prices to calculate COGS and margins. Skip any that don't apply.</div>
-
-        <div id="wiz3MenuItems" style="max-height:350px;overflow-y:auto;margin-bottom:16px"></div>
-
-        <div style="display:flex;gap:8px">
-          <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(2)">← Back</button>
-          <button class="btn-log" style="flex:2" onclick="wizNext(4)">Continue →</button>
-        </div>
-      </div>
-
-      <!-- Step 4: Done -->
-      <div id="wizStep4" style="display:none;text-align:center;padding:40px 0">
-        <div style="font-size:64px;margin-bottom:16px">🎉</div>
-        <div style="font-size:24px;font-weight:700;color:var(--dark);margin-bottom:8px;font-family:'Playfair Display',serif">You're all set!</div>
-        <div style="font-size:14px;color:#8B7355;margin-bottom:32px">Your store is ready. Start by entering your current stock counts in the Inventory tab.</div>
-
-        <div style="background:var(--card-bg);border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:24px;text-align:left">
-          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px">📋 Your daily routine:</div>
-          <div style="font-size:12px;color:#8B7355;line-height:2">
-            🌅 Morning — Check Dashboard for low stock<br>
-            📦 On delivery — Upload invoice in Delivery tab<br>
-            🌙 Evening — Upload Clover sales in Sales tab<br>
-            📅 Weekly — Record closing stock in COGS tab
+        <!-- Toolbar -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn-adj" id="schedPrev" style="font-size:18px">‹</button>
+            <span id="schedTitle" style="font-size:14px;font-weight:700;color:var(--dark);min-width:160px;text-align:center"></span>
+            <button class="btn-adj" id="schedNext" style="font-size:18px">›</button>
+          </div>
+          <div id="schedManagerTools" style="display:none;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="cat-btn" id="schedShiftsBtn" style="font-size:12px">⚙️ Shifts</button>
+            <button class="cat-btn" id="schedStaffBtn" style="font-size:12px">👥 Staff</button>
+            <button class="cat-btn" id="schedCopyBtn" style="font-size:12px">📋 Copy Week</button>
+            <button class="cat-btn active" id="schedPublishBtn" style="font-size:12px">📤 Publish</button>
+            <button class="cat-btn" id="schedShareBtn" style="font-size:12px;background:#2C7A4B;color:#fff;border-color:#2C7A4B">📸 Share</button>
           </div>
         </div>
 
-        <button class="btn-log" style="font-size:16px;padding:16px" onclick="completeWizard()">Go to My Store →</button>
+        <!-- Shift type legend -->
+        <div id="schedLegend" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+
+        <!-- Main grid -->
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+          <table id="weekGrid" style="width:100%;border-collapse:collapse;min-width:500px;table-layout:fixed"></table>
+        </div>
+
+        <!-- Hours summary -->
+        <div id="schedSummary" style="margin-top:12px"></div>
+
+        <!-- Hours Report -->
+        <div id="schedHoursReport" style="margin-top:16px;display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:700;color:var(--dark)">⏱ Hours Summary</div>
+            <div style="display:flex;gap:6px">
+              <button class="cat-btn active" id="hrsWeekBtn">This Week</button>
+              <button class="cat-btn" id="hrsMonthBtn">This Month</button>
+            </div>
+          </div>
+          <div id="schedHoursTable"></div>
+          <div id="schedHoursTotals" style="margin-top:10px"></div>
+        </div>
+
+        <!-- Swap Requests -->
+        <div id="swapSection" style="margin-top:16px;display:none">
+          <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--dark)">🔄 Swap Requests</div>
+          <div id="swapList"></div>
+        </div>
+
       </div>
 
-    </div>
-  </div>
-  <!-- MODALS -->
-  <div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px">
-    <div id="modalBox" style="background:var(--card-bg);border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto"></div>
-  </div>
 
-  <!-- ADMIN PANEL (owner only) -->
-  <div id="tab-admin" style="display:none">
+      <!-- SETUP WIZARD (shown after first approval) -->
+      <div id="setupWizard" style="display:none;position:fixed;inset:0;background:var(--cream);z-index:300;overflow-y:auto;padding:24px">
+        <div style="max-width:600px;margin:0 auto">
 
-    <!-- Pending Signups -->
-    <div id="pendingBanner" style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px">
-      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">🔔 Pending Signups</div>
-      <div id="pendingSignupsList"><div style="font-size:12px;color:#8B7355">Loading...</div></div>
-    </div>
+          <!-- Progress bar -->
+          <div style="margin-bottom:24px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+              <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--dark)">Store Setup</div>
+              <div style="font-size:13px;color:#8B7355" id="wizardStepLabel">Step 1 of 4</div>
+            </div>
+            <div style="background:#E8D5B0;border-radius:4px;height:6px">
+              <div id="wizardProgress" style="background:var(--caramel);height:6px;border-radius:4px;transition:width 0.3s;width:25%"></div>
+            </div>
+          </div>
 
-    <!-- Org Tree + Store List side by side -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <!-- Step 1: Store Info -->
+          <div id="wizStep1">
+            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👋 Welcome! Let's set up your store</div>
+            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Confirm your store details and customize your inventory categories.</div>
 
-      <div class="admin-card">
-        <div class="admin-card-title">🏢 Organisation</div>
-        <div id="orgTree"></div>
+            <div class="modal-label">Store Name</div>
+            <input class="modal-input" id="wiz1StoreName" placeholder="e.g. My Boba Shop">
+
+            <div class="modal-label">Store Location</div>
+            <input class="modal-input" id="wiz1City" placeholder="City, State">
+
+            <div class="modal-label">Select your inventory categories</div>
+            <div id="wiz1Categories" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Boba" checked style="accent-color:var(--caramel)"> Boba</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Coffee" checked style="accent-color:var(--caramel)"> Coffee</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Ice Cream" checked style="accent-color:var(--caramel)"> Ice Cream</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Dry Stock" checked style="accent-color:var(--caramel)"> Dry Stock</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Condiments" checked style="accent-color:var(--caramel)"> Condiments</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Bakery" style="accent-color:var(--caramel)"> Bakery</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Falooda" style="accent-color:var(--caramel)"> Falooda</label>
+              <label style="display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;cursor:pointer;font-size:13px"><input type="checkbox" value="Seasonal" style="accent-color:var(--caramel)"> Seasonal</label>
+            </div>
+
+            <button class="btn-log" onclick="wizNext(2)">Continue →</button>
+          </div>
+
+          <!-- Step 2: Add Staff -->
+          <div id="wizStep2" style="display:none">
+            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">👥 Add Your Team</div>
+            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Add staff members who will use the app. You can always add more later.</div>
+
+            <div id="wiz2StaffList" style="margin-bottom:16px"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <input class="modal-input" id="wiz2Name" placeholder="Staff name" style="margin-bottom:0">
+              <input class="modal-input" id="wiz2Role" placeholder="Role (e.g. Barista)" style="margin-bottom:0">
+            </div>
+            <button class="btn-log" style="background:#555;margin-bottom:20px" onclick="wiz2AddStaff()">+ Add Staff Member</button>
+
+            <div style="display:flex;gap:8px">
+              <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(1)">← Back</button>
+              <button class="btn-log" style="flex:2" onclick="wizNext(3)">Continue →</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Menu Prices -->
+          <div id="wizStep3" style="display:none">
+            <div style="font-size:18px;font-weight:700;color:var(--dark);margin-bottom:8px">💰 Set Your Menu Prices</div>
+            <div style="font-size:13px;color:#8B7355;margin-bottom:20px">Enter your selling prices to calculate COGS and margins. Skip any that don't apply.</div>
+
+            <div id="wiz3MenuItems" style="max-height:350px;overflow-y:auto;margin-bottom:16px"></div>
+
+            <div style="display:flex;gap:8px">
+              <button class="btn-log" style="background:#888;flex:1" onclick="wizNext(2)">← Back</button>
+              <button class="btn-log" style="flex:2" onclick="wizNext(4)">Continue →</button>
+            </div>
+          </div>
+
+          <!-- Step 4: Done -->
+          <div id="wizStep4" style="display:none;text-align:center;padding:40px 0">
+            <div style="font-size:64px;margin-bottom:16px">🎉</div>
+            <div style="font-size:24px;font-weight:700;color:var(--dark);margin-bottom:8px;font-family:'Playfair Display',serif">You're all set!</div>
+            <div style="font-size:14px;color:#8B7355;margin-bottom:32px">Your store is ready. Start by entering your current stock counts in the Inventory tab.</div>
+
+            <div style="background:var(--card-bg);border-radius:12px;border:1px solid var(--border);padding:16px;margin-bottom:24px;text-align:left">
+              <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px">📋 Your daily routine:</div>
+              <div style="font-size:12px;color:#8B7355;line-height:2">
+                🌅 Morning — Check Dashboard for low stock<br>
+                📦 On delivery — Upload invoice in Delivery tab<br>
+                🌙 Evening — Upload Clover sales in Sales tab<br>
+                📅 Weekly — Record closing stock in COGS tab
+              </div>
+            </div>
+
+            <button class="btn-log" style="font-size:16px;padding:16px" onclick="completeWizard()">Go to My Store →</button>
+          </div>
+
+        </div>
+      </div>
+      <!-- MODALS -->
+      <div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px">
+        <div id="modalBox" style="background:var(--card-bg);border-radius:16px;padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto"></div>
       </div>
 
-      <div class="admin-card">
-        <div class="admin-card-title">📋 Stores</div>
-        <div id="adminStoreList"></div>
+      <!-- ADMIN PANEL (owner only) -->
+      <div id="tab-admin" style="display:none">
+
+        <!-- Pending Signups -->
+        <div id="pendingBanner" style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:10px">🔔 Pending Signups</div>
+          <div id="pendingSignupsList"><div style="font-size:12px;color:#8B7355">Loading...</div></div>
+        </div>
+
+        <!-- Org Tree + Store List side by side -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+          <div class="admin-card">
+            <div class="admin-card-title">🏢 Organisation</div>
+            <div id="orgTree"></div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-title">📋 Stores</div>
+            <div id="adminStoreList"></div>
+          </div>
+
+        </div>
+
       </div>
-
-    </div>
-
-  </div>
-```
 
 </div>
 
-```
-</div>
-```
-
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <!-- Firebase Compat SDK -->
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
 // ── Firebase compat shims (replaces modular imports) ──
 const signInWithEmailAndPassword     = (a,e,p) => a.signInWithEmailAndPassword(e,p);
@@ -953,116 +933,113 @@ const STORES = {
 
 // ── DEFAULT INVENTORY ──
 const DEFAULT_INVENTORY = [
-  { id:1,  name:"Chewy Tapioca Pearls",      code:"A2000",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:7.54, units_per_case:6, case_desc:"CASE of 6 bags" },
-  { id:2,  name:"Jasmine Green Tea",         code:"T1022",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:3.62, units_per_case:25, case_desc:"CASE of 25 bags" },
-  { id:3,  name:"Golden Milk Tea",           code:"T1025",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:2.33, units_per_case:25, case_desc:"CASE of 25 bags" },
-  { id:4,  name:"Black Tea",                 code:"T1030",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:3.05, units_per_case:25, case_desc:"CASE of 25 bags" },
-  { id:5,  name:"Thai Tea",                  code:"T1035",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:4.79, units_per_case:1, case_desc:"BAG 13oz" },
-  { id:6,  name:"White Peach Tea",           code:"T2001",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.83, units_per_case:50, case_desc:"CASE of 50 bags" },
-  { id:7,  name:"NDC (Creamer)",             code:"P1020",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:6.775, units_per_case:10, case_desc:"CASE of 10 bags" },
-  { id:8,  name:"Granulated Sugar",          code:"S1030",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:2,  order_qty:"1 BAG", cost:49.19, units_per_case:1, case_desc:"BAG" },
-  { id:9,  name:"Demerara Cane Sugar",       code:"S1020",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:79.9, units_per_case:1, case_desc:"BAG" },
-  { id:10, name:"Dark Brown Sugar",          code:"S1005",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:57.1, units_per_case:1, case_desc:"CASE" },
-  { id:11, name:"Longan Honey",              code:"S1015",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:12.5 },
-  { id:12, name:"Fructose",                  code:"S1013",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:11.0 },
-  { id:13, name:"Dark Brown Sugar Syrup",    code:"S1006",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:24.5 },
-  { id:14, name:"Con Dark Brown Sugar Syrup",code:"S1007",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:26.75 },
-  { id:15, name:"Grapefruit Syrup",          code:"J1015",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
-  { id:16, name:"Lychee Syrup",             code:"J1040",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
-  { id:17, name:"Mango Syrup",              code:"J1045",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
-  { id:18, name:"Passion Fruit Syrup",      code:"J1060",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
-  { id:19, name:"Pineapple Syrup",          code:"J1071",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
-  { id:20, name:"Strawberry Syrup",         code:"J1090",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
-  { id:21, name:"Winter Melon Syrup",       code:"J1095",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
-  { id:22, name:"Passion Fruit Puree",      code:"J1095-P",      cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:16.99 },
-  { id:23, name:"Strawberry Fruit Puree",   code:"H-PUREE-STR",  cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:14.09 },
-  { id:24, name:"Mango Fruit Puree",        code:"H-PUREE-MNG",  cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:15.49 },
-  { id:25, name:"Sea Salt Caramel Powder",  code:"P1044",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:10.25 },
-  { id:26, name:"Matcha Green Tea Powder",  code:"P1046",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:2,  order_qty:"1 BAG", cost:15.5 },
-  { id:27, name:"Taro Powder",              code:"P0065",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:15.5, units_per_case:1, case_desc:"BAG 2.2lbs" },
-  { id:28, name:"Vanilla Powder",           code:"P1068",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:13.35, units_per_case:1, case_desc:"BAG" },
-  { id:29, name:"Yoggi Powder",             code:"P2000",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:13.75 },
-  { id:30, name:"Horchata Powder",          code:"P6071",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:24.39, units_per_case:1, case_desc:"BAG" },
-  { id:31, name:"Chocolate Popping Pearls", code:"B2071",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
-  { id:32, name:"Lychee Coconut Jelly",     code:"B2005",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:15.25 },
-  { id:33, name:"Assorted Jelly (Rainbow)", code:"B2020",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:2,  order_qty:"1 JAR", cost:15.25 },
-  { id:34, name:"Coffee Jelly",             code:"B2025",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:17.75 },
-  { id:35, name:"Mango Popping Pearls",     code:"B2051",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
-  { id:36, name:"Strawberry Popping Pearls",code:"B2053",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
-  { id:37, name:"Passion Popping Pearls",   code:"B2055",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
-  { id:38, name:"Blueberry Popping Pearls", code:"B2056",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0, units_per_case:6, case_desc:"CASE of 6 bags" },
-  { id:40, name:"Monin Caramel Sauce 1.69L",code:"H-CARAMEL-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
-  { id:41, name:"Monin White Mocha Sauce",  code:"H-CHOCOLATE-WMS",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:18.99 },
-  { id:42, name:"Monin Dark Mocha Sauce",   code:"H-CHOCOLATE-S",  cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
-  { id:43, name:"Monin Vanilla Syrup 750ml",code:"H-VANILLA",    cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:6.99 },
-  { id:44, name:"Monin Caramel Syrup 750ml",code:"H-CARAMEL",    cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
-  { id:45, name:"Monin Hazelnut Syrup",     code:"H-HAZELNUT",   cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
-  { id:46, name:"Monin Pistachio Syrup",    code:"H-PISTACHIO",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
-  { id:47, name:"Monin Blackberry Syrup",   code:"H-BLACKBERRY", cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
-  { id:48, name:"Monin Strawberry Syrup",   code:"H-STRAWBERRY", cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
-  { id:49, name:"Ghirardelli Choc Sauce 64oz",code:"I-Chocolate-S",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:18.99 },
-  { id:50, name:"Ghirardelli Caramel Sauce",code:"I-Caramel-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
-  { id:51, name:"Coffee Beans",             code:"D-Coffeebeans", cat:"Coffee",    vendor:"DUMONT",    uom:"BAG",    par:2,  order_qty:"1 BAG", cost:20.0 },
-  { id:52, name:"Milk",                     code:"D-Milk",       cat:"Coffee",    vendor:"LOCAL",     uom:"GALLON", par:4,  order_qty:"1 GALLON", cost:4.69 },
-  { id:60, name:"Kids Scoop Cup",           code:"HP-KSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.108 },
-  { id:61, name:"Regular Scoop Cup",        code:"HP-RSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.12 },
-  { id:62, name:"Triple Scoop Cup",         code:"HP-TSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.15 },
-  { id:63, name:"Hand Picked Happiness Tub",code:"HP-HPHC",      cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.168 },
-  { id:64, name:"Take Away Bag",            code:"HP-BAG",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.216 },
-  { id:65, name:"24 Oz Boba Cups",          code:"C-TPP24C",     cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.1305 },
-  { id:66, name:"16 Oz Milkshake Cups",     code:"C-TPP16C",     cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.079 },
-  { id:67, name:"16/24 Oz PP Lids",         code:"C-TPPLW",      cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.046 },
-  { id:68, name:"12 Oz Coffee Cups",        code:"C-KC12",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.168 },
-  { id:69, name:"16 Oz Coffee Cups",        code:"C-KC16",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.065 },
-  { id:70, name:"Boba Straws",              code:"C9050s",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.0175 },
-  { id:71, name:"Beverage Napkins",         code:"KN-B99-1K",    cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.00488 },
-  { id:72, name:"Gloves (M)",               code:"FP-GV1007",    cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.024 },
-  { id:73, name:"Color Changing Spoons",    code:"U4000",        cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.3 },
-  { id:74, name:"Tasting Spoons",           code:"U2400",        cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.05 },
-  { id:80, name:"Frozen Mango Chunks",      code:"COND-01",      cat:"Condiments", vendor:"Target",    uom:"BAG",    par:2,  order_qty:"2 BAGS", cost:4.99 },
-  { id:81, name:"Frozen Strawberry Chunks", code:"COND-02",      cat:"Condiments", vendor:"Target",    uom:"BAG",    par:2,  order_qty:"2 BAGS", cost:4.99 },
-  { id:82, name:"Tajin Seasoning",          code:"COND-03",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.99 },
-  { id:83, name:"Chamoy Sauce",             code:"COND-04",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.49 },
-  { id:84, name:"Lemons",                   code:"COND-05",      cat:"Condiments", vendor:"Indian Store",uom:"COUNT",par:15, order_qty:"30 COUNT", cost:0.25 },
-  { id:85, name:"Mint Leaves",              code:"COND-06",      cat:"Condiments", vendor:"Indian Store",uom:"LBS", par:1,  order_qty:"1 LB", cost:2.99 },
-  { id:86, name:"Condensed Milk",           code:"COND-07",      cat:"Condiments", vendor:"Walmart",   uom:"CAN",    par:2,  order_qty:"4 CANS", cost:1.5 },
-  { id:87, name:"Oat Milk",                 code:"COND-08",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:4.99 },
-  { id:88, name:"Almond Milk",              code:"COND-09",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:3.99 },
-  { id:89, name:"Heavy Cream",              code:"COND-10",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:3.99 },
-  { id:90, name:"Honey",                    code:"COND-11",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:5.99 },
-  { id:91, name:"Date Syrup",               code:"COND-12",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
-  { id:92, name:"Cardamom Powder",          code:"COND-13",      cat:"Condiments", vendor:"Indian Store",uom:"PKT", par:1,  order_qty:"1 PKT", cost:3.99 },
-  { id:93, name:"Callebaut Dark Chocolate", code:"COND-14",      cat:"Condiments", vendor:"Walmart",   uom:"BAG",    par:1,  order_qty:"1 BAG", cost:8.99 },
-  { id:94, name:"Whipped Cream Spray",      code:"COND-15",      cat:"Condiments", vendor:"Walmart",   uom:"CAN",    par:2,  order_qty:"2 CANS", cost:4.99 },
-  { id:95, name:"Roasted Nuts",             code:"COND-16",      cat:"Condiments", vendor:"Walmart",   uom:"LBS",    par:1,  order_qty:"1 LB", cost:6.99 },
-  { id:96, name:"Biscoff Biscuits",         code:"COND-17",      cat:"Condiments", vendor:"Walmart",   uom:"PKT",    par:1,  order_qty:"1 PKT", cost:3.99 },
-  { id:97, name:"Ferrero Rocher",           code:"COND-18",      cat:"Condiments", vendor:"Walmart",   uom:"BOX",    par:1,  order_qty:"1 BOX", cost:12.99 },
-  { id:98, name:"Graham Crackers",          code:"COND-19",      cat:"Condiments", vendor:"Walmart",   uom:"BOX",    par:1,  order_qty:"1 BOX", cost:3.99 },
-  { id:99, name:"PB M&Ms",                  code:"COND-20",      cat:"Condiments", vendor:"Walmart",   uom:"BAG",    par:1,  order_qty:"1 BAG", cost:4.99 },
-  { id:100,name:"Coconut Water",            code:"COND-21",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK", cost:5.99 },
-  { id:101,name:"Tonic Water",              code:"COND-22",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK", cost:4.99 },
-  { id:102,name:"Simple Syrup",             code:"COND-23",      cat:"Condiments", vendor:"Target",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.99 },
-  { id:103,name:"Maple Syrup",              code:"COND-24",      cat:"Condiments", vendor:"Costco",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:9.99 },
-  { id:110,name:"Vanilla Bean",             code:"IC-01",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:111,name:"Classic Chocolate",        code:"IC-02",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:112,name:"Butterscotch",             code:"IC-03",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:113,name:"Strawberry Chunks",        code:"IC-04",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:114,name:"Berry Yogurt",             code:"IC-05",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:115,name:"Pistachio",                code:"IC-06",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:116,name:"Lots of Nuts",             code:"IC-07",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:117,name:"Oreo Caramel Fudge",       code:"IC-08",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:118,name:"Salted Caramel",           code:"IC-09",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:119,name:"Taro",                     code:"IC-10",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:120,name:"Mango",                    code:"IC-11",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:121,name:"Kheer",                    code:"IC-12",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:122,name:"Filter Coffee",            code:"IC-13",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:123,name:"Mint Chocochip",           code:"IC-14",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:124,name:"Ferrero Ice Cream",        code:"IC-15",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:125,name:"Biscoff Ice Cream",        code:"IC-16",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:126,name:"Ruby Cheese",              code:"IC-17",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:127,name:"Peanut Butter Chocolate",  code:"IC-18",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  // ── Boba & Tea ──
+  { id:1,  name:"Chewy Tapioca Pearls",          code:"A2000",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:45.25,  case_size:6  },
+  { id:2,  name:"Jasmine Green Tea",              code:"T1022",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:90.50,  case_size:25 },
+  { id:3,  name:"Golden Milk Tea",                code:"T1025",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:58.25,  case_size:25 },
+  { id:4,  name:"Black Tea",                      code:"T1030",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:76.25,  case_size:25 },
+  { id:5,  name:"Thai Tea",                       code:"T1035",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"BAG",    par:5,  order_qty:"5 BAGS",   cost:4.79,   case_size:1  },
+  { id:6,  name:"White Peach Tea",                code:"T2001",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:41.25,  case_size:50 },
+  { id:7,  name:"NDC Creamer",                    code:"P1020",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:67.75,  case_size:10 },
+  // ── Sugars ──
+  { id:8,  name:"Spreckles Granulated Sugar",     code:"S1030",            cat:"Sugars",        vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:49.19,  case_size:1  },
+  { id:9,  name:"Demerara Cane Sugar",            code:"S1020",            cat:"Sugars",        vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:79.90,  case_size:1  },
+  { id:10, name:"C&H Dark Brown Sugar",           code:"S1005",            cat:"Sugars",        vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:57.10,  case_size:1  },
+  { id:11, name:"Longan Honey",                   code:"S1015",            cat:"Sugars",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:12.50,  case_size:1  },
+  { id:12, name:"Fructose",                       code:"S1013",            cat:"Sugars",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:11.00,  case_size:1  },
+  // ── Syrups ──
+  { id:13, name:"Dark Brown Sugar Syrup",         code:"S1006",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:24.50,  case_size:1  },
+  { id:14, name:"Con Dark Brown Sugar Syrup",     code:"S1007",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:26.75,  case_size:1  },
+  { id:15, name:"Lychee Syrup",                   code:"J1040",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
+  { id:16, name:"Mango Syrup",                    code:"J1045",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
+  { id:17, name:"Passionfruit Syrup",             code:"J1060",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
+  { id:18, name:"Pineapple Syrup",                code:"J1071",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
+  { id:19, name:"Strawberry Syrup",               code:"J1090",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
+  { id:20, name:"Winter Melon Syrup",             code:"J1095",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25,  case_size:1  },
+  { id:21, name:"Grapefruit Syrup",               code:"J1015",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
+  // ── Purees ──
+  { id:22, name:"Monin Passion Fruit Puree",      code:"J1095",            cat:"Purees",        vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:16.99,  case_size:1  },
+  { id:23, name:"Strawberry Fruit Puree",         code:"H-PUREE-STR",      cat:"Purees",        vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:14.09,  case_size:1  },
+  { id:24, name:"Mango Fruit Puree",              code:"H-PUREE-MNG",      cat:"Purees",        vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:15.49,  case_size:1  },
+  // ── Monin Syrups ──
+  { id:25, name:"Monin Vanilla Syrup 750ml",      code:"MON-VAN",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
+  { id:26, name:"Monin Caramel Syrup 750ml",      code:"MON-CAR",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
+  { id:27, name:"Monin Hazelnut Syrup 750ml",     code:"MON-HAZ",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
+  { id:28, name:"Monin Toffee Nut Syrup 750ml",   code:"MON-TOF",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
+  { id:29, name:"Monin Lavender Syrup 750ml",     code:"MON-LAV",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99,   case_size:1  },
+  { id:30, name:"Monin Pistachio Syrup 750ml",    code:"MON-PIS",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99,   case_size:1  },
+  { id:31, name:"Monin Salted Caramel 750ml",     code:"MON-SC",           cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99,   case_size:1  },
+  { id:32, name:"Monin Blackberry Syrup 750ml",   code:"MON-BLK",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
+  { id:33, name:"Monin Mango Syrup 750ml",        code:"MON-MNG",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
+  { id:34, name:"Monin Strawberry Syrup 750ml",   code:"MON-STR",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
+  // ── Sauces ──
+  { id:35, name:"Ghirardelli Chocolate Sauce 64oz",code:"GHI-CHO",         cat:"Sauces",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:18.99,  case_size:1  },
+  { id:36, name:"Ghirardelli Caramel Sauce 87oz", code:"GHI-CAR",          cat:"Sauces",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:18.99,  case_size:1  },
+  // ── Powders ──
+  { id:37, name:"Taro Powder",                    code:"P0065",            cat:"Powders",       vendor:"KARAT",  uom:"BAG",    par:5,  order_qty:"5 BAGS",   cost:15.50,  case_size:1  },
+  { id:38, name:"Vanilla Powder",                 code:"P1068",            cat:"Powders",       vendor:"KARAT",  uom:"BAG",    par:3,  order_qty:"3 BAGS",   cost:13.35,  case_size:1  },
+  { id:39, name:"Horchata Powder",                code:"P6071",            cat:"Powders",       vendor:"KARAT",  uom:"BAG",    par:1,  order_qty:"1 BAG",    cost:24.39,  case_size:1  },
+  { id:40, name:"Custard Powder",                 code:"P3005",            cat:"Powders",       vendor:"KARAT",  uom:"BAG",    par:1,  order_qty:"1 BAG",    cost:13.75,  case_size:1  },
+  // ── Boba & Jelly ──
+  { id:41, name:"Crystal Boba",                   code:"A6010",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"BAG",    par:1,  order_qty:"1 BAG",    cost:60.00,  case_size:1  },
+  { id:42, name:"Lychee Coconut Jelly",            code:"B2005",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:15.25,  case_size:1  },
+  { id:43, name:"Assorted Yogo Jelly",             code:"B2020",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:15.25,  case_size:1  },
+  { id:44, name:"Coffee Jelly",                    code:"B2025",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:17.75,  case_size:1  },
+  { id:45, name:"Mango Popping Pearls",            code:"B2051",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:19.00,  case_size:1  },
+  { id:46, name:"Strawberry Popping Pearls",       code:"B2053",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:19.00,  case_size:1  },
+  { id:47, name:"Passionfruit Popping Pearls",     code:"B2055",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:19.00,  case_size:1  },
+  // ── Coffee ──
+  { id:51, name:"Coffee Beans",                    code:"D-COFFEEBEANS",    cat:"Coffee",        vendor:"LOCAL",  uom:"BAG",    par:5,  order_qty:"5 BAGS",   cost:20.00,  case_size:1  },
+  { id:52, name:"Milk",                            code:"D-MILK",           cat:"Coffee",        vendor:"LOCAL",  uom:"GALLON", par:4,  order_qty:"4 GALLONS",cost:4.69,   case_size:1  },
+  // ── Dry Stock — Ice Cream Cups ──
+  { id:60, name:"Small Scoop Cup",                 code:"HP-KSC",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:292.00, case_size:2700 },
+  { id:61, name:"Regular Scoop Cup",               code:"HP-RSC",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:288.00, case_size:2400 },
+  { id:62, name:"Hand Packed Happiness Tub",       code:"HP-HPHC",          cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:100.80, case_size:600  },
+  { id:63, name:"Small Scoop Lid",                 code:"HP-KSL",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:384.00, case_size:4000 },
+  { id:64, name:"Regular Scoop Lid",               code:"HP-RSL",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:324.00, case_size:3000 },
+  { id:65, name:"Hand Packed Happiness Lid",       code:"HP-HPHL",          cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:79.20,  case_size:600  },
+  { id:66, name:"12oz Hot Coffee Cup",             code:"HP-HCC12",         cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:168.00, case_size:1000 },
+  { id:67, name:"12oz Hot Coffee Cup Lid",         code:"HP-HCL12",         cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:336.00, case_size:3500 },
+  { id:68, name:"16oz Cold Coffee Cup",            code:"C-KC-16",          cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:65.00,  case_size:1000 },
+  { id:69, name:"12oz Cold Coffee Cup",            code:"C-KC12",           cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:64.25,  case_size:1000 },
+  { id:70, name:"24oz Boba Cups",                  code:"C-TPP24C",         cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:65.25,  case_size:500  },
+  { id:71, name:"16oz Milkshake Cups",             code:"C-TPP16C",         cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:79.00,  case_size:1000 },
+  { id:72, name:"Flat Lids Coffee 12/16oz",        code:"C-KC626TS",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:31.00,  case_size:1000 },
+  { id:73, name:"PET Dome Lids Wide 12-24oz",      code:"C-KDL-626",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:46.00,  case_size:1000 },
+  { id:74, name:"Lids Boba & Milkshake 16/24oz",   code:"C-TPPLW",          cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:51.00,  case_size:1000 },
+  { id:75, name:"Strawless Sipper Lid 12-24oz",    code:"C-KC626TS-SHNE",   cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:36.00,  case_size:1000 },
+  { id:76, name:"Takeaway Bag",                    code:"HP-BAG",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:108.00, case_size:500  },
+  { id:77, name:"Paper Cup Carrier",               code:"C5500K",           cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:75.25,  case_size:200  },
+  { id:78, name:"Straws",                          code:"C9050s",           cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:28.00,  case_size:1600 },
+  { id:79, name:"Wrapped Straws",                  code:"C9060s",           cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:38.00,  case_size:1600 },
+  { id:80, name:"Wooden Coffee Stirrer",           code:"KE-C9900",         cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:32.63,  case_size:1000 },
+  { id:81, name:"Beverage Napkin",                 code:"KN-B99-1K",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:19.50,  case_size:4000 },
+  { id:82, name:"Gloves (M)",                      code:"FP-GV1007",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:24.00,  case_size:1000 },
+  { id:83, name:"Gloves (L)",                      code:"FP-GV1008",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:24.00,  case_size:1000 },
+  { id:84, name:"Gloves (XL)",                     code:"FP-GV1009",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:24.00,  case_size:1000 },
+  { id:85, name:"Color Changing Teaspoons",        code:"U2400",            cat:"Dry Stock",     vendor:"KARAT",  uom:"PACK",   par:2,  order_qty:"2 PACKS",  cost:21.06,  case_size:1    },
+  // ── Ice Cream Flavors ──
+  { id:110,name:"Vanilla Bean",                    code:"IC-01",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
+  { id:111,name:"Classic Chocolate",               code:"IC-02",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
+  { id:112,name:"Butterscotch",                    code:"IC-03",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:113,name:"Strawberry Chunks",               code:"IC-04",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:114,name:"Berry Yogurt",                    code:"IC-05",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:115,name:"Pistachio",                       code:"IC-06",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:116,name:"Lots of Nuts",                    code:"IC-07",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:117,name:"Oreo Caramel Fudge",              code:"IC-08",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:118,name:"Salted Caramel",                  code:"IC-09",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
+  { id:119,name:"Kheer",                           code:"IC-10",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
+  { id:120,name:"Mango",                           code:"IC-11",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:121,name:"Biscoff",                         code:"IC-12",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
+  { id:122,name:"Hazelnut Brownie",                code:"IC-13",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:123,name:"Raspberry Mascarpone",            code:"IC-14",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:124,name:"Ferrero Ice Cream",               code:"IC-15",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:125,name:"Biscoff Ice Cream",               code:"IC-16",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:126,name:"Ruby Cheese",                     code:"IC-17",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:127,name:"Peanut Butter Chocolate",         code:"IC-18",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:128,name:"Mint Chocochip",                  code:"IC-14",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:129,name:"Filter Coffee",                   code:"IC-19",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
 ];
-
 const RECIPES = {
   "Taro Milk Tea":      [{id:27,a:0.005},{id:7,a:0.008},{id:12,a:0.01},{id:1,a:0.02},{id:65,a:0.01}],
   "Matcha Milk Tea":    [{id:26,a:0.005},{id:28,a:0.008},{id:7,a:0.008},{id:12,a:0.01},{id:65,a:0.01}],
@@ -4468,6 +4445,5 @@ async function loadAuditLog() {
 
 
 </script>
-
 </body>
 </html>
