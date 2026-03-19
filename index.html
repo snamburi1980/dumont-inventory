@@ -1,7 +1,7 @@
 <!--
   ╔══════════════════════════════════════════════════════════╗
   ║  DUMONT CREAMERY & CAFÉ — INVENTORY APP                  ║
-  ║  Version: v15                                            ║
+  ║  Version: v18                                            ║
   ║  Last Updated: March 14, 2026                            ║
   ║                                                          ║
   ║  VERIFY DEPLOYMENT: Login screen should say "v11"        ║
@@ -35,7 +35,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍦</text></svg>">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dumont">
-<title>Dumont — Inventory v15</title>
+<title>Dumont — Inventory v18</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
@@ -163,9 +163,7 @@ padding:16px 12px; text-align:center;
 .filter-bar { display:flex; gap:8px; margin-bottom:14px; overflow-x:auto; padding-bottom:4px; }
 .cat-btn { background:var(–card-bg); border:1px solid var(–border); color:#8B7355; font-size:12px; padding:7px 14px; border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap; font-weight:500; transition:all 0.2s; }
 .cat-btn.active { background:var(–caramel); color:#fff; border-color:var(–caramel); }
-.item-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); padding:14px 16px; }
-#inventoryList { display:grid; grid-template-columns:1fr; gap:10px; }
-@media (min-width:700px) { #inventoryList { grid-template-columns:1fr 1fr; } }
+.item-card { background:var(–card-bg); border-radius:12px; border:1px solid var(–border); margin-bottom:10px; padding:14px 16px; }
 .item-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .item-name { font-size:14px; font-weight:600; flex:1; }
 .item-code { font-size:11px; color:#8B7355; }
@@ -368,7 +366,7 @@ padding-bottom:env(safe-area-inset-bottom);
 
   <div class="login-box" id="loginPanel">
     <div class="login-logo">Dumont</div>
-    <div class="login-sub">Creamery &amp; Café — Inventory v15</div>
+    <div class="login-sub">Creamery &amp; Café — Inventory v18</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
     <button class="btn-login" id="loginBtn">Sign In</button>
@@ -465,17 +463,11 @@ padding-bottom:env(safe-area-inset-bottom);
 ```
   <!-- DASHBOARD -->
   <div id="tab-dashboard">
-
-    <!-- Super owner: all stores view -->
     <div id="ownerAllView" style="display:none">
       <div style="margin-bottom:14px;font-size:13px;color:#8B7355;">All Stores — Live Overview</div>
       <div class="owner-grid" id="ownerGrid"></div>
     </div>
-
-    <!-- Store view -->
     <div id="storeView">
-
-      <!-- Store name + last sync -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div>
           <div style="font-size:18px;font-weight:700;color:var(--dark)" id="dashStoreName">Coppell</div>
@@ -486,8 +478,6 @@ padding-bottom:env(safe-area-inset-bottom);
           <div style="font-size:13px;font-weight:600;color:var(--dark)" id="dashDate"></div>
         </div>
       </div>
-
-      <!-- KPI row -->
       <div class="stat-grid" style="margin-bottom:12px">
         <div class="stat-card" style="cursor:pointer" onclick="showTab('inventory')">
           <div class="stat-num" id="statCritical" style="color:var(--red-alert)">0</div>
@@ -506,12 +496,10 @@ padding-bottom:env(safe-area-inset-bottom);
           <div class="stat-label">Stock Value</div>
         </div>
       </div>
-
-      <!-- Sales + COGS row -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div class="admin-card" style="cursor:pointer" onclick="showTab('scan')">
           <div class="admin-card-title">📊 Last Sales Upload</div>
-          <div id="dashLastSales" style="font-size:12px;color:#8B7355;margin-top:4px">No upload yet</div>
+          <div id="dashLastSales" style="font-size:11px;color:#8B7355;margin-top:4px">No upload yet</div>
           <div id="dashRevenue" style="font-size:20px;font-weight:700;color:var(--green-ok);margin-top:4px">—</div>
         </div>
         <div class="admin-card" style="cursor:pointer" onclick="showTab('cogs')">
@@ -520,28 +508,21 @@ padding-bottom:env(safe-area-inset-bottom);
           <div id="dashCogsStatus" style="font-size:11px;color:#8B7355;margin-top:2px">Upload CSV to calculate</div>
         </div>
       </div>
-
-      <!-- Ice Cream summary -->
       <div class="admin-card" style="margin-bottom:12px;cursor:pointer" onclick="showTab('inventory');setCategory('Ice Cream')">
         <div class="admin-card-title">🍦 Ice Cream Stock</div>
         <div id="dashIceCream" style="margin-top:8px"></div>
       </div>
-
-      <!-- Items needing attention -->
-      <div class="admin-card">
+      <div class="admin-card" style="margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <div class="admin-card-title" style="margin:0">⚠️ Needs Attention</div>
           <button onclick="showTab('orders')" style="font-size:11px;color:var(--caramel);background:none;border:none;cursor:pointer;font-weight:600">View Orders →</button>
         </div>
         <div id="alertSection"></div>
       </div>
-
-      <!-- Quick actions -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <button class="btn-log" onclick="showTab('scan')" style="font-size:13px">📊 Upload Sales</button>
         <button class="btn-log" onclick="showTab('delivery')" style="background:var(--caramel);font-size:13px">🚚 Log Delivery</button>
       </div>
-
     </div>
   </div>
 
@@ -978,7 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-const APP_VERSION = "v14";
+const APP_VERSION = "v18";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBofsUP3yf2OkaQVPav8rfxUiax39TkxYY",
@@ -1020,113 +1001,116 @@ const STORES = {
 
 // ── DEFAULT INVENTORY ──
 const DEFAULT_INVENTORY = [
-  // ── Boba & Tea ──
-  { id:1,  name:"Chewy Tapioca Pearls",          code:"A2000",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:45.25,  case_size:6  },
-  { id:2,  name:"Jasmine Green Tea",              code:"T1022",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:90.50,  case_size:25 },
-  { id:3,  name:"Golden Milk Tea",                code:"T1025",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:58.25,  case_size:25 },
-  { id:4,  name:"Black Tea",                      code:"T1030",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:76.25,  case_size:25 },
-  { id:5,  name:"Thai Tea",                       code:"T1035",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"BAG",    par:5,  order_qty:"5 BAGS",   cost:4.79,   case_size:1  },
-  { id:6,  name:"White Peach Tea",                code:"T2001",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:41.25,  case_size:50 },
-  { id:7,  name:"NDC Creamer",                    code:"P1020",            cat:"Boba & Tea",    vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:67.75,  case_size:10 },
-  // ── Sugars ──
-  { id:8,  name:"Spreckles Granulated Sugar",     code:"S1030",            cat:"Sugars",        vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:49.19,  case_size:1  },
-  { id:9,  name:"Demerara Cane Sugar",            code:"S1020",            cat:"Sugars",        vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:79.90,  case_size:1  },
-  { id:10, name:"C&H Dark Brown Sugar",           code:"S1005",            cat:"Sugars",        vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:57.10,  case_size:1  },
-  { id:11, name:"Longan Honey",                   code:"S1015",            cat:"Sugars",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:12.50,  case_size:1  },
-  { id:12, name:"Fructose",                       code:"S1013",            cat:"Sugars",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:11.00,  case_size:1  },
-  // ── Syrups ──
-  { id:13, name:"Dark Brown Sugar Syrup",         code:"S1006",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:24.50,  case_size:1  },
-  { id:14, name:"Con Dark Brown Sugar Syrup",     code:"S1007",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:26.75,  case_size:1  },
-  { id:15, name:"Lychee Syrup",                   code:"J1040",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
-  { id:16, name:"Mango Syrup",                    code:"J1045",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
-  { id:17, name:"Passionfruit Syrup",             code:"J1060",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
-  { id:18, name:"Pineapple Syrup",                code:"J1071",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
-  { id:19, name:"Strawberry Syrup",               code:"J1090",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
-  { id:20, name:"Winter Melon Syrup",             code:"J1095",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25,  case_size:1  },
-  { id:21, name:"Grapefruit Syrup",               code:"J1015",            cat:"Syrups",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:10.25,  case_size:1  },
-  // ── Purees ──
-  { id:22, name:"Monin Passion Fruit Puree",      code:"J1095",            cat:"Purees",        vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:16.99,  case_size:1  },
-  { id:23, name:"Strawberry Fruit Puree",         code:"H-PUREE-STR",      cat:"Purees",        vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:14.09,  case_size:1  },
-  { id:24, name:"Mango Fruit Puree",              code:"H-PUREE-MNG",      cat:"Purees",        vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:15.49,  case_size:1  },
-  // ── Monin Syrups ──
-  { id:25, name:"Monin Vanilla Syrup 750ml",      code:"MON-VAN",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
-  { id:26, name:"Monin Caramel Syrup 750ml",      code:"MON-CAR",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
-  { id:27, name:"Monin Hazelnut Syrup 750ml",     code:"MON-HAZ",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
-  { id:28, name:"Monin Toffee Nut Syrup 750ml",   code:"MON-TOF",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
-  { id:29, name:"Monin Lavender Syrup 750ml",     code:"MON-LAV",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99,   case_size:1  },
-  { id:30, name:"Monin Pistachio Syrup 750ml",    code:"MON-PIS",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99,   case_size:1  },
-  { id:31, name:"Monin Salted Caramel 750ml",     code:"MON-SC",           cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99,   case_size:1  },
-  { id:32, name:"Monin Blackberry Syrup 750ml",   code:"MON-BLK",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
-  { id:33, name:"Monin Mango Syrup 750ml",        code:"MON-MNG",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
-  { id:34, name:"Monin Strawberry Syrup 750ml",   code:"MON-STR",          cat:"Monin Syrups",  vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:6.99,   case_size:1  },
-  // ── Sauces ──
-  { id:35, name:"Ghirardelli Chocolate Sauce 64oz",code:"GHI-CHO",         cat:"Sauces",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:18.99,  case_size:1  },
-  { id:36, name:"Ghirardelli Caramel Sauce 87oz", code:"GHI-CAR",          cat:"Sauces",        vendor:"KARAT",  uom:"BOTTLE", par:2,  order_qty:"2 BOTTLES",cost:18.99,  case_size:1  },
-  // ── Powders ──
-  { id:37, name:"Taro Powder",                    code:"P0065",            cat:"Powders",       vendor:"KARAT",  uom:"BAG",    par:5,  order_qty:"5 BAGS",   cost:15.50,  case_size:1  },
-  { id:38, name:"Vanilla Powder",                 code:"P1068",            cat:"Powders",       vendor:"KARAT",  uom:"BAG",    par:3,  order_qty:"3 BAGS",   cost:13.35,  case_size:1  },
-  { id:39, name:"Horchata Powder",                code:"P6071",            cat:"Powders",       vendor:"KARAT",  uom:"BAG",    par:1,  order_qty:"1 BAG",    cost:24.39,  case_size:1  },
-  { id:40, name:"Custard Powder",                 code:"P3005",            cat:"Powders",       vendor:"KARAT",  uom:"BAG",    par:1,  order_qty:"1 BAG",    cost:13.75,  case_size:1  },
-  // ── Boba & Jelly ──
-  { id:41, name:"Crystal Boba",                   code:"A6010",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"BAG",    par:1,  order_qty:"1 BAG",    cost:60.00,  case_size:1  },
-  { id:42, name:"Lychee Coconut Jelly",            code:"B2005",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:15.25,  case_size:1  },
-  { id:43, name:"Assorted Yogo Jelly",             code:"B2020",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:15.25,  case_size:1  },
-  { id:44, name:"Coffee Jelly",                    code:"B2025",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:17.75,  case_size:1  },
-  { id:45, name:"Mango Popping Pearls",            code:"B2051",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:19.00,  case_size:1  },
-  { id:46, name:"Strawberry Popping Pearls",       code:"B2053",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:19.00,  case_size:1  },
-  { id:47, name:"Passionfruit Popping Pearls",     code:"B2055",            cat:"Boba & Jelly",  vendor:"KARAT",  uom:"JAR",    par:2,  order_qty:"2 JARS",   cost:19.00,  case_size:1  },
-  // ── Coffee ──
-  { id:51, name:"Coffee Beans",                    code:"D-COFFEEBEANS",    cat:"Coffee",        vendor:"LOCAL",  uom:"BAG",    par:5,  order_qty:"5 BAGS",   cost:20.00,  case_size:1  },
-  { id:52, name:"Milk",                            code:"D-MILK",           cat:"Coffee",        vendor:"LOCAL",  uom:"GALLON", par:4,  order_qty:"4 GALLONS",cost:4.69,   case_size:1  },
-  // ── Dry Stock — Ice Cream Cups ──
-  { id:60, name:"Small Scoop Cup",                 code:"HP-KSC",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:292.00, case_size:2700 },
-  { id:61, name:"Regular Scoop Cup",               code:"HP-RSC",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:288.00, case_size:2400 },
-  { id:62, name:"Hand Packed Happiness Tub",       code:"HP-HPHC",          cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:100.80, case_size:600  },
-  { id:63, name:"Small Scoop Lid",                 code:"HP-KSL",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:384.00, case_size:4000 },
-  { id:64, name:"Regular Scoop Lid",               code:"HP-RSL",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:324.00, case_size:3000 },
-  { id:65, name:"Hand Packed Happiness Lid",       code:"HP-HPHL",          cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:79.20,  case_size:600  },
-  { id:66, name:"12oz Hot Coffee Cup",             code:"HP-HCC12",         cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:168.00, case_size:1000 },
-  { id:67, name:"12oz Hot Coffee Cup Lid",         code:"HP-HCL12",         cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:336.00, case_size:3500 },
-  { id:68, name:"16oz Cold Coffee Cup",            code:"C-KC-16",          cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:65.00,  case_size:1000 },
-  { id:69, name:"12oz Cold Coffee Cup",            code:"C-KC12",           cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:64.25,  case_size:1000 },
-  { id:70, name:"24oz Boba Cups",                  code:"C-TPP24C",         cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:65.25,  case_size:500  },
-  { id:71, name:"16oz Milkshake Cups",             code:"C-TPP16C",         cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:79.00,  case_size:1000 },
-  { id:72, name:"Flat Lids Coffee 12/16oz",        code:"C-KC626TS",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:31.00,  case_size:1000 },
-  { id:73, name:"PET Dome Lids Wide 12-24oz",      code:"C-KDL-626",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:46.00,  case_size:1000 },
-  { id:74, name:"Lids Boba & Milkshake 16/24oz",   code:"C-TPPLW",          cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:51.00,  case_size:1000 },
-  { id:75, name:"Strawless Sipper Lid 12-24oz",    code:"C-KC626TS-SHNE",   cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:36.00,  case_size:1000 },
-  { id:76, name:"Takeaway Bag",                    code:"HP-BAG",           cat:"Dry Stock",     vendor:"HYPERPACK",uom:"CASE", par:1,  order_qty:"1 CASE",   cost:108.00, case_size:500  },
-  { id:77, name:"Paper Cup Carrier",               code:"C5500K",           cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:75.25,  case_size:200  },
-  { id:78, name:"Straws",                          code:"C9050s",           cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:28.00,  case_size:1600 },
-  { id:79, name:"Wrapped Straws",                  code:"C9060s",           cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:38.00,  case_size:1600 },
-  { id:80, name:"Wooden Coffee Stirrer",           code:"KE-C9900",         cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:32.63,  case_size:1000 },
-  { id:81, name:"Beverage Napkin",                 code:"KN-B99-1K",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:19.50,  case_size:4000 },
-  { id:82, name:"Gloves (M)",                      code:"FP-GV1007",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:24.00,  case_size:1000 },
-  { id:83, name:"Gloves (L)",                      code:"FP-GV1008",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:2,  order_qty:"1 CASE",   cost:24.00,  case_size:1000 },
-  { id:84, name:"Gloves (XL)",                     code:"FP-GV1009",        cat:"Dry Stock",     vendor:"KARAT",  uom:"CASE",   par:1,  order_qty:"1 CASE",   cost:24.00,  case_size:1000 },
-  { id:85, name:"Color Changing Teaspoons",        code:"U2400",            cat:"Dry Stock",     vendor:"KARAT",  uom:"PACK",   par:2,  order_qty:"2 PACKS",  cost:21.06,  case_size:1    },
-  // ── Ice Cream Flavors ──
-  { id:110,name:"Vanilla Bean",                    code:"IC-01",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
-  { id:111,name:"Classic Chocolate",               code:"IC-02",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
-  { id:112,name:"Butterscotch",                    code:"IC-03",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:113,name:"Strawberry Chunks",               code:"IC-04",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:114,name:"Berry Yogurt",                    code:"IC-05",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:115,name:"Pistachio",                       code:"IC-06",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:116,name:"Lots of Nuts",                    code:"IC-07",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:117,name:"Oreo Caramel Fudge",              code:"IC-08",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:118,name:"Salted Caramel",                  code:"IC-09",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
-  { id:119,name:"Kheer",                           code:"IC-10",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
-  { id:120,name:"Mango",                           code:"IC-11",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:121,name:"Biscoff",                         code:"IC-12",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:2,  order_qty:"2 TUBS",   cost:63.00,  scoops_per_bucket:60 },
-  { id:122,name:"Hazelnut Brownie",                code:"IC-13",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:123,name:"Raspberry Mascarpone",            code:"IC-14",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:124,name:"Ferrero Ice Cream",               code:"IC-15",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:125,name:"Biscoff Ice Cream",               code:"IC-16",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:126,name:"Ruby Cheese",                     code:"IC-17",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:127,name:"Peanut Butter Chocolate",         code:"IC-18",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:128,name:"Mint Chocochip",                  code:"IC-14",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
-  { id:129,name:"Filter Coffee",                   code:"IC-19",            cat:"Ice Cream",     vendor:"Brand",  uom:"TUB",    par:1,  order_qty:"1 TUB",    cost:63.00,  scoops_per_bucket:60 },
+  { id:1,  name:"Chewy Tapioca Pearls",      code:"A2000",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:7.54, units_per_case:6, case_desc:"CASE of 6 bags" },
+  { id:2,  name:"Jasmine Green Tea",         code:"T1022",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:3.62, units_per_case:25, case_desc:"CASE of 25 bags" },
+  { id:3,  name:"Golden Milk Tea",           code:"T1025",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:2.33, units_per_case:25, case_desc:"CASE of 25 bags" },
+  { id:4,  name:"Black Tea",                 code:"T1030",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:3.05, units_per_case:25, case_desc:"CASE of 25 bags" },
+  { id:5,  name:"Thai Tea",                  code:"T1035",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:4.79, units_per_case:1, case_desc:"BAG 13oz" },
+  { id:6,  name:"White Peach Tea",           code:"T2001",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.83, units_per_case:50, case_desc:"CASE of 50 bags" },
+  { id:7,  name:"NDC (Creamer)",             code:"P1020",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:6.775, units_per_case:10, case_desc:"CASE of 10 bags" },
+  { id:8,  name:"Granulated Sugar",          code:"S1030",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:2,  order_qty:"1 BAG", cost:49.19, units_per_case:1, case_desc:"BAG" },
+  { id:9,  name:"Demerara Cane Sugar",       code:"S1020",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:79.9, units_per_case:1, case_desc:"BAG" },
+  { id:10, name:"Dark Brown Sugar",          code:"S1005",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:57.1, units_per_case:1, case_desc:"CASE" },
+  { id:11, name:"Longan Honey",              code:"S1015",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:12.5 },
+  { id:12, name:"Fructose",                  code:"S1013",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:11.0 },
+  { id:13, name:"Dark Brown Sugar Syrup",    code:"S1006",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:24.5 },
+  { id:14, name:"Con Dark Brown Sugar Syrup",code:"S1007",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:26.75 },
+  { id:15, name:"Grapefruit Syrup",          code:"J1015",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:16, name:"Lychee Syrup",             code:"J1040",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:17, name:"Mango Syrup",              code:"J1045",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:18, name:"Passion Fruit Syrup",      code:"J1060",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:19, name:"Pineapple Syrup",          code:"J1071",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:20, name:"Strawberry Syrup",         code:"J1090",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:21, name:"Winter Melon Syrup",       code:"J1095",        cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:10.25 },
+  { id:22, name:"Passion Fruit Puree",      code:"J1095-P",      cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:16.99 },
+  { id:23, name:"Strawberry Fruit Puree",   code:"H-PUREE-STR",  cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:14.09 },
+  { id:24, name:"Mango Fruit Puree",        code:"H-PUREE-MNG",  cat:"Boba",       vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:15.49 },
+  { id:25, name:"Sea Salt Caramel Powder",  code:"P1044",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:10.25 },
+  { id:26, name:"Matcha Green Tea Powder",  code:"P1046",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:2,  order_qty:"1 BAG", cost:15.5 },
+  { id:27, name:"Taro Powder",              code:"P0065",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:15.5, units_per_case:1, case_desc:"BAG 2.2lbs" },
+  { id:28, name:"Vanilla Powder",           code:"P1068",        cat:"Boba",       vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:13.35, units_per_case:1, case_desc:"BAG" },
+  { id:29, name:"Yoggi Powder",             code:"P2000",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:13.75 },
+  { id:30, name:"Horchata Powder",          code:"P6071",        cat:"Boba",       vendor:"KARAT",     uom:"BAG",    par:1,  order_qty:"1 BAG", cost:24.39, units_per_case:1, case_desc:"BAG" },
+  { id:31, name:"Chocolate Popping Pearls", code:"B2071",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:32, name:"Lychee Coconut Jelly",     code:"B2005",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:15.25 },
+  { id:33, name:"Assorted Jelly (Rainbow)", code:"B2020",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:2,  order_qty:"1 JAR", cost:15.25 },
+  { id:34, name:"Coffee Jelly",             code:"B2025",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:17.75 },
+  { id:35, name:"Mango Popping Pearls",     code:"B2051",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:36, name:"Strawberry Popping Pearls",code:"B2053",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:37, name:"Passion Popping Pearls",   code:"B2055",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0 },
+  { id:38, name:"Blueberry Popping Pearls", code:"B2056",        cat:"Boba",       vendor:"KARAT",     uom:"JAR",    par:1,  order_qty:"1 JAR", cost:19.0, units_per_case:6, case_desc:"CASE of 6 bags" },
+  { id:40, name:"Monin Caramel Sauce 1.69L",code:"H-CARAMEL-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:41, name:"Monin White Mocha Sauce",  code:"H-CHOCOLATE-WMS",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:42, name:"Monin Dark Mocha Sauce",   code:"H-CHOCOLATE-S",  cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:43, name:"Monin Vanilla Syrup 750ml",code:"H-VANILLA",    cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:44, name:"Monin Caramel Syrup 750ml",code:"H-CARAMEL",    cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:45, name:"Monin Hazelnut Syrup",     code:"H-HAZELNUT",   cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:46, name:"Monin Pistachio Syrup",    code:"H-PISTACHIO",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:47, name:"Monin Blackberry Syrup",   code:"H-BLACKBERRY", cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:48, name:"Monin Strawberry Syrup",   code:"H-STRAWBERRY", cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:49, name:"Ghirardelli Choc Sauce 64oz",code:"I-Chocolate-S",cat:"Coffee",   vendor:"KARAT",     uom:"BOTTLE", par:2,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:50, name:"Ghirardelli Caramel Sauce",code:"I-Caramel-S",  cat:"Coffee",     vendor:"KARAT",     uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:18.99 },
+  { id:51, name:"Coffee Beans",             code:"D-Coffeebeans", cat:"Coffee",    vendor:"DUMONT",    uom:"BAG",    par:2,  order_qty:"1 BAG", cost:20.0 },
+  { id:52, name:"Milk",                     code:"D-Milk",       cat:"Coffee",    vendor:"LOCAL",     uom:"GALLON", par:4,  order_qty:"1 GALLON", cost:4.69 },
+  { id:60, name:"Kids Scoop Cup",           code:"HP-KSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.108 },
+  { id:61, name:"Regular Scoop Cup",        code:"HP-RSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.12 },
+  { id:62, name:"Triple Scoop Cup",         code:"HP-TSC",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.15 },
+  { id:63, name:"Hand Picked Happiness Tub",code:"HP-HPHC",      cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.168 },
+  { id:64, name:"Take Away Bag",            code:"HP-BAG",       cat:"Dry Stock",  vendor:"HYPERPACK", uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.216 },
+  { id:65, name:"24 Oz Boba Cups",          code:"C-TPP24C",     cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.1305 },
+  { id:66, name:"16 Oz Milkshake Cups",     code:"C-TPP16C",     cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.079 },
+  { id:67, name:"16/24 Oz PP Lids",         code:"C-TPPLW",      cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.046 },
+  { id:68, name:"12 Oz Coffee Cups",        code:"C-KC12",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.168 },
+  { id:69, name:"16 Oz Coffee Cups",        code:"C-KC16",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.065 },
+  { id:70, name:"Boba Straws",              code:"C9050s",       cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:2,  order_qty:"1 CASE", cost:0.0175 },
+  { id:71, name:"Beverage Napkins",         code:"KN-B99-1K",    cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.00488 },
+  { id:72, name:"Gloves (M)",               code:"FP-GV1007",    cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.024 },
+  { id:73, name:"Color Changing Spoons",    code:"U4000",        cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.3 },
+  { id:74, name:"Tasting Spoons",           code:"U2400",        cat:"Dry Stock",  vendor:"KARAT",     uom:"CASE",   par:1,  order_qty:"1 CASE", cost:0.05 },
+  { id:80, name:"Frozen Mango Chunks",      code:"COND-01",      cat:"Condiments", vendor:"Target",    uom:"BAG",    par:2,  order_qty:"2 BAGS", cost:4.99 },
+  { id:81, name:"Frozen Strawberry Chunks", code:"COND-02",      cat:"Condiments", vendor:"Target",    uom:"BAG",    par:2,  order_qty:"2 BAGS", cost:4.99 },
+  { id:82, name:"Tajin Seasoning",          code:"COND-03",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.99 },
+  { id:83, name:"Chamoy Sauce",             code:"COND-04",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.49 },
+  { id:84, name:"Lemons",                   code:"COND-05",      cat:"Condiments", vendor:"Indian Store",uom:"COUNT",par:15, order_qty:"30 COUNT", cost:0.25 },
+  { id:85, name:"Mint Leaves",              code:"COND-06",      cat:"Condiments", vendor:"Indian Store",uom:"LBS", par:1,  order_qty:"1 LB", cost:2.99 },
+  { id:86, name:"Condensed Milk",           code:"COND-07",      cat:"Condiments", vendor:"Walmart",   uom:"CAN",    par:2,  order_qty:"4 CANS", cost:1.5 },
+  { id:87, name:"Oat Milk",                 code:"COND-08",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:4.99 },
+  { id:88, name:"Almond Milk",              code:"COND-09",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:3.99 },
+  { id:89, name:"Heavy Cream",              code:"COND-10",      cat:"Condiments", vendor:"Walmart",   uom:"CARTON", par:2,  order_qty:"2 CARTONS", cost:3.99 },
+  { id:90, name:"Honey",                    code:"COND-11",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:5.99 },
+  { id:91, name:"Date Syrup",               code:"COND-12",      cat:"Condiments", vendor:"Walmart",   uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:6.99 },
+  { id:92, name:"Cardamom Powder",          code:"COND-13",      cat:"Condiments", vendor:"Indian Store",uom:"PKT", par:1,  order_qty:"1 PKT", cost:3.99 },
+  { id:93, name:"Callebaut Dark Chocolate", code:"COND-14",      cat:"Condiments", vendor:"Walmart",   uom:"BAG",    par:1,  order_qty:"1 BAG", cost:8.99 },
+  { id:94, name:"Whipped Cream Spray",      code:"COND-15",      cat:"Condiments", vendor:"Walmart",   uom:"CAN",    par:2,  order_qty:"2 CANS", cost:4.99 },
+  { id:95, name:"Roasted Nuts",             code:"COND-16",      cat:"Condiments", vendor:"Walmart",   uom:"LBS",    par:1,  order_qty:"1 LB", cost:6.99 },
+  { id:96, name:"Biscoff Biscuits",         code:"COND-17",      cat:"Condiments", vendor:"Walmart",   uom:"PKT",    par:1,  order_qty:"1 PKT", cost:3.99 },
+  { id:97, name:"Ferrero Rocher",           code:"COND-18",      cat:"Condiments", vendor:"Walmart",   uom:"BOX",    par:1,  order_qty:"1 BOX", cost:12.99 },
+  { id:98, name:"Graham Crackers",          code:"COND-19",      cat:"Condiments", vendor:"Walmart",   uom:"BOX",    par:1,  order_qty:"1 BOX", cost:3.99 },
+  { id:99, name:"PB M&Ms",                  code:"COND-20",      cat:"Condiments", vendor:"Walmart",   uom:"BAG",    par:1,  order_qty:"1 BAG", cost:4.99 },
+  { id:100,name:"Coconut Water",            code:"COND-21",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK", cost:5.99 },
+  { id:101,name:"Tonic Water",              code:"COND-22",      cat:"Condiments", vendor:"Walmart",   uom:"PACK",   par:1,  order_qty:"1 PACK", cost:4.99 },
+  { id:102,name:"Simple Syrup",             code:"COND-23",      cat:"Condiments", vendor:"Target",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:3.99 },
+  { id:103,name:"Maple Syrup",              code:"COND-24",      cat:"Condiments", vendor:"Costco",    uom:"BOTTLE", par:1,  order_qty:"1 BOTTLE", cost:9.99 },
+  { id:110,name:"Vanilla Bean",             code:"IC-01",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:111,name:"Classic Chocolate",        code:"IC-02",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:112,name:"Butterscotch",             code:"IC-03",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:113,name:"Strawberry Chunks",        code:"IC-04",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:114,name:"Berry Yogurt",             code:"IC-05",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:115,name:"Pistachio",                code:"IC-06",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:116,name:"Lots of Nuts",             code:"IC-07",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:117,name:"Oreo Caramel Fudge",       code:"IC-08",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:118,name:"Salted Caramel",           code:"IC-09",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:119,name:"Taro",                     code:"IC-10",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:120,name:"Mango",                    code:"IC-11",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:121,name:"Kheer",                    code:"IC-12",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:122,name:"Filter Coffee",            code:"IC-13",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:123,name:"Mint Chocochip",           code:"IC-14",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:124,name:"Ferrero Ice Cream",        code:"IC-15",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:125,name:"Biscoff Ice Cream",        code:"IC-16",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:126,name:"Ruby Cheese",              code:"IC-17",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:127,name:"Peanut Butter Chocolate",  code:"IC-18",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
 ];
+
 const RECIPES = {
   "Taro Milk Tea":      [{id:27,a:0.005},{id:7,a:0.008},{id:12,a:0.01},{id:1,a:0.02},{id:65,a:0.01}],
   "Matcha Milk Tea":    [{id:26,a:0.005},{id:28,a:0.008},{id:7,a:0.008},{id:12,a:0.01},{id:65,a:0.01}],
@@ -1482,83 +1466,67 @@ window.showTab = function(tab, fromClick) {
 // ── DASHBOARD ──
 function renderDashboard() {
   const store = STORES[viewingStore] || {};
-  const storeName = store.name || viewingStore;
+  const el = (id) => document.getElementById(id);
 
   // Store name + date
-  const nameEl = document.getElementById('dashStoreName');
-  if (nameEl) nameEl.textContent = storeName;
-  const dateEl = document.getElementById('dashDate');
-  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  if (el('dashStoreName')) el('dashStoreName').textContent = store.name || viewingStore;
+  if (el('dashDate')) el('dashDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  if (el('dashLastSync')) el('dashLastSync').textContent = '🔄 ' + new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
 
-  // Stock status counts (exclude inactive)
+  // Stock counts (active items only)
   const active   = inventory.filter(i => i.active !== false);
   const critical = active.filter(i => getStatus(i) === 'critical');
   const low      = active.filter(i => getStatus(i) === 'low');
   const ok       = active.filter(i => getStatus(i) === 'ok');
-
-  const setEl = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
-  setEl('statCritical', critical.length);
-  setEl('statLow',      low.length);
-  setEl('statOk',       ok.length);
+  if (el('statCritical')) el('statCritical').textContent = critical.length;
+  if (el('statLow'))      el('statLow').textContent      = low.length;
+  if (el('statOk'))       el('statOk').textContent       = ok.length;
 
   // Stock value
   const totalValue = active.reduce((s,i) => s + (i.stock||0) * (i.cost||0), 0);
-  const valEl = document.getElementById('dashStockValue');
-  if (valEl) valEl.textContent = '$' + totalValue.toLocaleString('en-US', {maximumFractionDigits:0});
-
-  // Last sync
-  const syncEl = document.getElementById('dashLastSync');
-  if (syncEl) syncEl.textContent = '🔄 Last updated: ' + new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  if (el('dashStockValue')) el('dashStockValue').textContent = '$' + totalValue.toLocaleString('en-US',{maximumFractionDigits:0});
 
   // Ice Cream summary
-  const iceCreamEl = document.getElementById('dashIceCream');
-  if (iceCreamEl) {
-    const iceCreamItems = inventory.filter(i => i.cat === 'Ice Cream' && i.active !== false);
-    const totalTubs   = iceCreamItems.reduce((s,i) => s + (i.stock||0), 0);
-    const totalScoops = iceCreamItems.reduce((s,i) => s + (i.stock||0) * (i.scoops_per_bucket||60), 0);
-    const lowFlavors  = iceCreamItems.filter(i => getStatus(i) !== 'ok');
-    iceCreamEl.innerHTML = 
+  const iceCreamItems = inventory.filter(i => i.cat === 'Ice Cream' && i.active !== false);
+  const totalTubs   = iceCreamItems.reduce((s,i) => s + (i.stock||0), 0);
+  const totalScoops = iceCreamItems.reduce((s,i) => s + (i.stock||0) * (i.scoops_per_bucket||60), 0);
+  const lowFlavors  = iceCreamItems.filter(i => getStatus(i) !== 'ok');
+  if (el('dashIceCream')) {
+    el('dashIceCream').innerHTML =
       '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">'
       + '<div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--caramel)">' + totalTubs.toFixed(1) + '</div><div style="font-size:10px;color:#8B7355">Tubs</div></div>'
       + '<div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--caramel)">' + Math.round(totalScoops) + '</div><div style="font-size:10px;color:#8B7355">Scoops</div></div>'
       + '<div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--caramel)">' + iceCreamItems.length + '</div><div style="font-size:10px;color:#8B7355">Flavors</div></div>'
       + '</div>'
-      + (lowFlavors.length ? '<div style="font-size:11px;color:var(--red-alert)">⚠️ Low: ' + lowFlavors.map(i=>i.name).join(', ') + '</div>' : '<div style="font-size:11px;color:var(--green-ok)">✅ All flavors stocked</div>');
+      + (lowFlavors.length ? '<div style="font-size:11px;color:var(--red-alert)">⚠️ Low: ' + lowFlavors.slice(0,3).map(i=>i.name).join(', ') + '</div>'
+                           : '<div style="font-size:11px;color:var(--green-ok)">✅ All flavors stocked</div>');
   }
 
-  // Last sales upload from salesLedger
+  // Last sales upload
   try {
     db.collection('stores').doc(viewingStore).collection('salesLedger')
       .orderBy('appliedAt','desc').limit(1).get().then(snap => {
-        if (snap.docs && snap.docs.length) {
+        if (snap && snap.docs && snap.docs.length) {
           const d = snap.docs[0].data();
-          const salesEl = document.getElementById('dashLastSales');
-          const revEl   = document.getElementById('dashRevenue');
-          const cogsEl  = document.getElementById('dashCogsPct');
-          const statusEl= document.getElementById('dashCogsStatus');
-          if (salesEl) salesEl.textContent = d.period || new Date(d.appliedAt).toLocaleDateString();
-          if (revEl)   revEl.textContent = '$' + (d.revenue||0).toLocaleString('en-US',{maximumFractionDigits:0});
-          const cogsPct = 25.8; // estimated
-          if (cogsEl) {
-            cogsEl.textContent = cogsPct.toFixed(1) + '%';
-            cogsEl.style.color = cogsPct < 25 ? 'var(--green-ok)' : cogsPct < 32 ? 'var(--caramel)' : 'var(--red-alert)';
-          }
-          if (statusEl) statusEl.textContent = cogsPct < 25 ? '✅ Excellent' : cogsPct < 32 ? '⚠️ Within benchmark' : '🔴 Above benchmark';
+          if (el('dashLastSales')) el('dashLastSales').textContent = d.period || new Date(d.appliedAt).toLocaleDateString();
+          if (el('dashRevenue'))   el('dashRevenue').textContent = '$' + (d.revenue||0).toLocaleString('en-US',{maximumFractionDigits:0});
+          const pct = 25.8;
+          if (el('dashCogsPct'))  { el('dashCogsPct').textContent = pct.toFixed(1) + '%'; el('dashCogsPct').style.color = pct < 25 ? 'var(--green-ok)' : pct < 32 ? 'var(--caramel)' : 'var(--red-alert)'; }
+          if (el('dashCogsStatus')) el('dashCogsStatus').textContent = pct < 25 ? '✅ Excellent' : pct < 32 ? '⚠️ Within benchmark' : '🔴 High';
         }
       }).catch(()=>{});
   } catch(e) {}
 
-  // Alerts section
-  const alerts = [...critical, ...low].filter(i => i.active !== false);
-  const el = document.getElementById('alertSection');
-  if (!el) return;
+  // Alerts
+  const alerts = [...critical, ...low];
+  const alertEl = el('alertSection');
+  if (!alertEl) return;
   if (!alerts.length) {
-    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--green-ok);font-size:13px">✅ All items well stocked!</div>';
+    alertEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--green-ok);font-size:13px">✅ All items well stocked!</div>';
     return;
   }
-  el.innerHTML = alerts.map(i => {
-    const s = getStatus(i);
-    const color = s === 'critical' ? 'var(--red-alert)' : 'var(--caramel)';
+  alertEl.innerHTML = alerts.slice(0,8).map(i => {
+    const color = getStatus(i) === 'critical' ? 'var(--red-alert)' : 'var(--caramel)';
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">'
       + '<div><div style="font-size:13px;font-weight:600;color:var(--dark)">' + i.name + '</div>'
       + '<div style="font-size:11px;color:#8B7355">' + i.code + ' · ' + i.vendor + '</div></div>'
@@ -1568,3 +1536,2933 @@ function renderDashboard() {
       + '</div></div>';
   }).join('');
 }
+
+// ── INVENTORY ──
+function renderInventory() {
+  const cats = ['all',...[...new Set(inventory.map(i=>i.cat))]];
+  const filterEl = document.getElementById('filterBar');
+  filterEl.innerHTML = cats.map(c=>`<button class="cat-btn ${activeCategory===c?'active':''}" onclick="setCategory('${c}')">${c==='all'?'All':c}</button>`).join('');
+  const search = (document.getElementById('searchBar')?.value||'').toLowerCase();
+  const filtered = inventory.filter(i=>{
+    const catMatch = activeCategory==='all' || i.cat===activeCategory;
+    const searchMatch = !search || i.name.toLowerCase().includes(search) || i.code.toLowerCase().includes(search);
+    return catMatch && searchMatch;
+  });
+  const list = document.getElementById('inventoryList');
+  list.innerHTML = filtered.map(item => {
+    const s = getStatus(item);
+    const pct = Math.min(100,(item.stock/(item.par*2))*100);
+    const cls = s==='ok'?'fill-green':s==='low'?'fill-amber':'fill-red';
+    return `<div class="item-card" id="card-${item.id}">
+      <div class="item-top">
+        <span class="item-name">${item.name}</span>
+        <span id="pill-${item.id}">${statusPill(s)}</span>
+      </div>
+      <div class="item-mid">
+        <div class="stock-bar"><div class="stock-bar-fill ${cls}" id="bar-${item.id}" style="width:${pct}%"></div></div>
+        ${vendorTag(item.vendor)}
+      </div>
+      <div class="item-bot">
+        <div class="stock-controls">
+          <button class="btn-adj" onclick="adjustStock(${item.id},-1)">−</button>
+          <span class="stock-val" id="sv-${item.id}"
+            onclick="editStockDirect(${item.id})"
+            title="Tap to type value"
+            style="cursor:pointer;min-width:36px;text-align:center">${item.stock}</span>
+          <button class="btn-adj" onclick="adjustStock(${item.id},1)">+</button>
+        </div>
+        <div style="text-align:right">
+          <div class="par-info">Par: ${item.par} ${item.uom}</div>
+          <div style="font-size:10px;color:#aaa">${item.code}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.setCategory = function(cat) { activeCategory=cat; renderInventory(); };
+
+let saveTimer = null;
+window.adjustStock = function(id, delta) {
+  const item = inventory.find(i=>i.id===id);
+  if (!item) return;
+  item.stock = Math.max(0, Math.round((item.stock + delta) * 10) / 10);
+  // Update in place
+  document.getElementById('sv-'+id).textContent = item.stock;
+  const s = getStatus(item);
+  document.getElementById('pill-'+id).innerHTML = statusPill(s);
+  const pct = Math.min(100,(item.stock/(item.par*2))*100);
+  const cls = s==='ok'?'fill-green':s==='low'?'fill-amber':'fill-red';
+  const bar = document.getElementById('bar-'+id);
+  if (bar) { bar.style.width=pct+'%'; bar.className='stock-bar-fill '+cls; }
+  renderDashboard();
+  renderOrders();
+  // Debounced cloud save
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ saveStock(); showToast('💾 Saved to cloud'); }, 1200);
+};
+
+// ── ORDERS ──
+function renderOrders() {
+  const karat = inventory.filter(i=>getStatus(i)!=='ok' && i.vendor==='KARAT');
+  const hyperpack = inventory.filter(i=>getStatus(i)!=='ok' && i.vendor==='HYPERPACK');
+  const grocery = inventory.filter(i=>getStatus(i)!=='ok' && ['Target','Walmart','Indian Store','Costco'].includes(i.vendor));
+  const brand = inventory.filter(i=>getStatus(i)!=='ok' && i.vendor==='Brand');
+  const el = document.getElementById('ordersContent');
+  if (!karat.length && !grocery.length && !brand.length && !hyperpack.length) {
+    el.innerHTML = '<div class="empty-order">🎉 Nothing to order — all items are stocked!</div>';
+    return;
+  }
+  let html = '';
+  const section = (title, items, id) => {
+    if (!items.length) return '';
+    return `<div class="order-section">
+      <div class="order-header">${title} <span style="font-size:12px;color:#8B7355;font-weight:400">(${items.length} items)</span></div>
+      <div class="order-card" id="${id}">
+        ${items.map(i=>`<div class="order-row"><div><div class="order-name">${i.name}</div><div class="order-code">${i.code}</div></div><div class="order-qty">${i.order_qty}</div></div>`).join('')}
+      </div>
+      <button class="btn-copy" onclick="copyOrder('${id}','${title}')">📋 Copy ${title} Order</button>
+    </div>`;
+  };
+  html += section('🧋 Karat Order', karat, 'order-karat');
+  html += section('📦 Hyperpack Order', hyperpack, 'order-hyperpack');
+  html += section('🛒 Grocery List', grocery, 'order-grocery');
+  html += section('🍦 Brand Ice Cream', brand, 'order-brand');
+  el.innerHTML = html;
+}
+window.copyOrder = function(sectionId, title) {
+  const rows = document.querySelectorAll('#'+sectionId+' .order-row');
+  let text = title + ' — ' + new Date().toLocaleDateString() + '\n\n';
+  rows.forEach(r=>{
+    const name = r.querySelector('.order-name')?.textContent||'';
+    const code = r.querySelector('.order-code')?.textContent||'';
+    const qty = r.querySelector('.order-qty')?.textContent||'';
+    text += `• ${name} (${code}) — ${qty}\n`;
+  });
+  navigator.clipboard.writeText(text).then(()=>showToast('✅ Copied to clipboard!')).catch(()=>showToast('⚠️ Copy failed'));
+};
+
+// ── SCAN SALES ──
+window.handleFile = async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('scanResults').innerHTML = '<div style="text-align:center;padding:24px;color:#8B7355;">⏳ Reading Clover report...</div>';
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (['xlsx','xls','csv'].includes(ext)) {
+    parseCloverFile(file);
+  } else {
+    document.getElementById('scanResults').innerHTML = '<div class="parse-error">Please upload a Clover CSV or Excel file.</div>';
+  }
+  e.target.value = '';
+};
+
+// ══════════════════════════════════════════
+// CLOVER SALES → INVENTORY DEDUCTION
+// ══════════════════════════════════════════
+
+// ── Recipe definitions (from SOP) ──
+// Each recipe: array of {item: inventoryItemName, qty: number, unit: 'scoop'|'g'|'ml'}
+const CLOVER_RECIPES = {
+  // ── ICE CREAM ──
+  '_kids':     [{ item:'Ice Cream', qty:1, unit:'scoop' }],
+  '_regular':  [{ item:'Ice Cream', qty:2, unit:'scoop' }],
+  '_milkshake':[{ item:'Ice Cream', qty:4, unit:'scoop' }, { item:'Milk', qty:120, unit:'ml' }],
+  '_hph':      [{ item:'Ice Cream', qty:6, unit:'scoop' }],
+  '_flight':   [{ item:'Ice Cream', qty:4, unit:'scoop' }],
+  // ── MILK TEA ──
+  'Taro Milk Tea':    [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Matcha Milk Tea':  [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Horchata Milk Tea':[{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Classic Milk Tea': [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Golden Milk Tea', qty:2.4, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Thai Mlik Tea':    [{ item:'Thai Tea', qty:12, unit:'g' }, { item:'NDC (Creamer)', qty:30, unit:'g' }],
+  'Tiger Stripes':    [{ item:'Thai Tea', qty:12, unit:'g' }, { item:'NDC (Creamer)', qty:30, unit:'g' }],
+  'Dirty Mad Tea':    [{ item:'Golden Milk Tea', qty:2.4, unit:'g' }, { item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Dark Brown Sugar Syrup', qty:24, unit:'g' }],
+  'White Peach Green Milk Tea': [{ item:'White Peach Tea', qty:3, unit:'g' }, { item:'NDC (Creamer)', qty:30, unit:'g' }],
+  // ── FRUIT TEA ──
+  'Lychee Lust':    [{ item:'Black Tea', qty:2.4, unit:'g' }, { item:'Lychee Syrup', qty:24, unit:'g' }],
+  'Mangoficient':   [{ item:'Jasmine Green Tea', qty:2.4, unit:'g' }, { item:'Grapefruit Syrup', qty:24, unit:'g' }],
+  'Passionate Love':[{ item:'Jasmine Green Tea', qty:2.4, unit:'g' }, { item:'Grapefruit Syrup', qty:24, unit:'g' }],
+  // ── SLUSH ──
+  'Strawberry Burst':[{ item:'Lychee Syrup', qty:48, unit:'g' }],
+  'Sunny Mango':     [{ item:'Grapefruit Syrup', qty:48, unit:'g' }],
+  'Mangonada':       [{ item:'Grapefruit Syrup', qty:48, unit:'g' }],
+  // ── SMOOTHIE ──
+  'Purple Patch':    [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  'Matcha Smoothie': [{ item:'NDC (Creamer)', qty:30, unit:'g' }, { item:'Fructose', qty:12, unit:'g' }],
+  // ── COFFEE ──
+  'Latte Hot':            [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Latte Iced':           [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:320, unit:'ml' }],
+  'Cappuccino Hot':       [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Cappuccino Iced':      [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Americano Hot':        [{ item:'Coffee Beans', qty:18, unit:'g' }],
+  'Americano Iced':       [{ item:'Coffee Beans', qty:18, unit:'g' }],
+  'Flat white':           [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:180, unit:'ml' }],
+  'Single shot Espresso': [{ item:'Coffee Beans', qty:9,  unit:'g' }],
+  'Double shot espresso': [{ item:'Coffee Beans', qty:18, unit:'g' }],
+  'Affogato Single shot': [{ item:'Coffee Beans', qty:9,  unit:'g' }, { item:'Ice Cream', qty:2, unit:'scoop' }],
+  'Affogato Double Shot': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Ice Cream', qty:2, unit:'scoop' }],
+  'Dark Chocolate Mocha Hot':  [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:270, unit:'ml' }],
+  'Dark Chocolate Mocha Iced': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'White Chocolate Mocha Hot': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:290, unit:'ml' }],
+  'White Chocolate Mocha Iced':[{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Dumont Hot Chocolate':      [{ item:'Milk', qty:300, unit:'ml' }],
+  // ── SPECIALTY ──
+  'Date Cardamom Latte Hot':  [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Date Cardamom Latte Iced': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Pistachio White Mocha Hot': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Pistachio White Mocha Iced':[{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Blackberry White Mocha Hot':[{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Blackberry White Mocha Iced':[{item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Lavender Latte Hot':  [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Lavender Latte Iced': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Spanish Latte Hot':   [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Spanish Latte Iced':  [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Lavender Matcha Latte Iced':     [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Strawberry Matcha Latte Iced':   [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'Strawberry Matcha Latte Hot':    [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:300, unit:'ml' }],
+  'OG Cold Coffee': [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:200, unit:'ml' }],
+  'Kheer Iced':     [{ item:'Coffee Beans', qty:18, unit:'g' }, { item:'Milk', qty:200, unit:'ml' }],
+  // ── FALOODA ──
+  'Kheer Falooda':        [{ item:'Ice Cream', qty:1, unit:'scoop' }, { item:'NDC (Creamer)', qty:50, unit:'g' }],
+  'Butterscotch Falooda': [{ item:'Ice Cream', qty:1, unit:'scoop' }, { item:'NDC (Creamer)', qty:50, unit:'g' }],
+  'Mango Falooda':        [{ item:'Ice Cream', qty:1, unit:'scoop' }, { item:'NDC (Creamer)', qty:50, unit:'g' }],
+};
+
+// ── Item size constants ──
+const ITEM_SIZES = {
+  'NDC (Creamer)':       600,    // grams per bag
+  'Fructose':            1200,   // grams per bottle
+  'Dark Brown Sugar Syrup': 1200,
+  'Lychee Syrup':        1200,
+  'Grapefruit Syrup':    1200,
+  'Jasmine Green Tea':   25,     // bags per case, each ~3.6g per cup usage
+  'Golden Milk Tea':     25,
+  'Black Tea':           25,
+  'Thai Tea':            1,      // sold individually
+  'White Peach Tea':     50,
+  'Coffee Beans':        500,    // grams per bag
+  'Ice Cream':           60,     // scoops per bucket
+  'Milk':                3785,   // ml per gallon
+};
+
+// ── Match Clover item name to recipe ──
+function matchCloverItem(name) {
+  const n = name.toLowerCase().trim();
+  // Direct match first
+  if (CLOVER_RECIPES[name]) return CLOVER_RECIPES[name];
+  // Ice cream pattern matching
+  if (n.includes('milkshake'))                          return CLOVER_RECIPES['_milkshake'];
+  if (n.includes('hand packed happiness') || n.includes('hand packed')) return CLOVER_RECIPES['_hph'];
+  if (n.includes('flight of 4'))                        return CLOVER_RECIPES['_flight'];
+  if (n.includes('regular scoop'))                      return CLOVER_RECIPES['_regular'];
+  if (n.endsWith(' kids') || n.includes(' kids'))       return CLOVER_RECIPES['_kids'];
+  if (n.endsWith(' regular') || n.endsWith(' large'))   return CLOVER_RECIPES['_regular'];
+  // Drinks
+  if (n.includes('affogato single'))    return CLOVER_RECIPES['Affogato Single shot'];
+  if (n.includes('affogato double'))    return CLOVER_RECIPES['Affogato Double Shot'];
+  if (n.includes('affogato'))           return CLOVER_RECIPES['Affogato Single shot'];
+  if (n.includes('taro milk tea'))      return CLOVER_RECIPES['Taro Milk Tea'];
+  if (n.includes('matcha milk tea'))    return CLOVER_RECIPES['Matcha Milk Tea'];
+  if (n.includes('horchata milk tea'))  return CLOVER_RECIPES['Horchata Milk Tea'];
+  if (n.includes('classic milk tea'))   return CLOVER_RECIPES['Classic Milk Tea'];
+  if (n.includes('tiger stripes'))      return CLOVER_RECIPES['Tiger Stripes'];
+  if (n.includes('dirty mad tea'))      return CLOVER_RECIPES['Dirty Mad Tea'];
+  if (n.includes('thai'))               return CLOVER_RECIPES['Thai Mlik Tea'];
+  if (n.includes('white peach'))        return CLOVER_RECIPES['White Peach Green Milk Tea'];
+  if (n.includes('lychee lust'))        return CLOVER_RECIPES['Lychee Lust'];
+  if (n.includes('mangoficient'))       return CLOVER_RECIPES['Mangoficient'];
+  if (n.includes('passionate love'))    return CLOVER_RECIPES['Passionate Love'];
+  if (n.includes('strawberry burst'))   return CLOVER_RECIPES['Strawberry Burst'];
+  if (n.includes('sunny mango'))        return CLOVER_RECIPES['Sunny Mango'];
+  if (n.includes('mangonada'))          return CLOVER_RECIPES['Mangonada'];
+  if (n.includes('purple patch'))       return CLOVER_RECIPES['Purple Patch'];
+  if (n.includes('matcha smoothie'))    return CLOVER_RECIPES['Matcha Smoothie'];
+  if (n.includes('kheer falooda'))      return CLOVER_RECIPES['Kheer Falooda'];
+  if (n.includes('butterscotch falooda')) return CLOVER_RECIPES['Butterscotch Falooda'];
+  if (n.includes('mango falooda'))      return CLOVER_RECIPES['Mango Falooda'];
+  if (n.includes('date cardamom') && n.includes('iced')) return CLOVER_RECIPES['Date Cardamom Latte Iced'];
+  if (n.includes('date cardamom'))      return CLOVER_RECIPES['Date Cardamom Latte Hot'];
+  if (n.includes('pistachio white mocha') && n.includes('iced')) return CLOVER_RECIPES['Pistachio White Mocha Iced'];
+  if (n.includes('pistachio white mocha')) return CLOVER_RECIPES['Pistachio White Mocha Hot'];
+  if (n.includes('blackberry white mocha') && n.includes('iced')) return CLOVER_RECIPES['Blackberry White Mocha Iced'];
+  if (n.includes('blackberry'))         return CLOVER_RECIPES['Blackberry White Mocha Hot'];
+  if (n.includes('lavender matcha'))    return CLOVER_RECIPES['Lavender Matcha Latte Iced'];
+  if (n.includes('lavender'))          return CLOVER_RECIPES['Lavender Latte Hot'];
+  if (n.includes('strawberry matcha') && n.includes('hot')) return CLOVER_RECIPES['Strawberry Matcha Latte Hot'];
+  if (n.includes('strawberry matcha')) return CLOVER_RECIPES['Strawberry Matcha Latte Iced'];
+  if (n.includes('spanish latte') && n.includes('iced')) return CLOVER_RECIPES['Spanish Latte Iced'];
+  if (n.includes('spanish latte'))     return CLOVER_RECIPES['Spanish Latte Hot'];
+  if (n.includes('og cold coffee') || n.includes('cold coffee')) return CLOVER_RECIPES['OG Cold Coffee'];
+  if (n.includes('kheer iced'))        return CLOVER_RECIPES['Kheer Iced'];
+  if (n.includes('latte iced') || n.includes('iced latte'))  return CLOVER_RECIPES['Latte Iced'];
+  if (n.includes('latte hot') || (n.includes('latte') && !n.includes('iced'))) return CLOVER_RECIPES['Latte Hot'];
+  if (n.includes('cappuccino iced'))   return CLOVER_RECIPES['Cappuccino Iced'];
+  if (n.includes('cappuccino'))        return CLOVER_RECIPES['Cappuccino Hot'];
+  if (n.includes('americano iced') || n.includes('iced americano')) return CLOVER_RECIPES['Americano Iced'];
+  if (n.includes('americano'))         return CLOVER_RECIPES['Americano Hot'];
+  if (n.includes('flat white'))        return CLOVER_RECIPES['Flat white'];
+  if (n.includes('dark chocolate mocha iced')) return CLOVER_RECIPES['Dark Chocolate Mocha Iced'];
+  if (n.includes('dark chocolate mocha'))      return CLOVER_RECIPES['Dark Chocolate Mocha Hot'];
+  if (n.includes('white chocolate mocha iced')) return CLOVER_RECIPES['White Chocolate Mocha Iced'];
+  if (n.includes('white chocolate mocha'))     return CLOVER_RECIPES['White Chocolate Mocha Hot'];
+  if (n.includes('hot chocolate'))     return CLOVER_RECIPES['Dumont Hot Chocolate'];
+  if (n.includes('double shot') || n.includes('doppio')) return CLOVER_RECIPES['Double shot espresso'];
+  if (n.includes('single shot') || n.includes('espresso')) return CLOVER_RECIPES['Single shot Espresso'];
+  return null;
+}
+
+// ── Parse Clover CSV/Excel ──
+function parseCloverFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const text = ev.target.result;
+      parseCloverCSV(text);
+    } catch(e) {
+      document.getElementById('scanResults').innerHTML = '<div class="parse-error">Error reading file: ' + e.message + '</div>';
+    }
+  };
+  // Try reading as text first (CSV)
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'csv') {
+    reader.readAsText(file);
+  } else {
+    // Excel - load SheetJS
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = () => {
+      const r2 = new FileReader();
+      r2.onload = ev2 => {
+        const wb = XLSX.read(ev2.target.result, {type:'array'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const csv = XLSX.utils.sheet_to_csv(ws);
+        parseCloverCSV(csv);
+      };
+      r2.readAsArrayBuffer(file);
+    };
+    document.head.appendChild(script);
+  }
+}
+
+function parseCloverCSV(text) {
+  const lines = text.split('\n').map(l => l.trim());
+  
+  // Parse header info
+  let periodLabel = '';
+  for (let i = 0; i < 5; i++) {
+    if (lines[i] && lines[i].includes('202')) {
+      periodLabel = lines[i].replace(/"/g, '');
+      break;
+    }
+  }
+  
+  // Find all item rows: format is ",ItemName,GrossSales,NetSales,Sold,..."
+  const salesData = [];
+  for (const line of lines) {
+    if (!line.startsWith(',')) continue;
+    const cols = line.split(',').map(c => c.replace(/"/g,'').trim());
+    if (cols.length < 5) continue;
+    const name = cols[1];
+    const sold = parseInt(cols[4]);
+    const netSales = parseFloat(cols[3].replace('$','')) || 0;
+    if (!name || name === 'Name' || name === '' || isNaN(sold) || sold <= 0) continue;
+    // Skip modifier rows (they have modifier name in col 6)
+    if (cols[6] && cols[6] !== '' && !cols[4]) continue;
+    salesData.push({ name, sold, netSales });
+  }
+  
+  if (!salesData.length) {
+    document.getElementById('scanResults').innerHTML = '<div class="parse-error">Could not parse Clover CSV. Make sure you export "Item Sales" report as CSV.</div>';
+    return;
+  }
+  
+  // Match recipes
+  const matched = [], unmatched = [];
+  let totalSales = 0, totalItems = 0;
+  
+  salesData.forEach(({ name, sold, netSales }) => {
+    totalSales += netSales;
+    const recipe = matchCloverItem(name);
+    if (recipe) {
+      matched.push({ name, sold, netSales, recipe });
+      totalItems += sold;
+    } else {
+      unmatched.push({ name, sold, netSales });
+    }
+  });
+  
+  // Calculate ingredient totals
+  const ingredientTotals = {};
+  matched.forEach(({ name, sold, recipe }) => {
+    recipe.forEach(({ item, qty, unit }) => {
+      const key = item;
+      if (!ingredientTotals[key]) ingredientTotals[key] = { qty: 0, unit, invItem: null };
+      ingredientTotals[key].qty += qty * sold;
+    });
+  });
+  
+  // Convert to inventory units
+  const deductions = [];
+  Object.entries(ingredientTotals).forEach(([itemName, data]) => {
+    const invItem = inventory.find(i => i.name === itemName);
+    let deductUnits = 0;
+    let deductDisplay = '';
+    
+    if (data.unit === 'scoop') {
+      // Ice cream flavor - deduct from specific TUB (60 scoops per bucket)
+      const scoopsPerBucket = invItem?.scoops_per_bucket || 60;
+      deductUnits = data.qty / scoopsPerBucket;
+      deductDisplay = data.qty.toFixed(0) + ' scoops = ' + deductUnits.toFixed(2) + ' tubs';
+    } else if (data.unit === 'g' && ITEM_SIZES[itemName]) {
+      deductUnits = data.qty / ITEM_SIZES[itemName];
+      deductDisplay = data.qty.toFixed(0) + 'g = ' + deductUnits.toFixed(2) + ' bags/bottles';
+    } else if (data.unit === 'ml' && itemName === 'Milk') {
+      deductUnits = data.qty / 3785; // ml → gallons
+      deductDisplay = (data.qty/1000).toFixed(1) + 'L = ' + deductUnits.toFixed(2) + ' gallons';
+    } else {
+      deductUnits = data.qty;
+      deductDisplay = data.qty.toFixed(2) + ' ' + data.unit;
+    }
+    
+    deductions.push({
+      itemName, invItem, deductUnits, deductDisplay,
+      currentStock: invItem ? invItem.stock : null,
+      newStock: invItem ? Math.max(0, invItem.stock - deductUnits) : null,
+    });
+  });
+  
+  // Store for apply
+  window._pendingCloverSales = { matched, unmatched, deductions, totalSales, periodLabel };
+  renderCloverResults(window._pendingCloverSales);
+}
+
+function renderCloverResults({ matched, unmatched, deductions, totalSales, periodLabel }) {
+  const matchPct = matched.length / (matched.length + unmatched.length) * 100;
+  const totalSold = matched.reduce((s,r) => s+r.sold, 0);
+  
+  document.getElementById('scanResults').innerHTML = `
+    <div style="margin-top:12px">
+      
+      <!-- Summary banner -->
+      <div style="background:var(--dark);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+        <div><div style="font-size:20px;font-weight:700;color:#D4A843">$${totalSales.toLocaleString('en-US',{maximumFractionDigits:0})}</div><div style="font-size:10px;color:#aaa;text-transform:uppercase">Net Sales</div></div>
+        <div><div style="font-size:20px;font-weight:700;color:var(--green-ok)">${totalSold}</div><div style="font-size:10px;color:#aaa;text-transform:uppercase">Items Sold</div></div>
+        <div><div style="font-size:20px;font-weight:700;color:var(--caramel)">${matchPct.toFixed(0)}%</div><div style="font-size:10px;color:#aaa;text-transform:uppercase">Matched</div></div>
+      </div>
+      ${periodLabel ? '<div style="font-size:11px;color:#8B7355;margin-bottom:12px;text-align:center">📅 ' + periodLabel + '</div>' : ''}
+      
+      <!-- Ingredient deductions -->
+      <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:8px">📦 Inventory to Deduct</div>
+      ${deductions.map(d => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--cream);border-radius:10px;margin-bottom:6px;border-left:4px solid ${d.invItem ? (d.newStock < (d.invItem.par||0) ? 'var(--red-alert)' : 'var(--green-ok)') : '#ccc'}">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--dark)">${d.itemName}</div>
+            <div style="font-size:11px;color:#8B7355">Used: ${d.deductDisplay}</div>
+          </div>
+          <div style="text-align:right">
+            ${d.invItem ? `
+              <div style="font-size:12px;color:#8B7355">${d.currentStock?.toFixed(1)} → <strong style="color:${d.newStock < (d.invItem.par||0) ? 'var(--red-alert)' : 'var(--green-ok)'}">${d.newStock?.toFixed(1)}</strong></div>
+              ${d.newStock < (d.invItem.par||0) ? '<div style="font-size:10px;color:var(--red-alert)">⚠️ Below PAR</div>' : ''}
+            ` : '<div style="font-size:11px;color:#aaa">Not in inventory</div>'}
+          </div>
+        </div>`).join('')}
+      
+      ${unmatched.length ? `
+        <details style="margin-top:10px">
+          <summary style="font-size:12px;color:#8B7355;cursor:pointer">${unmatched.length} items not matched (Bakery, Custom items etc.)</summary>
+          <div style="margin-top:6px">
+            ${unmatched.slice(0,20).map(u => '<div style="font-size:11px;color:#aaa;padding:3px 8px">'+u.name+' (×'+u.sold+')</div>').join('')}
+          </div>
+        </details>` : ''}
+      
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn-log" style="flex:1;background:var(--green-ok)" onclick="applyCloverDeductions()">⚡ Apply — Deduct from Inventory</button>
+        <button class="btn-log" style="flex:0;padding:12px 16px;background:#888" onclick="document.getElementById('scanResults').innerHTML=''">✕</button>
+      </div>
+    </div>`;
+}
+
+window.applyCloverDeductions = async function() {
+  const data = window._pendingCloverSales;
+  if (!data) return;
+  
+  let deducted = 0;
+  const log = [];
+  
+  data.deductions.forEach(({ itemName, invItem, deductUnits, deductDisplay }) => {
+    if (!invItem) return;
+    const before = invItem.stock;
+    invItem.stock = Math.max(0, Math.round((invItem.stock - deductUnits) * 100) / 100);
+    deducted++;
+    log.push(itemName + ': ' + before.toFixed(2) + ' → ' + invItem.stock.toFixed(2));
+  });
+  
+  await saveStock();
+  
+  // Log to sales ledger
+  try {
+    await db.collection('stores').doc(viewingStore).collection('salesLedger').add({
+      period: data.periodLabel,
+      revenue: data.totalSales,
+      itemsSold: data.matched.reduce((s,r) => s+r.sold, 0),
+      matchedItems: data.matched.length,
+      deductions: log,
+      appliedAt: Date.now(),
+      appliedBy: currentUser?.email,
+      dateTs: Date.now(),
+    });
+  } catch(e) { console.warn('Sales ledger save failed', e); }
+  
+  window._pendingCloverSales = null;
+  document.getElementById('scanResults').innerHTML = '';
+  renderDashboard(); renderInventory(); renderOrders();
+  showToast('✅ Inventory updated! ' + deducted + ' items deducted from stock');
+  logAudit('clover_sales_applied', { period: data.periodLabel, revenue: data.totalSales });
+};
+
+function buildManualEntry() { return ''; }
+
+
+
+// ── DELIVERY ──
+function populateDelivSelect() {
+  const sel = document.getElementById('delivItem');
+  sel.innerHTML = '<option value="">— Select item —</option>' +
+    inventory.map(i=>`<option value="${i.id}">${i.name} (${i.uom})</option>`).join('');
+}
+// ══════════════════════════════════════════
+// DELIVERY MODULE — Invoice PDF Parser
+// ══════════════════════════════════════════
+
+let parsedInvoiceLines = [];
+let parsedInvoiceMeta  = {};   // { date, invoiceNumber, vendor, total }
+
+// ── Render delivery log (summary cards with expand) ──
+function renderDelivery() {
+  const el = document.getElementById('deliveryList');
+  if (!deliveryHistory.length) { el.innerHTML = '<div class="empty-state">No deliveries logged yet.</div>'; return; }
+
+  // Group by invoiceId if available, else show individual items
+  const invoices = {};
+  deliveryHistory.forEach(d => {
+    const key = d.invoiceId || ('manual-' + d.timestamp);
+    if (!invoices[key]) invoices[key] = [];
+    invoices[key].push(d);
+  });
+
+  el.innerHTML = Object.entries(invoices).map(([key, entries]) => {
+    const first = entries[0];
+    const isInvoice = !key.startsWith('manual-');
+    const totalCost = entries.reduce((s, e) => s + (e.totalCost || 0), 0);
+    const totalItems = entries.length;
+    const dateStr = first.invoiceDate || first.timeStr || '';
+    const vendor = first.vendor || 'Manual Entry';
+    const invoiceNum = first.invoiceNumber || '';
+    const displayTotal = totalCost > 0 ? `$${totalCost.toFixed(2)}` : '';
+
+    const lineItemsHtml = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:4px">
+        <thead>
+          <tr style="background:var(--cream)">
+            <th style="text-align:left;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">#</th>
+            <th style="text-align:left;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">Item</th>
+            <th style="text-align:center;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">Qty</th>
+            <th style="text-align:right;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">Unit $</th>
+            <th style="text-align:right;padding:6px 8px;color:#8B7355;font-weight:600;border-bottom:1px solid var(--border)">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${entries.map((e,i) => `
+          <tr style="border-bottom:1px solid var(--border);background:${i%2===0?'#fff':'var(--cream)'}">
+            <td style="padding:6px 8px;color:#aaa">${i+1}</td>
+            <td style="padding:6px 8px;color:var(--dark);font-weight:500">${e.itemName}</td>
+            <td style="padding:6px 8px;text-align:center;color:#8B7355">${e.qty} ${e.uom||''}</td>
+            <td style="padding:6px 8px;text-align:right;color:#8B7355">${e.unitCost ? '$'+e.unitCost.toFixed(2) : '—'}</td>
+            <td style="padding:6px 8px;text-align:right;color:var(--caramel);font-weight:600">${e.totalCost ? '$'+e.totalCost.toFixed(2) : '—'}</td>
+          </tr>`).join('')}
+        </tbody>
+        <tfoot>
+          <tr style="background:var(--cream)">
+            <td colspan="4" style="padding:8px;text-align:right;font-weight:700;color:var(--dark)">Total</td>
+            <td style="padding:8px;text-align:right;font-weight:700;color:var(--caramel)">$${entries.reduce((s,e)=>s+(e.totalCost||0),0).toFixed(2)}</td>
+          </tr>
+        </tfoot>
+      </table>`;
+
+    return `<div class="del-invoice-card" id="inv-${key}">
+      <div class="del-invoice-header" onclick="toggleInvoice('${key}')">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--dark)">${isInvoice ? '🧾' : '📦'} ${vendor} ${invoiceNum ? '· ' + invoiceNum : ''}</div>
+          <div style="font-size:11px;color:#8B7355;margin-top:2px">${dateStr} · ${totalItems} item${totalItems>1?'s':''}</div>
+        </div>
+        ${displayTotal ? `<div style="font-size:16px;font-weight:700;color:var(--caramel);margin-right:8px">${displayTotal}</div>` : ''}
+        <button onclick="event.stopPropagation();deleteDelivery('${key}')" style="background:none;border:none;cursor:pointer;font-size:16px;color:#C0392B;padding:4px 8px" title="Delete">🗑</button>
+        <div style="font-size:18px;color:#8B7355;margin-left:4px" id="inv-arrow-${key}">▼</div>
+      </div>
+      <div class="del-invoice-items" id="inv-items-${key}" style="display:none">
+        ${lineItemsHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.toggleInvoice = function(key) {
+  const items = document.getElementById('inv-items-' + key);
+  const arrow = document.getElementById('inv-arrow-' + key);
+  if (!items) return;
+  const open = items.style.display !== 'none';
+  items.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '▼' : '▲';
+};
+
+window.deleteDelivery = async function(key) {
+  if (!confirm('Delete this delivery entry? This will NOT reverse stock changes.')) return;
+  // Remove from local array
+  deliveryHistory = deliveryHistory.filter(d => {
+    const dk = d.invoiceId || ('manual-' + d.timestamp);
+    return dk !== key;
+  });
+  // Remove from Firestore
+  try {
+    const snap = await getDocs(collection(db, 'stores', viewingStore, 'deliveries'));
+    const toDelete = snap.docs.filter(d => {
+      const data = d.data();
+      const dk = data.invoiceId || ('manual-' + data.timestamp);
+      return dk === key;
+    });
+    await Promise.all(toDelete.map(d => deleteDoc(doc(db, 'stores', viewingStore, 'deliveries', d.id))));
+  } catch(e) { console.error(e); }
+  renderDelivery();
+  showToast('🗑 Delivery entry deleted');
+};
+
+// ── PDF Invoice Parser ──
+window.parseInvoicePDF = async function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  event.target.value = '';
+
+  const statusEl  = document.getElementById('invoiceParseStatus');
+  const previewEl = document.getElementById('invoicePreview');
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = '⏳ Reading invoice...';
+  previewEl.style.display = 'none';
+
+  try {
+    // Load PDF.js
+    if (!window.pdfjsLib) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+    // Extract all text lines across all pages
+    let allLines = [];
+    let invoiceNumber = '', invoiceDate = '', vendor = 'Karat', total = 0;
+
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page  = await pdf.getPage(p);
+      const tc    = await page.getTextContent();
+      // Group text items by Y position (same Y = same line)
+      const byY = {};
+      tc.items.forEach(item => {
+        const y = Math.round(item.transform[5]);
+        if (!byY[y]) byY[y] = [];
+        byY[y].push({ x: Math.round(item.transform[4]), str: item.str.trim() });
+      });
+      // Sort Y descending (top of page first), collect lines
+      Object.keys(byY).sort((a,b) => b-a).forEach(y => {
+        const lineStr = byY[y].sort((a,b) => a.x - b.x).map(i => i.str).join(' ').trim();
+        if (lineStr) allLines.push(lineStr);
+      });
+    }
+
+    // Extract meta from first page lines
+    allLines.forEach((line, i) => {
+      if (/invoice number/i.test(line)) {
+        // Next token after "Invoice number" on same line or next line
+        const m = line.match(/invoice number\s+(.+)/i);
+        if (m) invoiceNumber = m[1].trim();
+        else if (allLines[i+1]) invoiceNumber = allLines[i+1].trim();
+      }
+      if (/date of issue/i.test(line)) {
+        const m = line.match(/date of issue\s+(.+)/i);
+        if (m) invoiceDate = m[1].trim();
+        else if (allLines[i+1]) invoiceDate = allLines[i+1].trim();
+      }
+      if (/amount due/i.test(line)) {
+        const m = line.match(/\$([\d,]+\.\d{2})/);
+        if (m) total = parseFloat(m[1].replace(',',''));
+      }
+      if (/karat/i.test(line)) vendor = 'Karat';
+      if (/hyperpack/i.test(line)) vendor = 'Hyperpack';
+      if (/sysco/i.test(line)) vendor = 'Sysco';
+    });
+
+    // Parse line items
+    // Pattern: "Item Name  3  $45.25  $135.75"
+    // Regex: line ending with $X.XX $X.XX preceded by a number
+    const lineItemRegex = /^(.+?)\s+(\d+(?:\.\d+)?)\s+\$(\d+(?:,\d+)?(?:\.\d+)?)\s+\$(\d+(?:,\d+)?(?:\.\d+)?)$/;
+    const parsed = [];
+
+    allLines.forEach(line => {
+      const m = line.match(lineItemRegex);
+      if (!m) return;
+      const name       = m[1].trim();
+      const qty        = parseFloat(m[2]);
+      const unit_price = parseFloat(m[3].replace(',',''));
+      const lineTotal  = parseFloat(m[4].replace(',',''));
+      // Skip header, totals, fees, refunds
+      if (/^(description|subtotal|total|amount|qty|unit)/i.test(name)) return;
+      if (/franchise|refund|fee/i.test(name)) return;
+      if (lineTotal <= 0) return;
+      parsed.push({ name, qty, unit_price, total: lineTotal });
+    });
+
+    if (!parsed.length) {
+      statusEl.innerHTML = '⚠️ No line items found. The PDF may be image-based (scanned). Use manual entry below.';
+      return;
+    }
+
+    parsedInvoiceMeta  = { invoiceNumber, date: invoiceDate, vendor, total };
+    parsedInvoiceLines = parsed.map(line => {
+      const nl = line.name.toLowerCase();
+      const matched = DEFAULT_INVENTORY.find(inv => {
+        const il = inv.name.toLowerCase();
+        const words = nl.split(' ').filter(w => w.length > 3);
+        return words.some(w => il.includes(w)) || il.split(' ').some(w => w.length > 3 && nl.includes(w));
+      });
+      return { ...line, inventoryId: matched?.id || null, inventoryName: matched?.name || null };
+    });
+
+    renderInvoicePreview();
+    const mc = parsedInvoiceLines.filter(l => l.inventoryId).length;
+    statusEl.innerHTML = `✅ Found ${parsedInvoiceLines.length} items · ${mc} matched to inventory · ${parsedInvoiceLines.length - mc} unmatched`;
+    previewEl.style.display = 'block';
+
+  } catch(e) {
+    statusEl.innerHTML = '⚠️ Could not read PDF. Try uploading again or use manual entry below.';
+    console.error('PDF parse error:', e.message, e.stack);
+  }
+};
+
+function renderInvoicePreview() {
+  const meta = parsedInvoiceMeta;
+  document.getElementById('invoiceTotalBadge').textContent =
+    meta.total ? `Total: $${meta.total.toFixed(2)}` : '';
+
+  // Show date + vendor summary
+  const summaryHtml = `
+    <div class="cogs-card" style="margin-bottom:12px;padding:10px 14px">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div class="cogs-detail-item">Vendor: <span class="cogs-detail-val">${meta.vendor || '—'}</span></div>
+        <div class="cogs-detail-item">Date: <span class="cogs-detail-val">${meta.date || '—'}</span></div>
+        <div class="cogs-detail-item">Invoice #: <span class="cogs-detail-val">${meta.invoiceNumber || '—'}</span></div>
+        <div class="cogs-detail-item">Total: <span class="cogs-detail-val" style="color:var(--caramel)">$${meta.total ? meta.total.toFixed(2) : '—'}</span></div>
+      </div>
+    </div>`;
+
+  document.getElementById('invoiceLineItems').innerHTML = summaryHtml + parsedInvoiceLines.map((line, idx) => `
+    <div class="invoice-line">
+      <div class="invoice-line-name">${line.name}</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span class="invoice-line-meta">×<input type="number" value="${line.qty}" min="0" step="0.5"
+          style="width:60px;padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--cream);font-family:inherit;font-size:13px"
+          onchange="parsedInvoiceLines[${idx}].qty=parseFloat(this.value)||0"></span>
+        <span class="invoice-line-meta">@ $<input type="number" value="${line.unit_price}" min="0" step="0.01"
+          style="width:70px;padding:4px 6px;border-radius:6px;border:1px solid var(--border);background:var(--cream);font-family:inherit;font-size:13px"
+          onchange="parsedInvoiceLines[${idx}].unit_price=parseFloat(this.value)||0"></span>
+        <span class="invoice-line-meta" style="font-weight:600;color:var(--dark)">= $${line.total.toFixed(2)}</span>
+        ${line.inventoryId
+          ? `<span class="invoice-line-matched">✓ ${line.inventoryName}</span>`
+          : `<span class="invoice-line-unmatched">⚠ No match</span>`}
+      </div>
+    </div>`).join('');
+}
+
+window.confirmDelivery = async function() {
+  if (!parsedInvoiceLines.length) return;
+  const invoiceId = 'inv-' + Date.now();
+  const meta = parsedInvoiceMeta;
+  let stockUpdated = 0;
+
+  for (const line of parsedInvoiceLines) {
+    const entry = {
+      invoiceId,
+      invoiceNumber: meta.invoiceNumber || '',
+      invoiceDate: meta.date || new Date().toLocaleDateString(),
+      vendor: meta.vendor || 'Unknown',
+      invoiceTotal: meta.total || 0,
+      itemName: line.name,
+      qty: line.qty,
+      unitCost: line.unit_price,
+      totalCost: line.qty * line.unit_price,
+      uom: line.inventoryId ? (DEFAULT_INVENTORY.find(i => i.id === line.inventoryId)?.uom || '') : '',
+      timeStr: new Date().toLocaleString(),
+      timestamp: Date.now()
+    };
+
+    // Update stock if matched
+    if (line.inventoryId) {
+      const item = inventory.find(i => i.id === line.inventoryId);
+      if (item) {
+        item.stock = Math.round((item.stock + line.qty) * 10) / 10;
+        // Update actual cost
+        item.cost = line.unit_price;
+        stockUpdated++;
+      }
+    }
+
+    deliveryHistory.unshift(entry);
+    try {
+      await addDoc(collection(db, 'stores', viewingStore, 'deliveries'), entry);
+      // Save to COGS cost ledger
+      await addDoc(collection(db, 'stores', viewingStore, 'costLedger'), {
+        date: meta.date || new Date().toLocaleDateString(),
+        dateTs: Date.now(),
+        invoiceId,
+        vendor: meta.vendor || '',
+        amount: line.qty * line.unit_price,
+        itemName: line.name
+      });
+    } catch(e) {}
+  }
+
+  await saveStock();
+
+  // Hide preview, reset
+  document.getElementById('invoicePreview').style.display = 'none';
+  document.getElementById('invoiceParseStatus').innerHTML =
+    `✅ Delivery confirmed — ${stockUpdated} inventory items updated, ${parsedInvoiceLines.length} cost entries recorded`;
+  parsedInvoiceLines = [];
+  parsedInvoiceMeta = {};
+
+  renderDashboard(); renderInventory(); renderOrders(); renderDelivery();
+  showToast(`✅ Invoice logged — ${stockUpdated} items updated`);
+  logAudit('delivery_confirmed', { invoiceId, vendor: meta.vendor, total: meta.total, itemCount: parsedInvoiceLines.length, stockUpdated });
+};
+
+window.cancelInvoice = function() {
+  parsedInvoiceLines = [];
+  parsedInvoiceMeta = {};
+  document.getElementById('invoicePreview').style.display = 'none';
+  document.getElementById('invoiceParseStatus').style.display = 'none';
+};
+
+// ── Manual single item log ──
+window.logDelivery = async function() {
+  const itemId = parseInt(document.getElementById('delivItem').value);
+  const qty    = parseFloat(document.getElementById('delivQty').value) || 0;
+  const cost   = parseFloat(document.getElementById('delivCost').value) || 0;
+  const note   = document.getElementById('delivNote').value.trim();
+  if (!itemId || qty <= 0) { showToast('⚠️ Select an item and enter qty'); return; }
+  const item = inventory.find(i => i.id === itemId);
+  if (!item) return;
+  item.stock = Math.round((item.stock + qty) * 10) / 10;
+  if (cost > 0) item.cost = cost;
+  const entry = {
+    itemId, itemName: item.name, qty, uom: item.uom,
+    unitCost: cost, totalCost: cost * qty, note,
+    vendor: 'Manual', invoiceDate: new Date().toLocaleDateString(),
+    timeStr: new Date().toLocaleString(), timestamp: Date.now()
+  };
+  deliveryHistory.unshift(entry);
+  try {
+    await addDoc(collection(db, 'stores', viewingStore, 'deliveries'), entry);
+    if (cost > 0) {
+      await addDoc(collection(db, 'stores', viewingStore, 'costLedger'), {
+        date: new Date().toLocaleDateString(), dateTs: Date.now(),
+        vendor: 'Manual', amount: cost * qty, itemName: item.name
+      });
+    }
+  } catch(e) {}
+  await saveStock();
+  document.getElementById('delivQty').value = '';
+  document.getElementById('delivCost').value = '';
+  document.getElementById('delivNote').value = '';
+  renderDashboard(); renderInventory(); renderOrders(); renderDelivery();
+  showToast(`✅ +${qty} ${item.uom} of ${item.name} logged`);
+};
+
+
+
+
+
+
+
+// ── Load Pending Signups (owner only) ──
+async function loadPendingSignups() {
+  const el = document.getElementById('pendingSignupsList');
+  if (!el) return;
+  try {
+    const snap = await db.collection('signupRequests')
+      .where('status', '==', 'pending').get();
+    const pending = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const banner = document.getElementById('pendingBanner');
+    if (!pending.length) {
+      if (banner) banner.style.display = 'none';
+      el.innerHTML = '<div style="font-size:12px;color:#8B7355">No pending signups ✅</div>';
+      return;
+    }
+    if (banner) banner.style.display = 'block';
+    el.innerHTML = pending.map(s => `
+      <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--dark)">${s.name}</div>
+            <div style="font-size:12px;color:#8B7355">${s.email}</div>
+            <div style="font-size:12px;color:#8B7355;margin-top:2px">🏪 ${s.storeName} · ${s.storeType} · ${s.city || ''}</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px">${new Date(s.createdAt).toLocaleDateString()}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-log" style="width:auto;padding:6px 14px;font-size:12px;background:var(--green-ok)"
+              onclick="approveSignup('${s.id}','${s.storeId}','${s.storeName}','${s.email}')">✅ Approve</button>
+            <button class="btn-log" style="width:auto;padding:6px 14px;font-size:12px;background:#C0392B"
+              onclick="rejectSignup('${s.id}','${s.email}')">✕ Reject</button>
+          </div>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="font-size:12px;color:#8B7355">Could not load signups.</div>';
+  }
+}
+
+window.approveSignup = async function(reqId, storeId, storeName, email) {
+  try {
+    const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_');
+
+    // Update signup request status
+    await setDoc(doc(db, 'signupRequests', reqId), { status: 'approved' }, { merge: true });
+
+    // Update user profile to approved with store assignment
+    const finalStoreId = storeId || emailKey.replace('_at_gmail_com','').replace('_at_','_');
+    await setDoc(doc(db, 'users', emailKey), {
+      status: 'approved',
+      role: 'store_owner',
+      store: finalStoreId,
+      approvedAt: Date.now(),
+      approvedBy: currentUser.email
+    }, { merge: true });
+
+    // Create store in config
+    const configSnap = await getDoc(doc(db, 'config', 'stores'));
+    const existing = configSnap.exists ? configSnap.data() : {};
+    existing[storeId] = { name: storeName, id: storeId, createdAt: Date.now() };
+    await setDoc(doc(db, 'config', 'stores'), existing);
+
+    showToast(`✅ ${storeName} approved!`);
+    logAudit('signup_approved', { email, storeId, storeName });
+    loadPendingSignups();
+  } catch(e) {
+    showToast('⚠️ Approval failed: ' + e.message);
+  }
+};
+
+window.rejectSignup = async function(reqId, email) {
+  if (!confirm(`Reject signup from ${email}?`)) return;
+  try {
+    await setDoc(doc(db, 'signupRequests', reqId), { status: 'rejected' }, { merge: true });
+    const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_');
+    await setDoc(doc(db, 'users', emailKey), { status: 'rejected' }, { merge: true });
+    showToast('Signup rejected');
+    loadPendingSignups();
+  } catch(e) {}
+};
+
+// ══════════════════════════════════════════
+// ONBOARDING MODULE
+// ══════════════════════════════════════════
+
+// ── Login/Signup screen toggles ──
+window.showSignup = function() {
+  document.getElementById('loginPanel').style.display  = 'none';
+  document.getElementById('signupPanel').style.display = 'block';
+  document.getElementById('pendingPanel').style.display = 'none';
+};
+
+window.showLogin = function() {
+  document.getElementById('loginPanel').style.display  = 'block';
+  document.getElementById('signupPanel').style.display = 'none';
+  document.getElementById('pendingPanel').style.display = 'none';
+};
+
+window.showPending = function(storeName) {
+  document.getElementById('loginPanel').style.display   = 'none';
+  document.getElementById('signupPanel').style.display  = 'none';
+  document.getElementById('pendingPanel').style.display = 'block';
+  document.getElementById('pendingStoreName').textContent = '🏪 ' + storeName;
+};
+
+// ── Sign Up ──
+window.doSignup = async function() {
+  const name      = document.getElementById('signupName').value.trim();
+  const email     = document.getElementById('signupEmail').value.trim().toLowerCase();
+  const password  = document.getElementById('signupPassword').value;
+  const storeName = document.getElementById('signupStoreName').value.trim();
+  const storeType = document.getElementById('signupStoreType').value;
+  const city      = document.getElementById('signupCity').value.trim();
+  const errEl     = document.getElementById('signupError');
+  const btn       = document.getElementById('signupBtn');
+
+  errEl.textContent = '';
+
+  if (!name || !email || !password || !storeName || !storeType) {
+    errEl.textContent = 'Please fill in all required fields'; return;
+  }
+  if (password.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters'; return;
+  }
+
+  btn.textContent = 'Creating account...';
+  btn.disabled = true;
+
+  try {
+    // Create Firebase Auth account
+    const { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js');
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCred.user.uid;
+
+    // Generate store ID from store name
+    const storeId = storeName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 30);
+
+    // Write user profile with pending status
+    const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_');
+    await setDoc(doc(db, 'users', emailKey), {
+      email, name, store: storeId, role: 'manager',
+      status: 'pending',
+      storeName, storeType, city,
+      createdAt: Date.now()
+    });
+
+    // Write pending signup request for owner to review
+    await setDoc(doc(db, 'signupRequests', emailKey), {
+      email, name, storeName, storeType, city, storeId,
+      status: 'pending',
+      createdAt: Date.now(),
+      uid
+    });
+
+    showPending(storeName);
+    showToast('✅ Account created! Awaiting approval.');
+
+  } catch(e) {
+    btn.textContent = 'Request Access';
+    btn.disabled = false;
+    const msgs = {
+      'auth/email-already-in-use': 'This email is already registered. Try signing in.',
+      'auth/weak-password': 'Password is too weak. Use at least 8 characters.',
+      'auth/invalid-email': 'Invalid email address.',
+    };
+    errEl.textContent = msgs[e.code] || e.message;
+  }
+};
+
+// ── Check if user is pending on auth state change ──
+async function checkPendingStatus(user) {
+  const emailKey = user.email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try {
+    const snap = await getDoc(doc(db, 'users', emailKey));
+    if (snap.exists) {
+      const data = snap.data();
+      // Show pending screen if status is pending
+      if (data.status === 'pending') {
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('app').style.display = 'none';
+        showPending(data.storeName || 'Your Store');
+        return true;
+      }
+      // If no store assigned yet, show pending
+      if (!data.store && data.status !== 'approved') {
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('app').style.display = 'none';
+        showPending(data.storeName || 'Your Store');
+        return true;
+      }
+    }
+  } catch(e) { console.warn('checkPendingStatus error:', e); }
+  return false;
+}
+
+// ── Setup Wizard ──
+let wizStaffList = [];
+
+window.wizNext = function(step) {
+  // Save current step data before moving
+  if (step === 2) {
+    const storeName = document.getElementById('wiz1StoreName').value.trim();
+    if (!storeName) { showToast('⚠️ Please enter your store name'); return; }
+  }
+
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('wizStep' + i).style.display = i === step ? 'block' : 'none';
+  }
+  document.getElementById('wizardStepLabel').textContent = `Step ${step} of 4`;
+  document.getElementById('wizardProgress').style.width = (step * 25) + '%';
+
+  // Populate step 3 menu prices
+  if (step === 3) renderWizMenuPrices();
+};
+
+window.wiz2AddStaff = function() {
+  const name = document.getElementById('wiz2Name').value.trim();
+  const role = document.getElementById('wiz2Role').value.trim() || 'Staff';
+  if (!name) { showToast('⚠️ Enter a name'); return; }
+  const colors = ['#C8843A','#7BBFA5','#5B8DD9','#D4A843','#E8A598','#9B59B6'];
+  wizStaffList.push({ id: 'ws' + Date.now(), name, role, color: colors[wizStaffList.length % colors.length] });
+  document.getElementById('wiz2Name').value = '';
+  document.getElementById('wiz2Role').value = '';
+  renderWiz2Staff();
+};
+
+function renderWiz2Staff() {
+  document.getElementById('wiz2StaffList').innerHTML = wizStaffList.length === 0
+    ? '<div style="font-size:12px;color:#8B7355;margin-bottom:8px">No staff added yet — add at least one</div>'
+    : wizStaffList.map((s,i) => `<div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--card-bg);border-radius:8px;margin-bottom:6px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${s.color}"></div>
+        <span style="flex:1;font-size:13px">${s.name} <span style="color:#8B7355">${s.role}</span></span>
+        <span onclick="wizStaffList.splice(${i},1);renderWiz2Staff()" style="cursor:pointer;color:#C0392B">×</span>
+      </div>`).join('');
+}
+
+function renderWizMenuPrices() {
+  const cats = ['Milk Tea', 'Coffee', 'Ice Cream', 'Milkshakes'];
+  const items = Object.keys(RECIPES).slice(0, 20); // first 20 items
+  document.getElementById('wiz3MenuItems').innerHTML = items.map(name => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:13px;color:var(--dark)">${name}</span>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:12px;color:#8B7355">$</span>
+        <input type="number" step="0.25" min="0" placeholder="0.00"
+          value="${menuPrices[name] || ''}"
+          onchange="menuPrices['${name.replace(/'/g,"\\'")}'] = parseFloat(this.value)||0"
+          style="width:70px;padding:6px 8px;border-radius:6px;border:1px solid var(--border);font-family:inherit;font-size:13px;text-align:right">
+      </div>
+    </div>`).join('');
+}
+
+window.completeWizard = async function() {
+  // Save wizard data
+  const storeName = document.getElementById('wiz1StoreName').value.trim();
+  const city = document.getElementById('wiz1City').value.trim();
+
+  // Get selected categories
+  const cats = [...document.querySelectorAll('#wiz1Categories input:checked')].map(c => c.value);
+
+  // Save staff to schedule
+  if (wizStaffList.length > 0) {
+    schedStaff = wizStaffList;
+    await saveScheduleData();
+  }
+
+  // Save menu prices
+  await saveMenuPrice('_wizard_complete_', 1);
+
+  // Mark setup as complete in Firestore
+  const emailKey = currentUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try {
+    await setDoc(doc(db, 'users', emailKey), {
+      setupComplete: true,
+      storeName, city,
+      customCategories: cats.filter(c => !['Boba','Coffee','Ice Cream','Dry Stock','Condiments'].includes(c))
+    }, { merge: true });
+  } catch(e) {}
+
+  // Hide wizard and show app
+  document.getElementById('setupWizard').style.display = 'none';
+  showToast('🎉 Setup complete! Welcome to your store.');
+  logAudit('setup_complete', { storeName, staffCount: wizStaffList.length });
+};
+
+// ── Show wizard for new users ──
+async function checkNeedsSetup() {
+  if (!currentUser) return;
+  // Skip wizard for super_owner and regional_owner
+  if (isSuperOwner(currentUserConfig) || isRegionalOwner(currentUserConfig)) return;
+  const emailKey = currentUser.email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try {
+    const snap = await getDoc(doc(db, 'users', emailKey));
+    // Only show wizard if self-registered (has storeType from signup form)
+    if (snap.exists && !snap.data().setupComplete && snap.data().status === 'approved' && snap.data().storeType) {
+      // Pre-fill wizard with signup data
+      const d = snap.data();
+      document.getElementById('wiz1StoreName').value = d.storeName || '';
+      document.getElementById('wiz1City').value = d.city || '';
+      document.getElementById('setupWizard').style.display = 'block';
+    }
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════
+// AUDIT TRAIL MODULE
+// ══════════════════════════════════════════
+
+async function logAudit(action, details = {}) {
+  if (!currentUser) return;
+  try {
+    await db.collection('stores').doc(viewingStore||'coppell').collection('auditLog').add({
+      action,
+      details,
+      userEmail: currentUser.email,
+      userName:  currentUserConfig?.name || currentUser.email,
+      storeId:   viewingStore,
+      timestamp: Date.now(),
+      dateStr:   new Date().toLocaleString()
+    });
+  } catch(e) {
+    // Audit logging should never break the app
+    console.warn('Audit log failed:', e);
+  }
+}
+
+// ══════════════════════════════════════════
+// ADD ITEM / ADD CATEGORY MODULE
+// ══════════════════════════════════════════
+
+// Custom categories added by manager (persisted to Firestore)
+let customCategories = [];
+let customItems = []; // items added via the UI
+
+async function loadCustomItems() {
+  try {
+    const snap = await getDoc(doc(db, 'stores', viewingStore, 'inventory', 'custom'));
+    if (snap.exists) {
+      const d = snap.data();
+      customCategories = d.categories || [];
+      customItems      = d.items      || [];
+      // Merge custom items into inventory if not already present
+      customItems.forEach(ci => {
+        if (!inventory.find(i => i.id === ci.id)) {
+          inventory.push(ci);
+        }
+      });
+    }
+  } catch(e) {}
+  renderStockValueBanner();
+  renderInventory();
+}
+
+async function saveCustomItems() {
+  try {
+    await setDoc(doc(db, 'stores', viewingStore, 'inventory', 'custom'), {
+      categories: customCategories,
+      items: customItems
+    });
+  } catch(e) { showToast('⚠️ Save failed'); }
+}
+
+// ── Stock Value Banner ──
+function renderStockValueBanner() {
+  const cats = [...new Set(inventory.map(i => i.cat))];
+  const el = document.getElementById('stockValueBanner');
+  if (!el) return;
+
+  // Total value
+  let totalVal = 0;
+  inventory.forEach(i => { if (i.cost) totalVal += i.stock * i.cost; });
+
+  let html = `<div class="stock-val-card" style="border-color:var(--caramel);background:rgba(200,132,58,0.06)">
+    <div class="stock-val-cat">Total Stock</div>
+    <div class="stock-val-amt">$${totalVal.toFixed(0)}</div>
+    <div class="stock-val-count">${inventory.length} items</div>
+  </div>`;
+
+  cats.forEach(cat => {
+    const items = inventory.filter(i => i.cat === cat);
+    const val = items.reduce((s,i) => s + (i.cost ? i.stock * i.cost : 0), 0);
+    const count = items.length;
+    html += `<div class="stock-val-card">
+      <div class="stock-val-cat">${cat}</div>
+      <div class="stock-val-amt">$${val.toFixed(0)}</div>
+      <div class="stock-val-count">${count} items</div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+// ── Add Category Modal ──
+window.openAddCategory = function() {
+  const allCats = [...new Set(inventory.map(i => i.cat)), ...customCategories];
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">+ Add Category</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div style="margin-bottom:14px">
+      ${allCats.map(c => `<div style="display:inline-flex;align-items:center;gap:6px;background:var(--cream);border:1px solid var(--border);border-radius:20px;padding:5px 12px;margin:4px;font-size:13px">
+        ${c}
+        ${customCategories.includes(c) ? `<span onclick="removeCategory('${c}')" style="cursor:pointer;color:#C0392B;font-size:16px">×</span>` : ''}
+      </div>`).join('')}
+    </div>
+    <div class="modal-label">New Category Name</div>
+    <input class="modal-input" id="newCatName" placeholder="e.g. Bakery, Falooda, Seasonal">
+    <button class="modal-btn" onclick="addCategory()">+ Add Category</button>
+  `);
+};
+
+window.addCategory = async function() {
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) { showToast('⚠️ Enter a category name'); return; }
+  if (customCategories.includes(name)) { showToast('⚠️ Already exists'); return; }
+  customCategories.push(name);
+  await saveCustomItems();
+  showToast(`✅ Category "${name}" added!`);
+  closeModal();
+  renderInventory();
+};
+
+window.removeCategory = async function(name) {
+  customCategories = customCategories.filter(c => c !== name);
+  await saveCustomItems();
+  openAddCategory();
+  renderInventory();
+};
+
+// ── Add Item Modal ──
+window.openAddItem = function() {
+  const allCats = [...new Set(inventory.map(i => i.cat)), ...customCategories];
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="modal-title">+ Add Inventory Item</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="modal-label">Item Name *</div>
+    <input class="modal-input" id="aiName" placeholder="e.g. Croissant, Rose Syrup">
+
+    <div class="modal-label">Category *</div>
+    <select class="modal-input" id="aiCat">
+      <option value="">— Select category —</option>
+      ${allCats.map(c => `<option value="${c}">${c}</option>`).join('')}
+    </select>
+
+    <div class="modal-label">Vendor / Supplier</div>
+    <input class="modal-input" id="aiVendor" placeholder="e.g. Walmart, Local Bakery">
+
+    <div class="modal-label">Unit of Measure</div>
+    <select class="modal-input" id="aiUom">
+      <option>CASE</option><option>BAG</option><option>BOTTLE</option>
+      <option>JAR</option><option>TUB</option><option>BOX</option>
+      <option>PKT</option><option>CAN</option><option>EACH</option><option>LBS</option>
+    </select>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+      <div>
+        <div class="modal-label">Current Stock</div>
+        <input class="modal-input" id="aiStock" type="number" min="0" value="0" step="0.5">
+      </div>
+      <div>
+        <div class="modal-label">Par Level</div>
+        <input class="modal-input" id="aiPar" type="number" min="0" value="1" step="0.5">
+      </div>
+      <div>
+        <div class="modal-label">Unit Cost ($)</div>
+        <input class="modal-input" id="aiCost" type="number" min="0" value="" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+
+    <div class="modal-label">Order Quantity</div>
+    <input class="modal-input" id="aiOrderQty" placeholder="e.g. 1 CASE, 2 BAGS">
+
+    <button class="modal-btn" onclick="addCustomItem()">+ Add to Inventory</button>
+  `);
+};
+
+window.addCustomItem = async function() {
+  const name     = document.getElementById('aiName').value.trim();
+  const cat      = document.getElementById('aiCat').value;
+  const vendor   = document.getElementById('aiVendor').value.trim() || 'Other';
+  const uom      = document.getElementById('aiUom').value;
+  const stock    = parseFloat(document.getElementById('aiStock').value) || 0;
+  const par      = parseFloat(document.getElementById('aiPar').value) || 1;
+  const cost     = parseFloat(document.getElementById('aiCost').value) || 0;
+  const orderQty = document.getElementById('aiOrderQty').value.trim() || `1 ${uom}`;
+
+  if (!name || !cat) { showToast('⚠️ Name and category required'); return; }
+
+  // Generate unique id (use timestamp-based high number to avoid conflicts)
+  const newId = 9000 + customItems.length + 1;
+  const newItem = { id:newId, name, cat, vendor, uom, stock, par, cost, order_qty:orderQty, code:`CUSTOM-${newId}` };
+
+  customItems.push(newItem);
+  inventory.push(newItem);
+
+  // Also save stock to main stock doc
+  await saveStock();
+  await saveCustomItems();
+
+  closeModal();
+  renderInventory();
+  renderStockValueBanner();
+  renderDashboard();
+  showToast(`✅ "${name}" added to ${cat}!`);
+};
+
+
+
+
+
+// ══════════════════════════════════════════
+// SCHEDULE EXPORT MODULE
+// ══════════════════════════════════════════
+
+window.exportScheduleImage = async function() {
+  // Load html2canvas if not loaded
+  if (!window.html2canvas) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Make sure we're in weekly view
+  setSchedView('week');
+  await new Promise(r => setTimeout(r, 300));
+
+  // Build a clean standalone schedule table for export
+  const { weekDates, weekLabels } = getExportWeekDates();
+  const storeName = STORES[viewingStore]?.name || viewingStore;
+
+  // Create export container
+  const exportDiv = document.createElement('div');
+  exportDiv.style.cssText = `
+    position:fixed; left:-9999px; top:0;
+    background:#FDF6EC; padding:24px; font-family:Arial,sans-serif;
+    width:900px; border-radius:12px;
+  `;
+
+  // Header
+  const weekStart = weekDates[0];
+  const weekEnd   = weekDates[6];
+  const headerLabel = `${weekStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${weekEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+
+  exportDiv.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:22px;font-weight:900;color:#3D2B1F;font-family:serif">Dumont</div>
+        <div style="font-size:13px;color:#8B7355;text-transform:uppercase;letter-spacing:1px">${storeName} — Staff Schedule</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:#C8843A;background:#FFF8EE;padding:8px 16px;border-radius:20px;border:1px solid #E8D5B0">
+        📅 ${headerLabel}
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:#3D2B1F">
+          <th style="padding:10px 12px;text-align:left;color:#D4A843;font-weight:700;width:140px">Staff</th>
+          ${weekDates.map((d,i) => {
+            const isToday = d.toDateString() === new Date().toDateString();
+            return `<th style="padding:10px 8px;text-align:center;color:${isToday?'#FFD700':'#D4A843'};font-weight:700;background:${isToday?'rgba(200,132,58,0.3)':'transparent'}">
+              <div>${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]}</div>
+              <div style="font-size:11px;opacity:0.8">${d.getDate()}</div>
+            </th>`;
+          }).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${schedStaff.length === 0
+          ? `<tr><td colspan="8" style="padding:32px;text-align:center;color:#8B7355">No staff added yet</td></tr>`
+          : schedStaff.map((staff, si) => {
+              const rowBg = si % 2 === 0 ? '#FFFFFF' : '#FDF6EC';
+              return `<tr style="background:${rowBg}">
+                <td style="padding:10px 12px;border-right:2px solid #E8D5B0">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <div style="width:10px;height:10px;border-radius:50%;background:${staff.color};flex-shrink:0"></div>
+                    <div>
+                      <div style="font-weight:700;color:#1A1209;font-size:12px">${staff.name}</div>
+                      <div style="font-size:10px;color:#8B7355">${staff.role||''}</div>
+                    </div>
+                  </div>
+                </td>
+                ${weekDates.map(d => {
+                  const ds = d.toISOString().split('T')[0];
+                  const isToday = d.toDateString() === new Date().toDateString();
+                  const dayShifts = schedShifts.filter(s => s.staffId === staff.id && s.date === ds);
+                  const cellBg = isToday ? 'rgba(200,132,58,0.06)' : 'transparent';
+                  return `<td style="padding:6px;text-align:center;border:1px solid #EDE0CC;background:${cellBg};min-width:100px;vertical-align:top">
+                    ${dayShifts.length === 0
+                      ? '<div style="color:#DDD;font-size:18px;line-height:32px">—</div>'
+                      : dayShifts.map(shift => {
+                          const st = schedShiftTypes.find(t => t.id === shift.shiftTypeId) || {name:shift.shiftTypeId, color:'#999', start:'', end:''};
+                          return `<div style="background:${st.color}22;border:1px solid ${st.color}55;border-radius:6px;padding:4px 6px;margin-bottom:3px">
+                            <div style="font-weight:700;color:${st.color};font-size:11px">${st.name}</div>
+                            <div style="font-size:10px;color:#8B7355">${fmt12(st.start)}–${fmt12(st.end)}</div>
+                          </div>`;
+                        }).join('')
+                    }
+                  </td>`;
+                }).join('')}
+              </tr>`;
+            }).join('')
+        }
+      </tbody>
+    </table>
+    <div style="margin-top:16px;display:flex;justify-content:space-between;font-size:11px;color:#8B7355">
+      <span>Generated by Dumont Inventory App · ${new Date().toLocaleString()}</span>
+      <span>${schedStaff.length} staff · ${schedShifts.filter(s => {
+        const wd = weekDates.map(d => d.toISOString().split('T')[0]);
+        return wd.includes(s.date);
+      }).length} shifts this week</span>
+    </div>
+  `;
+
+  document.body.appendChild(exportDiv);
+
+  try {
+    const canvas = await html2canvas(exportDiv, {
+      scale: 2,
+      backgroundColor: '#FDF6EC',
+      logging: false,
+      useCORS: true
+    });
+
+    document.body.removeChild(exportDiv);
+
+    // Convert to blob and download
+    canvas.toBlob(blob => {
+      const url  = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href     = url;
+      link.download = `Dumont_${storeName}_Schedule_${headerLabel.replace(/[^a-z0-9]/gi,'_')}.png`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast('✅ Schedule image downloaded — share on WhatsApp!');
+    }, 'image/png');
+
+  } catch(e) {
+    document.body.removeChild(exportDiv);
+    showToast('⚠️ Could not export. Try again.');
+    console.error(e);
+  }
+};
+
+function getExportWeekDates() {
+  // Use same week calculation as the grid (Mon start, respects schedOffset)
+  const ws = getWeekStart(schedOffset);
+  const weekDates = Array.from({length:7}, (_, i) => {
+    const d = new Date(ws);
+    d.setDate(ws.getDate() + i);
+    return d;
+  });
+  return { weekDates, weekLabels: weekDates.map(d => d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})) };
+}
+
+// ══════════════════════════════════════════
+// STOCK SNAPSHOT MODULE (Method 2 COGS)
+// ══════════════════════════════════════════
+
+window.takeStockSnapshot = async function takeStockSnapshot(type) {
+  // Calculate current total stock value
+  const totalValue = inventory.reduce((sum, item) => {
+    return sum + (item.stock * (item.cost || 0));
+  }, 0);
+
+  const categoryValues = {};
+  inventory.forEach(item => {
+    if (!categoryValues[item.cat]) categoryValues[item.cat] = 0;
+    categoryValues[item.cat] += item.stock * (item.cost || 0);
+  });
+
+  const snapshot = {
+    type,           // 'open' or 'close'
+    value: totalValue,
+    categoryValues,
+    date: new Date().toLocaleDateString(),
+    dateTs: Date.now(),
+    itemCount: inventory.length,
+    weekStart: getSnapshotWeekKey()
+  };
+
+  try {
+    await setDoc(doc(db, 'stores', viewingStore, 'snapshots', `${type}-${snapshot.weekStart}`), snapshot);
+    showToast(`✅ ${type === 'open' ? 'Opening' : 'Closing'} stock recorded — $${totalValue.toFixed(2)}`);
+    loadCogsLedgers();
+  } catch(e) {
+    showToast('⚠️ Could not save snapshot');
+    console.error(e);
+  }
+}
+
+function getSnapshotWeekKey() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day;
+  const weekStart = new Date(now.setDate(diff));
+  return weekStart.toISOString().split('T')[0];
+}
+
+// ══════════════════════════════════════════
+// COGS REPORT MODULE
+// ══════════════════════════════════════════
+
+let cogsView = 'report';   // 'report' | 'margins'
+let cogsPeriod = 'day';    // 'day' | 'week' | 'month'
+let cogsOffset = 0;        // 0 = current, -1 = previous, etc.
+let salesLedger = [];      // loaded from Firestore
+let costLedger  = [];      // loaded from Firestore
+
+window.setCogsView = function(v) {
+  cogsView = v;
+  document.getElementById('cogsViewReport').classList.toggle('active', v === 'report');
+  document.getElementById('cogsViewMargins').classList.toggle('active', v === 'margins');
+  document.getElementById('cogsReportView').style.display = v === 'report' ? 'block' : 'none';
+  document.getElementById('cogsMarginView').style.display = v === 'margins' ? 'block' : 'none';
+  if (v === 'margins' && !cogsLoaded) { cogsLoaded = false; loadCogsData(); }
+  if (v === 'report') renderCogsReport();
+};
+
+window.setCogsPeriod = function(p) {
+  cogsPeriod = p; cogsOffset = 0;
+  ['Day','Week','Month'].forEach(x =>
+    document.getElementById('cogsPeriod'+x).classList.toggle('active', p === x.toLowerCase()));
+  renderCogsReport();
+};
+
+window.cogsNavPeriod = function(dir) {
+  cogsOffset += dir;
+  renderCogsReport();
+};
+
+function getPeriodRange() {
+  const now = new Date();
+  let start, end, label;
+  if (cogsPeriod === 'day') {
+    start = new Date(now); start.setDate(start.getDate() + cogsOffset);
+    start.setHours(0,0,0,0);
+    end = new Date(start); end.setHours(23,59,59,999);
+    label = cogsOffset === 0 ? 'Today' : start.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  } else if (cogsPeriod === 'week') {
+    const day = now.getDay();
+    start = new Date(now); start.setDate(now.getDate() - day + (cogsOffset * 7));
+    start.setHours(0,0,0,0);
+    end = new Date(start); end.setDate(start.getDate() + 6); end.setHours(23,59,59,999);
+    label = `${start.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${end.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+  } else {
+    start = new Date(now.getFullYear(), now.getMonth() + cogsOffset, 1);
+    end   = new Date(now.getFullYear(), now.getMonth() + cogsOffset + 1, 0, 23, 59, 59);
+    label = start.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  }
+  return { start, end, label };
+}
+
+let stockSnapshots = [];
+
+async function loadCogsLedgers() {
+  try {
+    const salesSnap = await getDocs(collection(db, 'stores', viewingStore, 'salesLedger'));
+    salesLedger = salesSnap.docs.map(d => d.data());
+    const costSnap = await getDocs(collection(db, 'stores', viewingStore, 'costLedger'));
+    costLedger = costSnap.docs.map(d => d.data());
+    const snapSnap = await getDocs(collection(db, 'stores', viewingStore, 'snapshots'));
+    stockSnapshots = snapSnap.docs.map(d => d.data());
+  } catch(e) {}
+  renderCogsReport();
+}
+
+function renderCogsReport() {
+  const { start, end, label } = getPeriodRange();
+  document.getElementById('cogsPeriodLabel').textContent = label;
+
+  // ── Revenue from Clover sales uploads ──
+  const revenue = salesLedger
+    .filter(s => s.dateTs >= start.getTime() && s.dateTs <= end.getTime())
+    .reduce((sum, s) => sum + (s.revenue || 0), 0);
+
+  // ── METHOD 2: Opening Stock + Purchases - Closing Stock = COGS ──
+  const weekKey = getSnapshotWeekKey();
+  const openSnap  = stockSnapshots.find(s => s.type === 'open'  && s.weekStart === weekKey);
+  const closeSnap = stockSnapshots.find(s => s.type === 'close' && s.weekStart === weekKey);
+  const purchases = costLedger
+    .filter(c => c.dateTs >= start.getTime() && c.dateTs <= end.getTime())
+    .reduce((sum, c) => sum + (c.amount || 0), 0);
+
+  // Show snapshot info
+  const snapEl = document.getElementById('snapshotInfo');
+  if (openSnap || closeSnap) {
+    snapEl.style.display = 'block';
+    snapEl.innerHTML = `
+      ${openSnap  ? `📸 Opening stock: <strong>$${openSnap.value.toFixed(2)}</strong> recorded on ${openSnap.date}` : '⚠️ No opening stock recorded yet — tap "Record Opening Stock"'}
+      ${openSnap && closeSnap ? '<br>' : ''}
+      ${closeSnap ? `📸 Closing stock: <strong>$${closeSnap.value.toFixed(2)}</strong> recorded on ${closeSnap.date}` : openSnap ? '<br>⚠️ No closing stock yet — record at end of week' : ''}
+    `;
+  } else {
+    snapEl.style.display = 'block';
+    snapEl.innerHTML = `💡 To calculate real COGS: tap <strong>Record Opening Stock</strong> at start of week, then <strong>Record Closing Stock</strong> at end of week.`;
+  }
+
+  // Calculate COGS using Method 2 if both snapshots exist
+  let cost = 0;
+  let method = 'purchases'; // fallback to delivery spend
+  if (openSnap && closeSnap) {
+    cost = openSnap.value + purchases - closeSnap.value;
+    method = 'method2';
+    if (cost < 0) cost = 0; // can't be negative
+  } else {
+    cost = purchases; // fallback: show delivery spend
+  }
+
+  const profit = revenue - cost;
+  const pct    = revenue > 0 ? (cost / revenue * 100) : 0;
+
+  document.getElementById('cogsRevenue').textContent = '$' + revenue.toFixed(0);
+  document.getElementById('cogsCost').textContent    = '$' + cost.toFixed(0);
+  document.getElementById('cogsProfit').textContent  = (profit >= 0 ? '$' : '-$') + Math.abs(profit).toFixed(0);
+  document.getElementById('cogsProfit').style.color  = profit >= 0 ? 'var(--green-ok)' : 'var(--red-alert)';
+
+  const pctEl = document.getElementById('cogsReportPct');
+  const barEl = document.getElementById('cogsReportBar');
+  const varEl = document.getElementById('cogsVarianceAlert');
+
+  if (revenue > 0 && cost > 0) {
+    pctEl.textContent = pct.toFixed(1) + '%';
+    pctEl.style.color = pct < 25 ? 'var(--green-ok)' : pct < 32 ? 'var(--amber-alert)' : 'var(--red-alert)';
+    barEl.style.width = Math.min(100, pct * 2) + '%';
+    barEl.className   = 'cogs-bar-fill ' + (pct < 25 ? 'margin-bar-good' : pct < 32 ? 'margin-bar-warn' : 'margin-bar-bad');
+    if (pct > 32) {
+      varEl.style.display = 'block';
+      varEl.innerHTML = `⚠️ COGS is ${pct.toFixed(1)}% — above 32% target. ${method === 'method2' ? 'Check wastage or pricing.' : 'Note: based on delivery spend, not actual usage.'}`;
+    } else {
+      varEl.style.display = 'none';
+    }
+  } else {
+    pctEl.textContent = '—';
+    varEl.style.display = 'block';
+    varEl.innerHTML = revenue === 0
+      ? '💡 Upload a Clover sales report in the Sales tab to see revenue.'
+      : '💡 Record opening and closing stock to calculate real COGS.';
+  }
+
+  // ── Weekly breakdown ──
+  const breakdownEl = document.getElementById('cogsDailyBreakdown');
+  if (cogsPeriod === 'day') { breakdownEl.innerHTML = ''; return; }
+
+  const days = [];
+  const cur = new Date(start);
+  while (cur <= end) {
+    const ds = new Date(cur); ds.setHours(0,0,0,0);
+    const de = new Date(cur); de.setHours(23,59,59,999);
+    const dayRev  = salesLedger.filter(s => s.dateTs >= ds.getTime() && s.dateTs <= de.getTime()).reduce((s,x) => s+(x.revenue||0), 0);
+    const dayCost = costLedger.filter(c => c.dateTs >= ds.getTime() && c.dateTs <= de.getTime()).reduce((s,x) => s+(x.amount||0), 0);
+    if (dayRev > 0 || dayCost > 0) {
+      days.push({ label: cur.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}), rev: dayRev, cost: dayCost, pct: dayRev > 0 ? dayCost/dayRev*100 : 0 });
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  if (!days.length) { breakdownEl.innerHTML = '<div class="sync-info" style="margin-top:8px">No daily data yet for this period.</div>'; return; }
+  breakdownEl.innerHTML = `<div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--dark)">Daily Breakdown</div>` +
+    days.map(d => `<div class="cogs-day-row">
+      <div class="cogs-day-date">${d.label}</div>
+      <div class="cogs-day-stat"><span style="color:var(--green-ok)">$${d.rev.toFixed(0)}</span>Revenue</div>
+      <div class="cogs-day-stat"><span style="color:var(--red-alert)">$${d.cost.toFixed(0)}</span>Purchases</div>
+      <div class="cogs-day-stat"><span style="color:${d.pct<25?'var(--green-ok)':d.pct<32?'var(--amber-alert)':'var(--red-alert)'}">${d.pct > 0 ? d.pct.toFixed(1)+'%' : '—'}</span>COGS</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// COGS MODULE
+// ══════════════════════════════════════════
+
+// ── COGS cost per item type (from your cost list) ──
+const COGS_RATES = {
+  // Ice Cream
+  'kids':              1.20,
+  'medium':            1.40,
+  'regular':           2.10,
+  'large':             2.10,
+  'hand packed':       4.00,
+  'milkshake':         4.20,  // 4 scoops
+  'flight':            3.00,
+  'sampler':           3.00,
+  'affogato':          3.04,  // espresso + 2 scoops
+  // Drinks
+  'drinks':            0.67,  // default for milk tea, fruit tea, slush, smoothie, falooda
+  'falooda':           1.87,  // 0.67 drink + 1.20 ice cream scoop
+  // Coffee
+  'americano':         0.94,
+  'espresso':          0.94,
+  'cappuccino':        1.31,
+  'latte':             1.31,
+  'flat white':        1.31,
+  'mocha':             1.59,
+  'specialty':         1.84,  // date cardamom, pistachio, blackberry, lavender, spanish
+  // Bakery (variable - use 35% of sell price as estimate)
+  'bakery':            null,
+};
+
+// ── Category mapping for Clover items ──
+function getItemCOGS(name, netSales) {
+  const n = name.toLowerCase();
+  // Ice cream
+  if (n.includes('milkshake'))                          return COGS_RATES['milkshake'];
+  if (n.includes('hand packed') || n.includes('hph'))   return COGS_RATES['hand packed'];
+  if (n.includes('flight of 4') || n.includes('sampler')) return COGS_RATES['flight'];
+  if (n.includes('affogato'))                           return COGS_RATES['affogato'];
+  if (n.endsWith(' kids') || n.includes(' kids'))       return COGS_RATES['kids'];
+  if (n.endsWith(' regular') || n.endsWith(' large') || n.includes('regular scoop')) return COGS_RATES['regular'];
+  // Falooda
+  if (n.includes('falooda'))                            return COGS_RATES['falooda'];
+  // Coffee
+  if (n.includes('americano'))                          return COGS_RATES['americano'];
+  if (n.includes('espresso'))                           return COGS_RATES['espresso'];
+  if (n.includes('cappuccino'))                         return COGS_RATES['cappuccino'];
+  if (n.includes('flat white'))                         return COGS_RATES['flat white'];
+  if (n.includes('mocha'))                              return COGS_RATES['mocha'];
+  if (n.includes('latte'))                              return COGS_RATES['latte'];
+  if (n.includes('date cardamom') || n.includes('pistachio white') ||
+      n.includes('blackberry') || n.includes('lavender') || 
+      n.includes('spanish latte') || n.includes('strawberry matcha') ||
+      n.includes('cold coffee') || n.includes('kheer iced'))  return COGS_RATES['specialty'];
+  if (n.includes('chocolate') || n.includes('hot chocolate')) return COGS_RATES['mocha'];
+  // Bakery
+  if (n.includes('cake') || n.includes('brownie') || n.includes('tiramisu') ||
+      n.includes('croissant') || n.includes('macaroon'))      return netSales * 0.35; // 35% estimate
+  // General drinks (milk tea, fruit tea, slush, smoothie)
+  if (n.includes('milk tea') || n.includes('fruit tea') || n.includes('slush') ||
+      n.includes('smoothie') || n.includes('tea') || n.includes('taro') ||
+      n.includes('matcha') || n.includes('horchata') || n.includes('tiger') ||
+      n.includes('dirty mad') || n.includes('lychee lust') || n.includes('mangoficient') ||
+      n.includes('passionate') || n.includes('strawberry burst') || n.includes('sunny mango') ||
+      n.includes('mangonada') || n.includes('purple patch') || n.includes('milk shake'))
+                                                              return COGS_RATES['drinks'];
+  return null;
+}
+
+// ── Category grouping ──
+function getItemCategory(name) {
+  const n = name.toLowerCase();
+  if (n.includes('milkshake') || n.endsWith(' kids') || n.includes(' kids') ||
+      n.endsWith(' regular') || n.endsWith(' large') || n.includes('hand packed') ||
+      n.includes('flight of 4') || n.includes('regular scoop') || n.includes('sampler'))
+    return 'Ice Cream';
+  if (n.includes('falooda')) return 'Falooda';
+  if (n.includes('latte') || n.includes('cappuccino') || n.includes('americano') ||
+      n.includes('espresso') || n.includes('flat white') || n.includes('mocha') ||
+      n.includes('affogato') || n.includes('chocolate') || n.includes('cold coffee') ||
+      n.includes('kheer iced'))
+    return 'Coffee & Specialty';
+  if (n.includes('milk tea') || n.includes('taro') || n.includes('matcha') ||
+      n.includes('horchata') || n.includes('tiger') || n.includes('dirty mad') ||
+      n.includes('white peach'))
+    return 'Milk Tea';
+  if (n.includes('lychee lust') || n.includes('mangoficient') || n.includes('passionate'))
+    return 'Fruit Tea';
+  if (n.includes('burst') || n.includes('sunny mango') || n.includes('mangonada'))
+    return 'Slush';
+  if (n.includes('smoothie') || n.includes('purple patch'))
+    return 'Smoothie';
+  if (n.includes('cake') || n.includes('brownie') || n.includes('tiramisu') ||
+      n.includes('croissant') || n.includes('macaroon'))
+    return 'Bakery';
+  return 'Other';
+}
+
+// ── Main COGS view functions ──
+// let cogsView = 'report';
+let cogsActiveCat = 'all';
+let cogsLoaded = false;
+let cogsData = null; // loaded from salesLedger
+
+window.setCogsView = function(v) {
+  cogsView = v;
+  document.getElementById('cogsViewReport').classList.toggle('active', v==='report');
+  document.getElementById('cogsViewMargins').classList.toggle('active', v==='margins');
+  document.getElementById('cogsReportView').style.display  = v==='report'  ? 'block' : 'none';
+  document.getElementById('cogsMarginView').style.display  = v==='margins' ? 'block' : 'none';
+  if (v==='margins') renderMenuMargins();
+};
+
+window.setCogscat = function(cat) {
+  cogsActiveCat = cat;
+  document.querySelectorAll('#cogsMarginView .cat-btn').forEach(b => b.classList.remove('active'));
+  const active = document.getElementById('cogsCat' + cat.replace(' ',''));
+  if (active) active.classList.add('active');
+  renderMenuMargins();
+};
+
+async function loadCogsData() {
+  cogsLoaded = true;
+  try {
+    // Load from salesLedger
+    const snap = await db.collection('stores').doc(viewingStore||'coppell')
+      .collection('salesLedger').orderBy('appliedAt','desc').limit(12).get();
+    
+    if (!snap.docs || !snap.docs.length) {
+      document.getElementById('cogsNoData').style.display = 'block';
+      document.getElementById('cogsDashboard').style.display = 'none';
+      return;
+    }
+
+    cogsData = snap.docs.map(d => d.data());
+    renderCogsDashboard();
+  } catch(e) {
+    console.warn('loadCogsData error:', e);
+    document.getElementById('cogsNoData').style.display = 'block';
+    document.getElementById('cogsDashboard').style.display = 'none';
+  }
+}
+
+function renderCogs() {
+  if (!cogsLoaded) { loadCogsData(); return; }
+  if (cogsView === 'margins') renderMenuMargins();
+  else renderCogsDashboard();
+}
+
+function renderCogsDashboard() {
+  if (!cogsData || !cogsData.length) {
+    document.getElementById('cogsNoData').style.display = 'block';
+    document.getElementById('cogsDashboard').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('cogsNoData').style.display = 'none';
+  document.getElementById('cogsDashboard').style.display = 'block';
+
+  // Use most recent upload
+  const latest = cogsData[0];
+  const revenue = latest.revenue || 0;
+
+  // Parse matched items to calculate COGS
+  let totalCOGS = 0;
+  const categoryData = {};
+
+  // Re-parse from matched items if available
+  if (latest.matchedItems && window._pendingCloverSales) {
+    // Use live data if available
+    window._pendingCloverSales.matched.forEach(({ name, sold, netSales, recipe }) => {
+      // Already calculated
+    });
+  }
+
+  // Estimate COGS from revenue by category (using rates)
+  // Since we stored revenue, recalculate using category averages
+  const catRevenues = {
+    'Ice Cream': revenue * 0.61,
+    'Milk Tea': revenue * 0.085,
+    'Coffee & Specialty': revenue * 0.12,
+    'Falooda': revenue * 0.038,
+    'Fruit Tea': revenue * 0.026,
+    'Slush': revenue * 0.023,
+    'Smoothie': revenue * 0.009,
+    'Bakery': revenue * 0.052,
+  };
+
+  const catCOGSPct = {
+    'Ice Cream': 0.27,
+    'Milk Tea': 0.11,
+    'Coffee & Specialty': 0.30,
+    'Falooda': 0.24,
+    'Fruit Tea': 0.11,
+    'Slush': 0.11,
+    'Smoothie': 0.11,
+    'Bakery': 0.35,
+  };
+
+  Object.entries(catRevenues).forEach(([cat, rev]) => {
+    const pct = catCOGSPct[cat] || 0.20;
+    const cost = rev * pct;
+    totalCOGS += cost;
+    categoryData[cat] = { revenue: rev, cost, pct };
+  });
+
+  const cogsPct   = revenue > 0 ? (totalCOGS / revenue * 100) : 0;
+  const profit    = revenue - totalCOGS;
+  const profitPct = revenue > 0 ? (profit / revenue * 100) : 0;
+
+  // Update KPI cards
+  const setEl = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+  setEl('cogsRevenue', '$' + revenue.toLocaleString('en-US', {maximumFractionDigits:0}));
+  setEl('cogsCost',    '$' + totalCOGS.toLocaleString('en-US', {maximumFractionDigits:0}));
+  setEl('cogsProfit',  '$' + profit.toLocaleString('en-US', {maximumFractionDigits:0}));
+
+  const pctEl = document.getElementById('cogsPct');
+  if (pctEl) {
+    pctEl.textContent = cogsPct.toFixed(1) + '%';
+    pctEl.style.color = cogsPct < 25 ? 'var(--green-ok)' : cogsPct < 32 ? 'var(--caramel)' : 'var(--red-alert)';
+  }
+
+  const periodEl = document.getElementById('cogsPeriodLabel');
+  if (periodEl) periodEl.textContent = latest.period || '';
+
+  // Benchmark bar
+  const benchEl = document.getElementById('cogsBenchmark');
+  if (benchEl) {
+    const status = cogsPct < 25 ? { label:'Excellent', color:'var(--green-ok)', msg:'Below 25% — great food cost control' }
+                 : cogsPct < 32 ? { label:'Good',      color:'var(--caramel)',  msg:'25-32% — within industry benchmark' }
+                                : { label:'High',      color:'var(--red-alert)',msg:'Above 32% — review pricing or portions' };
+    benchEl.innerHTML = '<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px">'
+      + '<div style="width:10px;height:10px;border-radius:50%;background:'+status.color+'"></div>'
+      + '<div><div style="font-size:13px;font-weight:700;color:'+status.color+'">'+status.label+'</div>'
+      + '<div style="font-size:11px;color:#8B7355">'+status.msg+'</div></div>'
+      + '<div style="margin-left:auto;font-size:18px;font-weight:700;color:'+status.color+'">'+cogsPct.toFixed(1)+'%</div>'
+      + '</div>';
+  }
+
+  // Category breakdown
+  const catEl = document.getElementById('cogsCategoryBreakdown');
+  if (catEl) {
+    catEl.innerHTML = Object.entries(categoryData)
+      .sort((a,b) => b[1].revenue - a[1].revenue)
+      .map(([cat, d]) => {
+        const pct = d.pct * 100;
+        const barW = Math.round(d.revenue / revenue * 100);
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+          + '<span style="font-size:12px;font-weight:600;color:var(--dark)">' + cat + '</span>'
+          + '<div style="display:flex;gap:12px;font-size:11px">'
+          + '<span style="color:#8B7355">$' + d.revenue.toLocaleString('en-US',{maximumFractionDigits:0}) + '</span>'
+          + '<span style="color:var(--caramel);font-weight:700">' + pct.toFixed(0) + '% COGS</span>'
+          + '</div></div>'
+          + '<div style="background:#EDE0CC;border-radius:4px;height:4px">'
+          + '<div style="background:var(--caramel);height:4px;border-radius:4px;width:' + barW + '%"></div>'
+          + '</div></div>';
+      }).join('');
+  }
+
+  // Upload history
+  const histEl = document.getElementById('cogsHistory');
+  if (histEl) {
+    histEl.innerHTML = cogsData.map(d => {
+      const rev = d.revenue || 0;
+      const cost = rev * 0.258; // estimated
+      const pct  = 25.8;
+      return '<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px">'
+        + '<div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--dark)">' + (d.period||'Upload') + '</div>'
+        + '<div style="font-size:11px;color:#8B7355">' + (d.itemsSold||0) + ' items · uploaded ' + new Date(d.appliedAt).toLocaleDateString() + '</div></div>'
+        + '<div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--green-ok)">$' + rev.toLocaleString('en-US',{maximumFractionDigits:0}) + '</div>'
+        + '<div style="font-size:11px;color:var(--caramel)">' + pct.toFixed(1) + '% COGS</div></div>'
+        + '</div>';
+    }).join('');
+  }
+}
+
+// ── Menu Margins (existing, simplified) ──
+function renderMenuMargins() {
+  const el = document.getElementById('cogsMarginList');
+  if (!el) return;
+
+  const items = [
+    // Ice Cream
+    { name:'Kids Scoop',      cat:'Ice Cream', cost:1.20, sell:4.61, icon:'🍦' },
+    { name:'Regular Scoop',   cat:'Ice Cream', cost:2.10, sell:6.72, icon:'🍦' },
+    { name:'Milkshake',       cat:'Ice Cream', cost:4.20, sell:8.99, icon:'🥤' },
+    { name:'Hand Packed',     cat:'Ice Cream', cost:4.00, sell:11.45,icon:'🍦' },
+    { name:'Flight of 4',     cat:'Ice Cream', cost:3.00, sell:9.31, icon:'🍦' },
+    { name:'Affogato',        cat:'Coffee',    cost:3.04, sell:6.25, icon:'☕' },
+    // Drinks
+    { name:'Milk Tea',        cat:'Drinks',    cost:0.67, sell:6.29, icon:'🧋' },
+    { name:'Fruit Tea',       cat:'Drinks',    cost:0.67, sell:6.26, icon:'🍵' },
+    { name:'Slush',           cat:'Drinks',    cost:0.67, sell:6.28, icon:'🥤' },
+    { name:'Smoothie',        cat:'Drinks',    cost:0.67, sell:6.28, icon:'🥤' },
+    { name:'Falooda',         cat:'Drinks',    cost:1.87, sell:7.94, icon:'🍹' },
+    // Coffee
+    { name:'Americano',       cat:'Coffee',    cost:0.94, sell:3.25, icon:'☕' },
+    { name:'Latte/Cappuccino',cat:'Coffee',    cost:1.31, sell:5.50, icon:'☕' },
+    { name:'Mocha',           cat:'Coffee',    cost:1.59, sell:5.95, icon:'☕' },
+    { name:'Specialty Coffee',cat:'Coffee',    cost:1.84, sell:6.10, icon:'☕' },
+  ];
+
+  const filtered = cogsActiveCat === 'all' ? items
+    : cogsActiveCat === 'Ice Cream' ? items.filter(i => i.cat==='Ice Cream')
+    : cogsActiveCat === 'Drinks'    ? items.filter(i => i.cat==='Drinks')
+    : cogsActiveCat === 'Coffee'    ? items.filter(i => i.cat==='Coffee')
+    : items;
+
+  el.innerHTML = filtered.map(item => {
+    const margin  = ((item.sell - item.cost) / item.sell * 100);
+    const cogsPct = (item.cost / item.sell * 100);
+    const color   = cogsPct < 20 ? 'var(--green-ok)' : cogsPct < 30 ? 'var(--caramel)' : 'var(--red-alert)';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--cream);border-radius:10px;margin-bottom:6px">'
+      + '<div style="font-size:20px">' + item.icon + '</div>'
+      + '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--dark)">' + item.name + '</div>'
+      + '<div style="font-size:11px;color:#8B7355">Cost: $' + item.cost.toFixed(2) + ' · Sell: $' + item.sell.toFixed(2) + '</div></div>'
+      + '<div style="text-align:right">'
+      + '<div style="font-size:16px;font-weight:700;color:' + color + '">' + margin.toFixed(0) + '%</div>'
+      + '<div style="font-size:10px;color:#8B7355">margin</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// SCHEDULE MODULE
+// ══════════════════════════════════════════
+
+// State
+let schedView = 'week';        // 'week' | 'day'
+let schedOffset = 0;           // weeks or days from today
+let schedStaff      = [];  // [{id, name, color, role}]
+let schedShifts     = [];  // [{id, staffId, date, shiftTypeId}]
+let schedShiftTypes = [];  // [{id, name, start, end, color}]
+let schedSwaps      = [];  // [{id, fromStaffId, toStaffId, shiftId, status}]
+let schedLoaded     = false;
+// schedOffset declared above
+
+const SHIFT_COLORS = ['#C8843A','#7BBFA5','#E8A598','#D4A843','#5B8DD9','#A56CC1','#E57373','#4DB6AC'];
+
+const DEFAULT_SHIFT_TYPES = [
+  { id:'st1', name:'Opening', start:'11:00', end:'16:00', color:'#7BBFA5' },
+  { id:'st2', name:'Mid',     start:'13:00', end:'18:00', color:'#C8843A' },
+  { id:'st3', name:'Closing', start:'17:00', end:'23:00', color:'#5B8DD9' },
+  { id:'st4', name:'Full Day',start:'11:00', end:'23:00', color:'#D4A843' },
+];
+
+async function loadScheduleData() {
+  if (!viewingStore) return;
+  try {
+    const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'));
+    if (snap.exists) {
+      const d        = snap.data();
+      schedStaff     = d.staff      || [];
+      schedShifts    = d.shifts     || [];
+      schedShiftTypes= d.shiftTypes || [...DEFAULT_SHIFT_TYPES];
+      schedSwaps     = d.swaps      || [];
+    } else {
+      schedStaff = []; schedShifts = []; schedShiftTypes = [...DEFAULT_SHIFT_TYPES]; schedSwaps = [];
+    }
+  } catch(e) { schedShiftTypes = [...DEFAULT_SHIFT_TYPES]; }
+  schedLoaded = true;
+  renderSchedule();
+}
+
+async function saveScheduleData() {
+  try {
+    await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
+      staff: schedStaff, shifts: schedShifts,
+      shiftTypes: schedShiftTypes, swaps: schedSwaps,
+      updatedAt: Date.now()
+    });
+  } catch(e) { showToast('⚠️ Schedule save failed'); }
+}
+
+// ── Time helpers ──
+function fmt12(t) {
+  if (!t) return '';
+  const [h,m] = t.split(':').map(Number);
+  return `${h%12||12}:${String(m).padStart(2,'0')} ${h>=12?'PM':'AM'}`;
+}
+function shiftHours(st) {
+  if (!st?.start || !st?.end) return 0;
+  const [sh,sm] = st.start.split(':').map(Number);
+  const [eh,em] = st.end.split(':').map(Number);
+  return Math.max(0, (eh*60+em - sh*60-sm) / 60);
+}
+function getWeekStart(offset) {
+  const d = new Date(); d.setHours(0,0,0,0);
+  // Start week on Monday, end on Sunday
+  // JS getDay(): 0=Sun, 1=Mon...6=Sat
+  const day = d.getDay();
+  // If Sunday(0), it belongs to current week so go back 6 days to Monday
+  // If Monday(1), diff=0. If Tuesday(2), diff=-1. etc.
+  const diff = day === 0 ? -6 : -(day - 1);
+  d.setDate(d.getDate() + diff + offset * 7);
+  return d;
+}
+function getDateStr(d) { return d.toISOString().split('T')[0]; }
+function fmtDate(d)    { return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtDay(d)     { return d.toLocaleDateString('en-US',{weekday:'short'}); }
+
+// ── Main render ──
+function renderSchedule() {
+  if (!schedLoaded) { loadScheduleData(); return; }
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig) || currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'store_owner';
+  const mt = document.getElementById('schedManagerTools');
+  if (mt) mt.style.display = isManager ? 'flex' : 'none';
+  renderShiftLegend();
+  renderWeekGrid();
+  renderSwaps();
+  renderHoursSummary();
+}
+
+function renderShiftLegend() {
+  const el = document.getElementById('schedLegend');
+  if (!el) return;
+  el.innerHTML = schedShiftTypes.map(st => `
+    <div class="shift-type-pill" style="background:${st.color}22;color:${st.color};border-color:${st.color}44">
+      <span style="width:8px;height:8px;border-radius:50%;background:${st.color};display:inline-block"></span>
+      ${st.name} <span style="font-weight:400;opacity:0.8">${fmt12(st.start)}–${fmt12(st.end)}</span>
+    </div>`).join('');
+}
+
+window.schedNav = function(dir) { schedOffset += dir; renderSchedule(); };
+
+function renderWeekGrid() {
+  const ws   = getWeekStart(schedOffset);
+  const days = Array.from({length:7},(_,i) => { const d=new Date(ws); d.setDate(ws.getDate()+i); return d; });
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  document.getElementById('schedTitle').textContent =
+    fmtDate(days[0]) + ' – ' + fmtDate(days[6]);
+
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig) || currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'store_owner';
+  let html = '<colgroup><col style="width:110px">';
+  days.forEach(() => html += '<col>');
+  html += '<col style="width:50px"></colgroup>';
+
+  // Header row
+  html += '<thead><tr><th class="sched-day-header" style="text-align:left;padding-left:10px">Staff</th>';
+  days.forEach(d => {
+    const isToday = d.getTime() === today.getTime();
+    html += `<th class="sched-day-header${isToday?' sched-today':''}" style="${isToday?'color:var(--caramel)':''}">
+      <div style="font-size:12px;font-weight:700">${fmtDay(d)}</div>
+      <div style="font-size:10px;font-weight:400">${fmtDate(d)}</div>
+    </th>`;
+  });
+  html += '<th class="sched-day-header" style="text-align:right;padding-right:8px">Hrs</th></tr></thead><tbody>';
+
+  if (!schedStaff.length) {
+    html += `<tr><td colspan="9" style="text-align:center;padding:40px;color:#8B7355;font-size:13px">
+      No staff yet. Tap ⚙️ Shifts to set up shift types, then 👥 Staff to add your team.
+    </td></tr>`;
+  } else {
+    schedStaff.forEach((staff, si) => {
+      const rowBg = si%2===0 ? '#fff' : 'var(--cream)';
+      html += `<tr style="background:${rowBg}">`;
+      // Staff name cell
+      html += `<td class="sched-name-cell">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:8px;height:8px;border-radius:50%;background:${staff.color};flex-shrink:0"></div>
+          <div>
+            <div style="font-size:12px;font-weight:700">${staff.name}</div>
+            <div style="font-size:10px;color:#8B7355">${staff.role||''}</div>
+          </div>
+        </div>
+      </td>`;
+
+      // Day cells
+      let totalHrs = 0;
+      days.forEach(d => {
+        const ds        = getDateStr(d);
+        const isToday   = d.getTime() === today.getTime();
+        const dayShifts = schedShifts.filter(s => s.staffId===staff.id && s.date===ds);
+        const st        = dayShifts.length ? schedShiftTypes.find(t=>t.id===dayShifts[0].shiftTypeId) : null;
+        const orphaned  = dayShifts.length && !st; // shift exists but type deleted
+        if (st) totalHrs += shiftHours(st);
+
+        html += `<td class="sched-day-cell${isToday?' sched-today':''}" data-sid="${staff.id}" data-date="${ds}" id="cell-${staff.id}-${ds}">`;
+        if (orphaned) {
+          // Shift exists but type deleted - show remove button
+          html += `<div class="sched-shift-bar" style="background:#eee;border:1.5px solid #ccc;color:#999"
+            data-shiftid="${dayShifts[0].id}" data-sid="${staff.id}" data-date="${ds}"
+            title="Tap to remove (shift type deleted)">
+            <div>⚠️ Unknown</div>
+            <div class="sched-shift-time">Tap to remove</div>
+          </div>`;
+        } else if (st) {
+          html += `<div class="sched-shift-bar" style="background:${st.color}22;border:1.5px solid ${st.color};color:${st.color};position:relative"
+            data-shiftid="${dayShifts[0].id}" data-sid="${staff.id}" data-date="${ds}"
+            title="Tap to remove">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>${st.name}</div>
+              ${isManager ? `<span style="font-size:14px;opacity:0.6;line-height:1">×</span>` : ''}
+            </div>
+            <div class="sched-shift-time">${fmt12(st.start)}–${fmt12(st.end)}</div>
+          </div>`;
+        } else if (isManager) {
+          html += `<div style="font-size:18px;color:#DDD;line-height:40px;text-align:center">+</div>`;
+        }
+        html += '</td>';
+      });
+
+      // Hours total
+      html += `<td class="sched-hours"><strong style="color:var(--caramel)">${totalHrs>0?totalHrs+'h':''}</strong></td>`;
+      html += '</tr>';
+    });
+
+    // Daily totals row
+    html += '<tr style="background:var(--card-bg);border-top:2px solid var(--border)">';
+    html += '<td style="padding:6px 10px;font-size:11px;font-weight:700;color:#8B7355">STAFF/DAY</td>';
+    days.forEach(d => {
+      const ds    = getDateStr(d);
+      const count = schedStaff.filter(staff => schedShifts.some(s=>s.staffId===staff.id&&s.date===ds)).length;
+      html += `<td style="text-align:center;padding:6px;font-size:12px;font-weight:700;color:${count>0?'var(--caramel)':'#DDD'}">${count>0?count:''}</td>`;
+    });
+    html += '<td></td></tr>';
+  }
+
+  html += '</tbody>';
+  document.getElementById('weekGrid').innerHTML = html;
+
+  // Re-attach click handler each render (grid innerHTML replaced)
+  const grid = document.getElementById('weekGrid');
+  if (grid._schedListener) grid.removeEventListener('click', grid._schedListener);
+  grid._schedListener = function(e) {
+    const mgr = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig)
+             || currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'store_owner';
+    if (!mgr) return;
+    const bar = e.target.closest('.sched-shift-bar');
+    if (bar) {
+      e.stopPropagation();
+      const shiftId = bar.dataset.shiftid;
+      const sid     = bar.dataset.sid;
+      const date    = bar.dataset.date;
+      if (shiftId && sid && date) removeShift(shiftId, sid, date);
+      return;
+    }
+    const cell = e.target.closest('td[data-sid]');
+    if (cell) {
+      const sid  = cell.dataset.sid;
+      const date = cell.dataset.date;
+      if (sid && date) cellClick(sid, date);
+    }
+  };
+  grid.addEventListener('click', grid._schedListener);
+
+  // Hours summary
+  const totalShifts = schedShifts.filter(s => {
+    const d = new Date(s.date); d.setHours(0,0,0,0);
+    return d >= ws && d <= days[6];
+  }).length;
+  const el = document.getElementById('schedSummary');
+  if (el) el.innerHTML = totalShifts > 0
+    ? `<div style="font-size:12px;color:#8B7355;text-align:right">${totalShifts} shift${totalShifts!==1?'s':''} this week</div>`
+    : '';
+}
+
+// ── Cell click — show shift picker ──
+window.cellClick = function(staffId, dateStr) {
+  const existing = schedShifts.find(s => s.staffId===staffId && s.date===dateStr);
+  if (existing) return; // already has shift - click the bar to remove
+
+  if (!schedShiftTypes.length) { showToast('⚠️ Add shift types first (tap ⚙️ Shifts)'); return; }
+
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="modal-title">Assign Shift</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div style="font-size:12px;color:#8B7355;margin-bottom:12px">${schedStaff.find(s=>s.id===staffId)?.name} · ${new Date(dateStr+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</div>
+    ${schedShiftTypes.map(st => `
+      <div onclick="assignShift('${staffId}','${dateStr}','${st.id}')"
+        style="display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid ${st.color}44;border-radius:10px;margin-bottom:8px;cursor:pointer;background:${st.color}11;transition:all 0.15s"
+        onmouseover="this.style.background='${st.color}22'" onmouseout="this.style.background='${st.color}11'">
+        <div style="width:12px;height:12px;border-radius:50%;background:${st.color};flex-shrink:0"></div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:${st.color}">${st.name}</div>
+          <div style="font-size:12px;color:#8B7355">${fmt12(st.start)} – ${fmt12(st.end)} · ${shiftHours(st)}h</div>
+        </div>
+      </div>`).join('')}
+  `);
+};
+
+window.assignShift = async function(staffId, dateStr, shiftTypeId) {
+  closeModal();
+  const id = 'sh_' + Date.now();
+  schedShifts.push({ id, staffId, date: dateStr, shiftTypeId });
+  renderSchedule();
+  await saveScheduleData();
+  logAudit('shift_assigned', { staffId, date: dateStr, shiftTypeId });
+};
+
+window.removeShift = async function(shiftId, staffId, dateStr) {
+  if (!confirm('Remove this shift?')) return;
+  schedShifts = schedShifts.filter(s => s.id !== shiftId);
+  renderSchedule();
+  await saveScheduleData();
+};
+
+// ── Copy last week ──
+window.copyLastWeek = async function() {
+  const ws       = getWeekStart(schedOffset);
+  const lastWs   = getWeekStart(schedOffset - 1);
+  const days     = Array.from({length:7},(_,i)=>{ const d=new Date(ws); d.setDate(ws.getDate()+i); return d; });
+  const lastDays = Array.from({length:7},(_,i)=>{ const d=new Date(lastWs); d.setDate(lastWs.getDate()+i); return d; });
+
+  const thisWeekDates = days.map(getDateStr);
+  const lastWeekDates = lastDays.map(getDateStr);
+
+  // Remove this week's existing shifts
+  schedShifts = schedShifts.filter(s => !thisWeekDates.includes(s.date));
+
+  // Copy last week's shifts to this week
+  let copied = 0;
+  lastWeekDates.forEach((lastDate, i) => {
+    const thisDate    = thisWeekDates[i];
+    const dayShifts   = schedShifts.filter(s => s.date === lastDate); // already removed this week
+    // Actually get from original
+    const orig = schedShifts; // we need to get from saved data
+    copied += dayShifts.length;
+  });
+
+  // Simpler approach: copy by day-of-week
+  const lastWeekShifts = schedShifts.filter(s => lastWeekDates.includes(s.date));
+  lastWeekShifts.forEach(s => {
+    const dayIdx   = lastWeekDates.indexOf(s.date);
+    const newDate  = thisWeekDates[dayIdx];
+    if (newDate && !schedShifts.find(x => x.staffId===s.staffId && x.date===newDate)) {
+      schedShifts.push({ id:'sh_'+Date.now()+'_'+Math.random(), staffId:s.staffId, date:newDate, shiftTypeId:s.shiftTypeId });
+      copied++;
+    }
+  });
+
+  renderSchedule();
+  await saveScheduleData();
+  showToast(`✅ Copied ${copied} shifts from last week`);
+};
+
+// ── Manage shift types ──
+window.openManageShiftTypes = function() {
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="modal-title">⚙️ Shift Types</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div style="font-size:12px;color:#8B7355;margin-bottom:12px">Define your store's shift times. These show in the schedule grid.</div>
+
+    ${schedShiftTypes.map((st,i) => `
+      <div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--cream);border-radius:10px;margin-bottom:8px;border-left:4px solid ${st.color}">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:${st.color}">${st.name}</div>
+          <div style="font-size:11px;color:#8B7355">${fmt12(st.start)} – ${fmt12(st.end)} · ${shiftHours(st)}h</div>
+        </div>
+        <button onclick="deleteShiftType('${st.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px">×</button>
+      </div>`).join('')}
+
+    <div style="margin-top:16px;font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Add New Shift Type</div>
+    <input class="modal-input" id="newStName" placeholder="Shift name (e.g. Opening)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div>
+        <div class="modal-label">Start Time</div>
+        <input class="modal-input" type="time" id="newStStart" value="11:00" style="margin-bottom:0">
+      </div>
+      <div>
+        <div class="modal-label">End Time</div>
+        <input class="modal-input" type="time" id="newStEnd" value="17:00" style="margin-bottom:0">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="stColorPicker">
+      ${SHIFT_COLORS.map(c=>`<div onclick="selectStColor('${c}')" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:3px solid transparent" id="stc-${c.replace('#','')}"></div>`).join('')}
+    </div>
+    <button class="modal-btn" onclick="addShiftType()">+ Add Shift Type</button>
+  `);
+  // Pre-select first color
+  selectedStColor = SHIFT_COLORS[0];
+  const el = document.getElementById('stc-' + SHIFT_COLORS[0].replace('#',''));
+  if (el) el.style.borderColor = 'var(--dark)';
+};
+
+let selectedStColor = SHIFT_COLORS[0];
+window.selectStColor = function(c) {
+  selectedStColor = c;
+  SHIFT_COLORS.forEach(col => {
+    const el = document.getElementById('stc-' + col.replace('#',''));
+    if (el) el.style.borderColor = col===c ? 'var(--dark)' : 'transparent';
+  });
+};
+
+window.addShiftType = async function() {
+  const name  = document.getElementById('newStName').value.trim();
+  const start = document.getElementById('newStStart').value;
+  const end   = document.getElementById('newStEnd').value;
+  if (!name)  { showToast('⚠️ Enter shift name'); return; }
+  if (!start || !end) { showToast('⚠️ Set start and end times'); return; }
+  schedShiftTypes.push({ id:'st_'+Date.now(), name, start, end, color: selectedStColor });
+  await saveScheduleData();
+  closeModal();
+  renderSchedule();
+  showToast(`✅ "${name}" shift added`);
+};
+
+window.deleteShiftType = async function(id) {
+  if (schedShifts.some(s=>s.shiftTypeId===id)) {
+    showToast('⚠️ Cannot delete — shift type is in use'); return;
+  }
+  schedShiftTypes = schedShiftTypes.filter(s=>s.id!==id);
+  await saveScheduleData();
+  closeModal();
+  renderSchedule();
+};
+
+// ── Manage staff (keep existing openAddStaff) ──
+window.openAddStaff = function() {
+  openModal(`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="modal-title">👥 Manage Staff</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    ${schedStaff.map((s,i)=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--cream);border-radius:8px;margin-bottom:6px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${s.color}"></div>
+        <span style="flex:1;font-size:13px"><strong>${s.name}</strong> <span style="color:#8B7355">${s.role||''}</span></span>
+        <button onclick="removeStaff('${s.id}')" style="background:none;border:none;color:#C0392B;cursor:pointer;font-size:16px">×</button>
+      </div>`).join('')}
+    <div style="margin-top:12px;font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Add Staff Member</div>
+    <input class="modal-input" id="newStaffName" placeholder="Name">
+    <input class="modal-input" id="newStaffRole" placeholder="Role (e.g. Barista, Cashier)">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="staffColorPicker">
+      ${SHIFT_COLORS.map(c=>`<div onclick="selectStaffColor('${c}')" style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:3px solid transparent" id="sfc-${c.replace('#','')}"></div>`).join('')}
+    </div>
+    <button class="modal-btn" onclick="addStaffMember()">+ Add</button>
+  `);
+  selectedStaffColor = SHIFT_COLORS[schedStaff.length % SHIFT_COLORS.length];
+  const el = document.getElementById('sfc-' + selectedStaffColor.replace('#',''));
+  if (el) el.style.borderColor = 'var(--dark)';
+};
+
+let selectedStaffColor = SHIFT_COLORS[0];
+window.selectStaffColor = function(c) {
+  selectedStaffColor = c;
+  SHIFT_COLORS.forEach(col => {
+    const el = document.getElementById('sfc-' + col.replace('#',''));
+    if (el) el.style.borderColor = col===c ? 'var(--dark)' : 'transparent';
+  });
+};
+
+window.addStaffMember = async function() {
+  const name = document.getElementById('newStaffName').value.trim();
+  const role = document.getElementById('newStaffRole').value.trim();
+  if (!name) { showToast('⚠️ Enter name'); return; }
+  schedStaff.push({ id:'staff_'+Date.now(), name, role, color: selectedStaffColor });
+  await saveScheduleData();
+  closeModal();
+  renderSchedule();
+};
+
+window.removeStaff = async function(id) {
+  schedStaff  = schedStaff.filter(s=>s.id!==id);
+  schedShifts = schedShifts.filter(s=>s.staffId!==id);
+  await saveScheduleData();
+  closeModal();
+  renderSchedule();
+};
+
+// ── Publish ──
+window.publishSchedule = async function() {
+  showToast('✅ Schedule published!');
+  logAudit('schedule_published', { week: getDateStr(getWeekStart(schedOffset)) });
+};
+
+// ── Swap requests (simplified) ──
+function renderSwaps() {
+  const pending = schedSwaps.filter(s=>s.status==='pending');
+  const el = document.getElementById('swapSection');
+  const list = document.getElementById('swapList');
+  if (!el || !list) return;
+  el.style.display = pending.length ? 'block' : 'none';
+  if (!pending.length) return;
+  const isManager = isStoreOwner(currentUserConfig) || isSuperOwner(currentUserConfig) || currentUserConfig?.role === 'manager' || currentUserConfig?.role === 'store_owner';
+  list.innerHTML = pending.map(sw => {
+    const from = schedStaff.find(s=>s.id===sw.fromStaffId);
+    const to   = schedStaff.find(s=>s.id===sw.toStaffId);
+    return `<div class="swap-card">
+      <div style="font-size:13px">${from?.name||'?'} wants to swap with ${to?.name||'?'}</div>
+      ${isManager ? `<div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-log" style="width:auto;padding:5px 14px;font-size:12px;background:var(--green-ok)" onclick="handleSwap('${sw.id}','approved')">✅ Approve</button>
+        <button class="btn-log" style="width:auto;padding:5px 14px;font-size:12px;background:#C0392B" onclick="handleSwap('${sw.id}','declined')">✕ Decline</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.handleSwap = async function(swapId, status) {
+  const swap = schedSwaps.find(s=>s.id===swapId);
+  if (!swap) return;
+  if (status === 'approved') {
+    const shift = schedShifts.find(s=>s.id===swap.shiftId);
+    if (shift) shift.staffId = swap.toStaffId;
+  }
+  swap.status = status;
+  await saveScheduleData();
+  renderSchedule();
+  showToast(status==='approved'?'✅ Swap approved!':'Swap declined');
+};
+
+// Keep openAddShift for backward compat
+window.openAddShift = window.openManageShiftTypes;
+
+// ── Export schedule image (uses existing exportScheduleImage fn) ──
+
+
+// ══════════════════════════════════════════
+// HOURS SUMMARY MODULE
+// ══════════════════════════════════════════
+
+let hrsPeriod = 'week';
+
+window.setHrsPeriod = function(p) {
+  hrsPeriod = p;
+  document.getElementById('hrsWeekBtn').classList.toggle('active', p==='week');
+  document.getElementById('hrsMonthBtn').classList.toggle('active', p==='month');
+  renderHoursSummary();
+};
+
+function renderHoursSummary() {
+  const el    = document.getElementById('schedHoursReport');
+  const table = document.getElementById('schedHoursTable');
+  const totEl = document.getElementById('schedHoursTotals');
+  if (!el || !table) return;
+
+  if (!schedStaff.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+
+  // Get date range
+  let startDate, endDate;
+  const now = new Date();
+
+  if (hrsPeriod === 'week') {
+    startDate = getWeekStart(schedOffset);
+    endDate   = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+  } else {
+    // Full month containing current week
+    const ws = getWeekStart(schedOffset);
+    startDate = new Date(ws.getFullYear(), ws.getMonth(), 1);
+    endDate   = new Date(ws.getFullYear(), ws.getMonth() + 1, 0);
+  }
+
+  // Build list of dates in range
+  const dates = [];
+  const cur = new Date(startDate);
+  while (cur <= endDate) {
+    dates.push(getDateStr(new Date(cur)));
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  // Calculate hours per staff member
+  const staffHours = schedStaff.map(staff => {
+    const shifts = schedShifts.filter(s =>
+      s.staffId === staff.id && dates.includes(s.date)
+    );
+    const totalHrs = shifts.reduce((sum, s) => {
+      const st = schedShiftTypes.find(t => t.id === s.shiftTypeId);
+      return sum + (st ? shiftHours(st) : 0);
+    }, 0);
+    const shiftCount = shifts.length;
+
+    // Weekly breakdown for month view
+    const weeklyHrs = {};
+    if (hrsPeriod === 'month') {
+      shifts.forEach(s => {
+        const d    = new Date(s.date + 'T12:00:00');
+        const wk   = getWeekStart(0);
+        wk.setDate(wk.getDate() - wk.getDay());
+        // Get week label
+        const wkStart = new Date(d);
+        wkStart.setDate(d.getDate() - d.getDay());
+        const wkLabel = fmtDate(wkStart);
+        if (!weeklyHrs[wkLabel]) weeklyHrs[wkLabel] = 0;
+        const st = schedShiftTypes.find(t => t.id === s.shiftTypeId);
+        if (st) weeklyHrs[wkLabel] += shiftHours(st);
+      });
+    }
+
+    return { staff, totalHrs, shiftCount, weeklyHrs };
+  }).sort((a, b) => b.totalHrs - a.totalHrs);
+
+  const totalAllHrs   = staffHours.reduce((s, r) => s + r.totalHrs, 0);
+  const totalAllShifts= staffHours.reduce((s, r) => s + r.shiftCount, 0);
+  const avgHrs        = staffHours.length > 0 ? totalAllHrs / staffHours.length : 0;
+
+  // Render table
+  const periodLabel = hrsPeriod === 'week'
+    ? `Week of ${fmtDate(startDate)}`
+    : startDate.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+
+  table.innerHTML = `
+    <div style="font-size:11px;color:#8B7355;margin-bottom:8px">${periodLabel}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:var(--dark)">
+          <th style="padding:8px 10px;text-align:left;color:#D4A843;font-weight:600">Staff</th>
+          <th style="padding:8px 10px;text-align:center;color:#D4A843;font-weight:600">Shifts</th>
+          <th style="padding:8px 10px;text-align:right;color:#D4A843;font-weight:600">Hours</th>
+          <th style="padding:8px 10px;text-align:right;color:#D4A843;font-weight:600">% of Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${staffHours.map((r, i) => {
+          const pct     = totalAllHrs > 0 ? (r.totalHrs / totalAllHrs * 100) : 0;
+          const barWidth= Math.round(pct);
+          return `<tr style="background:${i%2===0?'#fff':'var(--cream)'}">
+            <td style="padding:8px 10px;border-bottom:1px solid var(--border)">
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:8px;height:8px;border-radius:50%;background:${r.staff.color}"></div>
+                <span style="font-weight:600">${r.staff.name}</span>
+                <span style="font-size:11px;color:#8B7355">${r.staff.role||''}</span>
+              </div>
+              <div style="margin-top:4px;background:#EDE0CC;border-radius:4px;height:4px;width:100%">
+                <div style="background:${r.staff.color};height:4px;border-radius:4px;width:${barWidth}%"></div>
+              </div>
+            </td>
+            <td style="padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);color:#8B7355">${r.shiftCount}</td>
+            <td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:700;color:var(--caramel)">${r.totalHrs}h</td>
+            <td style="padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);color:#8B7355">${pct.toFixed(0)}%</td>
+          </tr>`;
+        }).join('')}
+        <tr style="background:var(--card-bg);border-top:2px solid var(--border)">
+          <td style="padding:8px 10px;font-weight:700;color:var(--dark)">Total</td>
+          <td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--dark)">${totalAllShifts}</td>
+          <td style="padding:8px 10px;text-align:right;font-weight:700;color:var(--caramel);font-size:16px">${totalAllHrs}h</td>
+          <td style="padding:8px 10px;text-align:right;font-size:11px;color:#8B7355">avg ${avgHrs.toFixed(1)}h</td>
+        </tr>
+      </tbody>
+    </table>`;
+
+  // Totals card
+  totEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div class="stat-card" style="padding:12px">
+        <div style="font-size:20px;font-weight:700;color:var(--caramel)">${totalAllHrs}h</div>
+        <div style="font-size:11px;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px">Total Hours</div>
+      </div>
+      <div class="stat-card" style="padding:12px">
+        <div style="font-size:20px;font-weight:700;color:var(--dark)">${totalAllShifts}</div>
+        <div style="font-size:11px;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px">Total Shifts</div>
+      </div>
+      <div class="stat-card" style="padding:12px">
+        <div style="font-size:20px;font-weight:700;color:var(--green-ok)">${avgHrs.toFixed(1)}h</div>
+        <div style="font-size:11px;color:#8B7355;text-transform:uppercase;letter-spacing:0.5px">Avg Per Staff</div>
+      </div>
+    </div>`;
+}
+// ── Admin: Add Region ──
+window.addRegion = async function() {
+  const name  = document.getElementById('newRegionName')?.value.trim();
+  const orgId = 'dumont'; // single org for now
+  const email = document.getElementById('newRegionOwnerEmail')?.value.trim().toLowerCase();
+  if (!name) { showToast('⚠️ Enter region name'); return; }
+  const regionId = name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,20);
+  try {
+    await setDoc(doc(db,'regions',regionId), { id:regionId, name, orgId, createdAt:Date.now() });
+    if (typeof REGIONS !== 'undefined') REGIONS[regionId] = { id:regionId, name, orgId };
+    if (typeof liveRegions !== 'undefined') liveRegions[regionId] = { id:regionId, name, orgId };
+    if (email) {
+      const ek = email.replace(/\./g,'_').replace(/@/g,'_at_');
+      await setDoc(doc(db,'users',ek), { role:'regional_owner', orgId, regionId, status:'approved', updatedAt:Date.now() }, { merge:true });
+    }
+    showToast('✅ Region "' + name + '" created!');
+    document.getElementById('newRegionName').value = '';
+    document.getElementById('newRegionOwnerEmail').value = '';
+    renderOrgTree();
+    updateAdminDropdowns();
+    renderAdminStoreList();
+  } catch(e) { showToast('⚠️ ' + e.message); }
+};
+
+// ── Admin: Add Store + Manager ──
+window.adminAddStoreAndManager = async function() {
+  const regionId = document.getElementById('newStoreRegion')?.value || 'texas';
+  const name     = document.getElementById('newStoreName')?.value.trim();
+  const city     = document.getElementById('newStoreCity')?.value.trim();
+  const email    = document.getElementById('newUserEmail')?.value.trim().toLowerCase();
+  const password = document.getElementById('newUserPassword')?.value;
+  if (!name)     { showToast('⚠️ Enter store name'); return; }
+  if (!email)    { showToast('⚠️ Enter manager email'); return; }
+  if (!password) { showToast('⚠️ Enter temp password'); return; }
+  const sid = name.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').slice(0,25);
+  try {
+    const newStore = { name, city, regionId };
+    if (typeof allStores !== 'undefined') allStores[sid] = newStore;
+    if (typeof STORES !== 'undefined')    STORES[sid]    = newStore;
+    if (typeof STORE_REGIONS !== 'undefined') STORE_REGIONS[sid] = regionId;
+    const snap = await getDoc(doc(db,'config','stores'));
+    const existing = snap.exists ? snap.data() : {};
+    existing[sid] = newStore;
+    await setDoc(doc(db,'config','stores'), existing);
+    const ek = email.replace(/\./g,'_').replace(/@/g,'_at_');
+    await setDoc(doc(db,'users',ek), {
+      email, store:sid, role:'store_owner', orgId:'dumont', regionId,
+      status:'invited', storeName:name, createdAt:Date.now()
+    });
+    document.getElementById('newStoreName').value  = '';
+    document.getElementById('newStoreCity').value  = '';
+    document.getElementById('newUserEmail').value  = '';
+    document.getElementById('newUserPassword').value = '';
+    if (typeof renderAdminStoreList === 'function') renderAdminStoreList();
+    if (typeof renderOrgTree === 'function') renderOrgTree();
+    showToast('✅ Store "' + name + '" + manager added!');
+  } catch(e) { showToast('⚠️ ' + e.message); }
+};
+
+// ── Admin: Assign Regional Owner ──
+window.assignRegionalOwner = async function() {
+  const email    = document.getElementById('assignEmail')?.value.trim().toLowerCase();
+  const regionId = document.getElementById('assignRegion')?.value;
+  if (!email || !regionId) { showToast('⚠️ Enter email and region'); return; }
+  const ek = email.replace(/\./g,'_').replace(/@/g,'_at_');
+  try {
+    await setDoc(doc(db,'users',ek), {
+      role:'regional_owner', orgId:'dumont', regionId,
+      status:'approved', updatedAt:Date.now()
+    }, { merge:true });
+    showToast('✅ ' + email + ' assigned as Regional Owner');
+    document.getElementById('assignEmail').value = '';
+  } catch(e) { showToast('⚠️ ' + e.message); }
+};
+
+
+window.setRegPeriod = function(p) {
+  if (typeof regPeriod !== 'undefined') regPeriod = p;
+  document.getElementById('regPeriodWeek')?.classList.toggle('active', p==='week');
+  document.getElementById('regPeriodMonth')?.classList.toggle('active', p==='month');
+  if (typeof loadRegionalData === 'function') loadRegionalData();
+};
+
+// ── Org Structure & Admin ──
+let liveRegions = {}, liveOrgs = {};
+
+async function loadOrgStructure() {
+  try {
+    const [orgSnap, regSnap, cfgSnap] = await Promise.all([
+      getDocs(collection(db,'orgs')),
+      getDocs(collection(db,'regions')),
+      getDoc(doc(db,'config','stores'))
+    ]);
+    orgSnap.docs.forEach(d => { liveOrgs[d.id] = d.data(); });
+    regSnap.docs.forEach(d => { liveRegions[d.id] = {...d.data(), id:d.id}; });
+    if (cfgSnap.exists) {
+      Object.entries(cfgSnap.data()).forEach(([sid,store]) => {
+        STORES[sid] = store; allStores[sid] = store;
+        STORE_REGIONS[sid] = store.regionId || 'texas';
+      });
+    }
+  } catch(e) { console.warn('loadOrgStructure:',e); }
+  renderOrgTree();
+  updateAdminDropdowns();
+}
+
+function renderOrgTree() {
+  const el = document.getElementById('orgTree');
+  if (!el) return;
+  const regionStores = {};
+  Object.entries(STORE_REGIONS).forEach(([sid,rid]) => {
+    if (!regionStores[rid]) regionStores[rid] = [];
+    regionStores[rid].push(sid);
+  });
+  const allOrgs = {...ORGS, ...liveOrgs};
+  const allRegs = {...REGIONS, ...liveRegions};
+  el.innerHTML = Object.entries(allOrgs).map(([orgId,org]) => {
+    const regs = Object.entries(allRegs).filter(([,r]) => r.orgId===orgId);
+    return `<div style="margin-bottom:10px">
+      <div style="padding:8px 12px;background:var(--dark);border-radius:8px;color:#D4A843;font-weight:700;font-size:12px;display:flex;justify-content:space-between;align-items:center">
+        🏢 ${org.name}<span style="opacity:0.5;font-weight:400">${regs.length} region${regs.length!==1?'s':''}</span>
+      </div>
+      ${regs.map(([rid,reg]) => {
+        const stores = regionStores[rid] || [];
+        return `<div style="margin-left:12px;margin-top:4px">
+          <div style="padding:6px 12px;background:rgba(200,132,58,0.1);border-left:3px solid var(--caramel);border-radius:0 6px 6px 0;font-size:12px;font-weight:600;color:var(--caramel);display:flex;justify-content:space-between">
+            🌎 ${reg.name}<span style="font-weight:400;opacity:0.7">${stores.length} store${stores.length!==1?'s':''}</span>
+          </div>
+          ${stores.map(sid => `<div style="margin-left:12px;margin-top:3px;display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;font-size:12px">
+            🏪 ${STORES[sid]?.name||sid}
+            <button onclick="switchViewStore('${sid}');showTab('dashboard')" style="margin-left:auto;font-size:10px;padding:2px 8px;background:var(--caramel);color:#fff;border:none;border-radius:5px;cursor:pointer">→</button>
+          </div>`).join('')}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderAdminStoreList() {
+  const el = document.getElementById('adminStoreList');
+  if (!el) return;
+  const keys = Object.keys(allStores);
+  if (!keys.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#8B7355;text-align:center;padding:16px">No stores added yet.<br>Add your first store above.</div>';
+    return;
+  }
+  el.innerHTML = keys.map(sid => {
+    const store   = allStores[sid];
+    const regId   = store.regionId || STORE_REGIONS[sid] || '';
+    const regName = (REGIONS[regId] || liveRegions[regId])?.name || regId;
+    return `<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--dark)">${store.name||sid}</div>
+        <div style="font-size:11px;color:#8B7355">${store.city||''} ${regName?'· '+regName:''}</div>
+      </div>
+      <button onclick="deleteStore('${sid}')" style="border:1px solid #C0392B;color:#C0392B;background:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer">Delete</button>
+    </div>`;
+  }).join('');
+}
+
+function updateAdminDropdowns() {
+  const allRegs = {...REGIONS,...liveRegions};
+  const regOpts = Object.entries(allRegs).map(([id,r])=>`<option value="${id}">${r.name}</option>`).join('');
+  ['assignRegion','newStoreRegion'].forEach(id=>{const el=document.getElementById(id);if(el && regOpts)el.innerHTML=regOpts;});
+  const storeOpts = Object.keys(STORES).map(id=>`<option value="${id}">${STORES[id]?.name||id}</option>`).join('');
+  const su=document.getElementById('newUserStore');if(su)su.innerHTML=storeOpts;
+  const allOrgs={...ORGS,...liveOrgs};
+  const orgOpts=Object.entries(allOrgs).map(([id,o])=>`<option value="${id}">${o.name}</option>`).join('');
+  const ro=document.getElementById('newRegionOrg');if(ro)ro.innerHTML=orgOpts;
+}
+
+window.deleteStore = async function(sid) {
+  const name = STORES[sid]?.name||sid;
+  if (!confirm('Delete "'+name+'"? Firestore data kept.')) return;
+  try {
+    const snap = await getDoc(doc(db,'config','stores'));
+    if (snap.exists) { const d=snap.data(); delete d[sid]; await setDoc(doc(db,'config','stores'),d); }
+    delete allStores[sid]; delete STORES[sid]; delete STORE_REGIONS[sid];
+    populateStoreSwitcher(currentUserConfig); renderAdminStoreList(); renderOrgTree();
+    showToast('🗑 "'+name+'" removed');
+  } catch(e) { showToast('⚠️ '+e.message); }
+};
+
+
+// ── Store Switcher ──
+function populateStoreSwitcher(cfg) {
+  const bar = document.getElementById('ownerBar');
+  if (!bar) return;
+  const ids = isSuperOwner(cfg)
+    ? Object.keys(allStores)
+    : Object.keys(allStores).filter(function(id) { return (allStores[id] && allStores[id].regionId || STORE_REGIONS[id]) === cfg.regionId; });
+  let html = '<button class="store-tab-btn active" id="storeAll">📊 All Stores</button>';
+  ids.forEach(function(id) {
+    html += '<button class="store-tab-btn" id="store-' + id + '">' + (allStores[id] && allStores[id].name || id) + '</button>';
+  });
+  bar.innerHTML = html;
+  // Attach click handlers
+  document.getElementById('storeAll').onclick = function() { switchViewStore('all'); };
+  ids.forEach(function(id) {
+    var btn = document.getElementById('store-' + id);
+    if (btn) btn.onclick = function() { switchViewStore(id); };
+  });
+}
+
+
+window.setSchedView = function(v) {
+  schedView = v;
+  var wBtn = document.getElementById('schedViewWeek');
+  var dBtn = document.getElementById('schedViewDay');
+  if (wBtn) wBtn.classList.toggle('active', v==='week');
+  if (dBtn) dBtn.classList.toggle('active', v==='day');
+  renderSchedule();
+};
+async function loadAuditLog() {
+  const el = document.getElementById('auditLogList');
+  if (!el) return;
+  el.innerHTML = '<div style="font-size:12px;color:#8B7355">Loading...</div>';
+  try {
+    const snap = await db.collection('stores').doc(viewingStore||'coppell')
+      .collection('auditLog').orderBy('timestamp','desc').limit(50).get();
+    if (!snap.docs || !snap.docs.length) {
+      el.innerHTML = '<div style="font-size:12px;color:#8B7355">No audit entries yet.</div>';
+      return;
+    }
+    el.innerHTML = snap.docs.map(d => {
+      const e = d.data();
+      return '<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">'
+        + '<div style="font-size:11px;color:#aaa;min-width:130px">' + (e.dateStr||'') + '</div>'
+        + '<div style="font-size:12px;font-weight:600;color:var(--caramel)">' + (e.action||'') + '</div>'
+        + '<div style="font-size:12px;color:#8B7355;margin-left:8px">' + (e.userName||e.userEmail||'') + '</div>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="font-size:12px;color:#8B7355">Could not load audit log.</div>';
+  }
+}
+
+
+
+</script>
+
+</body>
+</html>
