@@ -5,6 +5,7 @@ import { useToast }     from './hooks/useToast'
 
 import LoginScreen  from './components/LoginScreen'
 import Layout       from './components/Layout'
+import Home         from './components/Home'
 import Dashboard    from './components/Dashboard'
 import Inventory    from './components/Inventory'
 import Orders       from './components/Orders'
@@ -18,7 +19,7 @@ export default function App() {
   const auth        = useAuth()
   const invHook     = useInventory()
   const { toast, showToast } = useToast()
-  const [activeTab,    setActiveTab]    = useState('dashboard')
+  const [activeTab,    setActiveTab]    = useState('home')
   const [viewingStore, setViewingStore] = useState('coppell')
 
   // Load inventory when user logs in or store changes
@@ -67,7 +68,7 @@ export default function App() {
   }
 
   const tabs = [
-    { id:'dashboard', label:'Dashboard' },
+    { id:'home',      label:'Home' },
     { id:'inventory', label:'Inventory' },
     { id:'orders',    label:'Orders' },
     { id:'sales',     label:'Sales' },
@@ -86,6 +87,7 @@ export default function App() {
       viewingStore={viewingStore}
       setViewingStore={setViewingStore}
     >
+      {activeTab === 'home'      && <Home      {...tabProps} />}
       {activeTab === 'dashboard' && <Dashboard {...tabProps} />}
       {activeTab === 'inventory' && <Inventory {...tabProps} />}
       {activeTab === 'orders'    && <Orders    {...tabProps} />}
