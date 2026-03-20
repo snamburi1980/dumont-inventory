@@ -104,9 +104,9 @@ export const DEFAULT_INVENTORY = [
   { id:120,name:"Mango",                    code:"IC-11",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:2,  order_qty:"2 TUBS", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
   { id:121,name:"Kheer",                    code:"IC-12",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
   { id:122,name:"Filter Coffee",            code:"IC-13",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:123,name:"Mint Chocochip",           code:"IC-14",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:124,name:"Ferrero Ice Cream",        code:"IC-15",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
-  { id:125,name:"Biscoff Ice Cream",        code:"IC-16",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:123,name:"Mint Chocochip",     clover_name:"Mint Chocolate Chip",           code:"IC-14",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:124,name:"Ferrero Ice Cream",  clover_name:"La Ferrero",        code:"IC-15",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
+  { id:125,name:"Biscoff Ice Cream",  clover_name:"Biscoff",        code:"IC-16",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
   { id:126,name:"Ruby Cheese",              code:"IC-17",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
   { id:127,name:"Peanut Butter Chocolate",  code:"IC-18",        cat:"Ice Cream",  vendor:"Brand",     uom:"TUB",    par:1,  order_qty:"1 TUB", cost:63.0, scoops_per_bucket:60, cost_per_scoop:1.12 },
 ];

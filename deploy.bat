@@ -1,6 +1,10 @@
 @echo off
-npm run build
+echo Building...
+call npm run build
+echo Staging changes...
 git add .
-git commit -m update
+echo Committing...
+git commit -m "update"
+echo Pushing to GitHub...
 git push
-echo Done!
+echo Done! Live in 2-3 minutes at snamburi1980.github.io/dumont-inventory
