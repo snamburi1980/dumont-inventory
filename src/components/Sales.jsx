@@ -1,12 +1,27 @@
-import { useState } from 'react'
-import { collection, addDoc } from 'firebase/firestore'
+import { useState, useEffect } from 'react'
+import { collection, addDoc, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { matchCloverItem, ITEM_SIZES } from '../data/recipes'
 
 export default function Sales({ invHook, viewingStore, showToast }) {
   const { inventory, saveInventory } = invHook
-  const [results,  setResults]  = useState(null)
   const [loading,  setLoading]  = useState(false)
+  const [queue,    setQueue]    = useState([]) // pending uploads
+  const [history,  setHistory]  = useState([])
+  const [applying, setApplying] = useState(null) // id of item being applied
+
+  useEffect(() => { loadHistory() }, [viewingStore])
+
+  async function loadHistory() {
+    try {
+      const q = query(
+        collection(db, 'stores', viewingStore, 'salesLedger'),
+        orderBy('appliedAt', 'desc')
+      )
+      const snap = await getDocs(q)
+      setHistory(snap.docs.map(d => d.data()))
+    } catch(e) {}
+  }
 
   function parseCloverCSV(text) {
     const lines = text.split('\n').map(l => l.trim())
@@ -34,15 +49,12 @@ export default function Sales({ invHook, viewingStore, showToast }) {
   function calculateDeductions(salesData) {
     const matched = [], unmatched = []
     let totalSales = 0
-
     salesData.forEach(({ name, sold, netSales }) => {
       totalSales += netSales
       const recipe = matchCloverItem(name)
       if (recipe) matched.push({ name, sold, netSales, recipe })
       else unmatched.push({ name, sold, netSales })
     })
-
-    // Aggregate ingredient totals
     const ingredientTotals = {}
     matched.forEach(({ name, sold, recipe }) => {
       recipe.forEach(({ item, qty, unit }) => {
@@ -50,200 +62,305 @@ export default function Sales({ invHook, viewingStore, showToast }) {
         ingredientTotals[item].qty += qty * sold
       })
     })
-
-    // Convert to inventory units
     const deductions = []
     Object.entries(ingredientTotals).forEach(([itemName, data]) => {
       const invItem = inventory.find(i => i.name === itemName)
       let deductUnits = 0, deductDisplay = ''
-
       if (data.unit === 'scoop') {
-        const scoopsPerBucket = invItem?.scoops_per_bucket || 60
-        deductUnits   = data.qty / scoopsPerBucket
+        const spb = invItem?.scoops_per_bucket || 60
+        deductUnits = data.qty / spb
         deductDisplay = `${data.qty.toFixed(0)} scoops = ${deductUnits.toFixed(2)} tubs`
       } else if (data.unit === 'g' && ITEM_SIZES[itemName]) {
-        deductUnits   = data.qty / ITEM_SIZES[itemName]
+        deductUnits = data.qty / ITEM_SIZES[itemName]
         deductDisplay = `${data.qty.toFixed(0)}g = ${deductUnits.toFixed(2)} bags/bottles`
       } else if (data.unit === 'ml' && itemName === 'Milk') {
-        deductUnits   = data.qty / 3785
+        deductUnits = data.qty / 3785
         deductDisplay = `${(data.qty/1000).toFixed(1)}L = ${deductUnits.toFixed(2)} gallons`
       } else {
-        deductUnits   = data.qty
+        deductUnits = data.qty
         deductDisplay = `${data.qty.toFixed(2)} ${data.unit}`
       }
-
       deductions.push({
         itemName, invItem, deductUnits, deductDisplay,
         currentStock: invItem ? invItem.stock : null,
-        newStock:     invItem ? Math.max(0, invItem.stock - deductUnits) : null,
-        belowPar:     invItem ? (invItem.stock - deductUnits) < invItem.par : false,
+        newStock: invItem ? Math.max(0, invItem.stock - deductUnits) : null,
+        belowPar: invItem ? (invItem.stock - deductUnits) < invItem.par : false,
       })
     })
-
     return { matched, unmatched, deductions, totalSales }
   }
 
   function handleFile(e) {
-    const file = e.target.files[0]
-    if (!file) return
+    const files = Array.from(e.target.files)
+    if (!files.length) return
     setLoading(true)
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      const { salesData, periodLabel } = parseCloverCSV(ev.target.result)
-      if (!salesData.length) {
-        showToast(' Could not parse CSV')
-        setLoading(false)
-        return
+    const newItems = []
+    let processed = 0
+    files.forEach(file => {
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        const { salesData, periodLabel } = parseCloverCSV(ev.target.result)
+        if (salesData.length) {
+          const { matched, unmatched, deductions, totalSales } = calculateDeductions(salesData)
+          newItems.push({
+            id: Date.now() + Math.random(),
+            fileName: file.name,
+            periodLabel,
+            matched,
+            unmatched,
+            deductions,
+            totalSales,
+            itemsSold: matched.reduce((s,r) => s+r.sold, 0),
+          })
+        }
+        processed++
+        if (processed === files.length) {
+          setQueue(prev => [...prev, ...newItems])
+          setLoading(false)
+        }
       }
-      const { matched, unmatched, deductions, totalSales } = calculateDeductions(salesData)
-      setResults({ matched, unmatched, deductions, totalSales, periodLabel })
-      setLoading(false)
-    }
-    reader.readAsText(file)
+      reader.readAsText(file)
+    })
     e.target.value = ''
   }
 
-  async function applyDeductions() {
-    if (!results) return
-    const updatedInventory = inventory.map(item => {
-      const ded = results.deductions.find(d => d.itemName === item.name)
-      if (!ded || ded.newStock === null) return item
-      return { ...item, stock: Math.round(ded.newStock * 100) / 100 }
+  function removeFromQueue(id) {
+    setQueue(prev => prev.filter(q => q.id !== id))
+  }
+
+  async function applySingle(id) {
+    const item = queue.find(q => q.id === id)
+    if (!item) return
+    setApplying(id)
+
+    // Apply deductions
+    const updatedInventory = inventory.map(inv => {
+      const ded = item.deductions.find(d => d.itemName === inv.name)
+      if (!ded) return inv
+      return { ...inv, stock: Math.max(0, Math.round((inv.stock - ded.deductUnits) * 100) / 100) }
     })
     await saveInventory(viewingStore, updatedInventory)
     invHook.loadInventory(viewingStore)
 
-    // Save to sales ledger
+    // Save to ledger
     try {
       await addDoc(collection(db, 'stores', viewingStore, 'salesLedger'), {
-        period:       results.periodLabel,
-        revenue:      results.totalSales,
-        itemsSold:    results.matched.reduce((s,r) => s+r.sold, 0),
-        matchedItems: results.matched.length,
-        appliedAt:    Date.now(),
-        dateTs:       Date.now(),
+        period:         item.periodLabel,
+        revenue:        item.totalSales,
+        itemsSold:      item.itemsSold,
+        matchedItems:   item.matched.length,
+        unmatchedItems: item.unmatched.length,
+        fileName:       item.fileName,
+        appliedAt:      Date.now(),
+        dateTs:         Date.now(),
       })
     } catch(e) {}
 
-    showToast(` Inventory updated — ${results.deductions.filter(d=>d.invItem).length} items deducted`)
-    setResults(null)
+    await loadHistory()
+    setQueue(prev => prev.filter(q => q.id !== id))
+    setApplying(null)
+    showToast(`Applied: ${item.periodLabel || item.fileName}`)
   }
 
-  const matchPct = results ? Math.round(results.matched.length / (results.matched.length + results.unmatched.length) * 100) : 0
+  async function applyAll() {
+    for (const item of queue) {
+      await applySingle(item.id)
+    }
+  }
+
+  const totalRevenue = queue.reduce((s,q) => s + q.totalSales, 0)
+  const totalItems   = queue.reduce((s,q) => s + q.itemsSold, 0)
 
   return (
     <div>
-      {/* Upload zone */}
-      <label style={{ display:'block', cursor:'pointer' }}>
-        <div className="scan-zone" style={{ marginBottom:16 }}>
-          <div style={{ fontSize:36, marginBottom:8 }}></div>
-          <div className="scan-zone-title">Upload Clover Sales Report</div>
+
+      {/* Upload zone — supports multiple files */}
+      <label style={{ display:'block', cursor:'pointer', marginBottom:16 }}>
+        <div style={{
+          border:'2px dashed var(--border)', borderRadius:16,
+          padding:'28px 20px', textAlign:'center',
+          transition:'border-color 0.2s'
+        }}>
+          <div style={{ fontSize:32, marginBottom:8 }}>📊</div>
+          <div style={{ fontSize:15, fontWeight:600, color:'var(--dark)' }}>Upload Clover Sales Reports</div>
           <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:4 }}>
-            Tap to select CSV file (.csv)
+            Select one or multiple CSV files
           </div>
-          <input type="file" accept=".csv,.xlsx,.xls" onChange={handleFile} style={{ display:'none' }} />
+          <input
+            type="file"
+            accept=".csv,.xlsx,.xls"
+            multiple
+            onChange={handleFile}
+            style={{ display:'none' }}
+          />
         </div>
       </label>
 
       {loading && (
-        <div style={{ textAlign:'center', padding:24, color:'var(--text-muted)' }}>
-           Reading Clover report...
+        <div style={{ textAlign:'center', padding:16, color:'var(--text-muted)' }}>
+          Reading files...
         </div>
       )}
 
-      {/* Results */}
-      {results && (
-        <div>
-          {/* Summary */}
+      {/* Queue */}
+      {queue.length > 0 && (
+        <div style={{ marginBottom:16 }}>
+
+          {/* Queue summary */}
           <div style={{
-            background:'var(--dark)', borderRadius:12, padding:'14px 16px',
+            background:'var(--dark)', borderRadius:12, padding:'12px 16px',
             marginBottom:12, display:'grid', gridTemplateColumns:'repeat(3,1fr)',
             gap:8, textAlign:'center'
           }}>
             <div>
-              <div style={{fontSize:20,fontWeight:700,color:'#D4A843'}}>
-                ${results.totalSales.toLocaleString('en-US',{maximumFractionDigits:0})}
-              </div>
-              <div style={{fontSize:10,color:'#aaa',textTransform:'uppercase'}}>Net Sales</div>
+              <div style={{ fontSize:18, fontWeight:700, color:'#D4A843' }}>{queue.length}</div>
+              <div style={{ fontSize:10, color:'#aaa', textTransform:'uppercase' }}>Files</div>
             </div>
             <div>
-              <div style={{fontSize:20,fontWeight:700,color:'var(--green-ok)'}}>
-                {results.matched.reduce((s,r)=>s+r.sold,0)}
+              <div style={{ fontSize:18, fontWeight:700, color:'#27AE60' }}>
+                ${totalRevenue.toLocaleString('en-US',{maximumFractionDigits:0})}
               </div>
-              <div style={{fontSize:10,color:'#aaa',textTransform:'uppercase'}}>Items Sold</div>
+              <div style={{ fontSize:10, color:'#aaa', textTransform:'uppercase' }}>Total Revenue</div>
             </div>
             <div>
-              <div style={{fontSize:20,fontWeight:700,color:'var(--caramel)'}}>{matchPct}%</div>
-              <div style={{fontSize:10,color:'#aaa',textTransform:'uppercase'}}>Matched</div>
+              <div style={{ fontSize:18, fontWeight:700, color:'var(--caramel)' }}>{totalItems}</div>
+              <div style={{ fontSize:10, color:'#aaa', textTransform:'uppercase' }}>Items Sold</div>
             </div>
           </div>
 
-          {results.periodLabel && (
-            <div style={{fontSize:11,color:'var(--text-muted)',marginBottom:12,textAlign:'center'}}>
-               {results.periodLabel}
-            </div>
-          )}
-
-          {/* Deductions */}
-          <div className="section-title"> Inventory to Deduct</div>
-          {results.deductions.map(d => (
-            <div key={d.itemName} style={{
-              display:'flex', alignItems:'center', gap:10,
-              padding:10, background:'var(--cream)', borderRadius:10,
-              marginBottom:6,
-              borderLeft: `4px solid ${!d.invItem ? '#ccc' : d.belowPar ? 'var(--red-alert)' : 'var(--green-ok)'}`
+          {/* Individual files in queue */}
+          {queue.map(item => (
+            <div key={item.id} style={{
+              background:'var(--cream)', border:'1px solid var(--border)',
+              borderRadius:10, padding:'12px 14px', marginBottom:8
             }}>
-              <div style={{flex:1}}>
-                <div style={{fontSize:13,fontWeight:600,color:'var(--dark)'}}>{d.itemName}</div>
-                <div style={{fontSize:11,color:'var(--text-muted)'}}>Used: {d.deductDisplay}</div>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:600, color:'var(--dark)' }}>
+                    {item.periodLabel || item.fileName}
+                  </div>
+                  <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>
+                    ${item.totalSales.toLocaleString('en-US',{maximumFractionDigits:0})} revenue
+                    · {item.itemsSold} items sold
+                    · {item.matched.length} matched
+                  </div>
+                  {/* Deductions preview */}
+                  <div style={{ marginTop:8 }}>
+                    {item.deductions.filter(d => d.invItem).slice(0,4).map(d => (
+                      <div key={d.itemName} style={{
+                        display:'flex', justifyContent:'space-between',
+                        fontSize:11, color:'var(--text-muted)', padding:'2px 0'
+                      }}>
+                        <span>{d.itemName}</span>
+                        <span style={{ color: d.belowPar ? 'var(--red-alert)' : 'var(--dark)', fontWeight:600 }}>
+                          -{d.deductUnits.toFixed(2)} {d.invItem?.uom}
+                        </span>
+                      </div>
+                    ))}
+                    {item.deductions.filter(d => d.invItem).length > 4 && (
+                      <div style={{ fontSize:11, color:'var(--text-muted)' }}>
+                        +{item.deductions.filter(d => d.invItem).length - 4} more items...
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => removeFromQueue(item.id)}
+                  style={{ background:'none', border:'none', color:'var(--red-alert)', cursor:'pointer', fontSize:18, marginLeft:8 }}
+                >
+                  x
+                </button>
               </div>
-              <div style={{textAlign:'right'}}>
-                {d.invItem ? (
-                  <>
-                    <div style={{fontSize:12,color:'var(--text-muted)'}}>
-                      {d.currentStock?.toFixed(1)} &rarr; <strong style={{color: d.belowPar ? 'var(--red-alert)' : 'var(--green-ok)'}}>
-                        {d.newStock?.toFixed(1)}
-                      </strong>
-                    </div>
-                    {d.belowPar && <div style={{fontSize:10,color:'var(--red-alert)'}}> Below PAR</div>}
-                  </>
-                ) : (
-                  <div style={{fontSize:11,color:'#aaa'}}>Not in inventory</div>
-                )}
+              {/* Apply button per file */}
+              <div style={{ display:'flex', gap:8, marginTop:10 }}>
+                <button
+                  onClick={() => applySingle(item.id)}
+                  disabled={applying === item.id}
+                  style={{
+                    flex:1, background: applying === item.id ? '#aaa' : '#27AE60',
+                    color:'#fff', border:'none', borderRadius:8,
+                    padding:'10px', fontSize:13, fontWeight:600,
+                    cursor: applying === item.id ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {applying === item.id ? 'Applying...' : 'Apply to Inventory'}
+                </button>
               </div>
             </div>
           ))}
 
-          {/* Unmatched */}
-          {results.unmatched.length > 0 && (
-            <details style={{marginTop:10,marginBottom:16}}>
-              <summary style={{fontSize:12,color:'var(--text-muted)',cursor:'pointer'}}>
-                {results.unmatched.length} items not matched (Bakery, Custom etc.)
-              </summary>
-              <div style={{marginTop:6}}>
-                {results.unmatched.slice(0,20).map(u => (
-                  <div key={u.name} style={{fontSize:11,color:'#aaa',padding:'3px 8px'}}>
-                    {u.name} (×{u.sold})
-                  </div>
-                ))}
-              </div>
-            </details>
-          )}
-
-          {/* Actions */}
-          <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button className="btn-primary" style={{flex:1,background:'var(--green-ok)'}} onClick={applyDeductions}>
-               Apply — Deduct from Inventory
-            </button>
+          {/* Apply all button - only show if more than 1 file */}
+          {queue.length > 1 && (
             <button
-              onClick={() => setResults(null)}
-              style={{padding:'12px 16px',background:'#888',color:'#fff',border:'none',borderRadius:10,cursor:'pointer'}}
+              onClick={applyAll}
+              disabled={!!applying}
+              style={{
+                width:'100%', background: applying ? '#aaa' : 'var(--dark)',
+                color:'#fff', border:'none', borderRadius:10,
+                padding:'14px', fontSize:14, fontWeight:700,
+                cursor: applying ? 'not-allowed' : 'pointer',
+                marginTop:4
+              }}
             >
-              ✕
+              {applying ? 'Applying...' : `Apply All ${queue.length} Reports`}
             </button>
+          )}
+        </div>
+      )}
+
+      {/* Upload History */}
+      {history.length > 0 && (
+        <div style={{ marginTop:8 }}>
+          <div style={{ fontSize:13, fontWeight:700, color:'var(--dark)', marginBottom:10 }}>
+            Upload History
+          </div>
+          <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:12, overflow:'hidden' }}>
+            <div style={{
+              display:'grid', gridTemplateColumns:'1fr auto auto',
+              padding:'10px 14px', background:'var(--dark)',
+              fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)',
+              textTransform:'uppercase', letterSpacing:'0.5px', gap:16
+            }}>
+              <div>Period</div>
+              <div style={{ textAlign:'right' }}>Revenue</div>
+              <div style={{ textAlign:'right' }}>Status</div>
+            </div>
+            {history.map((h, idx) => (
+              <div key={idx} style={{
+                display:'grid', gridTemplateColumns:'1fr auto auto',
+                padding:'12px 14px', gap:16,
+                borderBottom: idx < history.length-1 ? '1px solid var(--border)' : 'none',
+                background: idx % 2 === 0 ? '#fff' : 'var(--cream)'
+              }}>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:600, color:'var(--dark)' }}>
+                    {h.period || h.fileName || 'Upload'}
+                  </div>
+                  <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>
+                    {h.itemsSold || 0} items
+                    · {new Date(h.appliedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                  </div>
+                </div>
+                <div style={{ alignSelf:'center', textAlign:'right' }}>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#27AE60' }}>
+                    ${(h.revenue||0).toLocaleString('en-US',{maximumFractionDigits:0})}
+                  </div>
+                </div>
+                <div style={{ alignSelf:'center' }}>
+                  <span style={{
+                    fontSize:11, fontWeight:600, padding:'3px 10px',
+                    borderRadius:20, background:'#E8F5E9', color:'#27AE60',
+                    whiteSpace:'nowrap'
+                  }}>
+                    Applied
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
+
     </div>
   )
 }

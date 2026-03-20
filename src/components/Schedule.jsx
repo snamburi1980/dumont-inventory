@@ -30,6 +30,7 @@ export default function Schedule({ viewingStore, showToast, auth }) {
   const [shifts,     setShifts]     = useState([])
   const [shiftTypes, setShiftTypes] = useState([])
   const [modal,      setModal]      = useState(null) // null | 'addStaff' | 'addShiftType' | {staffId, date}
+  const [hrsPeriod,  setHrsPeriod]  = useState('week')
   const [newStaff,   setNewStaff]   = useState({ name:'', role:'', color: COLORS[0] })
   const [newST,      setNewST]      = useState({ name:'', start:'09:00', end:'17:00', color: COLORS[2] })
   const isManager = auth.isManager()
@@ -128,7 +129,8 @@ export default function Schedule({ viewingStore, showToast, auth }) {
       {/* Header controls */}
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:8}}>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
-         <button className="btn-adj" onClick={() => setOffset(o => o-1)}>{'<'}</button>
+          
+          <button className="btn-adj" onClick={() => setOffset(o => o-1)}>{'<'}</button>
           <span style={{fontSize:13,fontWeight:600,color:'var(--dark)',minWidth:200,textAlign:'center'}}>{weekLabel}</span>
           <button className="btn-adj" onClick={() => setOffset(o => o+1)}>{'>'}</button>
         </div>
@@ -256,9 +258,100 @@ export default function Schedule({ viewingStore, showToast, auth }) {
         </table>
       </div>
 
-      <div style={{fontSize:12,color:'var(--text-muted)',textAlign:'right'}}>
+      <div style={{fontSize:12,color:'var(--text-muted)',textAlign:'right',marginBottom:16}}>
         {totalShiftsThisWeek} shifts this week
       </div>
+
+      {/* Hours Summary */}
+      {staff.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:12,padding:'14px 16px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--dark)'}}>Hours Summary</div>
+            <div style={{display:'flex',gap:6}}>
+              <button
+                className={`cat-btn ${hrsPeriod==='week'?'active':''}`}
+                onClick={() => setHrsPeriod('week')}
+                style={{padding:'4px 12px',fontSize:11}}
+              >This Week</button>
+              <button
+                className={`cat-btn ${hrsPeriod==='month'?'active':''}`}
+                onClick={() => setHrsPeriod('month')}
+                style={{padding:'4px 12px',fontSize:11}}
+              >This Month</button>
+            </div>
+          </div>
+          {staff.map(member => {
+            const memberShifts = shifts.filter(s => {
+              const ws2 = getWeekStart(offset)
+              let startDate, endDate
+              if (hrsPeriod === 'week') {
+                startDate = ws2
+                endDate   = new Date(ws2); endDate.setDate(ws2.getDate()+6)
+              } else {
+                startDate = new Date(ws2.getFullYear(), ws2.getMonth(), 1)
+                endDate   = new Date(ws2.getFullYear(), ws2.getMonth()+1, 0)
+              }
+              return s.staffId === member.id &&
+                new Date(s.date) >= startDate &&
+                new Date(s.date) <= endDate
+            })
+            const totalHrs = memberShifts.reduce((sum, s) => {
+              const st = shiftTypes.find(t => t.id === s.shiftTypeId)
+              if (!st) return sum
+              const [sh,sm] = st.start.split(':').map(Number)
+              const [eh,em] = st.end.split(':').map(Number)
+              return sum + ((eh*60+em) - (sh*60+sm)) / 60
+            }, 0)
+            if (totalHrs === 0) return null
+            const maxHrs = 40
+            const pct = Math.min(100, (totalHrs / maxHrs) * 100)
+            return (
+              <div key={member.id} style={{marginBottom:10}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                  <div style={{display:'flex',alignItems:'center',gap:6}}>
+                    <div style={{width:8,height:8,borderRadius:'50%',background:member.color}}/>
+                    <span style={{fontSize:12,fontWeight:600,color:'var(--dark)'}}>{member.name}</span>
+                    <span style={{fontSize:11,color:'var(--text-muted)'}}>{member.role}</span>
+                  </div>
+                  <span style={{fontSize:13,fontWeight:700,color:'var(--caramel)'}}>{totalHrs}h</span>
+                </div>
+                <div style={{background:'var(--border)',borderRadius:4,height:6}}>
+                  <div style={{background:member.color,height:6,borderRadius:4,width:`${pct}%`,transition:'width 0.3s'}}/>
+                </div>
+              </div>
+            )
+          }).filter(Boolean)}
+          {/* Total */}
+          <div style={{borderTop:'1px solid var(--border)',paddingTop:10,marginTop:4,display:'flex',justifyContent:'space-between'}}>
+            <span style={{fontSize:12,fontWeight:700,color:'var(--dark)'}}>Total Staff Hours</span>
+            <span style={{fontSize:14,fontWeight:700,color:'var(--caramel)'}}>
+              {staff.reduce((total, member) => {
+                const memberShifts = shifts.filter(s => {
+                  const ws2 = getWeekStart(offset)
+                  let startDate, endDate
+                  if (hrsPeriod === 'week') {
+                    startDate = ws2
+                    endDate   = new Date(ws2); endDate.setDate(ws2.getDate()+6)
+                  } else {
+                    startDate = new Date(ws2.getFullYear(), ws2.getMonth(), 1)
+                    endDate   = new Date(ws2.getFullYear(), ws2.getMonth()+1, 0)
+                  }
+                  return s.staffId === member.id &&
+                    new Date(s.date) >= startDate &&
+                    new Date(s.date) <= endDate
+                })
+                return total + memberShifts.reduce((sum, s) => {
+                  const st = shiftTypes.find(t => t.id === s.shiftTypeId)
+                  if (!st) return sum
+                  const [sh,sm] = st.start.split(':').map(Number)
+                  const [eh,em] = st.end.split(':').map(Number)
+                  return sum + ((eh*60+em) - (sh*60+sm)) / 60
+                }, 0)
+              }, 0)}h
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ── Modals ── */}
 

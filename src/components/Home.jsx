@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  collection, getDocs, addDoc, updateDoc, doc,
+  collection, getDocs, addDoc, updateDoc, deleteDoc, doc,
   query, orderBy, limit, where
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
@@ -97,6 +97,18 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth }) {
     setNewAnnounce({ title:'', message:'', link:'', file:null, fileName:null })
     setShowNewAnnounce(false)
     setPosting(false)
+  }
+
+  async function deleteAnnouncement(id) {
+    if (!window.confirm('Delete this announcement?')) return
+    await deleteDoc(doc(db, 'announcements', id))
+    setAnnouncements(prev => prev.filter(a => a.id !== id))
+  }
+
+  async function deleteAnnouncement(id) {
+    if (!window.confirm('Delete this announcement?')) return
+    await deleteDoc(doc(db, 'announcements', id))
+    setAnnouncements(prev => prev.filter(a => a.id !== id))
   }
 
   async function logIssue() {
@@ -255,8 +267,18 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth }) {
                 View Link
               </a>
             )}
-            <div style={{ fontSize:10, color:'#aaa', marginTop:6 }}>
-              {a.postedBy} · {new Date(a.postedAt).toLocaleDateString()}
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:6 }}>
+              <div style={{ fontSize:10, color:'#aaa' }}>
+                {a.postedBy} · {new Date(a.postedAt).toLocaleDateString()}
+              </div>
+              {isSuperOwner && (
+                <button
+                  onClick={() => deleteAnnouncement(a.id)}
+                  style={{ fontSize:11, color:'#E74C3C', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}
+                >
+                  Delete
+                </button>
+              )}
             </div>
           </div>
         ))}

@@ -1,4 +1,4 @@
-// Clover menu item -> ingredient recipes
+// Clover menu item => ingredient recipes
 
 export const CLOVER_RECIPES = {
   // ── ICE CREAM ──
@@ -91,8 +91,15 @@ export function matchCloverItem(name) {
   if (n.includes('hand packed happiness') || n.includes('hand packed')) return CLOVER_RECIPES['_hph'];
   if (n.includes('flight of 4'))                        return CLOVER_RECIPES['_flight'];
   if (n.includes('regular scoop'))                      return CLOVER_RECIPES['_regular'];
-  if (n.endsWith(' kids') || n.includes(' kids'))       return CLOVER_RECIPES['_kids'];
-  if (n.endsWith(' regular') || n.endsWith(' large'))   return CLOVER_RECIPES['_regular'];
+  // Ice cream — flavor-specific deduction
+  if (n.endsWith(' kids') || n.includes(' kids')) {
+    const flavor = name.replace(/ kids$/i,'').replace(/ Kids$/,'').trim();
+    return [{ item: flavor, qty: 1, unit: 'scoop' }];
+  }
+  if (n.endsWith(' regular') || n.endsWith(' large')) {
+    const flavor = name.replace(/ regular$/i,'').replace(/ large$/i,'').replace(/ Regular$/,'').replace(/ Large$/,'').trim();
+    return [{ item: flavor, qty: 2, unit: 'scoop' }];
+  }
   // Drinks
   if (n.includes('affogato single'))    return CLOVER_RECIPES['Affogato Single shot'];
   if (n.includes('affogato double'))    return CLOVER_RECIPES['Affogato Double Shot'];
