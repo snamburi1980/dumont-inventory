@@ -129,7 +129,6 @@ export default function Schedule({ viewingStore, showToast, auth }) {
       {/* Header controls */}
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12,flexWrap:'wrap',gap:8}}>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
-          
           <button className="btn-adj" onClick={() => setOffset(o => o-1)}>{'<'}</button>
           <span style={{fontSize:13,fontWeight:600,color:'var(--dark)',minWidth:200,textAlign:'center'}}>{weekLabel}</span>
           <button className="btn-adj" onClick={() => setOffset(o => o+1)}>{'>'}</button>

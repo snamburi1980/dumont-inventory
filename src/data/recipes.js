@@ -92,12 +92,21 @@ export function matchCloverItem(name) {
   if (n.includes('flight of 4'))                        return CLOVER_RECIPES['_flight'];
   if (n.includes('regular scoop'))                      return CLOVER_RECIPES['_regular'];
   // Ice cream — flavor-specific deduction
+  // Alias map: Clover name -> Inventory name
+  const IC_ALIASES = {
+    'biscoff': 'Biscoff Ice Cream',
+    'la ferrero': 'Ferrero Ice Cream',
+    'mint chocolate chip': 'Mint Chocochip',
+    'mint choco chip': 'Mint Chocochip',
+  };
   if (n.endsWith(' kids') || n.includes(' kids')) {
-    const flavor = name.replace(/ kids$/i,'').replace(/ Kids$/,'').trim();
+    const rawFlavor = name.replace(/ kids$/i,'').replace(/ Kids$/,'').trim();
+    const flavor = IC_ALIASES[rawFlavor.toLowerCase()] || rawFlavor;
     return [{ item: flavor, qty: 1, unit: 'scoop' }];
   }
   if (n.endsWith(' regular') || n.endsWith(' large')) {
-    const flavor = name.replace(/ regular$/i,'').replace(/ large$/i,'').replace(/ Regular$/,'').replace(/ Large$/,'').trim();
+    const rawFlavor = name.replace(/ regular$/i,'').replace(/ large$/i,'').replace(/ Regular$/,'').replace(/ Large$/,'').trim();
+    const flavor = IC_ALIASES[rawFlavor.toLowerCase()] || rawFlavor;
     return [{ item: flavor, qty: 2, unit: 'scoop' }];
   }
   // Drinks
