@@ -26,7 +26,16 @@ export default function App() {
   const [activeTab,    setActiveTab]    = useState('home')
   const [viewingStore, setViewingStore] = useState('coppell')
   const [viewingOrg,   setViewingOrg]   = useState('dumont')
-  const [currentTheme, setCurrentTheme] = useState(() => loadSavedTheme())
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    const saved = localStorage.getItem('dumont_theme') || 'warm'
+    return saved
+  })
+
+  // Apply theme on mount
+  useEffect(() => {
+    const { applyTheme } = require('./utils/themes')
+    applyTheme(currentTheme)
+  }, [])
 
   useEffect(() => {
     if (auth.userConfig) {
@@ -34,7 +43,7 @@ export default function App() {
       const org   = auth.userConfig.orgId   || 'dumont'
       setViewingStore(store)
       setViewingOrg(org)
-      invHook.loadInventory(store)
+      invHook.loadInventory(store, org)
       orgItemsHook.loadItems(org)
     }
   }, [auth.userConfig])
