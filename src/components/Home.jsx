@@ -92,8 +92,8 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth }) {
       active:   true,
     }
 
-    await addDoc(collection(db, 'announcements'), entry)
-    setAnnouncements(prev => [{ id: Date.now(), ...entry }, ...prev])
+    const docRef = await addDoc(collection(db, 'announcements'), entry)
+    setAnnouncements(prev => [{ id: docRef.id, ...entry }, ...prev])
     setNewAnnounce({ title:'', message:'', link:'', file:null, fileName:null })
     setShowNewAnnounce(false)
     setPosting(false)
@@ -101,14 +101,26 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth }) {
 
   async function deleteAnnouncement(id) {
     if (!window.confirm('Delete this announcement?')) return
-    await deleteDoc(doc(db, 'announcements', id))
-    setAnnouncements(prev => prev.filter(a => a.id !== id))
+    try {
+      await deleteDoc(doc(db, 'announcements', String(id)))
+      setAnnouncements(prev => prev.filter(a => a.id !== id))
+      showToast('Announcement deleted')
+    } catch(e) {
+      showToast('Error deleting announcement')
+      console.error(e)
+    }
   }
 
   async function deleteAnnouncement(id) {
     if (!window.confirm('Delete this announcement?')) return
-    await deleteDoc(doc(db, 'announcements', id))
-    setAnnouncements(prev => prev.filter(a => a.id !== id))
+    try {
+      await deleteDoc(doc(db, 'announcements', String(id)))
+      setAnnouncements(prev => prev.filter(a => a.id !== id))
+      showToast('Announcement deleted')
+    } catch(e) {
+      showToast('Error deleting announcement')
+      console.error(e)
+    }
   }
 
   async function logIssue() {
