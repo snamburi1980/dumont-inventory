@@ -55,20 +55,17 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
         transition:   'background 0.3s'
       }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', height:52, maxWidth:900, margin:'0 auto' }}>
+{/* Logo only — no text */}
+<div style={{ display:'flex', alignItems:'center' }}>
+  {logoData ? (
+    <img src={logoData} alt={orgName} style={{ height:40, maxWidth:120, objectFit:'contain' }} />
+  ) : (
+    <div style={{ width:40, height:40, borderRadius:8, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'serif', fontSize:22, fontWeight:700, color:'#fff' }}>
+      {orgName.charAt(0).toUpperCase()}
+    </div>
+  )}
+</div>
 
-          {/* Logo */}
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            {logoData ? (
-              <img src={logoData} alt={orgName} style={{ height:36, width:36, borderRadius:8, objectFit:'contain', background:'rgba(255,255,255,0.1)' }} />
-            ) : (
-              <div style={{ width:36, height:36, borderRadius:8, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'serif', fontSize:22, fontWeight:700, color:'#fff' }}>
-                {orgName.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <span style={{ fontSize:16, fontWeight:700, color:'#fff', fontFamily:'serif' }}>
-              {orgName}
-            </span>
-          </div>
 
           {/* Right side */}
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
