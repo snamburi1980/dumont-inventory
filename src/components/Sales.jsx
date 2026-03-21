@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { collection, addDoc, getDocs, orderBy, query } from 'firebase/firestore'
+import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
 import { db } from '../firebase/config'
 import { matchCloverItem, ITEM_SIZES } from '../data/recipes'
 
