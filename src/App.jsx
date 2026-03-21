@@ -3,7 +3,8 @@ import { useAuth }      from './hooks/useAuth'
 import { useInventory } from './hooks/useInventory'
 import { useToast }     from './hooks/useToast'
 import { useOrgItems }  from './hooks/useOrgItems'
-import { loadSavedTheme } from './utils/themes'
+import { loadSavedTheme, applyTheme } from './utils/themes'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 import LoginScreen  from './components/LoginScreen'
 import Layout       from './components/Layout'
@@ -33,7 +34,6 @@ export default function App() {
 
   // Apply theme on mount
   useEffect(() => {
-    const { applyTheme } = require('./utils/themes')
     applyTheme(currentTheme)
   }, [])
 
@@ -104,6 +104,7 @@ export default function App() {
   ]
 
   return (
+    <ErrorBoundary>
     <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} viewingStore={viewingStore} setViewingStore={setViewingStore} currentTheme={currentTheme} onThemeChange={setCurrentTheme}>
       {activeTab === 'home'      && <Home      {...tabProps} />}
       {activeTab === 'dashboard' && <Dashboard {...tabProps} />}
@@ -127,5 +128,6 @@ export default function App() {
         </div>
       )}
     </Layout>
+    </ErrorBoundary>
   )
 }

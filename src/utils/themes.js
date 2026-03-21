@@ -69,7 +69,13 @@ export function applyTheme(themeKey) {
   root.style.setProperty('--tab-bg',     t.tabBg)
   root.style.setProperty('--header-bg',  t.headerBg)
   root.style.setProperty('--accent-text',t.accentText)
+  root.style.setProperty('--body-bg',    t.bodyBg)
   document.body.style.background = t.bodyBg
+  // Force update header and tab bar background directly
+  const headers = document.querySelectorAll('[data-theme-header]')
+  headers.forEach(el => el.style.background = t.headerBg)
+  const tabbars = document.querySelectorAll('[data-theme-tabbar]')
+  tabbars.forEach(el => el.style.background = t.tabBg)
   localStorage.setItem('dumont_theme', themeKey)
 }
 

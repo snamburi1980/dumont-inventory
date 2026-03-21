@@ -203,14 +203,30 @@ export default function Schedule({ viewingStore, showToast, auth }) {
       document.body.appendChild(exportDiv)
       const canvas = await window.html2canvas(exportDiv, { scale:2, backgroundColor:'#FDF6EC', logging:false, useCORS:true })
       document.body.removeChild(exportDiv)
-      canvas.toBlob(blob => {
+      canvas.toBlob(async blob => {
+        const file = new File([blob], `Dumont_Schedule_${weekLabel.replace(/[^a-z0-9]/gi,'_')}.png`, { type:'image/png' })
+        // Use native share sheet on mobile (iOS/Android)
+        if (navigator.share && navigator.canShare && navigator.canShare({ files:[file] })) {
+          try {
+            await navigator.share({
+              title: 'Dumont Staff Schedule',
+              text: weekLabel,
+              files: [file]
+            })
+            showToast('Schedule shared!')
+            return
+          } catch(e) {
+            if (e.name === 'AbortError') return // user cancelled
+          }
+        }
+        // Fallback: download
         const url  = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href     = url
-        link.download = `Dumont_Schedule_${weekLabel.replace(/[^a-z0-9]/gi,'_')}.png`
+        link.download = file.name
         link.click()
         URL.revokeObjectURL(url)
-        showToast('Schedule image downloaded - share on WhatsApp!')
+        showToast('Schedule image downloaded!')
       }, 'image/png')
     } catch(e) {
       showToast('Could not export. Try again.')
@@ -309,8 +325,8 @@ export default function Schedule({ viewingStore, showToast, auth }) {
                               <div style={{fontSize:9}}>{fmt12(st.start)}-{fmt12(st.end)}</div>
                             </div>
                             <button
-                              onClick={() => removeShift(member.id, ds)}
-                              style={{position:'absolute',top:-6,right:-6,width:16,height:16,borderRadius:'50%',background:'#E74C3C',color:'#fff',border:'none',cursor:'pointer',fontSize:10,lineHeight:'16px',display:'flex',alignItems:'center',justifyContent:'center'}}
+                              onClick={(e) => { e.stopPropagation(); removeShift(member.id, ds) }}
+                              style={{position:'absolute',top:-5,right:-5,width:14,height:14,borderRadius:'50%',background:'#E74C3C',color:'#fff',border:'2px solid #fff',cursor:'pointer',fontSize:8,lineHeight:'10px',display:'flex',alignItems:'center',justifyContent:'center',opacity:0.8}}
                               title="Remove shift"
                             >x</button>
                           </div>
