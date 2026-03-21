@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { DEFAULT_INVENTORY } from '../data/inventory'
 import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
@@ -9,39 +9,55 @@ export function useInventory() {
   const [loading,   setLoading]   = useState(false)
   const [error,     setError]     = useState(null)
 
-  const loadInventory = useCallback(async (storeId) => {
+  const loadInventory = useCallback(async (storeId, orgId = 'dumont') => {
     if (!storeId) return
     setLoading(true)
     setError(null)
     try {
-      const snap = await getDoc(doc(db, 'stores', storeId, 'inventory', 'stock'))
-      if (snap.exists()) {
-        const data = snap.data()
-        // Merge saved stock counts with default inventory structure
-        const merged = DEFAULT_INVENTORY.map(item => ({
+      // Load master items from org (Admin -> Items)
+      let masterItems = []
+      try {
+        const orgSnap = await getDocs(collection(db, 'orgs', orgId, 'items'))
+        if (!orgSnap.empty) {
+          masterItems = orgSnap.docs.map(d => ({ ...d.data(), id: d.id }))
+        }
+      } catch(e) {}
+
+      // Fall back to hardcoded if Firestore org items empty
+      if (!masterItems.length) {
+        masterItems = DEFAULT_INVENTORY.map(item => ({
           ...item,
-          stock: data[item.id] !== undefined ? data[item.id] : (item.stock || 0),
-          par:   data[`par_${item.id}`]    !== undefined ? data[`par_${item.id}`]    : item.par,
-          active:data[`active_${item.id}`] !== undefined ? data[`active_${item.id}`] : (item.active !== false),
+          id: String(item.id),
+          cost_price: item.cost || 0,
         }))
-        setInventory(merged)
-      } else {
-        // First time — use defaults with stock = 0
-        setInventory(DEFAULT_INVENTORY.map(item => ({ ...item, stock: item.stock || 0 })))
       }
+
+      // Load store-specific stock counts
+      const snap = await getDoc(doc(db, 'stores', storeId, 'inventory', 'stock'))
+      const data  = snap.exists() ? snap.data() : {}
+
+      // Merge master items with store stock counts
+      const merged = masterItems.map(item => ({
+        ...item,
+        id:     item.id,
+        stock:  data[item.id]              !== undefined ? data[item.id]              : (item.stock || 0),
+        par:    data[`par_${item.id}`]     !== undefined ? data[`par_${item.id}`]     : (item.par   || 1),
+        active: data[`active_${item.id}`]  !== undefined ? data[`active_${item.id}`]  : (item.active !== false),
+        cost:   item.cost_price || item.cost || 0,
+      }))
+
+      setInventory(merged)
     } catch(e) {
       console.error('loadInventory error:', e)
       setError('Failed to load inventory: ' + e.message)
-      // Fallback to defaults so app still works
       setInventory(DEFAULT_INVENTORY.map(item => ({ ...item, stock: item.stock || 0 })))
     }
     setLoading(false)
   }, [])
 
-  const saveInventory = useCallback(async (storeId, items, userEmail, orgId) => {
+  const saveInventory = useCallback(async (storeId, items) => {
     if (!storeId || !items) return
     try {
-      // Flatten to a single document for fast reads
       const data = {}
       items.forEach(item => {
         data[item.id]              = item.stock  || 0
@@ -49,11 +65,6 @@ export function useInventory() {
         data[`active_${item.id}`] = item.active !== false
       })
       await setDoc(doc(db, 'stores', storeId, 'inventory', 'stock'), data, { merge: true })
-      
-      // Audit log
-      if (userEmail) {
-        await audit.inventoryUpdate(orgId || 'dumont', userEmail, storeId, items.length)
-      }
     } catch(e) {
       console.error('saveInventory error:', e)
       throw new Error('Failed to save inventory: ' + e.message)
@@ -62,7 +73,7 @@ export function useInventory() {
 
   const adjustStock = useCallback((id, delta) => {
     setInventory(prev => prev.map(item =>
-      item.id === id
+      item.id === id || item.id === String(id)
         ? { ...item, stock: Math.max(0, Math.round((item.stock + delta) * 100) / 100) }
         : item
     ))
@@ -72,13 +83,15 @@ export function useInventory() {
     const num = parseFloat(value)
     if (isNaN(num)) return
     setInventory(prev => prev.map(item =>
-      item.id === id ? { ...item, stock: Math.max(0, num) } : item
+      item.id === id || item.id === String(id) ? { ...item, stock: Math.max(0, num) } : item
     ))
   }, [])
 
   const toggleActive = useCallback((id) => {
     setInventory(prev => prev.map(item =>
-      item.id === id ? { ...item, active: item.active === false ? true : false } : item
+      item.id === id || item.id === String(id)
+        ? { ...item, active: item.active === false ? true : false }
+        : item
     ))
   }, [])
 
@@ -86,14 +99,14 @@ export function useInventory() {
     const num = parseInt(value)
     if (isNaN(num)) return
     setInventory(prev => prev.map(item =>
-      item.id === id ? { ...item, par: Math.max(0, num) } : item
+      item.id === id || item.id === String(id) ? { ...item, par: Math.max(0, num) } : item
     ))
   }, [])
 
   const getStatus = useCallback((item) => {
     if (!item || item.active === false) return 'ok'
-    if (item.stock <= 0)         return 'critical'
-    if (item.stock < item.par)   return 'low'
+    if (item.stock <= 0)       return 'critical'
+    if (item.stock < item.par) return 'low'
     return 'ok'
   }, [])
 
