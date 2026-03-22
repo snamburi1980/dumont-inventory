@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react'
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
 
 const HARDCODED_USERS = {
-
   'dumonttexas@gmail.com':    { role:'super_owner', store:'',  name:'Sasikanth' },
-'txccpointwest@gmail.com':  { role:'store_owner',  store:'',  name:'Coppell Owner' },
-
-  
+  'txccpointwest@gmail.com':  { role:'store_owner',  store:'',  name:'Store Owner' },
 }
 
 export function useAuth() {
@@ -34,7 +31,6 @@ export function useAuth() {
 
   async function loadUserConfig(firebaseUser) {
     let cfg = HARDCODED_USERS[firebaseUser.email] || { role:'manager', store:'', name:firebaseUser.email }
-   
     try {
       const emailKey = firebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_')
       const snap = await getDoc(doc(db, 'users', emailKey))
@@ -80,9 +76,22 @@ export function useAuth() {
     await signOut(auth)
   }
 
+  async function changePassword(currentPassword, newPassword) {
+    try {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword)
+      await reauthenticateWithCredential(user, credential)
+      await updatePassword(user, newPassword)
+      return { success: true }
+    } catch(e) {
+      if (e.code === 'auth/wrong-password') return { success: false, error: 'Current password is incorrect' }
+      if (e.code === 'auth/weak-password') return { success: false, error: 'New password must be at least 6 characters' }
+      return { success: false, error: 'Failed to change password' }
+    }
+  }
+
   const isSuperOwner   = () => userConfig?.role === 'super_owner'
   const isStoreOwner   = () => ['super_owner','store_owner'].includes(userConfig?.role)
   const isManager      = () => ['super_owner','store_owner','manager'].includes(userConfig?.role)
 
-  return { user, userConfig, loading, error, pending, login, logout, isSuperOwner, isStoreOwner, isManager }
+  return { user, userConfig, loading, error, pending, login, logout, changePassword, isSuperOwner, isStoreOwner, isManager }
 }
