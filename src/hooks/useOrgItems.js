@@ -6,18 +6,18 @@ import { DEFAULT_INVENTORY } from '../data/inventory'
 // Converts hardcoded item to Firestore format
 function toFirestoreItem(item) {
   return {
-    id:          String(item.id),
+    id:          String(item.id || Date.now()),
     name:        item.name,
     code:        item.code || '',
     cat:         item.cat || 'General',
     vendor:      item.vendor || '',
     uom:         item.uom || 'UNIT',
-    cost_price:  item.cost || 0,
-    sell_price:  0,
-    par:         item.par || 1,
-    case_size:   item.case_size || 1,
+    cost_price:  parseFloat(item.cost_price || item.cost) || 0,
+    sell_price:  parseFloat(item.sell_price) || 0,
+    par:         parseInt(item.par) || 1,
+    case_size:   parseInt(item.case_size) || 1,
     order_qty:   item.order_qty || '1',
-    active:      true,
+    active:      item.active !== false,
     scoops_per_bucket: item.scoops_per_bucket || null,
     clover_name: item.clover_name || null,
     updatedAt:   Date.now(),
@@ -63,7 +63,14 @@ export function useOrgItems(orgId) {
   }, [])
 
   const updateItem = useCallback(async (oid, id, changes) => {
-    const updated = { ...changes, updatedAt: Date.now() }
+    const updated = {
+      ...changes,
+      cost_price: parseFloat(changes.cost_price || changes.cost) || 0,
+      sell_price: parseFloat(changes.sell_price) || 0,
+      par:        parseInt(changes.par) || 0,
+      case_size:  parseInt(changes.case_size) || 1,
+      updatedAt:  Date.now()
+    }
     await setDoc(doc(db, 'orgs', oid, 'items', String(id)), updated, { merge: true })
     setItems(prev => prev.map(i => i.id === String(id) ? { ...i, ...updated } : i))
   }, [])
