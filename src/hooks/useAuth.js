@@ -9,11 +9,12 @@ const HARDCODED_USERS = {
 }
 
 export function useAuth() {
-  const [user,       setUser]       = useState(null)
-  const [userConfig, setUserConfig] = useState(null)
-  const [loading,    setLoading]    = useState(true)
-  const [error,      setError]      = useState('')
-  const [pending,    setPending]    = useState(false)
+  const [user,               setUser]               = useState(null)
+  const [userConfig,         setUserConfig]         = useState(null)
+  const [loading,            setLoading]            = useState(true)
+  const [error,              setError]              = useState('')
+  const [pending,            setPending]            = useState(false)
+  const [needsPasswordChange,setNeedsPasswordChange]= useState(false)
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -60,6 +61,8 @@ export function useAuth() {
     }
     setUserConfig(cfg)
     setPending(false)
+    // Force password change if flagged
+    setNeedsPasswordChange(cfg.forcePasswordChange === true)
     setLoading(false)
   }
 
