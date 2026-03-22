@@ -4,8 +4,11 @@ import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
 
 const HARDCODED_USERS = {
-  'dumonttexas@gmail.com':    { role:'super_owner', store:'coppell',  name:'Sasikanth' },
-  'txccpointwest@gmail.com':  { role:'store_owner',  store:'coppell',  name:'Coppell Owner' },
+
+  'dumonttexas@gmail.com':    { role:'super_owner', store:'',  name:'Sasikanth' },
+'txccpointwest@gmail.com':  { role:'store_owner',  store:'',  name:'Coppell Owner' },
+
+  
 }
 
 export function useAuth() {
@@ -30,7 +33,8 @@ export function useAuth() {
   }, [])
 
   async function loadUserConfig(firebaseUser) {
-    let cfg = HARDCODED_USERS[firebaseUser.email] || { role:'manager', store:'coppell', name:firebaseUser.email }
+    let cfg = HARDCODED_USERS[firebaseUser.email] || { role:'manager', store:'', name:firebaseUser.email }
+   
     try {
       const emailKey = firebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_')
       const snap = await getDoc(doc(db, 'users', emailKey))
