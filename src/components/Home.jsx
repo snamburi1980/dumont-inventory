@@ -186,6 +186,39 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth }) {
     marginBottom: 12,
   }
 
+  // Super owner with no store — show setup prompt
+  if (isSuperOwner && !viewingStore) {
+    return (
+      <div style={{ maxWidth:700, margin:'0 auto', textAlign:'center', padding:'40px 20px' }}>
+        <div style={{ fontSize:48, marginBottom:16 }}>D</div>
+        <div style={{ fontSize:20, fontWeight:700, color:'#2C1810', marginBottom:8 }}>
+          {greeting}!
+        </div>
+        <div style={{ fontSize:14, color:'#8B7355', marginBottom:32 }}>
+          No stores set up yet. Go to Admin to create your organisation, regions and stores.
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:12, maxWidth:300, margin:'0 auto' }}>
+          <div style={{ background:'#FDF6EC', border:'1px solid #EDE0CC', borderRadius:12, padding:'16px' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Step 1</div>
+            <div style={{ fontSize:12, color:'#8B7355' }}>Admin → Create New Organisation</div>
+          </div>
+          <div style={{ background:'#FDF6EC', border:'1px solid #EDE0CC', borderRadius:12, padding:'16px' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Step 2</div>
+            <div style={{ fontSize:12, color:'#8B7355' }}>Admin → Setup → Add Region</div>
+          </div>
+          <div style={{ background:'#FDF6EC', border:'1px solid #EDE0CC', borderRadius:12, padding:'16px' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Step 3</div>
+            <div style={{ fontSize:12, color:'#8B7355' }}>Admin → Setup → Add Store</div>
+          </div>
+          <div style={{ background:'#FDF6EC', border:'1px solid #EDE0CC', borderRadius:12, padding:'16px' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Step 4</div>
+            <div style={{ fontSize:12, color:'#8B7355' }}>Admin → Setup → Assign Users</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ maxWidth: 700, margin: '0 auto' }}>
 
