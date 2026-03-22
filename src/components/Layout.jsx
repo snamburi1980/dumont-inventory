@@ -32,8 +32,9 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
       return Object.entries(STORES).map(([id, s]) => ({ id, ...s }))
     }
     const storeId = userConfig?.storeId || userConfig?.store || 'coppell'
-    const store   = STORES[storeId] || { name: storeId }
-    return [{ id: storeId, ...store }]
+    // Clean store name - no special chars
+    const storeName = STORES[storeId]?.name || storeId.charAt(0).toUpperCase() + storeId.slice(1).replace(/_/g,' ')
+    return [{ id: storeId, name: storeName }]
   }
 
   const accessibleStores = getAccessibleStores()
@@ -55,17 +56,17 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
         transition:   'background 0.3s'
       }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', height:52, maxWidth:900, margin:'0 auto' }}>
-{/* Logo only — no text */}
-<div style={{ display:'flex', alignItems:'center' }}>
-  {logoData ? (
-    <img src={logoData} alt={orgName} style={{ height:40, maxWidth:120, objectFit:'contain' }} />
-  ) : (
-    <div style={{ width:40, height:40, borderRadius:8, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'serif', fontSize:22, fontWeight:700, color:'#fff' }}>
-      {orgName.charAt(0).toUpperCase()}
-    </div>
-  )}
-</div>
 
+          {/* Logo only — no text */}
+          <div style={{ display:'flex', alignItems:'center' }}>
+            {logoData ? (
+              <img src={logoData} alt={orgName} style={{ height:40, maxWidth:120, objectFit:'contain' }} />
+            ) : (
+              <div style={{ width:40, height:40, borderRadius:8, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'serif', fontSize:22, fontWeight:700, color:'#fff' }}>
+                {orgName.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
 
           {/* Right side */}
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>

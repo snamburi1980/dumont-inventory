@@ -26,7 +26,7 @@ export default function ThemeSwitcher({ currentTheme, onThemeChange }) {
       >
         <div style={{
           width:10, height:10, borderRadius:'50%',
-          background: THEMES[currentTheme]?.accentText || '#fff'
+          background: THEMES[currentTheme]?.accentText || '#C8843A'
         }}/>
         Theme
       </button>

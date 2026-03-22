@@ -90,7 +90,7 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
       } else if (template === 'upload') {
         itemsToSeed = customItems
       }
-      // blank = no items seeded
+      // blank = no items — user adds via Admin → Items
 
       for (const item of itemsToSeed) {
         await setDoc(doc(db, 'orgs', orgId, 'items', String(item.id)), item)
@@ -203,7 +203,7 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
 
             {[
               { id:'dumont', title:'Start from Dumont Template', desc:`Copy all ${DEFAULT_INVENTORY.length} items from Dumont Creamery. Includes boba, tea, syrups, ice cream, coffee, dry stock. Edit after creation.`, badge:`${DEFAULT_INVENTORY.length} items` },
-              { id:'blank',  title:'Start from Scratch',         desc:'Begin with an empty inventory. Add items one by one or upload via CSV.', badge:'0 items' },
+              { id:'blank',  title:'Start from Scratch',         desc:'Begin with no items. After creation, go to Admin → Items to add your categories and products.', badge:'0 items' },
               { id:'upload', title:'Upload CSV',                  desc:'Upload your own item list in CSV format. Download the template below.', badge:'Custom' },
             ].map(opt => (
               <div

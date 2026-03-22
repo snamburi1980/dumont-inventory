@@ -145,22 +145,22 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
 
             <div>
               <label style={label}>Cost Price ($) — what you pay</label>
-              <input type="number" value={form.cost_price} onChange={e => setForm(f=>({...f,cost_price:parseFloat(e.target.value)||0}))} style={input} step="0.01" min="0" />
+              <input type="number" value={form.cost_price || ''} onChange={e => setForm(f=>({...f,cost_price:parseFloat(e.target.value)||0}))} style={input} step="0.01" min="0" placeholder="0.00" />
             </div>
 
             <div>
               <label style={label}>Sell Price ($) — what customer pays</label>
-              <input type="number" value={form.sell_price} onChange={e => setForm(f=>({...f,sell_price:parseFloat(e.target.value)||0}))} style={input} step="0.01" min="0" />
+              <input type="number" value={form.sell_price || ''} onChange={e => setForm(f=>({...f,sell_price:parseFloat(e.target.value)||0}))} style={input} step="0.01" min="0" placeholder="0.00" />
             </div>
 
             <div>
               <label style={label}>PAR Level (default)</label>
-              <input type="number" value={form.par} onChange={e => setForm(f=>({...f,par:parseInt(e.target.value)||1}))} style={input} min="0" />
+              <input type="number" value={form.par || ''} onChange={e => setForm(f=>({...f,par:parseInt(e.target.value)||1}))} style={input} min="0" placeholder="e.g. 2" />
             </div>
 
             <div>
               <label style={label}>Case Size (units per case)</label>
-              <input type="number" value={form.case_size} onChange={e => setForm(f=>({...f,case_size:parseInt(e.target.value)||1}))} style={input} min="1" />
+              <input type="number" value={form.case_size || ''} onChange={e => setForm(f=>({...f,case_size:parseInt(e.target.value)||1}))} style={input} min="1" placeholder="e.g. 6" />
             </div>
 
             <div style={{ gridColumn:'1/-1' }}>
