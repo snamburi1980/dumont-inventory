@@ -3,10 +3,16 @@ import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { THEMES, applyTheme } from '../utils/themes'
 import ThemeSwitcher from './ThemeSwitcher'
+import ChangePassword from './ChangePassword'
 
-export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingStore, setViewingStore, children, currentTheme, onThemeChange }) {
+export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingStore, setViewingStore, children, currentTheme, onThemeChange, showToast }) {
   const [orgConfig,  setOrgConfig]  = useState(null)
   const [allStores,  setAllStores]  = useState([])
+  const [showProfile,setShowProfile] = useState(false)
+  const [pwForm,     setPwForm]      = useState({ current:'', newPw:'', confirm:'' })
+  const [pwError,    setPwError]     = useState('')
+  const [pwSuccess,  setPwSuccess]   = useState(false)
+  const [showChangePwd, setShowChangePwd] = useState(false)
   const userConfig = auth?.userConfig
 
   useEffect(() => { loadOrgConfig(); loadStores() }, [userConfig?.orgId])
@@ -99,7 +105,21 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
             ) : null}
 
             <ThemeSwitcher currentTheme={currentTheme || 'warm'} onThemeChange={onThemeChange || (() => {})} />
+            <button
+              onClick={() => setShowChangePwd(true)}
+              style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:8, padding:'5px 10px', fontSize:12, cursor:'pointer', fontFamily:'inherit' }}
+              title="Change password"
+            >
+              PWD
+            </button>
 
+            <button
+              onClick={() => setShowProfile(true)}
+              style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:8, padding:'5px 10px', fontSize:12, cursor:'pointer', fontFamily:'inherit' }}
+              title="Change password"
+            >
+              Profile
+            </button>
             <button
               onClick={auth?.logout}
               style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:8, padding:'5px 10px', fontSize:12, cursor:'pointer', fontFamily:'inherit' }}
@@ -136,6 +156,15 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
       <div style={{ padding:'16px', maxWidth:900, margin:'0 auto' }}>
         {children}
       </div>
+
+      {/* Change Password Modal */}
+      {showChangePwd && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ width:'100%', maxWidth:400 }}>
+            <ChangePassword showToast={showToast || (() => {})} onClose={() => setShowChangePwd(false)} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
