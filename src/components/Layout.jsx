@@ -52,7 +52,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     const storeId = userConfig?.storeId || userConfig?.store || ''
     if (!storeId) return []
     const store = allStores.find(s => s.id === storeId)
-    return store ? [store] : [{ id: storeId, name: storeId }]
+    return store ? [store] : []
   }
 
   const accessibleStores = getAccessibleStores()
