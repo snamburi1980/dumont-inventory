@@ -19,8 +19,9 @@ const emptyItem = {
 export default function ItemManager({ orgId, orgItemsHook, showToast }) {
   const { items, loading, loadItems, addItem, updateItem, deleteItem } = orgItemsHook
 
-  const [view,       setView]       = useState('list') // list | add | edit
+  const [view,       setView]       = useState('list') // list | add | edit | addCat
   const [editItem,   setEditItem]   = useState(null)
+  const [newCatName, setNewCatName] = useState('')
   const [form,       setForm]       = useState(emptyItem)
   const [filterCat,  setFilterCat]  = useState('all')
   const [search,     setSearch]     = useState('')
@@ -66,11 +67,18 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
     if (!form.name.trim()) { showToast('Name required'); return }
     setSaving(true)
     try {
+      const cleanForm = {
+        ...form,
+        cost_price: parseFloat(form.cost_price) || 0,
+        sell_price: parseFloat(form.sell_price) || 0,
+        par:        parseInt(form.par)        || 0,
+        case_size:  parseInt(form.case_size)  || 1,
+      }
       if (view === 'add') {
-        await addItem(orgId, form)
+        await addItem(orgId, cleanForm)
         showToast(`${form.name} added`)
       } else {
-        await updateItem(orgId, editItem.id, form)
+        await updateItem(orgId, editItem.id, cleanForm)
         showToast(`${form.name} updated`)
       }
       setView('list')
@@ -94,6 +102,35 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
   const label = { fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4, display:'block' }
 
   // ── FORM (add/edit) ──
+  if (view === 'addCat') {
+    return (
+      <div>
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+          <button onClick={() => setView('list')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:14, color:'var(--text-muted)' }}>{'<'} Back</button>
+          <div style={{ fontSize:15, fontWeight:700, color:'var(--dark)' }}>Add Category</div>
+        </div>
+        <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:12, padding:16 }}>
+          <div style={{ fontSize:12, color:'var(--text-muted)', marginBottom:8 }}>Category name (e.g. Coffee, Bakery, Seasonal)</div>
+          <input
+            value={newCatName}
+            onChange={e => setNewCatName(e.target.value)}
+            placeholder="e.g. Coffee"
+            style={{ width:'100%', padding:'10px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:12, boxSizing:'border-box' }}
+          />
+          <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:12 }}>
+            Existing: {[...new Set(items.map(i => i.cat).filter(Boolean))].join(', ') || 'None yet'}
+          </div>
+          <button
+            onClick={handleAddCategory}
+            style={{ width:'100%', background:'var(--dark)', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}
+          >
+            + Add Category
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (view === 'add' || view === 'edit') {
     return (
       <div>

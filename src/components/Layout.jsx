@@ -24,8 +24,12 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
 
   async function loadStores() {
     try {
-      const snap = await getDocs(collection(db, 'stores'))
-      setAllStores(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      const [storeSnap, regionSnap] = await Promise.all([
+        getDocs(collection(db, 'stores')),
+        getDocs(collection(db, 'regions')),
+      ])
+      setAllStores(storeSnap.docs.map(d => ({ id: d.id, ...d.data() })))
+      setAllRegions(regionSnap.docs.map(d => ({ id: d.id, ...d.data() })))
     } catch(e) {}
   }
 
@@ -52,7 +56,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     const storeId = userConfig?.storeId || userConfig?.store || ''
     if (!storeId) return []
     const store = allStores.find(s => s.id === storeId)
-    return store ? [store] : []
+    return store ? [store] : [{ id: storeId, name: storeId }]
   }
 
   const accessibleStores = getAccessibleStores()
@@ -88,6 +92,24 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
 
           {/* Right side */}
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            {/* Region filter for super owner */}
+            {isSuperOwner && allRegions.length > 1 && (
+              <select
+                onChange={e => {
+                  const regionId = e.target.value
+                  if (!regionId) return
+                  const firstStore = allStores.find(s => s.regionId === regionId)
+                  if (firstStore) setViewingStore(firstStore.id)
+                }}
+                style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:8, padding:'5px 10px', fontSize:12, cursor:'pointer', fontFamily:'inherit', maxWidth:100 }}
+              >
+                <option value="">All Regions</option>
+                {allRegions.map(r => (
+                  <option key={r.id} value={r.id} style={{ background: theme.headerBg }}>{r.name}</option>
+                ))}
+              </select>
+            )}
+            {/* Store switcher */}
             {accessibleStores.length > 1 ? (
               <select
                 value={viewingStore}
@@ -107,7 +129,13 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
             <ThemeSwitcher currentTheme={currentTheme || 'warm'} onThemeChange={onThemeChange || (() => {})} />
 
 
-           
+            <button
+              onClick={() => setShowProfile(true)}
+              style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:8, padding:'5px 10px', fontSize:12, cursor:'pointer', fontFamily:'inherit' }}
+              title="Change password"
+            >
+              Profile
+            </button>
             <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
               <button
                 onClick={() => setShowChangePwd(true)}
