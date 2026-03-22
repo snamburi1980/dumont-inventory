@@ -427,7 +427,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
           {isSuperOwnerUser && <button onClick={() => setShowOrgSetup(true)}
             style={{ width:'100%', background:'#C8843A', color:'#fff', border:'none', borderRadius:10, padding:'13px', cursor:'pointer', fontSize:13, fontWeight:700, marginTop:4, fontFamily:'inherit' }}>
             + Create New Organisation
-          </button>
+          </button>}
         </div>
       )}
 
