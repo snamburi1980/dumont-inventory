@@ -43,11 +43,11 @@ export default function App() {
     if (auth.userConfig) {
       const store = auth.userConfig.storeId || auth.userConfig.store || ''
       const org   = auth.userConfig.orgId   || ''
-      if (store) setViewingStore(store)
+      if (store && !auth.isSuperOwner()) setViewingStore(store)
       if (org)   setViewingOrg(org)
       if (store) invHook.loadInventory(store, org || 'dumont')
       if (org)   orgItemsHook.loadItems(org)
-      else if (store) orgItemsHook.loadItems('dumont')
+      else orgItemsHook.loadItems('dumont')
     }
   }, [auth.userConfig])
 
