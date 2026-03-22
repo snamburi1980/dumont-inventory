@@ -1,20 +1,27 @@
 import { useState, useEffect } from 'react'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore'
 import { db } from '../firebase/config'
-import { STORES } from '../data/inventory'
 import { THEMES, applyTheme } from '../utils/themes'
 import ThemeSwitcher from './ThemeSwitcher'
 
 export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingStore, setViewingStore, children, currentTheme, onThemeChange }) {
-  const [orgConfig, setOrgConfig] = useState(null)
+  const [orgConfig,  setOrgConfig]  = useState(null)
+  const [allStores,  setAllStores]  = useState([])
   const userConfig = auth?.userConfig
 
-  useEffect(() => { loadOrgConfig() }, [userConfig?.orgId])
+  useEffect(() => { loadOrgConfig(); loadStores() }, [userConfig?.orgId])
   
   // Apply theme whenever it changes
   useEffect(() => {
     if (currentTheme) applyTheme(currentTheme)
   }, [currentTheme])
+
+  async function loadStores() {
+    try {
+      const snap = await getDocs(collection(db, 'stores'))
+      setAllStores(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    } catch(e) {}
+  }
 
   async function loadOrgConfig() {
     const orgId = userConfig?.orgId || 'dumont'
@@ -28,13 +35,18 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
   const role         = userConfig?.role || ''
 
   function getAccessibleStores() {
-    if (isSuperOwner || role === 'regional_owner') {
-      return Object.entries(STORES).map(([id, s]) => ({ id, ...s }))
+    if (isSuperOwner) {
+      return allStores.length > 0 ? allStores : []
     }
-    const storeId = userConfig?.storeId || userConfig?.store || 'coppell'
-    // Clean store name - no special chars
-    const storeName = STORES[storeId]?.name || storeId.charAt(0).toUpperCase() + storeId.slice(1).replace(/_/g,' ')
-    return [{ id: storeId, name: storeName }]
+    if (role === 'regional_owner') {
+      const regionId = userConfig?.regionId
+      return allStores.filter(s => !regionId || s.regionId === regionId)
+    }
+    // Store owner / manager — only their store
+    const storeId = userConfig?.storeId || userConfig?.store || ''
+    if (!storeId) return []
+    const store = allStores.find(s => s.id === storeId)
+    return store ? [store] : [{ id: storeId, name: storeId }]
   }
 
   const accessibleStores = getAccessibleStores()

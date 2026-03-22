@@ -10,6 +10,7 @@ import Pricing      from './Pricing'
 import SOPManager   from './SOPManager'
 import OrgSettings  from './OrgSettings'
 import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
+import { STORES } from '../data/inventory'
 
 const CATEGORIES = [
   'Boba & Tea','Sugars','Syrups','Purees','Monin Syrups',
@@ -46,7 +47,17 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       ])
       setOrgs(orgSnap.docs.map(d => ({ id: d.id, ...d.data() })))
       setRegions(regSnap.docs.map(d => ({ id: d.id, ...d.data() })))
-      setStores(storeSnap.docs.map(d => ({ id: d.id, ...d.data() })))
+      // Merge Firestore stores with hardcoded STORES
+      const firestoreStores = storeSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+      const hardcodedStores = Object.entries(STORES).map(([id, s]) => ({ id, ...s, hardcoded: true }))
+      // Merge - Firestore takes priority, hardcoded fills gaps
+      const allStoreIds = new Set([...firestoreStores.map(s => s.id), ...hardcodedStores.map(s => s.id)])
+      const mergedStores = [...allStoreIds].map(id => {
+        const fs = firestoreStores.find(s => s.id === id)
+        const hc = hardcodedStores.find(s => s.id === id)
+        return fs || hc
+      })
+      setStores(mergedStores)
       setPending(pendSnap.docs.map(d => ({ id: d.id, ...d.data() })))
     } catch(e) { console.error(e) }
     setLoading(false)
