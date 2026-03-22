@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react'
 import {
   collection, getDocs, addDoc, updateDoc,
-  deleteDoc, doc, setDoc
+  deleteDoc, doc, setDoc, query, orderBy
 } from 'firebase/firestore'
-import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
 import { db } from '../firebase/config'
 import ItemManager  from './ItemManager'
 import OrgSetup     from './OrgSetup'
 import Pricing      from './Pricing'
 import SOPManager   from './SOPManager'
 import OrgSettings  from './OrgSettings'
+import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
+
+const CATEGORIES = [
+  'Boba & Tea','Sugars','Syrups','Purees','Monin Syrups',
+  'Sauces','Powders','Boba & Jelly','Coffee','Dry Stock',
+  'Ice Cream','Bakery','Other'
+]
 
 export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setViewingOrg, viewingStore }) {
   const [view,      setView]      = useState('overview')
@@ -20,9 +26,11 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   const [loading,   setLoading]   = useState(false)
   const [showOrgSetup, setShowOrgSetup] = useState(false)
 
+  // Forms
   const [newRegion, setNewRegion] = useState({ name:'', orgId:'' })
   const [newStore,  setNewStore]  = useState({ name:'', regionId:'' })
   const [newUser,   setNewUser]   = useState({ email:'', name:'', role:'store_owner', orgId:'', regionId:'', storeId:'' })
+  const [newCat,    setNewCat]    = useState('')
   const [userSaved, setUserSaved] = useState(false)
 
   useEffect(() => { loadAll() }, [])
@@ -68,6 +76,22 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     loadAll()
   }
 
+  async function addCategory() {
+    if (!newCat.trim()) { showToast('Enter category name'); return }
+    const orgId = viewingOrg || 'dumont'
+    // Add a placeholder item to create the category
+    const id = 'cat_' + Date.now()
+    await setDoc(doc(db, 'orgs', orgId, 'items', id), {
+      id, name: '(Add items to this category)',
+      code: '', cat: newCat, vendor: '', uom: 'UNIT',
+      cost_price: 0, sell_price: 0, par: 0,
+      active: false, isPlaceholder: true, createdAt: Date.now()
+    })
+    showToast(`Category "${newCat}" created — now add items to it`)
+    setNewCat('')
+    if (orgItemsHook?.loadItems) orgItemsHook.loadItems(orgId)
+  }
+
   async function assignUser() {
     if (!newUser.email.trim()) { showToast('Enter email'); return }
     const emailKey = newUser.email.toLowerCase().replace(/\./g,'_').replace(/@/g,'_at_')
@@ -78,14 +102,14 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       email:    newUser.email.toLowerCase(),
       name:     newUser.name || newUser.email,
       role:     newUser.role,
-      orgId:    org?.id    || '',
+      orgId:    org?.id    || viewingOrg || 'dumont',
       regionId: region?.id || '',
       storeId:  store?.id  || '',
       store:    store?.id  || '',
       status:   'active',
       createdAt: Date.now()
     })
-    await logAudit({ action: AUDIT_ACTIONS.USER_ASSIGNED, orgId: org?.id, userEmail: auth.userConfig?.email, details: { assignedEmail: newUser.email, role: newUser.role } })
+    await logAudit({ action: AUDIT_ACTIONS.USER_ASSIGNED, userEmail: auth.userConfig?.email, details: { assignedEmail: newUser.email, role: newUser.role } })
     showToast(`${newUser.email} assigned`)
     setUserSaved(true)
     setTimeout(() => setUserSaved(false), 3000)
@@ -113,21 +137,18 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
   const card  = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:10 }
   const input = { width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#FDF6EC' }
-  const btn   = { background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'11px 16px', cursor:'pointer', fontSize:13, fontWeight:600, width:'100%' }
+  const btn   = { background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'11px 16px', cursor:'pointer', fontSize:13, fontWeight:600, width:'100%', fontFamily:'inherit' }
 
   const navTabs = [
     { id:'overview',  label:'Overview'   },
+    { id:'setup',     label:'Setup'      },
     { id:'items',     label:'Items'      },
     { id:'pricing',   label:'Pricing'    },
     { id:'sop',       label:'SOPs'       },
     { id:'settings',  label:'Settings'   },
-    { id:'regions',   label:'Regions'    },
-    { id:'stores',    label:'Stores'     },
-    { id:'users',     label:'Users'      },
     { id:'pending',   label:`Pending${pending.length > 0 ? ` (${pending.length})` : ''}` },
   ]
 
-  // OrgSetup wizard overlay
   if (showOrgSetup) {
     return (
       <div>
@@ -177,7 +198,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               { label:'Stores',  value:stores.length,  color:'#27AE60' },
               { label:'Pending', value:pending.length, color:pending.length>0?'#E74C3C':'#8B7355' },
             ].map(({label,value,color}) => (
-              <div key={label} style={{...card, textAlign:'center', marginBottom:0}}>
+              <div key={label} style={{...card,textAlign:'center',marginBottom:0}}>
                 <div style={{fontSize:28,fontWeight:700,color}}>{value}</div>
                 <div style={{fontSize:11,color:'#8B7355',textTransform:'uppercase'}}>{label}</div>
               </div>
@@ -190,32 +211,58 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                 <div style={{ fontSize:14, fontWeight:700, color:'#2C1810' }}>{org.name}</div>
                 <div style={{display:'flex',gap:6}}>
-                  <button
-                    onClick={() => { if(setViewingOrg) setViewingOrg(org.id); setView('items') }}
-                    style={{ fontSize:11, color:'#C8843A', background:'none', border:'1px solid #C8843A', borderRadius:6, padding:'3px 10px', cursor:'pointer' }}
-                  >
-                    Manage Items
+                  <button onClick={() => { if(setViewingOrg) setViewingOrg(org.id); setView('items') }}
+                    style={{ fontSize:11, color:'#C8843A', background:'none', border:'1px solid #C8843A', borderRadius:6, padding:'3px 10px', cursor:'pointer' }}>
+                    Items
                   </button>
-                  <button
-                    onClick={async () => {
-                      if (!window.confirm(`Delete org "${org.name}"? This cannot be undone.`)) return
-                      await deleteDoc(doc(db, 'orgs', org.id))
-                      showToast('Org deleted')
-                      loadAll()
-                    }}
-                    style={{ fontSize:11, color:'#E74C3C', background:'none', border:'1px solid #FFCDD2', borderRadius:6, padding:'3px 10px', cursor:'pointer' }}
-                  >
+                  <button onClick={async () => {
+                    if (!window.confirm(`Delete org "${org.name}"?`)) return
+                    await deleteDoc(doc(db, 'orgs', org.id))
+                    showToast('Org deleted'); loadAll()
+                  }} style={{ fontSize:11, color:'#E74C3C', background:'none', border:'1px solid #FFCDD2', borderRadius:6, padding:'3px 10px', cursor:'pointer' }}>
                     Delete
                   </button>
                 </div>
               </div>
               {regions.filter(r => r.orgId===org.id).map(region => (
                 <div key={region.id} style={{ marginLeft:16, marginBottom:6 }}>
-                  <div style={{ fontSize:13, fontWeight:600, color:'#2980B9', marginBottom:3 }}>{region.name}</div>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:'#2980B9' }}>{region.name}</div>
+                    <div style={{display:'flex',gap:4}}>
+                      <button onClick={async () => {
+                        const name = window.prompt('Edit region name:', region.name)
+                        if (!name || name === region.name) return
+                        await updateDoc(doc(db, 'regions', region.id), { name })
+                        showToast('Updated'); loadAll()
+                      }} style={{ fontSize:10, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Edit</button>
+                      <button onClick={async () => {
+                        const storeCount = stores.filter(s=>s.regionId===region.id).length
+                        if (storeCount > 0) { showToast('Remove stores first'); return }
+                        if (!window.confirm(`Delete region "${region.name}"?`)) return
+                        await deleteDoc(doc(db, 'regions', region.id))
+                        showToast('Deleted'); loadAll()
+                      }} style={{ fontSize:10, color:'#E74C3C', background:'none', border:'1px solid #FFCDD2', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Del</button>
+                    </div>
+                  </div>
                   {stores.filter(s => s.regionId===region.id).map(store => (
-                    <div key={store.id} style={{ marginLeft:16, fontSize:12, color:'#8B7355', padding:'2px 0', display:'flex', alignItems:'center', gap:6 }}>
-                      <div style={{width:6,height:6,borderRadius:'50%',background:'#27AE60'}}/>
-                      {store.name}
+                    <div key={store.id} style={{ marginLeft:16, fontSize:12, color:'#8B7355', padding:'3px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                      <div style={{display:'flex',alignItems:'center',gap:6}}>
+                        <div style={{width:6,height:6,borderRadius:'50%',background:'#27AE60'}}/>
+                        {store.name}
+                      </div>
+                      <div style={{display:'flex',gap:4}}>
+                        <button onClick={async () => {
+                          const name = window.prompt('Edit store name:', store.name)
+                          if (!name || name === store.name) return
+                          await updateDoc(doc(db, 'stores', store.id), { name })
+                          showToast('Updated'); loadAll()
+                        }} style={{ fontSize:10, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Edit</button>
+                        <button onClick={async () => {
+                          if (!window.confirm(`Delete store "${store.name}"?`)) return
+                          await deleteDoc(doc(db, 'stores', store.id))
+                          showToast('Deleted'); loadAll()
+                        }} style={{ fontSize:10, color:'#E74C3C', background:'none', border:'1px solid #FFCDD2', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Del</button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -223,136 +270,42 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             </div>
           ))}
 
-          {/* Create new org button */}
-          <button
-            onClick={() => setShowOrgSetup(true)}
-            style={{ width:'100%', background:'#C8843A', color:'#fff', border:'none', borderRadius:10, padding:'13px', cursor:'pointer', fontSize:13, fontWeight:700, marginTop:4 }}
-          >
+          <button onClick={() => setShowOrgSetup(true)}
+            style={{ width:'100%', background:'#C8843A', color:'#fff', border:'none', borderRadius:10, padding:'13px', cursor:'pointer', fontSize:13, fontWeight:700, marginTop:4, fontFamily:'inherit' }}>
             + Create New Organisation
           </button>
         </div>
       )}
 
-      {/* ITEMS */}
-      {view === 'items' && (
+      {/* SETUP — Unified Org/Region/Store/User/Category creation */}
+      {view === 'setup' && (
         <div>
-          {/* Org selector */}
-          {orgs.length > 1 && (
-            <div style={{ marginBottom:12 }}>
-              <select
-                value={viewingOrg}
-                onChange={e => { if(setViewingOrg) setViewingOrg(e.target.value) }}
-                style={{ ...input, marginBottom:0 }}
-              >
-                {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-              </select>
-            </div>
-          )}
-          <ItemManager
-            orgId={viewingOrg || 'dumont'}
-            orgItemsHook={orgItemsHook}
-            showToast={showToast}
-          />
-        </div>
-      )}
-
-      {/* PRICING */}
-      {view === 'pricing' && (
-        <div>
-          {orgs.length > 1 && (
-            <div style={{ marginBottom:12 }}>
-              <select value={viewingOrg} onChange={e => { if(setViewingOrg) setViewingOrg(e.target.value) }} style={{ ...input, marginBottom:0 }}>
-                {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-              </select>
-            </div>
-          )}
-          <Pricing
-            orgItemsHook={orgItemsHook}
-            viewingStore={viewingStore}
-            viewingOrg={viewingOrg || 'dumont'}
-            showToast={showToast}
-          />
-        </div>
-      )}
-
-      {/* SOP */}
-      {view === 'sop' && (
-        <SOPManager
-          viewingOrg={viewingOrg || 'dumont'}
-          viewingStore={viewingStore}
-          auth={auth}
-          showToast={showToast}
-        />
-      )}
-
-      {/* SETTINGS */}
-      {view === 'settings' && (
-        <OrgSettings
-          orgId={viewingOrg || 'dumont'}
-          orgData={orgs.find(o => o.id === (viewingOrg || 'dumont'))}
-          showToast={showToast}
-          onUpdate={() => loadAll()}
-        />
-      )}
-
-      {/* REGIONS */}
-      {view === 'regions' && (
-        <div>
+          {/* Add Category */}
           <div style={card}>
-            <div style={{fontSize:13,fontWeight:700,color:'#2C1810',marginBottom:10}}>Create New Region</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Add Category to Org</div>
+            <select value={viewingOrg} onChange={e => { if(setViewingOrg) setViewingOrg(e.target.value) }} style={input}>
+              {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+            <input placeholder="Category name (e.g. Coffee, Bakery, Seasonal)" value={newCat}
+              onChange={e => setNewCat(e.target.value)} style={input} />
+            <button style={btn} onClick={addCategory}>+ Add Category</button>
+          </div>
+
+          {/* Add Region */}
+          <div style={card}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Add Region</div>
             <select value={newRegion.orgId} onChange={e => setNewRegion(r=>({...r,orgId:e.target.value}))} style={input}>
               <option value="">Select Org</option>
               {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
             </select>
-            <input placeholder="Region name (e.g. Texas)" value={newRegion.name}
+            <input placeholder="Region name (e.g. Texas, NC)" value={newRegion.name}
               onChange={e => setNewRegion(r=>({...r,name:e.target.value}))} style={input} />
-            <button style={btn} onClick={createRegion}>Create Region</button>
+            <button style={btn} onClick={createRegion}>+ Add Region</button>
           </div>
-          {regions.map(region => {
-            const org = orgs.find(o => o.id===region.orgId)
-            return (
-              <div key={region.id} style={card}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                  <div>
-                    <div style={{fontSize:13,fontWeight:600,color:'#2C1810'}}>{region.name}</div>
-                    <div style={{fontSize:11,color:'#8B7355'}}>{org?.name} · {stores.filter(s=>s.regionId===region.id).length} stores</div>
-                  </div>
-                  <div style={{display:'flex',gap:6,alignItems:'center'}}>
-                    <span style={{fontSize:11,padding:'3px 10px',borderRadius:20,background:'#E3F2FD',color:'#2980B9',fontWeight:600}}>{org?.name}</span>
-                    <button
-                      onClick={async () => {
-                        const name = window.prompt('Edit region name:', region.name)
-                        if (!name || name === region.name) return
-                        await updateDoc(doc(db, 'regions', region.id), { name })
-                        showToast('Region updated')
-                        loadAll()
-                      }}
-                      style={{fontSize:11,padding:'4px 8px',background:'#FDF6EC',border:'1px solid #EDE0CC',borderRadius:6,cursor:'pointer',color:'#2C1810'}}
-                    >Edit</button>
-                    <button
-                      onClick={async () => {
-                        const storeCount = stores.filter(s=>s.regionId===region.id).length
-                        if (storeCount > 0) { showToast('Remove all stores first'); return }
-                        if (!window.confirm(`Delete region "${region.name}"?`)) return
-                        await deleteDoc(doc(db, 'regions', region.id))
-                        showToast('Region deleted')
-                        loadAll()
-                      }}
-                      style={{fontSize:11,padding:'4px 8px',background:'#FFF0F0',border:'1px solid #FFCDD2',borderRadius:6,cursor:'pointer',color:'#E74C3C'}}
-                    >Delete</button>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
 
-      {/* STORES */}
-      {view === 'stores' && (
-        <div>
+          {/* Add Store */}
           <div style={card}>
-            <div style={{fontSize:13,fontWeight:700,color:'#2C1810',marginBottom:10}}>Create New Store</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Add Store</div>
             <select value={newStore.regionId} onChange={e => setNewStore(s=>({...s,regionId:e.target.value}))} style={input}>
               <option value="">Select Region</option>
               {regions.map(r => {
@@ -360,56 +313,16 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                 return <option key={r.id} value={r.id}>{org?.name} — {r.name}</option>
               })}
             </select>
-            <input placeholder="Store name (e.g. Coppell)" value={newStore.name}
+            <input placeholder="Store name (e.g. Coppell, Frisco)" value={newStore.name}
               onChange={e => setNewStore(s=>({...s,name:e.target.value}))} style={input} />
-            <button style={btn} onClick={createStore}>Create Store</button>
+            <button style={btn} onClick={createStore}>+ Add Store</button>
           </div>
-          {stores.map(store => {
-            const region = regions.find(r => r.id===store.regionId)
-            const org    = orgs.find(o => o.id===store.orgId)
-            return (
-              <div key={store.id} style={card}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                  <div>
-                    <div style={{fontSize:13,fontWeight:600,color:'#2C1810'}}>{store.name}</div>
-                    <div style={{fontSize:11,color:'#8B7355'}}>{org?.name} {'>'} {region?.name}</div>
-                  </div>
-                  <div style={{display:'flex',gap:6,alignItems:'center'}}>
-                    <span style={{fontSize:11,padding:'3px 10px',borderRadius:20,background:'#E8F5E9',color:'#27AE60',fontWeight:600}}>Active</span>
-                    <button
-                      onClick={async () => {
-                        const name = window.prompt('Edit store name:', store.name)
-                        if (!name || name === store.name) return
-                        await updateDoc(doc(db, 'stores', store.id), { name })
-                        showToast('Store updated')
-                        loadAll()
-                      }}
-                      style={{fontSize:11,padding:'4px 8px',background:'#FDF6EC',border:'1px solid #EDE0CC',borderRadius:6,cursor:'pointer',color:'#2C1810'}}
-                    >Edit</button>
-                    <button
-                      onClick={async () => {
-                        if (!window.confirm(`Delete store "${store.name}"? This cannot be undone.`)) return
-                        await deleteDoc(doc(db, 'stores', store.id))
-                        showToast('Store deleted')
-                        loadAll()
-                      }}
-                      style={{fontSize:11,padding:'4px 8px',background:'#FFF0F0',border:'1px solid #FFCDD2',borderRadius:6,cursor:'pointer',color:'#E74C3C'}}
-                    >Delete</button>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
 
-      {/* USERS */}
-      {view === 'users' && (
-        <div>
+          {/* Assign User */}
           <div style={card}>
-            <div style={{fontSize:13,fontWeight:700,color:'#2C1810',marginBottom:4}}>Assign User to Store</div>
-            <div style={{fontSize:11,color:'#8B7355',marginBottom:12,lineHeight:1.6}}>
-              First create the user in Firebase Console → Authentication → Add User. Then assign them here.
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Assign User</div>
+            <div style={{ fontSize:11, color:'#8B7355', marginBottom:10, lineHeight:1.6 }}>
+              First create user in Firebase Console → Authentication → Add User
             </div>
             <input placeholder="Full Name" value={newUser.name} onChange={e => setNewUser(u=>({...u,name:e.target.value}))} style={input} />
             <input placeholder="Email address" value={newUser.email} onChange={e => setNewUser(u=>({...u,email:e.target.value}))} style={input} />
@@ -447,18 +360,62 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             <button style={{...btn, background: userSaved ? '#27AE60' : '#2C1810'}} onClick={assignUser}>
               {userSaved ? 'Saved!' : 'Assign User'}
             </button>
+          </div>
 
-            <div style={{marginTop:14,padding:12,background:'#FDF6EC',borderRadius:8}}>
-              <div style={{fontSize:12,fontWeight:700,color:'#2C1810',marginBottom:6}}>Onboarding Steps:</div>
-              <div style={{fontSize:11,color:'#8B7355',lineHeight:2}}>
-                1. Firebase Console → Authentication → Add User<br/>
-                2. Enter their email + temporary password<br/>
-                3. Fill form above and click Assign User<br/>
-                4. Share app URL + credentials with them
-              </div>
-            </div>
+          {/* All Stores list */}
+          <div style={card}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>All Stores</div>
+            {stores.length === 0 ? (
+              <div style={{color:'#8B7355',fontSize:13}}>No stores yet</div>
+            ) : stores.map(store => {
+              const region = regions.find(r=>r.id===store.regionId)
+              const org    = orgs.find(o=>o.id===store.orgId)
+              return (
+                <div key={store.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid #EDE0CC' }}>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{store.name}</div>
+                    <div style={{ fontSize:11, color:'#8B7355' }}>{org?.name} {'>'} {region?.name || 'No region'}</div>
+                  </div>
+                  <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, background:'#E8F5E9', color:'#27AE60', fontWeight:600 }}>Active</span>
+                </div>
+              )
+            })}
           </div>
         </div>
+      )}
+
+      {/* ITEMS */}
+      {view === 'items' && (
+        <div>
+          {orgs.length > 1 && (
+            <select value={viewingOrg} onChange={e => { if(setViewingOrg) setViewingOrg(e.target.value) }} style={{ ...input, marginBottom:12 }}>
+              {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+          )}
+          <ItemManager orgId={viewingOrg || 'dumont'} orgItemsHook={orgItemsHook} showToast={showToast} />
+        </div>
+      )}
+
+      {/* PRICING */}
+      {view === 'pricing' && (
+        <div>
+          {orgs.length > 1 && (
+            <select value={viewingOrg} onChange={e => { if(setViewingOrg) setViewingOrg(e.target.value) }} style={{ ...input, marginBottom:12 }}>
+              {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+          )}
+          <Pricing orgItemsHook={orgItemsHook} viewingStore={viewingStore} viewingOrg={viewingOrg || 'dumont'} showToast={showToast} />
+        </div>
+      )}
+
+      {/* SOP */}
+      {view === 'sop' && (
+        <SOPManager viewingOrg={viewingOrg || 'dumont'} viewingStore={viewingStore} auth={auth} showToast={showToast} />
+      )}
+
+      {/* SETTINGS */}
+      {view === 'settings' && (
+        <OrgSettings orgId={viewingOrg || 'dumont'} orgData={orgs.find(o => o.id === (viewingOrg || 'dumont'))} showToast={showToast} onUpdate={() => loadAll()} />
       )}
 
       {/* PENDING */}
@@ -474,8 +431,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                   <div style={{fontSize:11,color:'#8B7355'}}>{req.store||'No store'} · {new Date(req.createdAt||Date.now()).toLocaleDateString()}</div>
                 </div>
                 <div style={{display:'flex',gap:8}}>
-                  <button onClick={() => approveSignup(req)} style={{background:'#27AE60',color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:600}}>Approve</button>
-                  <button onClick={() => rejectSignup(req)}  style={{background:'#E74C3C',color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:600}}>Reject</button>
+                  <button onClick={() => approveSignup(req)} style={{background:'#27AE60',color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:600,fontFamily:'inherit'}}>Approve</button>
+                  <button onClick={() => rejectSignup(req)}  style={{background:'#E74C3C',color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:600,fontFamily:'inherit'}}>Reject</button>
                 </div>
               </div>
             </div>
