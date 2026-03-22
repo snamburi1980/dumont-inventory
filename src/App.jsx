@@ -114,7 +114,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-    <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={handleTabChange} viewingStore={viewingStore} setViewingStore={setViewingStore} currentTheme={currentTheme} onThemeChange={setCurrentTheme}>
+    <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={handleTabChange} viewingStore={viewingStore} setViewingStore={setViewingStore} currentTheme={currentTheme} onThemeChange={setCurrentTheme} showToast={showToast}>
       {activeTab === 'home'      && <Home      {...tabProps} />}
       {activeTab === 'dashboard' && <Dashboard {...tabProps} />}
       {activeTab === 'inventory' && <Inventory {...tabProps} />}
