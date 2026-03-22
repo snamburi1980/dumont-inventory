@@ -41,7 +41,10 @@ export function useInventory() {
         ...item,
         id:     item.id,
         stock:  data[item.id]              !== undefined ? data[item.id]              : (item.stock || 0),
-        par:    data[`par_${item.id}`]     !== undefined ? data[`par_${item.id}`]     : (item.par   || 1),
+        // Use org item PAR as source of truth - store override only if manager explicitly set it
+        par:    data[`par_override_${item.id}`] !== undefined
+                  ? data[`par_override_${item.id}`]   // manager explicitly overrode
+                  : (item.par || data[`par_${item.id}`] || 1), // org item PAR
         active: data[`active_${item.id}`]  !== undefined ? data[`active_${item.id}`]  : (item.active !== false),
         cost:   item.cost_price || item.cost || 0,
       }))
@@ -60,9 +63,10 @@ export function useInventory() {
     try {
       const data = {}
       items.forEach(item => {
-        data[item.id]              = item.stock  || 0
-        data[`par_${item.id}`]    = item.par     || 0
-        data[`active_${item.id}`] = item.active !== false
+        data[item.id]                     = item.stock  || 0
+        data[`par_${item.id}`]           = item.par     || 0  // legacy
+        data[`par_override_${item.id}`]  = item.par     || 0  // store override
+        data[`active_${item.id}`]        = item.active !== false
       })
       await setDoc(doc(db, 'stores', storeId, 'inventory', 'stock'), data, { merge: true })
     } catch(e) {
