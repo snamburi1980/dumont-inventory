@@ -25,7 +25,7 @@ export default function App() {
   const orgItemsHook = useOrgItems()
 
   const [activeTab,    setActiveTab]    = useState('home')
-  const [viewingStore, setViewingStore] = useState('coppell')
+  const [viewingStore, setViewingStore] = useState('')
   const [viewingOrg,   setViewingOrg]   = useState('dumont')
   const [currentTheme, setCurrentTheme] = useState(() => {
     const saved = localStorage.getItem('dumont_theme') || 'warm'
@@ -39,7 +39,7 @@ export default function App() {
 
   useEffect(() => {
     if (auth.userConfig) {
-      const store = auth.userConfig.storeId || auth.userConfig.store || 'coppell'
+      const store = auth.userConfig.storeId || auth.userConfig.store || ''
       const org   = auth.userConfig.orgId   || 'dumont'
       setViewingStore(store)
       setViewingOrg(org)
@@ -103,9 +103,18 @@ export default function App() {
     ...(isSuperOwner || isRegionalOwner ? [{ id:'admin', label:'Admin' }] : []),
   ]
 
+  function handleTabChange(tab) {
+    // Reload inventory when switching to inventory tab
+    // so Admin changes are reflected immediately
+    if (tab === 'inventory' && auth.userConfig) {
+      invHook.loadInventory(viewingStore, viewingOrg)
+    }
+    setActiveTab(tab)
+  }
+
   return (
     <ErrorBoundary>
-    <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} viewingStore={viewingStore} setViewingStore={setViewingStore} currentTheme={currentTheme} onThemeChange={setCurrentTheme}>
+    <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={handleTabChange} viewingStore={viewingStore} setViewingStore={setViewingStore} currentTheme={currentTheme} onThemeChange={setCurrentTheme}>
       {activeTab === 'home'      && <Home      {...tabProps} />}
       {activeTab === 'dashboard' && <Dashboard {...tabProps} />}
       {activeTab === 'inventory' && <Inventory {...tabProps} />}
