@@ -17,7 +17,23 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth }) {
   const [showNewAnnounce,setShowNewAnnounce]= useState(false)
   const [posting,        setPosting]         = useState(false)
   const isSuperOwner = auth.isSuperOwner()
-  const store = STORES[viewingStore] || { name: viewingStore }
+  const [storeName, setStoreName] = useState('')
+
+  useEffect(() => {
+    // Load store name from Firestore
+    if (viewingStore) {
+      import('../firebase/config').then(({ db }) => {
+        import('firebase/firestore').then(({ doc, getDoc }) => {
+          getDoc(doc(db, 'stores', viewingStore)).then(snap => {
+            if (snap.exists()) setStoreName(snap.data().name || viewingStore)
+            else setStoreName(viewingStore)
+          }).catch(() => setStoreName(viewingStore))
+        })
+      })
+    }
+  }, [viewingStore])
+
+  const store = { name: storeName || (isSuperOwner ? 'Dashboard' : viewingStore) }
 
   useEffect(() => {
     loadAnnouncements()
@@ -176,7 +192,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth }) {
       {/* Greeting */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 20, fontWeight: 700, color: '#2C1810' }}>
-          {greeting}, {store.name}
+          {greeting}{store.name ? `, ${store.name}` : ''}
         </div>
         <div style={{ fontSize: 12, color: '#8B7355' }}>
           {new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })}
