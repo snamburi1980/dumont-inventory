@@ -105,13 +105,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
             ) : null}
 
             <ThemeSwitcher currentTheme={currentTheme || 'warm'} onThemeChange={onThemeChange || (() => {})} />
-            <button
-              onClick={() => setShowChangePwd(true)}
-              style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:8, padding:'5px 10px', fontSize:12, cursor:'pointer', fontFamily:'inherit' }}
-              title="Change password"
-            >
-              PWD
-            </button>
+
 
             <button
               onClick={() => setShowProfile(true)}
@@ -120,12 +114,20 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
             >
               Profile
             </button>
-            <button
-              onClick={auth?.logout}
-              style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:8, padding:'5px 10px', fontSize:12, cursor:'pointer', fontFamily:'inherit' }}
-            >
-              Sign Out
-            </button>
+            <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+              <button
+                onClick={() => setShowChangePwd(true)}
+                style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer', fontFamily:'inherit' }}
+              >
+                Change Password
+              </button>
+              <button
+                onClick={auth?.logout}
+                style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:6, padding:'4px 8px', fontSize:11, cursor:'pointer', fontFamily:'inherit' }}
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
 

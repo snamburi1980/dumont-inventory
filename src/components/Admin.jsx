@@ -106,15 +106,16 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     const region   = regions.find(r => r.id === (newUser.regionId || store?.regionId))
     const org      = orgs.find(o => o.id === (newUser.orgId || region?.orgId))
     await setDoc(doc(db, 'users', emailKey), {
-      email:    newUser.email.toLowerCase(),
-      name:     newUser.name || newUser.email,
-      role:     newUser.role,
-      orgId:    org?.id    || viewingOrg || '',
-      regionId: region?.id || '',
-      storeId:  store?.id  || '',
-      store:    store?.id  || '',
-      status:   'active',
-      createdAt: Date.now()
+      email:               newUser.email.toLowerCase(),
+      name:                newUser.name || newUser.email,
+      role:                newUser.role,
+      orgId:               org?.id    || viewingOrg || '',
+      regionId:            region?.id || '',
+      storeId:             store?.id  || '',
+      store:               store?.id  || '',
+      status:              'active',
+      forcePasswordChange: true,
+      createdAt:           Date.now()
     })
     await logAudit({ action: AUDIT_ACTIONS.USER_ASSIGNED, userEmail: auth.userConfig?.email, details: { assignedEmail: newUser.email, role: newUser.role } })
     setSaving(false)
@@ -146,14 +147,21 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   const input = { width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#FDF6EC' }
   const btn   = (color='#2C1810') => ({ background:color, color:'#fff', border:'none', borderRadius:8, padding:'11px 16px', cursor:'pointer', fontSize:13, fontWeight:600, width:'100%', fontFamily:'inherit', opacity: saving ? 0.7 : 1 })
 
-  const navTabs = [
-    { id:'overview', label:'Overview'   },
-    { id:'setup',    label:'Setup'      },
-    { id:'items',    label:'Items'      },
-    { id:'pricing',  label:'Pricing'    },
-    { id:'sop',      label:'SOPs'       },
-    { id:'settings', label:'Settings'   },
-    { id:'pending',  label:`Pending${pending.length > 0 ? ` (${pending.length})` : ''}` },
+  const isSuperOwnerUser = auth?.isSuperOwner?.()
+
+  // Super owner sees all tabs, manager sees limited tabs
+  const navTabs = isSuperOwnerUser ? [
+    { id:'overview', label:'Overview' },
+    { id:'setup',    label:'Setup'    },
+    { id:'items',    label:'Items'    },
+    { id:'pricing',  label:'Pricing'  },
+    { id:'sop',      label:'SOPs'     },
+    { id:'settings', label:'Settings' },
+  ] : [
+    { id:'items',    label:'Items'    },
+    { id:'pricing',  label:'Pricing'  },
+    { id:'sop',      label:'SOPs'     },
+    { id:'settings', label:'Settings' },
   ]
 
   // Guided setup flow after org creation
