@@ -17,12 +17,14 @@ import Delivery     from './components/Delivery'
 import COGS         from './components/COGS'
 import Schedule     from './components/Schedule'
 import Admin        from './components/Admin'
+import ChangePassword from './components/ChangePassword'
 
 export default function App() {
   const auth         = useAuth()
   const invHook      = useInventory()
   const { toast, showToast } = useToast()
   const orgItemsHook = useOrgItems()
+  const { needsPasswordChange, setNeedsPasswordChange } = auth
 
   const [activeTab,    setActiveTab]    = useState('home')
   const [viewingStore, setViewingStore] = useState('')
@@ -40,11 +42,12 @@ export default function App() {
   useEffect(() => {
     if (auth.userConfig) {
       const store = auth.userConfig.storeId || auth.userConfig.store || ''
-      const org   = auth.userConfig.orgId   || 'dumont'
-      setViewingStore(store)
-      setViewingOrg(org)
-      invHook.loadInventory(store, org)
-      orgItemsHook.loadItems(org)
+      const org   = auth.userConfig.orgId   || ''
+      if (store) setViewingStore(store)
+      if (org)   setViewingOrg(org)
+      if (store) invHook.loadInventory(store, org || 'dumont')
+      if (org)   orgItemsHook.loadItems(org)
+      else if (store) orgItemsHook.loadItems('dumont')
     }
   }, [auth.userConfig])
 
@@ -83,8 +86,37 @@ export default function App() {
     )
   }
 
+  // Force password change on first login
+  if (needsPasswordChange) {
+    return (
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#FDF6EC', padding:20 }}>
+        <div style={{ width:'100%', maxWidth:400 }}>
+          <div style={{ textAlign:'center', marginBottom:24 }}>
+            <div style={{ fontSize:18, fontWeight:700, color:'#2C1810', marginBottom:8 }}>Welcome! Please set your password</div>
+            <div style={{ fontSize:13, color:'#8B7355' }}>You must change your temporary password before continuing.</div>
+          </div>
+          <ChangePassword
+            showToast={showToast}
+            onClose={async () => {
+              // Clear the force flag in Firestore
+              const { doc, updateDoc } = await import('firebase/firestore')
+              const { db } = await import('./firebase/config')
+              const emailKey = auth.user.email.replace(/\./g,'_').replace(/@/g,'_at_')
+              await updateDoc(doc(db, 'users', emailKey), { forcePasswordChange: false })
+              setNeedsPasswordChange(false)
+            }}
+          />
+          <button onClick={auth.logout} style={{ width:'100%', marginTop:10, background:'none', border:'none', color:'#8B7355', cursor:'pointer', fontSize:12 }}>
+            Sign out
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const isSuperOwner    = auth.isSuperOwner()
   const isRegionalOwner = auth.userConfig?.role === 'regional_owner'
+  const isManager       = ['manager','store_owner','org_owner'].includes(auth.userConfig?.role)
 
   const tabProps = {
     auth, invHook, viewingStore, setViewingStore,
@@ -92,6 +124,7 @@ export default function App() {
     orgItemsHook, viewingOrg, setViewingOrg,
   }
 
+  // All users get Admin tab but with different content based on role
   const tabs = [
     { id:'home',      label:'Home'      },
     { id:'inventory', label:'Inventory' },
@@ -100,7 +133,7 @@ export default function App() {
     { id:'delivery',  label:'Delivery'  },
     { id:'cogs',      label:'COGS'      },
     { id:'schedule',  label:'Schedule'  },
-    ...(isSuperOwner || isRegionalOwner ? [{ id:'admin', label:'Admin' }] : []),
+    { id:'admin',     label:'Admin'     },
   ]
 
   function handleTabChange(tab) {
@@ -116,7 +149,6 @@ export default function App() {
     <ErrorBoundary>
     <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={handleTabChange} viewingStore={viewingStore} setViewingStore={setViewingStore} currentTheme={currentTheme} onThemeChange={setCurrentTheme} showToast={showToast}>
       {activeTab === 'home'      && <Home      {...tabProps} />}
-      {activeTab === 'dashboard' && <Dashboard {...tabProps} />}
       {activeTab === 'inventory' && <Inventory {...tabProps} />}
       {activeTab === 'orders'    && <Orders    {...tabProps} />}
       {activeTab === 'sales'     && <Sales     {...tabProps} />}
