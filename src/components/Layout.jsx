@@ -92,11 +92,11 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
                   <option key={s.id} value={s.id} style={{ background: theme.headerBg }}>{s.name}</option>
                 ))}
               </select>
-            ) : (
+            ) : accessibleStores.length === 1 ? (
               <span style={{ fontSize:12, color:'rgba(255,255,255,0.8)', padding:'5px 10px' }}>
-                {accessibleStores[0]?.name || viewingStore}
+                {accessibleStores[0]?.name}
               </span>
-            )}
+            ) : null}
 
             <ThemeSwitcher currentTheme={currentTheme || 'warm'} onThemeChange={onThemeChange || (() => {})} />
 
