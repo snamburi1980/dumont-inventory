@@ -99,7 +99,6 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
   async function assignUser() {
     if (!newUser.email.trim()) { showToast('Enter email'); return }
-    if (!newUser.tempPassword?.trim()) { showToast('Enter a temporary password'); return }
     setSaving(true)
     const emailKey = newUser.email.toLowerCase().replace(/\./g,'_').replace(/@/g,'_at_')
     const store    = stores.find(s => s.id === newUser.storeId)
