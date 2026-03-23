@@ -1,18 +1,12 @@
 import { useState, useRef } from 'react'
 
-const UNIT_TYPES = ['CASE', 'BAG', 'BOTTLE', 'JAR', 'TUB', 'GALLON', 'PACK', 'UNIT', 'BOX', 'PIECE']
-
-const emptyItem = { name:'', code:'', cat:'', vendor:'', uom:'CASE', cost:0, par:1, order_qty:'1 CASE', active:true, stock:0 }
-
 export default function Inventory({ invHook, viewingStore, showToast, orgItemsHook, viewingOrg }) {
   const { inventory, getStatus, adjustStock, setStock, toggleActive, setPar, saveInventory } = invHook
   const [activeCategory,  setActiveCategory]  = useState('all')
   const [search,          setSearch]          = useState('')
   const [showInactive,    setShowInactive]     = useState(false)
   const [editingPar,      setEditingPar]       = useState(null)
-  const [view,            setView]             = useState('list') // list | addItem | addCat
-  const [newItem,         setNewItem]          = useState(emptyItem)
-  const [newCat,          setNewCat]           = useState('')
+  // Items managed in Admin → Items tab
   const saveTimer = useRef(null)
 
   const categories = ['all', ...[...new Set(inventory.map(i => i.cat))].filter(Boolean).sort()]
@@ -61,34 +55,7 @@ export default function Inventory({ invHook, viewingStore, showToast, orgItemsHo
     showToast('PAR updated')
   }
 
-  async function handleAddItem() {
-    if (!newItem.name.trim()) { showToast('Item name required'); return }
-    const cat = newItem.cat || activeCategory !== 'all' ? (newItem.cat || activeCategory) : 'General'
-    const item = {
-      ...newItem,
-      id:    Date.now(),
-      cat,
-      stock: 0,
-      active: true,
-    }
-    const updated = [...inventory, item]
-    await saveInventory(viewingStore, updated)
-    invHook.loadInventory(viewingStore)
-    showToast(`${item.name} added`)
-    setNewItem(emptyItem)
-    setView('list')
-  }
 
-  async function handleAddCategory() {
-    if (!newCat.trim()) { showToast('Category name required'); return }
-    // Category is just a property on items - no separate creation needed
-    // Add a placeholder so the category appears in filters
-    showToast(`Category "${newCat}" ready - now add items to it`)
-    setActiveCategory(newCat)
-    setNewItem(prev => ({...prev, cat: newCat}))
-    setNewCat('')
-    setView('addItem')
-  }
 
   function statusPill(status) {
     if (status === 'critical') return <span className="pill pill-critical">Critical</span>
@@ -99,121 +66,18 @@ export default function Inventory({ invHook, viewingStore, showToast, orgItemsHo
   const input = { width:'100%', padding:'9px 10px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#FDF6EC' }
   const label = { fontSize:11, fontWeight:600, color:'var(--text-muted)', marginBottom:4, display:'block' }
 
-  // ── ADD ITEM FORM ──
-  if (view === 'addItem') {
-    return (
-      <div>
-        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
-          <button onClick={() => setView('list')} style={{background:'none',border:'none',cursor:'pointer',fontSize:16,color:'var(--text-muted)'}}>
-            {'<'} Back
-          </button>
-          <div style={{fontSize:15,fontWeight:700,color:'var(--dark)'}}>Add New Item</div>
-        </div>
-        <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:12,padding:16}}>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-            <div style={{gridColumn:'1/-1'}}>
-              <label style={label}>Item Name *</label>
-              <input value={newItem.name} onChange={e => setNewItem(f=>({...f,name:e.target.value}))} style={input} placeholder="e.g. Chewy Tapioca Pearls"/>
-            </div>
-            <div>
-              <label style={label}>Code</label>
-              <input value={newItem.code} onChange={e => setNewItem(f=>({...f,code:e.target.value}))} style={input} placeholder="e.g. A2000"/>
-            </div>
-            <div>
-              <label style={label}>Category</label>
-              <select value={newItem.cat} onChange={e => setNewItem(f=>({...f,cat:e.target.value}))} style={input}>
-                <option value="">Select category</option>
-                {[...new Set(inventory.map(i=>i.cat))].filter(Boolean).sort().map(c => <option key={c} value={c}>{c}</option>)}
-                <option value="__new">+ New category...</option>
-              </select>
-              {newItem.cat === '__new' && (
-                <input placeholder="New category name" onBlur={e => setNewItem(f=>({...f,cat:e.target.value}))} style={{...input,marginTop:4}}/>
-              )}
-            </div>
-            <div>
-              <label style={label}>Vendor</label>
-              <input value={newItem.vendor} onChange={e => setNewItem(f=>({...f,vendor:e.target.value}))} style={input} placeholder="e.g. KARAT"/>
-            </div>
-            <div>
-              <label style={label}>Unit Type</label>
-              <select value={newItem.uom} onChange={e => setNewItem(f=>({...f,uom:e.target.value}))} style={input}>
-                {UNIT_TYPES.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={label}>PAR Level</label>
-              <input type="number" value={newItem.par} onChange={e => setNewItem(f=>({...f,par:parseInt(e.target.value)||0}))} style={input} min="0"/>
-            </div>
-            <div>
-              <label style={label}>Cost Price ($)</label>
-              <input type="number" value={newItem.cost} onChange={e => setNewItem(f=>({...f,cost:parseFloat(e.target.value)||0}))} style={input} step="0.01" min="0"/>
-            </div>
-            <div>
-              <label style={label}>Order Qty Label</label>
-              <input value={newItem.order_qty} onChange={e => setNewItem(f=>({...f,order_qty:e.target.value}))} style={input} placeholder="e.g. 1 CASE"/>
-            </div>
-            <div>
-              <label style={label}>Opening Stock</label>
-              <input type="number" value={newItem.stock} onChange={e => setNewItem(f=>({...f,stock:parseFloat(e.target.value)||0}))} style={input} min="0"/>
-            </div>
-          </div>
-          <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button onClick={handleAddItem} style={{flex:1,background:'var(--dark)',color:'#fff',border:'none',borderRadius:8,padding:'12px',cursor:'pointer',fontSize:13,fontWeight:600}}>
-              Add Item
-            </button>
-            <button onClick={() => setView('list')} style={{padding:'12px 20px',background:'#888',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontSize:13}}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // ── ADD CATEGORY FORM ──
-  if (view === 'addCat') {
-    return (
-      <div>
-        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
-          <button onClick={() => setView('list')} style={{background:'none',border:'none',cursor:'pointer',fontSize:16,color:'var(--text-muted)'}}>
-            {'<'} Back
-          </button>
-          <div style={{fontSize:15,fontWeight:700,color:'var(--dark)'}}>Add New Category</div>
-        </div>
-        <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:12,padding:16}}>
-          <label style={label}>Category Name *</label>
-          <input value={newCat} onChange={e => setNewCat(e.target.value)} style={input} placeholder="e.g. Bakery, Frozen, Beverages"/>
-          <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button onClick={handleAddCategory} style={{flex:1,background:'var(--dark)',color:'#fff',border:'none',borderRadius:8,padding:'12px',cursor:'pointer',fontSize:13,fontWeight:600}}>
-              Create Category
-            </button>
-            <button onClick={() => setView('list')} style={{padding:'12px 20px',background:'#888',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontSize:13}}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   // ── LIST VIEW ──
   return (
     <div>
-      {/* Search + actions */}
-      <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+      {/* Search */}
+      <div style={{display:'flex',gap:8,marginBottom:12}}>
         <input
           className="search-bar"
           placeholder="Search items..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{flex:1,minWidth:160,marginBottom:0}}
+          style={{flex:1,marginBottom:0}}
         />
-        <button onClick={() => setView('addItem')} style={{background:'var(--dark)',color:'#fff',border:'none',borderRadius:8,padding:'8px 14px',cursor:'pointer',fontSize:12,fontWeight:600,whiteSpace:'nowrap'}}>
-          + Item
-        </button>
-        <button onClick={() => setView('addCat')} style={{background:'var(--caramel)',color:'#fff',border:'none',borderRadius:8,padding:'8px 14px',cursor:'pointer',fontSize:12,fontWeight:600,whiteSpace:'nowrap'}}>
-          + Category
-        </button>
       </div>
 
       {/* Category filter */}
@@ -224,6 +88,45 @@ export default function Inventory({ invHook, viewingStore, showToast, orgItemsHo
           </button>
         ))}
       </div>
+
+      {/* Stock value banner */}
+      {(() => {
+        const activeItems = inventory.filter(i => i.active !== false)
+        const catItems    = activeCategory === 'all' ? activeItems : activeItems.filter(i => i.cat === activeCategory)
+        const totalVal    = activeItems.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
+        const catVal      = catItems.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
+        const cats        = [...new Set(activeItems.map(i => i.cat))].sort()
+        return (
+          <div style={{ display:'flex', gap:8, overflowX:'auto', marginBottom:12, paddingBottom:4 }}>
+            {/* Total */}
+            <div style={{ flexShrink:0, background:'rgba(200,132,58,0.08)', border:'1px solid var(--caramel)', borderRadius:10, padding:'8px 14px', textAlign:'center', minWidth:90 }}>
+              <div style={{ fontSize:15, fontWeight:700, color:'var(--caramel)' }}>${totalVal.toFixed(0)}</div>
+              <div style={{ fontSize:9, color:'var(--text-muted)', textTransform:'uppercase', marginTop:2 }}>Total Stock</div>
+              <div style={{ fontSize:9, color:'var(--text-muted)' }}>{activeItems.length} items</div>
+            </div>
+            {/* Per category */}
+            {cats.map(cat => {
+              const items = activeItems.filter(i => i.cat === cat)
+              const val   = items.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
+              return (
+                <div
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  style={{
+                    flexShrink:0, background: activeCategory===cat ? 'var(--dark)' : '#fff',
+                    border:'1px solid var(--border)', borderRadius:10,
+                    padding:'8px 14px', textAlign:'center', minWidth:80, cursor:'pointer'
+                  }}
+                >
+                  <div style={{ fontSize:14, fontWeight:700, color: activeCategory===cat ? '#fff' : 'var(--dark)' }}>${val.toFixed(0)}</div>
+                  <div style={{ fontSize:9, color: activeCategory===cat ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)', textTransform:'uppercase', marginTop:2 }}>{cat}</div>
+                  <div style={{ fontSize:9, color: activeCategory===cat ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)' }}>{items.length} items</div>
+                </div>
+              )
+            })}
+          </div>
+        )
+      })()}
 
       {/* Ice Cream banner */}
       {activeCategory === 'Ice Cream' && (
