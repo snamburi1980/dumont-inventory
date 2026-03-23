@@ -355,8 +355,8 @@ export default function Schedule({ viewingStore, showToast }) {
 
       {/* Cell Modal */}
       {modal && member && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'flex-end', justifyContent:'center', padding:'0 0 0 0' }}>
-          <div style={{ background:'#fff', borderRadius:'16px 16px 0 0', padding:20, width:'100%', maxWidth:480, maxHeight:'85vh', overflowY:'auto' }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ background:'#fff', borderRadius:16, padding:20, width:'100%', maxWidth:400, maxHeight:'85vh', overflowY:'auto' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
               <div>
                 <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>{member.name} — {DAYS[modal.dayIdx]}</div>
