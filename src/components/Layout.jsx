@@ -8,6 +8,7 @@ import ChangePassword from './ChangePassword'
 export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingStore, setViewingStore, children, currentTheme, onThemeChange, showToast }) {
   const [orgConfig,  setOrgConfig]  = useState(null)
   const [allStores,  setAllStores]  = useState([])
+  const [allRegions, setAllRegions] = useState([])
   const [showProfile,setShowProfile] = useState(false)
   const [pwForm,     setPwForm]      = useState({ current:'', newPw:'', confirm:'' })
   const [pwError,    setPwError]     = useState('')
