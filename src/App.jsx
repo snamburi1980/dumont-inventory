@@ -41,13 +41,13 @@ export default function App() {
 
   useEffect(() => {
     if (auth.userConfig) {
+      const isSuperOwner = auth.isSuperOwner()
       const store = auth.userConfig.storeId || auth.userConfig.store || ''
-      const org   = auth.userConfig.orgId   || ''
-      if (store) setViewingStore(store)
-      if (org)   setViewingOrg(org)
-      if (store) invHook.loadInventory(store, org || 'dumont')
-      if (org)   orgItemsHook.loadItems(org)
-      else if (store) orgItemsHook.loadItems('dumont')
+      const org   = auth.userConfig.orgId   || 'dumont'
+      if (store && !isSuperOwner) setViewingStore(store)
+      setViewingOrg(org)
+      if (store) invHook.loadInventory(store, org)
+      orgItemsHook.loadItems(org)
     }
   }, [auth.userConfig])
 
