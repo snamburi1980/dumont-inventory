@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react'
 import { exportInventoryToCSV } from '../utils/exportInventory'
 
-const CATEGORIES = [
-  'Boba & Tea', 'Sugars', 'Syrups', 'Purees', 'Monin Syrups',
-  'Sauces', 'Powders', 'Boba & Jelly', 'Coffee', 'Dry Stock',
-  'Ice Cream', 'Bakery', 'Other'
-]
+// Categories derived dynamically from org items
 
 const VENDORS = ['KARAT', 'HYPERPACK', 'LOCAL', 'Brand', 'Other']
 const UOMS    = ['CASE', 'BAG', 'BOTTLE', 'JAR', 'TUB', 'GALLON', 'PACK', 'UNIT']
 
-const emptyItem = {
+const emptyForm = {
   name:'', code:'', cat:'Boba & Tea', vendor:'KARAT',
   uom:'CASE', cost_price:0, sell_price:0, par:1,
   case_size:1, order_qty:'1 CASE', active:true
@@ -22,7 +18,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
   const [view,       setView]       = useState('list') // list | add | edit | addCat
   const [editItem,   setEditItem]   = useState(null)
   const [newCatName, setNewCatName] = useState('')
-  const [form,       setForm]       = useState(emptyItem)
+  const [form,       setForm]       = useState(emptyForm)
   const [filterCat,  setFilterCat]  = useState('all')
   const [search,     setSearch]     = useState('')
   const [saving,     setSaving]     = useState(false)
@@ -41,7 +37,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
   const categories = ['all', ...[...new Set(items.map(i => i.cat).filter(Boolean))].sort()]
 
   function openAdd() {
-    setForm(emptyItem)
+    setForm(emptyForm)
     setView('add')
   }
 
@@ -61,6 +57,29 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
       active:     item.active !== false,
     })
     setView('edit')
+  }
+
+  async function handleAddCategory() {
+    if (!newCatName.trim()) { showToast('Enter category name'); return }
+    const existing = [...new Set(items.filter(i => i.cat).map(i => i.cat))]
+    if (existing.map(c => c.toLowerCase()).includes(newCatName.toLowerCase())) {
+      showToast('Category already exists'); return
+    }
+    try {
+      const id = 'cat_' + Date.now()
+      await addItem(orgId, {
+        name: '(placeholder)', code: '', cat: newCatName,
+        vendor: '', uom: 'UNIT', cost_price: 0, sell_price: 0,
+        par: 0, active: false, isPlaceholder: true
+      })
+      showToast(`Category "${newCatName}" created`)
+      setNewCatName('')
+      setView('list')
+      loadItems(orgId)
+    } catch(e) {
+      console.error(e)
+      showToast('Error: ' + e.message)
+    }
   }
 
   async function handleSave() {
@@ -83,7 +102,8 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
       }
       setView('list')
     } catch(e) {
-      showToast('Error saving')
+      console.error('Save error:', e)
+      showToast('Error saving: ' + (e.message || 'Unknown error'))
     }
     setSaving(false)
   }
@@ -287,6 +307,12 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
             }}
           >
             + Add Item
+          </button>
+          <button
+            onClick={() => { setNewCatName(''); setView('addCat') }}
+            style={{ background:'var(--caramel)', color:'#fff', border:'none', borderRadius:8, padding:'8px 14px', cursor:'pointer', fontSize:13, fontWeight:600 }}
+          >
+            + Category
           </button>
         </div>
       </div>
