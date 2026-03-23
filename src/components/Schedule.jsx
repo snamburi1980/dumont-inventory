@@ -38,6 +38,7 @@ export default function Schedule({ viewingStore, showToast }) {
   const [newPreset,    setNewPreset]    = useState({ name:'', start:'09:00', end:'17:00', color: COLORS[2] })
   const [editStaffId,  setEditStaffId]  = useState(null)
   const [editName,     setEditName]     = useState('')
+  const [snapshotUrl,  setSnapshotUrl]  = useState(null)
   const schedRef = useRef(null)
 
   useEffect(() => { if (viewingStore) loadSchedule() }, [viewingStore, offset])
@@ -174,7 +175,7 @@ export default function Schedule({ viewingStore, showToast }) {
   }
 
   async function exportSnapshot() {
-    showToast('Generating...')
+    showToast('Generating snapshot...')
     try {
       if (!window.html2canvas) {
         await new Promise((res,rej) => {
@@ -184,17 +185,8 @@ export default function Schedule({ viewingStore, showToast }) {
         })
       }
       const canvas = await window.html2canvas(schedRef.current, { scale:2, backgroundColor:'#FDF6EC', useCORS:true })
-      const file = new File([await new Promise(r => canvas.toBlob(r,'image/png'))],
-        `Schedule_${weekLabel.replace(/[^a-z0-9]/gi,'_')}.png`, { type:'image/png' })
-      if (navigator.share && navigator.canShare?.({files:[file]})) {
-        await navigator.share({ title:'Staff Schedule', files:[file] })
-      } else {
-        const url = URL.createObjectURL(file)
-        const a = document.createElement('a'); a.href=url; a.download=file.name; a.click()
-        URL.revokeObjectURL(url)
-      }
-      showToast('Exported!')
-    } catch(e) { showToast('Export failed') }
+      setSnapshotUrl(canvas.toDataURL('image/png'))
+    } catch(e) { showToast('Snapshot failed — try again') }
   }
 
   const inp  = { padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, width:'100%', boxSizing:'border-box', marginBottom:8, background:'#FDF6EC' }
@@ -459,6 +451,18 @@ export default function Schedule({ viewingStore, showToast }) {
               <button onClick={() => setShowAddStaff(false)} style={{ padding:'11px 16px', background:'#888', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>Cancel</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Snapshot Preview Modal */}
+      {snapshotUrl && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', zIndex:300, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:16 }}>
+          <div style={{ fontSize:13, color:'#fff', marginBottom:12, fontWeight:600 }}>{weekLabel} — Press and hold image to save</div>
+          <img src={snapshotUrl} alt="Schedule snapshot" style={{ maxWidth:'100%', maxHeight:'70vh', borderRadius:8, boxShadow:'0 4px 24px rgba(0,0,0,0.4)' }}/>
+          <button onClick={() => setSnapshotUrl(null)}
+            style={{ marginTop:16, background:'#fff', color:'#2C1810', border:'none', borderRadius:8, padding:'10px 28px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
+            Close
+          </button>
         </div>
       )}
 
