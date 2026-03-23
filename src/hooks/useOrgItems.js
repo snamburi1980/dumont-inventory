@@ -55,6 +55,8 @@ export function useOrgItems(orgId) {
   }, [])
 
   const addItem = useCallback(async (oid, item) => {
+    if (!oid) throw new Error('No organisation ID — please set up an org first')
+    if (!item.name?.trim()) throw new Error('Item name is required')
     const id = String(Date.now())
     const newItem = { ...toFirestoreItem(item), id, updatedAt: Date.now() }
     await setDoc(doc(db, 'orgs', oid, 'items', id), newItem)
