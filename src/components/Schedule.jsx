@@ -5,25 +5,39 @@ import { db } from '../firebase/config'
 const COLORS = ['#E74C3C','#3498DB','#27AE60','#F39C12','#9B59B6','#1ABC9C','#E67E22','#2ECC71','#E91E63','#00BCD4']
 const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 
+function to12(time24) {
+  if (!time24) return ''
+  const [h, m] = time24.split(':').map(Number)
+  const ampm = h >= 12 ? 'pm' : 'am'
+  const h12  = h % 12 || 12
+  return `${h12}:${String(m).padStart(2,'0')}${ampm}`
+}
+
 function timeToMins(t) {
   if (!t) return 0
-  const [h,m] = t.split(':').map(Number)
-  return h*60 + m
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
 }
-function minsToHrs(m) { return (m/60).toFixed(1) }
+
+function minsToHrs(m) {
+  return (m / 60).toFixed(1)
+}
 
 export default function Schedule({ viewingStore, showToast }) {
-  const [members,    setMembers]    = useState([])
-  const [shifts,     setShifts]     = useState({}) // { "memberId_dayIdx": [{start,end}, ...] }
-  const [hrsPeriod,  setHrsPeriod]  = useState('week')
-  const [offset,     setOffset]     = useState(0)
-  const [loading,    setLoading]    = useState(false)
-  const [modal,      setModal]      = useState(null) // { memberId, dayIdx, key }
-  const [shiftForm,  setShiftForm]  = useState({ start:'09:00', end:'17:00' })
+  const [members,      setMembers]      = useState([])
+  const [presets,      setPresets]      = useState([]) // standard shift presets
+  const [shifts,       setShifts]       = useState({})
+  const [hrsPeriod,    setHrsPeriod]    = useState('week')
+  const [offset,       setOffset]       = useState(0)
+  const [modal,        setModal]        = useState(null)
+  const [shiftForm,    setShiftForm]    = useState({ start:'09:00', end:'17:00' })
+  const [showCustom,   setShowCustom]   = useState(false)
   const [showAddStaff, setShowAddStaff] = useState(false)
-  const [newStaff,   setNewStaff]   = useState({ name:'', role:'', color: COLORS[0] })
-  const [editStaffId,setEditStaffId]= useState(null)
-  const [editName,   setEditName]   = useState('')
+  const [showAddPreset,setShowAddPreset]= useState(false)
+  const [newStaff,     setNewStaff]     = useState({ name:'', role:'', color: COLORS[0] })
+  const [newPreset,    setNewPreset]    = useState({ name:'', start:'09:00', end:'17:00', color: COLORS[2] })
+  const [editStaffId,  setEditStaffId]  = useState(null)
+  const [editName,     setEditName]     = useState('')
   const schedRef = useRef(null)
 
   useEffect(() => { if (viewingStore) loadSchedule() }, [viewingStore, offset])
@@ -35,25 +49,25 @@ export default function Schedule({ viewingStore, showToast }) {
 
   async function loadSchedule() {
     if (!viewingStore) return
-    setLoading(true)
     try {
       const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
       if (snap.exists()) {
         const d = snap.data()
-        setMembers(d.members || [])
+        setMembers(d.members   || [])
+        setPresets(d.presets   || [])
         setShifts(d.shifts?.[String(offset)] || {})
       }
     } catch(e) { console.error(e) }
-    setLoading(false)
   }
 
-  async function save(newMembers, newShifts) {
+  async function save(newMembers, newPresets, newShifts) {
     if (!viewingStore) return
     try {
       const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
       const existing = snap.exists() ? snap.data() : {}
       await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
         members:   newMembers,
+        presets:   newPresets,
         shifts:    { ...(existing.shifts||{}), [String(offset)]: newShifts },
         updatedAt: Date.now()
       })
@@ -61,21 +75,30 @@ export default function Schedule({ viewingStore, showToast }) {
   }
 
   function openCell(memberId, dayIdx) {
-    const key = `${memberId}_${dayIdx}`
-    setModal({ memberId, dayIdx, key })
+    setModal({ memberId, dayIdx, key:`${memberId}_${dayIdx}` })
     setShiftForm({ start:'09:00', end:'17:00' })
+    setShowCustom(false)
   }
 
-  function addShift() {
+  function addPresetToCell(preset) {
     if (!modal) return
-    const { key } = modal
-    const mins = timeToMins(shiftForm.end) - timeToMins(shiftForm.start)
-    if (mins <= 0) { showToast('End time must be after start'); return }
     const newShifts = { ...shifts }
-    newShifts[key] = [...(newShifts[key]||[]), { start: shiftForm.start, end: shiftForm.end }]
+    newShifts[modal.key] = [...(newShifts[modal.key]||[]), { start:preset.start, end:preset.end, name:preset.name, color:preset.color }]
     setShifts(newShifts)
-    save(members, newShifts)
+    save(members, presets, newShifts)
+  }
+
+  function addCustomShift() {
+    if (!modal) return
+    const mins = timeToMins(shiftForm.end) - timeToMins(shiftForm.start)
+    if (mins <= 0) { showToast('End must be after start'); return }
+    const newShifts = { ...shifts }
+    const member = members.find(m => m.id === modal.memberId)
+    newShifts[modal.key] = [...(newShifts[modal.key]||[]), { start:shiftForm.start, end:shiftForm.end, color: member?.color || COLORS[0] }]
+    setShifts(newShifts)
+    save(members, presets, newShifts)
     setShiftForm({ start:'09:00', end:'17:00' })
+    setShowCustom(false)
   }
 
   function removeShift(key, idx) {
@@ -83,14 +106,14 @@ export default function Schedule({ viewingStore, showToast }) {
     newShifts[key] = newShifts[key].filter((_,i) => i !== idx)
     if (!newShifts[key].length) delete newShifts[key]
     setShifts(newShifts)
-    save(members, newShifts)
+    save(members, presets, newShifts)
   }
 
   function addStaff() {
     if (!newStaff.name.trim()) { showToast('Enter name'); return }
-    const updated = [...members, { id: String(Date.now()), ...newStaff }]
+    const updated = [...members, { id:String(Date.now()), ...newStaff }]
     setMembers(updated)
-    save(updated, shifts)
+    save(updated, presets, shifts)
     setNewStaff({ name:'', role:'', color: COLORS[updated.length % COLORS.length] })
     setShowAddStaff(false)
     showToast(`${newStaff.name} added`)
@@ -103,15 +126,38 @@ export default function Schedule({ viewingStore, showToast }) {
     DAYS.forEach((_,di) => delete newShifts[`${id}_${di}`])
     setMembers(updated)
     setShifts(newShifts)
-    save(updated, newShifts)
+    save(updated, presets, newShifts)
   }
 
   function saveStaffName(id) {
     if (!editName.trim()) return
     const updated = members.map(m => m.id===id ? {...m,name:editName} : m)
     setMembers(updated)
-    save(updated, shifts)
+    save(updated, presets, shifts)
     setEditStaffId(null)
+  }
+
+  function addPreset() {
+    if (!newPreset.name.trim()) { showToast('Enter shift name'); return }
+    const updated = [...presets, { id:String(Date.now()), ...newPreset }]
+    setPresets(updated)
+    save(members, updated, shifts)
+    setNewPreset({ name:'', start:'09:00', end:'17:00', color: COLORS[updated.length % COLORS.length] })
+    setShowAddPreset(false)
+    showToast(`${newPreset.name} shift added`)
+  }
+
+  function removePreset(id) {
+    const updated = presets.filter(p => p.id !== id)
+    setPresets(updated)
+    save(members, updated, shifts)
+  }
+
+  function getHours(memberId) {
+    return DAYS.reduce((total, _, di) => {
+      const cell = shifts[`${memberId}_${di}`] || []
+      return total + cell.reduce((s, sh) => s + Math.max(0, timeToMins(sh.end) - timeToMins(sh.start)), 0)
+    }, 0)
   }
 
   async function copyLastWeek() {
@@ -121,17 +167,10 @@ export default function Schedule({ viewingStore, showToast }) {
         const prev = snap.data().shifts?.[String(offset-1)] || {}
         if (!Object.keys(prev).length) { showToast('No previous week to copy'); return }
         setShifts(prev)
-        save(members, prev)
+        save(members, presets, prev)
         showToast('Previous week copied!')
       }
     } catch(e) { showToast('Copy failed') }
-  }
-
-  function getHours(memberId) {
-    return DAYS.reduce((total, _, di) => {
-      const cell = shifts[`${memberId}_${di}`] || []
-      return total + cell.reduce((s, sh) => s + Math.max(0, timeToMins(sh.end) - timeToMins(sh.start)), 0)
-    }, 0)
   }
 
   async function exportSnapshot() {
@@ -158,23 +197,20 @@ export default function Schedule({ viewingStore, showToast }) {
     } catch(e) { showToast('Export failed') }
   }
 
-  const inp = { padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, width:'100%', boxSizing:'border-box', marginBottom:8, background:'#FDF6EC' }
+  const inp  = { padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, width:'100%', boxSizing:'border-box', marginBottom:8, background:'#FDF6EC' }
   const totalHrs = members.reduce((s,m) => s + getHours(m.id), 0)
-
-  const member = modal ? members.find(m => m.id===modal.memberId) : null
+  const member   = modal ? members.find(m => m.id===modal.memberId) : null
   const cellShifts = modal ? (shifts[modal.key]||[]) : []
 
   return (
     <div>
       {/* Header */}
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14, flexWrap:'wrap', gap:8 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12, flexWrap:'wrap', gap:8 }}>
         <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-          <button onClick={() => { setOffset(o=>o-1) }} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:16 }}>‹</button>
+          <button onClick={() => setOffset(o=>o-1)} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:16 }}>‹</button>
           <span style={{ fontSize:13, fontWeight:600, color:'#2C1810', whiteSpace:'nowrap' }}>{weekLabel}</span>
-          <button onClick={() => { setOffset(o=>o+1) }} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:16 }}>›</button>
-          {offset !== 0 && (
-            <button onClick={() => setOffset(0)} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#8B7355' }}>Today</button>
-          )}
+          <button onClick={() => setOffset(o=>o+1)} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:16 }}>›</button>
+          {offset !== 0 && <button onClick={() => setOffset(0)} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#8B7355' }}>Today</button>}
         </div>
         <div style={{ display:'flex', gap:6 }}>
           <button onClick={copyLastWeek} style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 10px', cursor:'pointer', fontSize:11, color:'#8B7355' }}>Copy Last Week</button>
@@ -182,7 +218,27 @@ export default function Schedule({ viewingStore, showToast }) {
         </div>
       </div>
 
-      {/* Grid */}
+      {/* Shift Presets bar */}
+      <div style={{ background:'#FAF7F2', border:'1px solid #EDE0CC', borderRadius:10, padding:'10px 12px', marginBottom:12 }}>
+        <div style={{ fontSize:11, color:'#8B7355', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>Standard Shifts — tap a cell then pick a shift</div>
+        <div style={{ display:'flex', gap:6, flexWrap:'wrap', alignItems:'center' }}>
+          {presets.map(p => (
+            <div key={p.id} style={{ display:'flex', alignItems:'center', gap:1 }}>
+              <div style={{ background:p.color, color:'#fff', borderRadius:16, padding:'5px 12px', fontSize:11, fontWeight:600 }}>
+                {p.name} · {to12(p.start)}–{to12(p.end)}
+              </div>
+              <button onClick={() => removePreset(p.id)}
+                style={{ background:'none', border:'none', color:'#E74C3C', cursor:'pointer', fontSize:13, padding:'0 3px', opacity:0.5 }}>×</button>
+            </div>
+          ))}
+          <button onClick={() => setShowAddPreset(true)}
+            style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:16, padding:'5px 12px', fontSize:11, color:'#8B7355', cursor:'pointer' }}>
+            + Add Standard Shift
+          </button>
+        </div>
+      </div>
+
+      {/* Schedule Grid */}
       <div ref={schedRef} style={{ overflowX:'auto', marginBottom:16, background:'#fff', border:'1px solid #EDE0CC', borderRadius:12 }}>
         <table style={{ width:'100%', borderCollapse:'collapse', minWidth:520 }}>
           <thead>
@@ -213,7 +269,7 @@ export default function Schedule({ viewingStore, showToast }) {
                       </span>
                     )}
                     <button onClick={() => removeStaff(m.id)}
-                      style={{ background:'none', border:'none', color:'#E74C3C', cursor:'pointer', fontSize:13, padding:0, opacity:0.4, marginLeft:2 }}>×</button>
+                      style={{ background:'none', border:'none', color:'#E74C3C', cursor:'pointer', fontSize:13, padding:0, opacity:0.4 }}>×</button>
                   </div>
                   {m.role && <div style={{ fontSize:10, color:'#8B7355', marginLeft:14, marginTop:1 }}>{m.role}</div>}
                 </td>
@@ -222,31 +278,32 @@ export default function Schedule({ viewingStore, showToast }) {
                   const cellData = shifts[key] || []
                   return (
                     <td key={di} onClick={() => openCell(m.id, di)}
-                      style={{ padding:'4px 3px', verticalAlign:'top', cursor:'pointer', minHeight:48,
-                        background:'transparent', transition:'background 0.1s' }}
+                      style={{ padding:'4px 3px', verticalAlign:'top', cursor:'pointer', minHeight:48, transition:'background 0.1s' }}
                       onMouseEnter={e => e.currentTarget.style.background='#FAF7F2'}
                       onMouseLeave={e => e.currentTarget.style.background='transparent'}
                     >
                       <div style={{ minHeight:40, display:'flex', flexDirection:'column', gap:2 }}>
                         {cellData.map((sh, si) => (
                           <div key={si} style={{
-                            background: m.color, color:'#fff', borderRadius:4,
-                            padding:'2px 5px', fontSize:9, fontWeight:600,
+                            background: sh.color || m.color, color:'#fff', borderRadius:4,
+                            padding:'2px 4px', fontSize:9, fontWeight:600,
                             display:'flex', justifyContent:'space-between', alignItems:'center', gap:2
                           }}>
-                            <span>{sh.start}–{sh.end}</span>
+                            <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                              {sh.name || ''} {to12(sh.start)}
+                            </span>
                             <span onClick={e => { e.stopPropagation(); removeShift(key, si) }}
-                              style={{ cursor:'pointer', opacity:0.8, fontSize:11 }}>×</span>
+                              style={{ cursor:'pointer', opacity:0.8, fontSize:11, flexShrink:0 }}>×</span>
                           </div>
                         ))}
                         {cellData.length === 0 && (
-                          <div style={{ textAlign:'center', fontSize:16, color:'#EDE0CC', paddingTop:8 }}>+</div>
+                          <div style={{ textAlign:'center', fontSize:16, color:'#EDE0CC', paddingTop:6 }}>+</div>
                         )}
                       </div>
                     </td>
                   )
                 })}
-                <td style={{ padding:'8px 6px', textAlign:'center', fontSize:12, fontWeight:700, color:'#C8843A' }}>
+                <td style={{ padding:'8px 6px', textAlign:'center', fontSize:12, fontWeight:700, color:'#C8843A', verticalAlign:'middle' }}>
                   {minsToHrs(getHours(m.id))}
                 </td>
               </tr>
@@ -276,7 +333,7 @@ export default function Schedule({ viewingStore, showToast }) {
                 background: hrsPeriod===p ? '#2C1810' : '#fff',
                 color: hrsPeriod===p ? '#fff' : '#8B7355',
                 fontSize:11, cursor:'pointer', fontFamily:'inherit'
-              }}>{p==='week'?'This Week':'This Month'}</button>
+              }}>{p==='week' ? 'This Week' : 'This Month'}</button>
             ))}
           </div>
         </div>
@@ -296,29 +353,32 @@ export default function Schedule({ viewingStore, showToast }) {
         </div>
       </div>
 
-      {/* Cell Modal — add/view shifts for a person+day */}
+      {/* Cell Modal */}
       {modal && member && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
-          <div style={{ background:'#fff', borderRadius:16, padding:20, width:'100%', maxWidth:360 }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'flex-end', justifyContent:'center', padding:'0 0 0 0' }}>
+          <div style={{ background:'#fff', borderRadius:'16px 16px 0 0', padding:20, width:'100%', maxWidth:480, maxHeight:'85vh', overflowY:'auto' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
               <div>
-                <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>{member.name}</div>
-                <div style={{ fontSize:12, color:'#8B7355' }}>{DAYS[modal.dayIdx]}</div>
+                <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>{member.name} — {DAYS[modal.dayIdx]}</div>
+                <div style={{ fontSize:12, color:'#8B7355' }}>{cellShifts.length} shift{cellShifts.length!==1?'s':''} assigned</div>
               </div>
-              <button onClick={() => setModal(null)} style={{ background:'none', border:'none', fontSize:20, cursor:'pointer', color:'#8B7355' }}>×</button>
+              <button onClick={() => setModal(null)} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'#8B7355' }}>×</button>
             </div>
 
             {/* Existing shifts */}
             {cellShifts.length > 0 && (
-              <div style={{ marginBottom:14 }}>
-                <div style={{ fontSize:11, color:'#8B7355', fontWeight:600, textTransform:'uppercase', marginBottom:6 }}>Assigned Shifts</div>
+              <div style={{ marginBottom:16 }}>
                 {cellShifts.map((sh, si) => {
                   const mins = timeToMins(sh.end) - timeToMins(sh.start)
                   return (
-                    <div key={si} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background:'#FAF7F2', borderRadius:8, padding:'8px 12px', marginBottom:4 }}>
-                      <div>
-                        <span style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{sh.start} – {sh.end}</span>
-                        <span style={{ fontSize:11, color:'#8B7355', marginLeft:8 }}>{minsToHrs(mins)}h</span>
+                    <div key={si} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background:'#FAF7F2', borderRadius:8, padding:'8px 12px', marginBottom:6 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                        <div style={{ width:8, height:8, borderRadius:'50%', background: sh.color || member.color }}/>
+                        <div>
+                          {sh.name && <span style={{ fontSize:12, fontWeight:700, color:'#2C1810' }}>{sh.name} · </span>}
+                          <span style={{ fontSize:12, color:'#2C1810' }}>{to12(sh.start)} – {to12(sh.end)}</span>
+                          <span style={{ fontSize:11, color:'#8B7355', marginLeft:6 }}>{minsToHrs(mins)}h</span>
+                        </div>
                       </div>
                       <button onClick={() => removeShift(modal.key, si)}
                         style={{ background:'#FFEBEE', border:'none', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#E74C3C', fontWeight:600 }}>
@@ -330,29 +390,50 @@ export default function Schedule({ viewingStore, showToast }) {
               </div>
             )}
 
-            {/* Add new shift */}
-            <div style={{ fontSize:11, color:'#8B7355', fontWeight:600, textTransform:'uppercase', marginBottom:8 }}>Add Shift</div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
-              <div>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Start</div>
-                <input type="time" value={shiftForm.start} onChange={e => setShiftForm(f=>({...f,start:e.target.value}))}
-                  style={{ ...inp, marginBottom:0 }}/>
+            {/* Standard shift presets */}
+            {presets.length > 0 && (
+              <div style={{ marginBottom:14 }}>
+                <div style={{ fontSize:11, color:'#8B7355', fontWeight:600, textTransform:'uppercase', marginBottom:8 }}>Standard Shifts</div>
+                <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                  {presets.map(p => (
+                    <button key={p.id} onClick={() => addPresetToCell(p)}
+                      style={{ background:p.color, color:'#fff', border:'none', borderRadius:20, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'inherit' }}>
+                      {p.name} · {to12(p.start)}–{to12(p.end)}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>End</div>
-                <input type="time" value={shiftForm.end} onChange={e => setShiftForm(f=>({...f,end:e.target.value}))}
-                  style={{ ...inp, marginBottom:0 }}/>
-              </div>
-            </div>
-            <div style={{ display:'flex', gap:8 }}>
-              <button onClick={addShift}
-                style={{ flex:1, background: member.color, color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}>
-                + Add Shift
+            )}
+
+            {/* Custom time */}
+            <div style={{ borderTop:'1px solid #EDE0CC', paddingTop:14 }}>
+              <button onClick={() => setShowCustom(c=>!c)}
+                style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:8, padding:'8px 14px', cursor:'pointer', fontSize:12, color:'#8B7355', width:'100%', fontFamily:'inherit', marginBottom: showCustom?10:0 }}>
+                {showCustom ? '▲ Hide Custom Time' : '+ Custom Time'}
               </button>
-              <button onClick={() => setModal(null)}
-                style={{ padding:'11px 16px', background:'#888', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>
-                Done
-              </button>
+
+              {showCustom && (
+                <div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
+                    <div>
+                      <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Start</div>
+                      <input type="time" value={shiftForm.start} onChange={e => setShiftForm(f=>({...f,start:e.target.value}))}
+                        style={{ ...inp, marginBottom:0 }}/>
+                      <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(shiftForm.start)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>End</div>
+                      <input type="time" value={shiftForm.end} onChange={e => setShiftForm(f=>({...f,end:e.target.value}))}
+                        style={{ ...inp, marginBottom:0 }}/>
+                      <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(shiftForm.end)}</div>
+                    </div>
+                  </div>
+                  <button onClick={addCustomShift}
+                    style={{ width:'100%', background: member.color, color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}>
+                    + Add Custom Shift
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -365,7 +446,7 @@ export default function Schedule({ viewingStore, showToast }) {
             <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:14 }}>Add Staff Member</div>
             <input placeholder="Full name" value={newStaff.name} onChange={e=>setNewStaff(s=>({...s,name:e.target.value}))} style={inp}/>
             <input placeholder="Role (e.g. Barista, Lead)" value={newStaff.role} onChange={e=>setNewStaff(s=>({...s,role:e.target.value}))} style={inp}/>
-            <div style={{ fontSize:12, color:'#8B7355', marginBottom:6 }}>Color</div>
+            <div style={{ fontSize:12, color:'#8B7355', marginBottom:6 }}>Colour</div>
             <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:14 }}>
               {COLORS.map(c => (
                 <div key={c} onClick={() => setNewStaff(s=>({...s,color:c}))}
@@ -376,6 +457,41 @@ export default function Schedule({ viewingStore, showToast }) {
             <div style={{ display:'flex', gap:8 }}>
               <button onClick={addStaff} style={{ flex:1, background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}>Add</button>
               <button onClick={() => setShowAddStaff(false)} style={{ padding:'11px 16px', background:'#888', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Preset Modal */}
+      {showAddPreset && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ background:'#fff', borderRadius:16, padding:20, width:'100%', maxWidth:360 }}>
+            <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:14 }}>Add Standard Shift</div>
+            <input placeholder="Shift name (e.g. Morning, Close, Mid)" value={newPreset.name}
+              onChange={e=>setNewPreset(p=>({...p,name:e.target.value}))} style={inp}/>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:4 }}>
+              <div>
+                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Start</div>
+                <input type="time" value={newPreset.start} onChange={e=>setNewPreset(p=>({...p,start:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
+                <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(newPreset.start)}</div>
+              </div>
+              <div>
+                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>End</div>
+                <input type="time" value={newPreset.end} onChange={e=>setNewPreset(p=>({...p,end:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
+                <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(newPreset.end)}</div>
+              </div>
+            </div>
+            <div style={{ fontSize:12, color:'#8B7355', margin:'10px 0 6px' }}>Colour</div>
+            <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:14 }}>
+              {COLORS.map(c => (
+                <div key={c} onClick={() => setNewPreset(p=>({...p,color:c}))}
+                  style={{ width:26, height:26, borderRadius:'50%', background:c, cursor:'pointer',
+                    border: newPreset.color===c ? '3px solid #2C1810' : '2px solid transparent' }}/>
+              ))}
+            </div>
+            <div style={{ display:'flex', gap:8 }}>
+              <button onClick={addPreset} style={{ flex:1, background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}>Add Shift</button>
+              <button onClick={() => setShowAddPreset(false)} style={{ padding:'11px 16px', background:'#888', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>Cancel</button>
             </div>
           </div>
         </div>
