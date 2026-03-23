@@ -12,6 +12,12 @@ const emptyForm = {
   case_size:1, order_qty:'1 CASE', active:true
 }
 
+const CATEGORIES = [
+  'Boba & Tea','Sugars','Syrups','Purees','Monin Syrups',
+  'Sauces','Powders','Boba & Jelly','Coffee','Dry Stock',
+  'Ice Cream','Bakery','Other'
+]
+
 export default function ItemManager({ orgId, orgItemsHook, showToast }) {
   const { items, loading, loadItems, addItem, updateItem, deleteItem } = orgItemsHook
 
@@ -182,7 +188,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
             <div>
               <label style={label}>Category</label>
               <select value={form.cat} onChange={e => setForm(f=>({...f,cat:e.target.value}))} style={input}>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {[...new Set([...CATEGORIES, ...items.map(i => i.cat).filter(Boolean)])].sort().map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
 
