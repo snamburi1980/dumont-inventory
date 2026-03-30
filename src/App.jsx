@@ -6,6 +6,7 @@ import { useOrgItems }  from './hooks/useOrgItems'
 import { loadSavedTheme, applyTheme } from './utils/themes'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
+
 import LoginScreen  from './components/LoginScreen'
 import Layout       from './components/Layout'
 import Home         from './components/Home'
@@ -18,6 +19,8 @@ import COGS         from './components/COGS'
 import Schedule     from './components/Schedule'
 import Admin        from './components/Admin'
 import ChangePassword from './components/ChangePassword'
+import Checklist   from './components/Checklist'
+
 
 export default function App() {
   const auth         = useAuth()
@@ -133,6 +136,7 @@ export default function App() {
     { id:'delivery',  label:'Delivery'  },
     { id:'cogs',      label:'COGS'      },
     { id:'schedule',  label:'Schedule'  },
+    { id:'checklist', label:'Checklist' },
     { id:'admin',     label:'Admin'     },
   ]
 
@@ -155,6 +159,7 @@ export default function App() {
       {activeTab === 'delivery'  && <Delivery  {...tabProps} />}
       {activeTab === 'cogs'      && <COGS      {...tabProps} />}
       {activeTab === 'schedule'  && <Schedule  {...tabProps} />}
+      {activeTab === 'checklist' && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
       {activeTab === 'admin'     && <Admin     {...tabProps} />}
 
       {toast && (
