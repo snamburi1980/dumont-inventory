@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { collection, addDoc, getDocs, query, orderBy, limit, where } from 'firebase/firestore'
+import { sendChecklistNotification } from '../utils/emailNotify'
 import { db } from '../firebase/config'
 
 const OPENING_ITEMS = [
@@ -330,36 +331,36 @@ export default function Checklist({ viewingStore, auth, showToast }) {
               </span>
             </div>
 
-            {/* Remarks + Photo — show when checked */}
+            {/* Remarks + Photo — only when checked */}
             {item.checked && (
-              <div style={{ paddingLeft:52, paddingRight:16, paddingBottom:12, background: type==='opening' ? '#F0FFF4' : '#FFF5F5' }}>
-                <input placeholder="Add remarks (optional)" value={item.remarks}
-                  onChange={e => { e.stopPropagation(); setRemarks(idx, e.target.value) }}
-                  onClick={e => e.stopPropagation()}
-                  style={{ ...inp, fontSize:11, padding:'5px 8px', marginBottom:8 }}/>
-
-                {/* Photo */}
-                {item.photo ? (
-                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <img src={item.photo} alt="attached" style={{ width:60, height:60, objectFit:'cover', borderRadius:6, border:'1px solid #EDE0CC' }}/>
-                    <button onClick={e => { e.stopPropagation(); removePhoto(idx) }}
-                      style={{ background:'#FFEBEE', border:'none', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#E74C3C', fontWeight:600 }}>
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <input type="file" accept="image/*" capture="environment"
-                      ref={el => fileRefs.current[idx] = el}
-                      onChange={e => handlePhoto(idx, e)}
-                      style={{ display:'none' }}/>
-                    <button onClick={e => { e.stopPropagation(); fileRefs.current[idx]?.click() }}
-                      style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:6, padding:'5px 12px',
-                        cursor:'pointer', fontSize:11, color:'#8B7355', fontFamily:'inherit' }}>
-                      📷 Add Photo
-                    </button>
-                  </div>
-                )}
+              <div style={{ paddingLeft:52, paddingRight:16, paddingBottom:12, background: type==='opening' ? '#F0FFF4' : '#FFF5F5' }}
+                onClick={e => e.stopPropagation()}>
+                <input placeholder="Remarks (optional)" value={item.remarks}
+                  onChange={e => setRemarks(idx, e.target.value)}
+                  style={{ ...inp, fontSize:11, padding:'5px 8px', marginBottom:6 }}/>
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  {item.photo ? (
+                    <>
+                      <img src={item.photo} alt="attached" style={{ width:56, height:56, objectFit:'cover', borderRadius:6, border:'1px solid #EDE0CC' }}/>
+                      <button onClick={() => removePhoto(idx)}
+                        style={{ background:'#FFEBEE', border:'none', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#E74C3C', fontWeight:600, fontFamily:'inherit' }}>
+                        Remove Photo
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <input type="file" accept="image/*" capture="environment"
+                        ref={el => fileRefs.current[idx] = el}
+                        onChange={e => handlePhoto(idx, e)}
+                        style={{ display:'none' }}/>
+                      <button onClick={() => fileRefs.current[idx]?.click()}
+                        style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:6, padding:'5px 12px',
+                          cursor:'pointer', fontSize:11, color:'#8B7355', fontFamily:'inherit' }}>
+                        📷 Photo
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             )}
           </div>

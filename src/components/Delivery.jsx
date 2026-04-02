@@ -2,12 +2,28 @@ import { useState, useEffect } from 'react'
 import { collection, addDoc, getDocs, orderBy, query, limit } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
+import { sendDeliveryNotification } from '../utils/emailNotify'
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
 
+// Use legacy build for better browser compatibility
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/legacy/build/pdf.worker.mjs',
   import.meta.url
 ).toString()
+
+// Fuzzy match invoice line to inventory item
+function matchToInventory(description, inventory) {
+  if (!description || !inventory?.length) return null
+  const words = description.toLowerCase().split(/\W+/).filter(w => w.length > 2)
+  let best = null, bestScore = 0
+  for (const item of inventory) {
+    const name = (item.name || '').toLowerCase()
+    const hits = words.filter(w => name.includes(w)).length
+    const score = hits / Math.max(words.length, 1)
+    if (score > bestScore) { bestScore = score; best = item }
+  }
+  return bestScore >= 0.3 ? best : null
+}
 
 // Extract text from PDF using pdfjs-dist
 async function extractPDFText(file) {
@@ -18,50 +34,60 @@ async function extractPDFText(file) {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page    = await pdf.getPage(i)
     const content = await page.getTextContent()
-    fullText += content.items.map(item => item.str).join(' ') + '\n'
+    const pageText = content.items.map(item => item.str).join(' ')
+    fullText += pageText + '\n'
   }
   return fullText
 }
 
-// Parse flat pdfjs text into invoice metadata + line items
+// Parse extracted text into invoice data
 function parseInvoiceText(text) {
-  const flat = text.replace(/\s+/g, ' ').trim()
-
-  // Invoice number
-  const invMatch      = flat.match(/invoice\s*(?:number|#|no\.?)?\s*[:\s]?\s*([A-Z0-9\-]{4,})/i)
+  const lines = text.split(/[\n\r]+/).map(l => l.trim()).filter(Boolean)
+  
+  // Extract vendor name (usually in first few lines)
+  const vendorName = lines[0] || 'Unknown Vendor'
+  
+  // Extract invoice number
+  const invMatch = text.match(/invoice\s*#?\s*:?\s*([A-Z0-9\-]+)/i)
   const invoiceNumber = invMatch ? invMatch[1] : ''
-
-  // Vendor: text before "Bill to" or "Invoice"
-  const vendorMatch = flat.match(/^(.+?)(?=\s+Bill to|\s+Invoice\s)/i)
-  const vendorName  = vendorMatch ? vendorMatch[1].replace(/^Page \d+ of \d+\s*/i, '').trim() : 'Unknown Vendor'
-
-  // First date found
-  const dateMatch   = flat.match(/(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/)
+  
+  // Extract date
+  const dateMatch = text.match(/(\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4})/i)
   const invoiceDate = dateMatch ? dateMatch[1] : new Date().toLocaleDateString()
-
-  // Grand total
-  const totalMatch  = flat.match(/\bTotal\b[^$]*\$([\d,]+\.\d{2})/i)
-  const allAmounts  = [...flat.matchAll(/\$([\d,]+\.\d{2})/g)]
-  const totalAmount = totalMatch
-    ? parseFloat(totalMatch[1].replace(',', ''))
-    : allAmounts.length
-      ? parseFloat(allAmounts[allAmounts.length - 1][1].replace(',', ''))
-      : 0
-
-  // Line items: Description  Qty  $unitPrice  $lineTotal
+  
+  // Extract total
+  const totalMatch = text.match(/total\s*:?\s*\$?\s*([\d,]+\.?\d*)/i)
+  const totalAmount = totalMatch ? parseFloat(totalMatch[1].replace(',','')) : 0
+  
+  // Extract line items - look for patterns with numbers (qty and price)
   const lineItems = []
-  const SKIP = /^(invoice|date|bill|ship|from|to|phone|email|address|total|subtotal|tax|page|qty|quantity|description|item|price|amount|unit|pay|bank|routing|account|swift|reference)/i
-  const re   = /([A-Za-z][A-Za-z0-9 ()&,.\-\/'']{3,60?}?)\s+(\d+(?:\.\d+)?)\s+\$?([\d,]+\.\d{2})\s+\$?([\d,]+\.\d{2})/g
-  let m
-  while ((m = re.exec(flat)) !== null) {
-    const description = m[1].trim()
-    const qty         = parseFloat(m[2])
-    const unitPrice   = parseFloat(m[3].replace(',', ''))
-    const amount      = parseFloat(m[4].replace(',', ''))
-    if (SKIP.test(description) || description.length < 3 || qty <= 0 || amount <= 0) continue
+  const numPattern = /(\d+\.?\d*)/g
+  
+  lines.forEach(line => {
+    // Skip header lines
+    if (/^(invoice|date|bill|ship|from|to|phone|email|address|total|subtotal|tax|page|qty|quantity|description|item|price|amount|unit)/i.test(line)) return
+    if (line.length < 4) return
+    
+    const numbers = line.match(numPattern)
+    if (!numbers || numbers.length < 1) return
+    
+    // Find where numbers start
+    const firstNumIdx = line.search(/\d/)
+    if (firstNumIdx < 3) return
+    
+    const description = line.substring(0, firstNumIdx)
+      .replace(/[^\w\s\-&\/]/g, '')
+      .trim()
+    
+    if (description.length < 3) return
+    
+    const qty       = parseFloat(numbers[0]) || 1
+    const unitPrice = numbers.length > 1 ? parseFloat(numbers[numbers.length - 2]) || 0 : 0
+    const amount    = numbers.length > 0  ? parseFloat(numbers[numbers.length - 1]) || 0 : 0
+    
     lineItems.push({ description, qty, unitPrice, amount })
-  }
-
+  })
+  
   return { vendorName, invoiceNumber, invoiceDate, totalAmount, lineItems }
 }
 
@@ -73,7 +99,7 @@ export default function Delivery({ invHook, viewingStore, showToast }) {
   const [form,          setForm]          = useState({ itemId:'', qty:'', cost:'', note:'' })
   const [parsing,       setParsing]       = useState(false)
   const [parsedInvoice, setParsedInvoice] = useState(null)
-  const [saving,        setSaving]        = useState(false)
+  const [approving,     setApproving]     = useState(false)
   const [tab,           setTab]           = useState('upload')
 
   useEffect(() => { loadDeliveries() }, [viewingStore])
@@ -95,15 +121,24 @@ export default function Delivery({ invHook, viewingStore, showToast }) {
     const file = e.target.files[0]
     e.target.value = ''
     if (!file) return
-    if (!file.name.toLowerCase().endsWith('.pdf')) { showToast('Please upload a PDF file'); return }
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      showToast('Please upload a PDF file')
+      return
+    }
     setParsing(true)
     setParsedInvoice(null)
     try {
+      console.log('Extracting text from PDF...')
       const text   = await extractPDFText(file)
+      console.log('Extracted text:', text.substring(0, 500))
       const parsed = parseInvoiceText(text)
+      console.log('Parsed invoice:', parsed)
       setParsedInvoice(parsed)
-      if (parsed.lineItems.length === 0) showToast('No line items found — check PDF or use manual entry')
-      else showToast(`Found ${parsed.lineItems.length} items`)
+      if (parsed.lineItems.length === 0) {
+        showToast('Could not find line items — check console or use manual entry')
+      } else {
+        showToast(`Found ${parsed.lineItems.length} items in invoice`)
+      }
     } catch(err) {
       console.error('PDF parse error:', err)
       showToast('Error reading PDF: ' + err.message)
@@ -111,40 +146,84 @@ export default function Delivery({ invHook, viewingStore, showToast }) {
     setParsing(false)
   }
 
-  // Save invoice as a single delivery log entry (no inventory changes)
-  async function saveInvoice() {
+  async function approveInvoice() {
     if (!parsedInvoice) return
-    setSaving(true)
-    try {
-      const entry = {
-        type:          'invoice',
-        itemName:      `Invoice ${parsedInvoice.invoiceNumber} — ${parsedInvoice.vendorName}`,
+    setApproving(true)
+
+    const matched   = []
+    const unmatched = []
+
+    for (const li of parsedInvoice.lineItems) {
+      const item = matchToInventory(li.description, inventory)
+      if (item) matched.push({ li, item })
+      else unmatched.push(li.description)
+    }
+
+    if (matched.length === 0) {
+      showToast('No items matched your inventory — check item names')
+      setApproving(false)
+      return
+    }
+
+    // Update inventory stock
+    const updates = {}
+    matched.forEach(({ li, item }) => {
+      updates[item.id] = (updates[item.id] || 0) + Number(li.qty)
+    })
+
+    const updatedInventory = inventory.map(inv => {
+      if (updates[inv.id]) {
+        return { ...inv, stock: Math.round((inv.stock + updates[inv.id]) * 100) / 100 }
+      }
+      return inv
+    })
+
+    await saveInventory(viewingStore, updatedInventory)
+    loadInventory(viewingStore)
+
+    // Log each matched item
+    for (const { li, item } of matched) {
+      await addDoc(collection(db, 'stores', viewingStore, 'deliveries'), {
+        itemName:      item.name,
+        qty:           Number(li.qty),
+        cost:          li.unitPrice || 0,
+        totalCost:     li.amount || 0,
         vendor:        parsedInvoice.vendorName,
         invoiceNumber: parsedInvoice.invoiceNumber,
-        invoiceDate:   parsedInvoice.invoiceDate,
-        lineItems:     parsedInvoice.lineItems,
-        totalCost:     parsedInvoice.totalAmount,
-        qty:           parsedInvoice.lineItems.length,
-        cost:          parsedInvoice.totalAmount,
-        note:          `${parsedInvoice.lineItems.length} items · $${parsedInvoice.totalAmount.toFixed(2)}`,
+        note:          `Invoice: ${parsedInvoice.invoiceNumber} · ${parsedInvoice.vendorName}`,
         dateTs:        Date.now(),
         date:          new Date().toLocaleDateString(),
-      }
-      await addDoc(collection(db, 'stores', viewingStore, 'deliveries'), entry)
-      await logAudit({
-        action:  AUDIT_ACTIONS.DELIVERY_LOGGED,
-        storeId: viewingStore,
-        details: { invoiceNumber: parsedInvoice.invoiceNumber, vendor: parsedInvoice.vendorName, total: parsedInvoice.totalAmount },
       })
-      await loadDeliveries()
-      showToast(`✅ Invoice ${parsedInvoice.invoiceNumber} saved to log`)
-      setParsedInvoice(null)
-      setTab('log')
-    } catch(err) {
-      console.error('saveInvoice:', err)
-      showToast('Error saving invoice')
     }
-    setSaving(false)
+
+    await logAudit({
+      action:  AUDIT_ACTIONS.DELIVERY_LOGGED,
+      storeId: viewingStore,
+      details: {
+        invoiceNumber: parsedInvoice.invoiceNumber,
+        vendor:        parsedInvoice.vendorName,
+        total:         parsedInvoice.totalAmount,
+        matched:       matched.length,
+        skipped:       unmatched.length,
+      },
+    })
+
+    await loadDeliveries()
+    // Send email notification
+    sendDeliveryNotification({
+      storeName: viewingStore,
+      storeEmail: 'txccpointwest@gmail.com',
+      vendor:    parsedInvoice.vendorName || 'Unknown',
+      itemCount: matched.length,
+      totalCost: parsedInvoice.totalAmount || 0,
+      date:      new Date().toLocaleDateString(),
+    })
+    showToast(`✅ ${matched.length} item${matched.length !== 1 ? 's' : ''} added to inventory`)
+    if (unmatched.length > 0) showToast(`${unmatched.length} items not matched — skipped`)
+
+    setParsedInvoice(null)
+    setApproving(false)
+    setTab('log')
   }
 
   async function logDelivery() {
@@ -177,15 +256,16 @@ export default function Delivery({ invHook, viewingStore, showToast }) {
   }
 
   const filtered = deliveries.filter(d =>
-    !search ||
-    d.itemName?.toLowerCase().includes(search.toLowerCase()) ||
-    d.vendor?.toLowerCase().includes(search.toLowerCase()) ||
-    d.invoiceNumber?.toLowerCase().includes(search.toLowerCase())
+    !search || d.itemName?.toLowerCase().includes(search.toLowerCase()) ||
+    d.vendor?.toLowerCase().includes(search.toLowerCase())
   )
 
   const now = new Date()
   const monthSpend = deliveries
-    .filter(d => { const dt = new Date(d.dateTs); return dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear() })
+    .filter(d => {
+      const dt = new Date(d.dateTs)
+      return dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear()
+    })
     .reduce((sum, d) => sum + (d.totalCost || (d.cost || 0) * (d.qty || 0)), 0)
 
   const inp = { width:'100%', padding:'8px 10px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#FDF6EC', boxSizing:'border-box', marginBottom:8 }
@@ -211,90 +291,82 @@ export default function Delivery({ invHook, viewingStore, showToast }) {
       {/* UPLOAD TAB */}
       {tab === 'upload' && (
         <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:12, padding:'14px 16px' }}>
-          <div style={{ fontSize:13, fontWeight:700, color:'var(--dark)', marginBottom:4 }}>Upload Vendor Invoice</div>
+          <div style={{ fontSize:13, fontWeight:700, color:'var(--dark)', marginBottom:6 }}>Upload Vendor Invoice</div>
           <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:12 }}>
-            PDF is saved to your delivery log. Use Manual Entry to update stock levels.
+            Upload PDF invoice — items will be matched to your inventory automatically
           </div>
 
           {!parsedInvoice && (
-            <label style={{ display:'block', border:'2px dashed var(--border)', borderRadius:10, padding:'28px', textAlign:'center', cursor: parsing ? 'default' : 'pointer' }}>
+            <label style={{ display:'block', border:'2px dashed var(--border)', borderRadius:10, padding:'28px', textAlign:'center', cursor:'pointer' }}>
               <div style={{ fontSize:36, marginBottom:8 }}>{parsing ? '⏳' : '📄'}</div>
               <div style={{ fontSize:14, color:'var(--dark)', fontWeight:600 }}>
                 {parsing ? 'Reading invoice...' : 'Tap to upload invoice PDF'}
               </div>
-              <div style={{ fontSize:11, color:'#aaa', marginTop:6 }}>PDF format only</div>
+              <div style={{ fontSize:11, color:'#aaa', marginTop:6 }}>PDF format</div>
               <input type="file" accept=".pdf" onChange={handlePDFUpload} style={{ display:'none' }} disabled={parsing}/>
             </label>
           )}
 
           {parsedInvoice && (
             <div>
-              {/* Invoice header */}
-              <div style={{ background:'#1b3a2d', borderRadius:10, padding:'14px 16px', marginBottom:12, color:'#fff' }}>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:14 }}>
+              {/* Invoice summary */}
+              <div style={{ background:'#1b3a2d', borderRadius:10, padding:'14px', marginBottom:12, color:'#fff' }}>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:12 }}>
                   <div>
-                    <div style={{ fontSize:10, opacity:0.55, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:3 }}>Vendor</div>
-                    <div style={{ fontSize:12, fontWeight:700, lineHeight:1.3 }}>{parsedInvoice.vendorName || '—'}</div>
+                    <div style={{ fontSize:10, opacity:0.6, textTransform:'uppercase' }}>Vendor</div>
+                    <div style={{ fontSize:13, fontWeight:700 }}>{parsedInvoice.vendorName || '—'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize:10, opacity:0.55, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:3 }}>Invoice #</div>
-                    <div style={{ fontSize:12, fontWeight:700 }}>{parsedInvoice.invoiceNumber || '—'}</div>
+                    <div style={{ fontSize:10, opacity:0.6, textTransform:'uppercase' }}>Invoice #</div>
+                    <div style={{ fontSize:13, fontWeight:700 }}>{parsedInvoice.invoiceNumber || '—'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize:10, opacity:0.55, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:3 }}>Date</div>
-                    <div style={{ fontSize:12, fontWeight:700 }}>{parsedInvoice.invoiceDate || '—'}</div>
+                    <div style={{ fontSize:10, opacity:0.6, textTransform:'uppercase' }}>Date</div>
+                    <div style={{ fontSize:13, fontWeight:700 }}>{parsedInvoice.invoiceDate || '—'}</div>
                   </div>
                 </div>
-                <div style={{ background:'rgba(255,255,255,0.12)', borderRadius:8, padding:'10px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                  <div style={{ fontSize:12, opacity:0.75 }}>{parsedInvoice.lineItems.length} items</div>
-                  <div style={{ fontSize:22, fontWeight:800, letterSpacing:'-0.5px' }}>${parsedInvoice.totalAmount.toFixed(2)}</div>
+                <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div style={{ fontSize:12, opacity:0.8 }}>{parsedInvoice.lineItems?.length || 0} line items found</div>
+                  <div style={{ fontSize:20, fontWeight:800 }}>${(parsedInvoice.totalAmount || 0).toFixed(2)}</div>
                 </div>
               </div>
 
-              {/* Line items — read only */}
-              {parsedInvoice.lineItems.length > 0 && (
-                <div style={{ marginBottom:12 }}>
-                  <div style={{ fontSize:11, color:'var(--text-muted)', fontWeight:600, marginBottom:6, textTransform:'uppercase', letterSpacing:'0.04em' }}>
-                    Items (reference only)
-                  </div>
-                  <div style={{ border:'1px solid var(--border)', borderRadius:8, overflow:'hidden' }}>
-                    {parsedInvoice.lineItems.map((li, i) => (
-                      <div key={i} style={{
-                        display:'flex', justifyContent:'space-between', alignItems:'center',
-                        padding:'8px 12px',
-                        borderBottom: i < parsedInvoice.lineItems.length - 1 ? '1px solid var(--border)' : 'none',
-                        background: i % 2 === 0 ? '#fff' : '#fafafa',
-                        gap: 8,
-                      }}>
-                        <div style={{ fontSize:12, color:'var(--dark)', flex:1 }}>{li.description}</div>
-                        <div style={{ fontSize:11, color:'#888', whiteSpace:'nowrap' }}>×{li.qty}</div>
-                        <div style={{ fontSize:12, fontWeight:600, color:'var(--dark)', whiteSpace:'nowrap', minWidth:56, textAlign:'right' }}>
-                          ${li.amount.toFixed(2)}
-                        </div>
+              {/* Line items */}
+              <div style={{ marginBottom:12 }}>
+                {parsedInvoice.lineItems.map((li, i) => {
+                  const match = matchToInventory(li.description, inventory)
+                  return (
+                    <div key={i} style={{
+                      display:'flex', justifyContent:'space-between', alignItems:'center',
+                      padding:'8px 10px', borderRadius:8, marginBottom:4,
+                      background: match ? '#E8F5E9' : '#FFF3E0',
+                      border: `1px solid ${match ? '#C8E6C9' : '#FFE0B2'}`
+                    }}>
+                      <div>
+                        <div style={{ fontSize:12, fontWeight:600 }}>{li.description}</div>
+                        {match
+                          ? <div style={{ fontSize:10, color:'#2d6a4f' }}>✓ Matches: {match.name}</div>
+                          : <div style={{ fontSize:10, color:'#b45309' }}>⚠ No match — will skip</div>
+                        }
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      <div style={{ textAlign:'right', fontSize:12 }}>
+                        <div style={{ fontWeight:700 }}>×{li.qty}</div>
+                        <div style={{ color:'#888' }}>${(li.amount || 0).toFixed(2)}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
 
-              {/* Actions */}
               <div style={{ display:'flex', gap:8 }}>
-                <button onClick={saveInvoice} disabled={saving} style={{
-                  flex:1, background:'var(--green-ok)', color:'#fff', border:'none', borderRadius:8,
-                  padding:'12px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit'
-                }}>
-                  {saving ? '⏳ Saving...' : '✅ Save to Delivery Log'}
+                <button onClick={approveInvoice} disabled={approving}
+                  style={{ flex:1, background:'var(--green-ok)', color:'#fff', border:'none', borderRadius:8, padding:'12px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }}>
+                  {approving ? '⏳ Updating...' : '✅ Approve & Update Inventory'}
                 </button>
-                <button onClick={() => setParsedInvoice(null)} style={{
-                  padding:'12px 14px', background:'#888', color:'#fff', border:'none',
-                  borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit'
-                }}>
+                <button onClick={() => setParsedInvoice(null)}
+                  style={{ padding:'12px 14px', background:'#888', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>
                   Cancel
                 </button>
-              </div>
-
-              <div style={{ marginTop:8, fontSize:11, color:'var(--text-muted)', textAlign:'center' }}>
-                To update stock levels, use Manual Entry after saving.
               </div>
             </div>
           )}
@@ -313,16 +385,17 @@ export default function Delivery({ invHook, viewingStore, showToast }) {
           </select>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
             <input type="number" placeholder="Quantity received" value={form.qty}
-              onChange={e => setForm(f=>({...f,qty:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
+              onChange={e => setForm(f=>({...f,qty:e.target.value}))}
+              style={{ ...inp, marginBottom:0 }}/>
             <input type="number" placeholder="Unit cost $" value={form.cost}
-              onChange={e => setForm(f=>({...f,cost:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
+              onChange={e => setForm(f=>({...f,cost:e.target.value}))}
+              style={{ ...inp, marginBottom:0 }}/>
           </div>
           <input type="text" placeholder="Note (vendor, invoice ref)" value={form.note}
-            onChange={e => setForm(f=>({...f,note:e.target.value}))} style={{ ...inp, marginTop:8 }}/>
-          <button onClick={logDelivery} style={{
-            width:'100%', background:'var(--dark)', color:'#fff', border:'none', borderRadius:8,
-            padding:'12px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit'
-          }}>
+            onChange={e => setForm(f=>({...f,note:e.target.value}))}
+            style={{ ...inp, marginTop:8 }}/>
+          <button onClick={logDelivery}
+            style={{ width:'100%', background:'var(--dark)', color:'#fff', border:'none', borderRadius:8, padding:'12px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }}>
             + Log Delivery
           </button>
         </div>
@@ -348,37 +421,16 @@ export default function Delivery({ invHook, viewingStore, showToast }) {
             <div style={{ textAlign:'center', padding:32, color:'var(--text-muted)', fontSize:13 }}>No deliveries logged yet</div>
           ) : filtered.map((d, idx) => (
             <div key={d.id||idx} style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'12px 14px', marginBottom:8 }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-                <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div>
                   <div style={{ fontSize:13, fontWeight:600, color:'var(--dark)' }}>{d.itemName}</div>
-                  <div style={{ fontSize:11, color:'var(--text-muted)', marginTop:2 }}>
-                    {d.date} · {d.vendor || 'Unknown'}
-                    {d.invoiceNumber ? ` · #${d.invoiceNumber}` : ''}
-                    {d.note && !d.invoiceNumber ? ` · ${d.note}` : ''}
+                  <div style={{ fontSize:11, color:'var(--text-muted)' }}>
+                    {d.date} · {d.vendor || 'Unknown'}{d.invoiceNumber ? ` · #${d.invoiceNumber}` : ''}{d.note && !d.invoiceNumber ? ` · ${d.note}` : ''}
                   </div>
-                  {/* Expandable line items for invoice entries */}
-                  {d.type === 'invoice' && d.lineItems?.length > 0 && (
-                    <details style={{ marginTop:6 }}>
-                      <summary style={{ fontSize:11, color:'var(--text-muted)', cursor:'pointer' }}>
-                        {d.lineItems.length} items — tap to view
-                      </summary>
-                      <div style={{ marginTop:6, paddingLeft:4 }}>
-                        {d.lineItems.map((li, i) => (
-                          <div key={i} style={{ fontSize:11, color:'#555', display:'flex', justifyContent:'space-between', padding:'2px 0', borderBottom:'1px solid #f0f0f0' }}>
-                            <span>{li.description} ×{li.qty}</span>
-                            <span style={{ fontWeight:600 }}>${li.amount?.toFixed(2)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </details>
-                  )}
                 </div>
-                <div style={{ textAlign:'right', marginLeft:12, flexShrink:0 }}>
-                  {d.type === 'invoice'
-                    ? <div style={{ fontSize:14, fontWeight:700, color:'#1b3a2d' }}>${(d.totalCost||0).toFixed(2)}</div>
-                    : <div style={{ fontSize:14, fontWeight:700, color:'var(--green-ok)' }}>+{d.qty}</div>
-                  }
-                  {d.type !== 'invoice' && (d.totalCost || d.cost) > 0 && (
+                <div style={{ textAlign:'right' }}>
+                  <div style={{ fontSize:14, fontWeight:700, color:'var(--green-ok)' }}>+{d.qty}</div>
+                  {(d.totalCost || d.cost) > 0 && (
                     <div style={{ fontSize:11, color:'var(--text-muted)' }}>
                       ${(d.totalCost || (d.cost * d.qty) || 0).toFixed(2)}
                     </div>
