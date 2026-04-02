@@ -14,7 +14,7 @@ import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
 const APP_URL = 'https://snamburi1980.github.io/dumont-inventory/'
 
 export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setViewingOrg, viewingStore }) {
-  const [view,         setView]         = useState('overview')
+  const [view, setView] = useState(auth?.isSuperOwner?.() ? 'overview' : 'items')
   const [orgs,         setOrgs]         = useState([])
   const [regions,      setRegions]      = useState([])
   const [stores,       setStores]       = useState([])
