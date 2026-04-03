@@ -3,24 +3,21 @@ import { useAuth }      from './hooks/useAuth'
 import { useInventory } from './hooks/useInventory'
 import { useToast }     from './hooks/useToast'
 import { useOrgItems }  from './hooks/useOrgItems'
-import { loadSavedTheme, applyTheme } from './utils/themes'
+import { applyTheme }   from './utils/themes'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
-
-import LoginScreen  from './components/LoginScreen'
-import Layout       from './components/Layout'
-import Home         from './components/Home'
-import Dashboard    from './components/Dashboard'
-import Inventory    from './components/Inventory'
-import Orders       from './components/Orders'
-import Sales        from './components/Sales'
-import Delivery     from './components/Delivery'
-import COGS         from './components/COGS'
-import Schedule     from './components/Schedule'
-import Admin        from './components/Admin'
+import LoginScreen    from './components/LoginScreen'
+import Layout         from './components/Layout'
+import Home           from './components/Home'
+import Inventory      from './components/Inventory'
+import Orders         from './components/Orders'
+import Sales          from './components/Sales'
+import Delivery       from './components/Delivery'
+import COGS           from './components/COGS'
+import Schedule       from './components/Schedule'
+import Admin          from './components/Admin'
 import ChangePassword from './components/ChangePassword'
-import Checklist   from './components/Checklist'
-
+import Checklist      from './components/Checklist'
 
 export default function App() {
   const auth         = useAuth()
@@ -33,14 +30,10 @@ export default function App() {
   const [viewingStore, setViewingStore] = useState('')
   const [viewingOrg,   setViewingOrg]   = useState('dumont')
   const [currentTheme, setCurrentTheme] = useState(() => {
-    const saved = localStorage.getItem('dumont_theme') || 'warm'
-    return saved
+    return localStorage.getItem('dumont_theme') || 'warm'
   })
 
-  // Apply theme on mount
-  useEffect(() => {
-    applyTheme(currentTheme)
-  }, [])
+  useEffect(() => { applyTheme(currentTheme) }, [])
 
   useEffect(() => {
     if (auth.userConfig) {
@@ -56,7 +49,7 @@ export default function App() {
 
   useEffect(() => {
     if (viewingStore && auth.userConfig) {
-      invHook.loadInventory(viewingStore)
+      invHook.loadInventory(viewingStore, viewingOrg)
     }
   }, [viewingStore])
 
@@ -71,9 +64,7 @@ export default function App() {
     )
   }
 
-  if (!auth.user || !auth.userConfig) {
-    return <LoginScreen auth={auth} />
-  }
+  if (!auth.user || !auth.userConfig) return <LoginScreen auth={auth} />
 
   if (auth.pending) {
     return (
@@ -89,7 +80,6 @@ export default function App() {
     )
   }
 
-  // Force password change on first login
   if (needsPasswordChange) {
     return (
       <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#FDF6EC', padding:20 }}>
@@ -101,7 +91,6 @@ export default function App() {
           <ChangePassword
             showToast={showToast}
             onClose={async () => {
-              // Clear the force flag in Firestore
               const { doc, updateDoc } = await import('firebase/firestore')
               const { db } = await import('./firebase/config')
               const emailKey = auth.user.email.replace(/\./g,'_').replace(/@/g,'_at_')
@@ -117,32 +106,26 @@ export default function App() {
     )
   }
 
-  const isSuperOwner    = auth.isSuperOwner()
-  const isRegionalOwner = auth.userConfig?.role === 'regional_owner'
-  const isManager       = ['manager','store_owner','org_owner'].includes(auth.userConfig?.role)
-
   const tabProps = {
     auth, invHook, viewingStore, setViewingStore,
     showToast, setActiveTab,
     orgItemsHook, viewingOrg, setViewingOrg,
   }
 
-  // All users get Admin tab but with different content based on role
+  // Operations → Commerce → Insights
   const tabs = [
-    { id:'home',      label:'Home'      },
-    { id:'inventory', label:'Inventory' },
-    { id:'orders',    label:'Orders'    },
-    { id:'sales',     label:'Sales'     },
-    { id:'delivery',  label:'Delivery'  },
-    { id:'cogs',      label:'COGS'      },
-    { id:'schedule',  label:'Schedule'  },
-    { id:'checklist', label:'Checklist' },
-    { id:'admin',     label:'Admin'     },
+    { id:'home',      label:'🏠 Home'      },
+    { id:'inventory', label:'📦 Inventory' },
+    { id:'checklist', label:'✅ Checklist' },
+    { id:'schedule',  label:'📅 Schedule'  },
+    { id:'sales',     label:'💰 Sales'     },
+    { id:'orders',    label:'🛒 Orders'    },
+    { id:'delivery',  label:'🚚 Delivery'  },
+    { id:'cogs',      label:'📊 COGS'      },
+    { id:'admin',     label:'⚙️ Admin'     },
   ]
 
   function handleTabChange(tab) {
-    // Reload inventory when switching to inventory tab
-    // so Admin changes are reflected immediately
     if (tab === 'inventory' && auth.userConfig) {
       invHook.loadInventory(viewingStore, viewingOrg)
     }
@@ -151,29 +134,32 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-    <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={handleTabChange} viewingStore={viewingStore} setViewingStore={setViewingStore} currentTheme={currentTheme} onThemeChange={setCurrentTheme} showToast={showToast}>
-      {activeTab === 'home'      && <Home      {...tabProps} />}
-      {activeTab === 'inventory' && <Inventory {...tabProps} />}
-      {activeTab === 'orders'    && <Orders    {...tabProps} />}
-      {activeTab === 'sales'     && <Sales     {...tabProps} />}
-      {activeTab === 'delivery'  && <Delivery  {...tabProps} />}
-      {activeTab === 'cogs'      && <COGS      {...tabProps} />}
-      {activeTab === 'schedule'  && <Schedule  {...tabProps} />}
-      {activeTab === 'checklist' && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
-      {activeTab === 'admin'     && <Admin     {...tabProps} />}
+      <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={handleTabChange}
+        viewingStore={viewingStore} setViewingStore={setViewingStore}
+        currentTheme={currentTheme} onThemeChange={setCurrentTheme} showToast={showToast}>
 
-      {toast && (
-        <div style={{
-          position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)',
-          background:'#2C1810', color:'#fff', padding:'12px 24px',
-          borderRadius:24, fontSize:13, fontWeight:600,
-          boxShadow:'0 4px 16px rgba(0,0,0,0.2)', zIndex:9999,
-          whiteSpace:'nowrap'
-        }}>
-          {toast}
-        </div>
-      )}
-    </Layout>
+        {activeTab === 'home'      && <Home      {...tabProps} />}
+        {activeTab === 'inventory' && <Inventory {...tabProps} />}
+        {activeTab === 'checklist' && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
+        {activeTab === 'schedule'  && <Schedule  {...tabProps} />}
+        {activeTab === 'sales'     && <Sales     {...tabProps} />}
+        {activeTab === 'orders'    && <Orders    {...tabProps} />}
+        {activeTab === 'delivery'  && <Delivery  {...tabProps} />}
+        {activeTab === 'cogs'      && <COGS      {...tabProps} />}
+        {activeTab === 'admin'     && <Admin     {...tabProps} />}
+
+        {toast && (
+          <div style={{
+            position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)',
+            background:'#2C1810', color:'#fff', padding:'12px 24px',
+            borderRadius:24, fontSize:13, fontWeight:600,
+            boxShadow:'0 4px 16px rgba(0,0,0,0.2)', zIndex:9999,
+            whiteSpace:'nowrap'
+          }}>
+            {toast}
+          </div>
+        )}
+      </Layout>
     </ErrorBoundary>
   )
 }

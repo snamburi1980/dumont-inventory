@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import TipBanner from './TipBanner'
 
 export default function Orders({ invHook, showToast }) {
   const { inventory, getStatus } = invHook
@@ -14,16 +15,6 @@ export default function Orders({ invHook, showToast }) {
     navigator.clipboard.writeText(text)
       .then(() => { showToast('Copied!'); setCopied(title); setTimeout(() => setCopied(null), 3000) })
       .catch(() => showToast('Copy failed'))
-  }
-
-  if (!lowItems.length) {
-    return (
-      <div style={{ textAlign:'center', padding:'48px 20px', color:'var(--text-muted)' }}>
-        <div style={{ fontSize:32, marginBottom:12 }}>✓</div>
-        <div style={{ fontSize:16, fontWeight:600, color:'var(--dark)' }}>All stocked up!</div>
-        <div style={{ fontSize:13, marginTop:6 }}>Nothing to order right now.</div>
-      </div>
-    )
   }
 
   function CategoryCard({ cat }) {
@@ -72,12 +63,24 @@ export default function Orders({ invHook, showToast }) {
 
   return (
     <div>
-      <div style={{ fontSize:12, color:'var(--text-muted)', marginBottom:12 }}>
-        {lowItems.length} items below PAR level
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10 }}>
-        {categories.map(cat => <CategoryCard key={cat} cat={cat} />)}
-      </div>
+      <TipBanner message="Items shown here are below PAR level and need to be reordered. Copy the list and send to your vendor via WhatsApp or email." />
+
+      {!lowItems.length ? (
+        <div style={{ textAlign:'center', padding:'48px 20px', color:'var(--text-muted)' }}>
+          <div style={{ fontSize:32, marginBottom:12 }}>✓</div>
+          <div style={{ fontSize:16, fontWeight:600, color:'var(--dark)' }}>All stocked up!</div>
+          <div style={{ fontSize:13, marginTop:6 }}>Nothing to order right now.</div>
+        </div>
+      ) : (
+        <>
+          <div style={{ fontSize:12, color:'var(--text-muted)', marginBottom:12 }}>
+            {lowItems.length} items below PAR level
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10 }}>
+            {categories.map(cat => <CategoryCard key={cat} cat={cat} />)}
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import TipBanner from './TipBanner'
 
 const COLORS = ['#E74C3C','#3498DB','#27AE60','#F39C12','#9B59B6','#1ABC9C','#E67E22','#2ECC71','#E91E63','#00BCD4']
 const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
@@ -19,13 +20,11 @@ function timeToMins(t) {
   return h * 60 + m
 }
 
-function minsToHrs(m) {
-  return (m / 60).toFixed(1)
-}
+function minsToHrs(m) { return (m / 60).toFixed(1) }
 
 export default function Schedule({ viewingStore, showToast }) {
   const [members,      setMembers]      = useState([])
-  const [presets,      setPresets]      = useState([]) // standard shift presets
+  const [presets,      setPresets]      = useState([])
   const [shifts,       setShifts]       = useState({})
   const [hrsPeriod,    setHrsPeriod]    = useState('week')
   const [offset,       setOffset]       = useState(0)
@@ -54,8 +53,8 @@ export default function Schedule({ viewingStore, showToast }) {
       const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
       if (snap.exists()) {
         const d = snap.data()
-        setMembers(d.members   || [])
-        setPresets(d.presets   || [])
+        setMembers(d.members || [])
+        setPresets(d.presets || [])
         setShifts(d.shifts?.[String(offset)] || {})
       }
     } catch(e) { console.error(e) }
@@ -67,9 +66,8 @@ export default function Schedule({ viewingStore, showToast }) {
       const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
       const existing = snap.exists() ? snap.data() : {}
       await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
-        members:   newMembers,
-        presets:   newPresets,
-        shifts:    { ...(existing.shifts||{}), [String(offset)]: newShifts },
+        members: newMembers, presets: newPresets,
+        shifts: { ...(existing.shifts||{}), [String(offset)]: newShifts },
         updatedAt: Date.now()
       })
     } catch(e) { showToast('Save failed') }
@@ -190,12 +188,14 @@ export default function Schedule({ viewingStore, showToast }) {
   }
 
   const inp  = { padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, width:'100%', boxSizing:'border-box', marginBottom:8, background:'#FDF6EC' }
-  const totalHrs = members.reduce((s,m) => s + getHours(m.id), 0)
-  const member   = modal ? members.find(m => m.id===modal.memberId) : null
+  const totalHrs   = members.reduce((s,m) => s + getHours(m.id), 0)
+  const member     = modal ? members.find(m => m.id===modal.memberId) : null
   const cellShifts = modal ? (shifts[modal.key]||[]) : []
 
   return (
     <div>
+      <TipBanner message="Build the weekly staff schedule. Tap a cell to assign shifts. Use standard presets or set custom times. Share as an image via WhatsApp." />
+
       {/* Header */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12, flexWrap:'wrap', gap:8 }}>
         <div style={{ display:'flex', alignItems:'center', gap:6 }}>
@@ -252,8 +252,7 @@ export default function Schedule({ viewingStore, showToast }) {
                       <input value={editName} onChange={e=>setEditName(e.target.value)}
                         onBlur={() => saveStaffName(m.id)}
                         onKeyDown={e => e.key==='Enter' && saveStaffName(m.id)}
-                        autoFocus
-                        style={{ ...inp, marginBottom:0, padding:'2px 6px', width:72, fontSize:12 }}/>
+                        autoFocus style={{ ...inp, marginBottom:0, padding:'2px 6px', width:72, fontSize:12 }}/>
                     ) : (
                       <span onClick={() => { setEditStaffId(m.id); setEditName(m.name) }}
                         style={{ fontSize:12, fontWeight:600, color:'#2C1810', cursor:'pointer' }}>
@@ -272,15 +271,12 @@ export default function Schedule({ viewingStore, showToast }) {
                     <td key={di} onClick={() => openCell(m.id, di)}
                       style={{ padding:'4px 3px', verticalAlign:'top', cursor:'pointer', minHeight:48, transition:'background 0.1s' }}
                       onMouseEnter={e => e.currentTarget.style.background='#FAF7F2'}
-                      onMouseLeave={e => e.currentTarget.style.background='transparent'}
-                    >
+                      onMouseLeave={e => e.currentTarget.style.background='transparent'}>
                       <div style={{ minHeight:40, display:'flex', flexDirection:'column', gap:2 }}>
                         {cellData.map((sh, si) => (
-                          <div key={si} style={{
-                            background: sh.color || m.color, color:'#fff', borderRadius:4,
+                          <div key={si} style={{ background: sh.color || m.color, color:'#fff', borderRadius:4,
                             padding:'2px 4px', fontSize:9, fontWeight:600,
-                            display:'flex', justifyContent:'space-between', alignItems:'center', gap:2
-                          }}>
+                            display:'flex', justifyContent:'space-between', alignItems:'center', gap:2 }}>
                             <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                               {sh.name || ''} {to12(sh.start)}
                             </span>
@@ -303,9 +299,7 @@ export default function Schedule({ viewingStore, showToast }) {
           </tbody>
         </table>
         {members.length === 0 && (
-          <div style={{ textAlign:'center', padding:'32px', color:'#8B7355', fontSize:13 }}>
-            No staff yet — tap below to add
-          </div>
+          <div style={{ textAlign:'center', padding:'32px', color:'#8B7355', fontSize:13 }}>No staff yet — tap below to add</div>
         )}
       </div>
 
@@ -356,8 +350,6 @@ export default function Schedule({ viewingStore, showToast }) {
               </div>
               <button onClick={() => setModal(null)} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'#8B7355' }}>×</button>
             </div>
-
-            {/* Existing shifts */}
             {cellShifts.length > 0 && (
               <div style={{ marginBottom:16 }}>
                 {cellShifts.map((sh, si) => {
@@ -381,8 +373,6 @@ export default function Schedule({ viewingStore, showToast }) {
                 })}
               </div>
             )}
-
-            {/* Standard shift presets */}
             {presets.length > 0 && (
               <div style={{ marginBottom:14 }}>
                 <div style={{ fontSize:11, color:'#8B7355', fontWeight:600, textTransform:'uppercase', marginBottom:8 }}>Standard Shifts</div>
@@ -396,27 +386,22 @@ export default function Schedule({ viewingStore, showToast }) {
                 </div>
               </div>
             )}
-
-            {/* Custom time */}
             <div style={{ borderTop:'1px solid #EDE0CC', paddingTop:14 }}>
               <button onClick={() => setShowCustom(c=>!c)}
                 style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:8, padding:'8px 14px', cursor:'pointer', fontSize:12, color:'#8B7355', width:'100%', fontFamily:'inherit', marginBottom: showCustom?10:0 }}>
                 {showCustom ? '▲ Hide Custom Time' : '+ Custom Time'}
               </button>
-
               {showCustom && (
                 <div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
                     <div>
                       <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Start</div>
-                      <input type="time" value={shiftForm.start} onChange={e => setShiftForm(f=>({...f,start:e.target.value}))}
-                        style={{ ...inp, marginBottom:0 }}/>
+                      <input type="time" value={shiftForm.start} onChange={e => setShiftForm(f=>({...f,start:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
                       <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(shiftForm.start)}</div>
                     </div>
                     <div>
                       <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>End</div>
-                      <input type="time" value={shiftForm.end} onChange={e => setShiftForm(f=>({...f,end:e.target.value}))}
-                        style={{ ...inp, marginBottom:0 }}/>
+                      <input type="time" value={shiftForm.end} onChange={e => setShiftForm(f=>({...f,end:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
                       <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(shiftForm.end)}</div>
                     </div>
                   </div>

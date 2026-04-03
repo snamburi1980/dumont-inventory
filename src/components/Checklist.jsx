@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { collection, addDoc, getDocs, query, orderBy, limit, where } from 'firebase/firestore'
-import { sendChecklistNotification } from '../utils/emailNotify'
 import { db } from '../firebase/config'
+import TipBanner from './TipBanner'
 
 const OPENING_ITEMS = [
   'Open the store at the designated time of the day',
@@ -65,7 +65,6 @@ function initItems(items) {
   return items.map(label => ({ label, checked: false, remarks: '', photo: null }))
 }
 
-
 export default function Checklist({ viewingStore, auth, showToast }) {
   const [view,       setView]       = useState('menu')
   const [type,       setType]       = useState(null)
@@ -77,7 +76,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
   const [histType,   setHistType]   = useState('opening')
   const [loadingHist,setLoadingHist]= useState(false)
   const [expandedId, setExpandedId] = useState(null)
-  const fileRefs    = useRef({})
+  const fileRefs = useRef({})
 
   const now     = new Date()
   const dateStr = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
@@ -103,7 +102,6 @@ export default function Checklist({ viewingStore, auth, showToast }) {
   function handlePhoto(idx, e) {
     const file = e.target.files?.[0]
     if (!file) return
-    // Compress to base64 for storage
     const reader = new FileReader()
     reader.onload = (ev) => {
       const img = new Image()
@@ -135,21 +133,15 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     setSubmitting(true)
     try {
       const submission = {
-        type,
-        storeId:      viewingStore,
-        firstName:    firstName.trim(),
-        lastName:     lastName.trim(),
-        submittedAt:  Date.now(),
-        date:         now.toLocaleDateString(),
-        time:         timeStr,
-        items:        items.map(i => ({ label: i.label, checked: i.checked, remarks: i.remarks, photo: i.photo || null })),
-        totalItems:   items.length,
+        type, storeId: viewingStore,
+        firstName: firstName.trim(), lastName: lastName.trim(),
+        submittedAt: Date.now(),
+        date: now.toLocaleDateString(), time: timeStr,
+        items: items.map(i => ({ label: i.label, checked: i.checked, remarks: i.remarks, photo: i.photo || null })),
+        totalItems: items.length,
         checkedItems: items.filter(i => i.checked).length,
       }
-
-      // Save to Firestore
       await addDoc(collection(db, 'stores', viewingStore, 'checklists'), submission)
-
       showToast(`${type === 'opening' ? 'Opening' : 'Closing'} checklist submitted!`)
       setView('menu')
     } catch(e) {
@@ -173,9 +165,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
       )
       const snap = await getDocs(q)
       setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch(e) {
-      showToast('Could not load history')
-    }
+    } catch(e) { showToast('Could not load history') }
     setLoadingHist(false)
   }
 
@@ -185,10 +175,10 @@ export default function Checklist({ viewingStore, auth, showToast }) {
   const inp       = { padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#FDF6EC', boxSizing:'border-box', width:'100%' }
   const color     = type === 'opening' ? '#27AE60' : '#E74C3C'
 
-  // ── MENU ──
   if (view === 'menu') {
     return (
       <div>
+        <TipBanner message="Complete the opening or closing checklist daily. Your submission is timestamped as proof of completion. View history for the last 30 days." />
         <div style={{ fontSize:13, color:'#8B7355', marginBottom:16 }}>{dateStr}</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:20 }}>
           <div onClick={() => startForm('opening')}
@@ -204,7 +194,6 @@ export default function Checklist({ viewingStore, auth, showToast }) {
             <div style={{ fontSize:11, color:'#8B7355', marginTop:4 }}>{CLOSING_ITEMS.length} items</div>
           </div>
         </div>
-
         <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px' }}>
           <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>History (Last 30 days)</div>
           <div style={{ display:'flex', gap:8 }}>
@@ -222,12 +211,11 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     )
   }
 
-  // ── HISTORY ──
   if (view === 'history') {
     return (
       <div>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-          <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{'<'} Back</button>
+          <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{"<"} Back</button>
           <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', textTransform:'capitalize' }}>{histType} History</div>
         </div>
         <div style={{ display:'flex', gap:8, marginBottom:16 }}>
@@ -281,11 +269,10 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     )
   }
 
-  // ── FORM ──
   return (
     <div>
       <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-        <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{'<'} Back</button>
+        <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{"<"} Back</button>
         <div>
           <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>
             {type === 'opening' ? '🌅 Opening' : '🌙 Closing'} Checklist
@@ -294,7 +281,6 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         </div>
       </div>
 
-      {/* Staff name */}
       <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }}>
         <div style={{ fontSize:12, fontWeight:600, color:'#2C1810', marginBottom:8 }}>Checklist updated by</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
@@ -303,7 +289,6 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         </div>
       </div>
 
-      {/* Progress bar */}
       <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'12px 16px', marginBottom:12 }}>
         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
           <span style={{ fontSize:12, color:'#8B7355' }}>Progress</span>
@@ -314,7 +299,6 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         </div>
       </div>
 
-      {/* Items */}
       <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:16 }}>
         {items.map((item, idx) => (
           <div key={idx} style={{ borderBottom: idx < items.length-1 ? '1px solid #F5EFE8' : 'none' }}>
@@ -330,8 +314,6 @@ export default function Checklist({ viewingStore, auth, showToast }) {
                 {item.label}
               </span>
             </div>
-
-            {/* Remarks + Photo — only when checked */}
             {item.checked && (
               <div style={{ paddingLeft:52, paddingRight:16, paddingBottom:12, background: type==='opening' ? '#F0FFF4' : '#FFF5F5' }}
                 onClick={e => e.stopPropagation()}>
@@ -367,14 +349,12 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         ))}
       </div>
 
-      {/* Submit */}
       <button onClick={handleSubmit} disabled={submitting}
         style={{ width:'100%', background: submitting ? '#aaa' : color, color:'#fff', border:'none',
           borderRadius:12, padding:'14px', cursor:'pointer', fontSize:15, fontWeight:700,
           fontFamily:'inherit', marginBottom:8 }}>
         {submitting ? 'Submitting...' : `Submit ${type === 'opening' ? 'Opening' : 'Closing'} Checklist`}
       </button>
-
     </div>
   )
 }
