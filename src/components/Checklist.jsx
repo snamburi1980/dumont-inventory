@@ -61,21 +61,82 @@ const CLOSING_ITEMS = [
   'Keep the A-board inside the store',
 ]
 
+const MAX_PHOTO_SIZE = 400   // max width/height in pixels
+const PHOTO_QUALITY  = 0.5   // jpeg quality
+const MAX_B64_BYTES  = 80000 // ~80KB per photo max
+
 function initItems(items) {
   return items.map(label => ({ label, checked: false, remarks: '', photo: null }))
 }
 
+// Aggressive compression for iPhone/Android photos
+function compressPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const img = new Image()
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas')
+          let w = img.width, h = img.height
+
+          // Scale down to MAX_PHOTO_SIZE
+          if (w > h) {
+            if (w > MAX_PHOTO_SIZE) { h = Math.round(h * MAX_PHOTO_SIZE / w); w = MAX_PHOTO_SIZE }
+          } else {
+            if (h > MAX_PHOTO_SIZE) { w = Math.round(w * MAX_PHOTO_SIZE / h); h = MAX_PHOTO_SIZE }
+          }
+
+          canvas.width  = w
+          canvas.height = h
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, w, h)
+
+          // Try quality 0.5 first
+          let compressed = canvas.toDataURL('image/jpeg', PHOTO_QUALITY)
+
+          // If still too large, reduce quality further
+          if (compressed.length > MAX_B64_BYTES) {
+            compressed = canvas.toDataURL('image/jpeg', 0.3)
+          }
+
+          // If still too large, reduce dimensions further
+          if (compressed.length > MAX_B64_BYTES) {
+            const canvas2 = document.createElement('canvas')
+            canvas2.width  = Math.round(w * 0.6)
+            canvas2.height = Math.round(h * 0.6)
+            canvas2.getContext('2d').drawImage(img, 0, 0, canvas2.width, canvas2.height)
+            compressed = canvas2.toDataURL('image/jpeg', 0.3)
+          }
+
+          resolve(compressed)
+        } catch(e) { reject(e) }
+      }
+      img.onerror = reject
+      img.src = ev.target.result
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+// Estimate total document size
+function estimateSize(items) {
+  return items.reduce((s, i) => s + (i.photo ? i.photo.length : 0) + (i.remarks?.length || 0) + 100, 0)
+}
+
 export default function Checklist({ viewingStore, auth, showToast }) {
-  const [view,       setView]       = useState('menu')
-  const [type,       setType]       = useState(null)
-  const [items,      setItems]      = useState([])
-  const [firstName,  setFirstName]  = useState('')
-  const [lastName,   setLastName]   = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [history,    setHistory]    = useState([])
-  const [histType,   setHistType]   = useState('opening')
-  const [loadingHist,setLoadingHist]= useState(false)
-  const [expandedId, setExpandedId] = useState(null)
+  const [view,        setView]        = useState('menu')
+  const [type,        setType]        = useState(null)
+  const [items,       setItems]       = useState([])
+  const [firstName,   setFirstName]   = useState('')
+  const [lastName,    setLastName]    = useState('')
+  const [submitting,  setSubmitting]  = useState(false)
+  const [history,     setHistory]     = useState([])
+  const [histType,    setHistType]    = useState('opening')
+  const [loadingHist, setLoadingHist] = useState(false)
+  const [expandedId,  setExpandedId]  = useState(null)
+  const [compressing, setCompressing] = useState(null) // idx of item being compressed
   const fileRefs = useRef({})
 
   const now     = new Date()
@@ -99,25 +160,23 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     setItems(prev => prev.map((item, i) => i === idx ? { ...item, remarks: val } : item))
   }
 
-  function handlePhoto(idx, e) {
+  async function handlePhoto(idx, e) {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      const img = new Image()
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        const MAX = 800
-        let w = img.width, h = img.height
-        if (w > MAX) { h = h * MAX / w; w = MAX }
-        canvas.width = w; canvas.height = h
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h)
-        const compressed = canvas.toDataURL('image/jpeg', 0.7)
-        setItems(prev => prev.map((item, i) => i === idx ? { ...item, photo: compressed } : item))
-      }
-      img.src = ev.target.result
+    setCompressing(idx)
+    try {
+      const compressed = await compressPhoto(file)
+      // Warn if still large
+      const kb = Math.round(compressed.length * 0.75 / 1024)
+      if (kb > 100) console.warn(`Photo for item ${idx} is ${kb}KB after compression`)
+      setItems(prev => prev.map((item, i) => i === idx ? { ...item, photo: compressed } : item))
+    } catch(e) {
+      console.error('Photo compression failed:', e)
+      showToast('Could not process photo — try a smaller image')
     }
-    reader.readAsDataURL(file)
+    setCompressing(null)
+    // Reset file input
+    if (fileRefs.current[idx]) fileRefs.current[idx].value = ''
   }
 
   function removePhoto(idx) {
@@ -126,27 +185,53 @@ export default function Checklist({ viewingStore, auth, showToast }) {
 
   async function handleSubmit() {
     if (!firstName.trim()) { showToast('Enter your first name'); return }
+
     const unchecked = items.filter(i => !i.checked).length
     if (unchecked > 0) {
       if (!window.confirm(`${unchecked} item${unchecked > 1 ? 's' : ''} not checked. Submit anyway?`)) return
     }
+
+    // Check estimated size — Firestore limit is 1MB per document
+    const estSize = estimateSize(items)
+    if (estSize > 800000) {
+      showToast('Too many photos — please remove some photos and try again')
+      return
+    }
+
     setSubmitting(true)
     try {
+      // Store photos separately to keep main document small
+      const itemsForStorage = items.map(i => ({
+        label:   i.label,
+        checked: i.checked,
+        remarks: i.remarks,
+        photo:   i.photo || null,  // included — already compressed to <80KB each
+      }))
+
       const submission = {
-        type, storeId: viewingStore,
-        firstName: firstName.trim(), lastName: lastName.trim(),
-        submittedAt: Date.now(),
-        date: now.toLocaleDateString(), time: timeStr,
-        items: items.map(i => ({ label: i.label, checked: i.checked, remarks: i.remarks, photo: i.photo || null })),
-        totalItems: items.length,
+        type,
+        storeId:      viewingStore,
+        firstName:    firstName.trim(),
+        lastName:     lastName.trim(),
+        submittedAt:  Date.now(),
+        date:         now.toLocaleDateString(),
+        time:         timeStr,
+        items:        itemsForStorage,
+        totalItems:   items.length,
         checkedItems: items.filter(i => i.checked).length,
+        hasPhotos:    items.some(i => i.photo),
       }
+
       await addDoc(collection(db, 'stores', viewingStore, 'checklists'), submission)
       showToast(`${type === 'opening' ? 'Opening' : 'Closing'} checklist submitted!`)
       setView('menu')
     } catch(e) {
-      console.error(e)
-      showToast('Submit failed — try again')
+      console.error('Submit error:', e)
+      if (e.message?.includes('exceeds') || e.message?.includes('size')) {
+        showToast('Document too large — remove some photos and try again')
+      } else {
+        showToast('Submit failed — check your connection and try again')
+      }
     }
     setSubmitting(false)
   }
@@ -165,7 +250,10 @@ export default function Checklist({ viewingStore, auth, showToast }) {
       )
       const snap = await getDocs(q)
       setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch(e) { showToast('Could not load history') }
+    } catch(e) {
+      console.error('Load history error:', e)
+      showToast('Could not load history — check your connection')
+    }
     setLoadingHist(false)
   }
 
@@ -175,6 +263,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
   const inp       = { padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#FDF6EC', boxSizing:'border-box', width:'100%' }
   const color     = type === 'opening' ? '#27AE60' : '#E74C3C'
 
+  // ── MENU ──
   if (view === 'menu') {
     return (
       <div>
@@ -211,11 +300,12 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     )
   }
 
+  // ── HISTORY ──
   if (view === 'history') {
     return (
       <div>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-          <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{"<"} Back</button>
+          <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{'<'} Back</button>
           <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', textTransform:'capitalize' }}>{histType} History</div>
         </div>
         <div style={{ display:'flex', gap:8, marginBottom:16 }}>
@@ -237,7 +327,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
               style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 16px', cursor:'pointer' }}>
               <div>
                 <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{h.date} · {h.time}</div>
-                <div style={{ fontSize:11, color:'#8B7355' }}>{h.firstName} {h.lastName}</div>
+                <div style={{ fontSize:11, color:'#8B7355' }}>{h.firstName} {h.lastName}{h.hasPhotos ? ' · 📷' : ''}</div>
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                 <div style={{ fontSize:12, fontWeight:700, color: h.checkedItems===h.totalItems ? '#27AE60' : '#E67E22' }}>
@@ -269,10 +359,11 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     )
   }
 
+  // ── FORM ──
   return (
     <div>
       <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-        <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{"<"} Back</button>
+        <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{'<'} Back</button>
         <div>
           <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>
             {type === 'opening' ? '🌅 Opening' : '🌙 Closing'} Checklist
@@ -281,6 +372,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         </div>
       </div>
 
+      {/* Staff name */}
       <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }}>
         <div style={{ fontSize:12, fontWeight:600, color:'#2C1810', marginBottom:8 }}>Checklist updated by</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
@@ -289,6 +381,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         </div>
       </div>
 
+      {/* Progress */}
       <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'12px 16px', marginBottom:12 }}>
         <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
           <span style={{ fontSize:12, color:'#8B7355' }}>Progress</span>
@@ -299,6 +392,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         </div>
       </div>
 
+      {/* Items */}
       <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:16 }}>
         {items.map((item, idx) => (
           <div key={idx} style={{ borderBottom: idx < items.length-1 ? '1px solid #F5EFE8' : 'none' }}>
@@ -314,6 +408,8 @@ export default function Checklist({ viewingStore, auth, showToast }) {
                 {item.label}
               </span>
             </div>
+
+            {/* Remarks + Photo — only when checked */}
             {item.checked && (
               <div style={{ paddingLeft:52, paddingRight:16, paddingBottom:12, background: type==='opening' ? '#F0FFF4' : '#FFF5F5' }}
                 onClick={e => e.stopPropagation()}>
@@ -321,12 +417,14 @@ export default function Checklist({ viewingStore, auth, showToast }) {
                   onChange={e => setRemarks(idx, e.target.value)}
                   style={{ ...inp, fontSize:11, padding:'5px 8px', marginBottom:6 }}/>
                 <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                  {item.photo ? (
+                  {compressing === idx ? (
+                    <span style={{ fontSize:11, color:'#8B7355' }}>Compressing photo...</span>
+                  ) : item.photo ? (
                     <>
                       <img src={item.photo} alt="attached" style={{ width:56, height:56, objectFit:'cover', borderRadius:6, border:'1px solid #EDE0CC' }}/>
                       <button onClick={() => removePhoto(idx)}
                         style={{ background:'#FFEBEE', border:'none', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#E74C3C', fontWeight:600, fontFamily:'inherit' }}>
-                        Remove Photo
+                        Remove
                       </button>
                     </>
                   ) : (
@@ -349,12 +447,16 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         ))}
       </div>
 
+      {/* Submit */}
       <button onClick={handleSubmit} disabled={submitting}
         style={{ width:'100%', background: submitting ? '#aaa' : color, color:'#fff', border:'none',
           borderRadius:12, padding:'14px', cursor:'pointer', fontSize:15, fontWeight:700,
           fontFamily:'inherit', marginBottom:8 }}>
         {submitting ? 'Submitting...' : `Submit ${type === 'opening' ? 'Opening' : 'Closing'} Checklist`}
       </button>
+      <div style={{ fontSize:11, color:'#8B7355', textAlign:'center', marginBottom:20 }}>
+        Photos are compressed automatically for faster upload
+      </div>
     </div>
   )
 }

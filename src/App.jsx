@@ -18,6 +18,7 @@ import Schedule       from './components/Schedule'
 import Admin          from './components/Admin'
 import ChangePassword from './components/ChangePassword'
 import Checklist      from './components/Checklist'
+import Picks          from './components/Picks'
 
 export default function App() {
   const auth         = useAuth()
@@ -116,6 +117,7 @@ export default function App() {
   const tabs = [
     { id:'home',      label:'🏠 Home'      },
     { id:'inventory', label:'📦 Inventory' },
+    { id:'picks',     label:'🪣 Picks'  },
     { id:'checklist', label:'✅ Checklist' },
     { id:'schedule',  label:'📅 Schedule'  },
     { id:'sales',     label:'💰 Sales'     },
@@ -140,6 +142,7 @@ export default function App() {
 
         {activeTab === 'home'      && <Home      {...tabProps} />}
         {activeTab === 'inventory' && <Inventory {...tabProps} />}
+        {activeTab === 'picks' && <Picks invHook={invHook} viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'checklist' && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'schedule'  && <Schedule  {...tabProps} />}
         {activeTab === 'sales'     && <Sales     {...tabProps} />}

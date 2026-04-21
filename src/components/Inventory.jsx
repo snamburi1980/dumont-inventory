@@ -1,13 +1,32 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import TipBanner from './TipBanner'
 
-export default function Inventory({ invHook, viewingStore, showToast, orgItemsHook, viewingOrg }) {
+export default function Inventory({ invHook, viewingStore, showToast, auth }) {
   const { inventory, getStatus, adjustStock, setStock, toggleActive, setPar, saveInventory } = invHook
+
   const [activeCategory, setActiveCategory] = useState('all')
   const [search,         setSearch]         = useState('')
   const [showInactive,   setShowInactive]   = useState(false)
   const [editingPar,     setEditingPar]     = useState(null)
+  const [editingStock,   setEditingStock]   = useState(null)
+  const [locked,         setLocked]         = useState(true)
   const saveTimer = useRef(null)
+  const lockTimer = useRef(null)
+  const LOCK_TIMEOUT = 5 * 60 * 1000
+
+  function resetLockTimer() {
+    clearTimeout(lockTimer.current)
+    lockTimer.current = setTimeout(() => {
+      setLocked(true)
+      showToast('Inventory locked after inactivity')
+    }, LOCK_TIMEOUT)
+  }
+
+  function unlock() {
+    setLocked(false)
+    resetLockTimer()
+    showToast('Inventory unlocked — auto-locks in 5 mins')
+  }
 
   const categories = ['all', ...[...new Set(inventory.map(i => i.cat))].filter(Boolean).sort()]
 
@@ -18,14 +37,24 @@ export default function Inventory({ invHook, viewingStore, showToast, orgItemsHo
     return catMatch && searchMatch && activeMatch
   })
 
-  const iceCreamItems    = inventory.filter(i => i.cat === 'Ice Cream' && i.active !== false)
-  const inactiveIceCream = inventory.filter(i => i.cat === 'Ice Cream' && i.active === false)
-  const totalTubs   = iceCreamItems.reduce((s,i) => s + (i.stock||0), 0)
-  const totalScoops = iceCreamItems.reduce((s,i) => s + (i.stock||0) * (i.scoops_per_bucket||60), 0)
-  const totalValue  = iceCreamItems.reduce((s,i) => s + (i.stock||0) * (i.cost||0), 0)
+  // Stats
+  const activeItems = inventory.filter(i => i.active !== false)
+  const totalVal    = activeItems.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
+  const lowCount    = activeItems.filter(i => getStatus(i) !== 'ok').length
 
-  function handleAdjust(id, delta) { adjustStock(id, delta); scheduleSave() }
-  function handleSetStock(id, value) { setStock(id, value); scheduleSave() }
+  function handleAdjust(id, delta) {
+    if (locked) { showToast('Tap Unlock to make changes'); return }
+    adjustStock(id, delta)
+    scheduleSave()
+    resetLockTimer()
+  }
+
+  function handleSetStock(id, value) {
+    if (locked) { showToast('Tap Unlock to make changes'); return }
+    setStock(id, value)
+    scheduleSave()
+    resetLockTimer()
+  }
 
   function scheduleSave() {
     clearTimeout(saveTimer.current)
@@ -48,23 +77,67 @@ export default function Inventory({ invHook, viewingStore, showToast, orgItemsHo
     showToast('PAR updated')
   }
 
-  function statusPill(status) {
-    if (status === 'critical') return <span className="pill pill-critical">Critical</span>
-    if (status === 'low')      return <span className="pill pill-low">Low</span>
-    return <span className="pill pill-ok">OK</span>
+  function statusDot(status) {
+    const colors = { ok:'#27AE60', low:'#E67E22', critical:'#E74C3C' }
+    const labels = { ok:'OK', low:'Low', critical:'Critical' }
+    return (
+      <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:11, fontWeight:600, color: colors[status] }}>
+        <span style={{ width:7, height:7, borderRadius:'50%', background: colors[status], display:'inline-block' }}/>
+        {labels[status]}
+      </span>
+    )
   }
 
   return (
     <div>
-      <TipBanner message="View and update stock levels for all items. Adjust quantities after counting. Items below PAR level show as alerts on the Home screen." />
+      <TipBanner message="Update stock counts after receiving deliveries or doing a stock count. Use +/- or tap the number to edit directly. Tap PAR to update minimum level." />
 
-      {/* Search */}
-      <div style={{ display:'flex', gap:8, marginBottom:12 }}>
-        <input className="search-bar" placeholder="Search items..." value={search}
-          onChange={e => setSearch(e.target.value)} style={{ flex:1, marginBottom:0 }}/>
+      {/* Lock / Unlock bar */}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background: locked ? '#FFF3E0' : '#E8F5E9', border:`1px solid ${locked ? '#FFB74D' : '#81C784'}`, borderRadius:10, padding:'10px 14px', marginBottom:12 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ fontSize:18 }}>{locked ? '🔒' : '🔓'}</span>
+          <div>
+            <div style={{ fontSize:13, fontWeight:700, color: locked ? '#E65100' : '#2E7D32' }}>
+              {locked ? 'Inventory Locked' : 'Inventory Unlocked'}
+            </div>
+            <div style={{ fontSize:11, color:'#8B7355' }}>
+              {locked ? 'Tap Unlock to make changes' : 'Auto-locks in 5 mins of inactivity'}
+            </div>
+          </div>
+        </div>
+        <button onClick={locked ? unlock : () => { setLocked(true); showToast('Inventory locked') }}
+          style={{ background: locked ? '#E65100' : '#2E7D32', color:'#fff', border:'none', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit' }}>
+          {locked ? 'Unlock' : 'Lock'}
+        </button>
       </div>
 
-      {/* Category filter */}
+      {/* Summary bar */}
+      <div style={{ display:'flex', gap:10, marginBottom:12 }}>
+        <div style={{ flex:1, background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
+          <div style={{ fontSize:18, fontWeight:700, color:'var(--caramel)' }}>${totalVal.toFixed(0)}</div>
+          <div style={{ fontSize:10, color:'var(--text-muted)', textTransform:'uppercase' }}>Stock Value</div>
+        </div>
+        <div style={{ flex:1, background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
+          <div style={{ fontSize:18, fontWeight:700, color: lowCount > 0 ? '#E74C3C' : '#27AE60' }}>{lowCount}</div>
+          <div style={{ fontSize:10, color:'var(--text-muted)', textTransform:'uppercase' }}>Low / Critical</div>
+        </div>
+        <div style={{ flex:1, background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
+          <div style={{ fontSize:18, fontWeight:700, color:'var(--dark)' }}>{activeItems.length}</div>
+          <div style={{ fontSize:10, color:'var(--text-muted)', textTransform:'uppercase' }}>Total Items</div>
+        </div>
+      </div>
+
+      {/* Search + filters */}
+      <div style={{ display:'flex', gap:8, marginBottom:10 }}>
+        <input className="search-bar" placeholder="Search items..." value={search}
+          onChange={e => setSearch(e.target.value)} style={{ flex:1, marginBottom:0 }}/>
+        <button onClick={() => setShowInactive(!showInactive)}
+          style={{ padding:'8px 12px', border:'1px solid var(--border)', borderRadius:8, background: showInactive ? 'var(--dark)' : '#fff', color: showInactive ? '#fff' : 'var(--text-muted)', cursor:'pointer', fontSize:11, fontFamily:'inherit', whiteSpace:'nowrap' }}>
+          {showInactive ? 'Hide Inactive' : 'Show Inactive'}
+        </button>
+      </div>
+
+      {/* Category tabs */}
       <div className="filter-bar" style={{ marginBottom:12 }}>
         {categories.map(cat => (
           <button key={cat} className={`cat-btn ${activeCategory===cat?'active':''}`} onClick={() => setActiveCategory(cat)}>
@@ -73,125 +146,103 @@ export default function Inventory({ invHook, viewingStore, showToast, orgItemsHo
         ))}
       </div>
 
-      {/* Stock value banner */}
-      {(() => {
-        const activeItems = inventory.filter(i => i.active !== false)
-        const totalVal    = activeItems.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
-        const cats        = [...new Set(activeItems.map(i => i.cat))].sort()
-        return (
-          <div style={{ display:'flex', gap:8, overflowX:'auto', marginBottom:12, paddingBottom:4 }}>
-            <div style={{ flexShrink:0, background:'rgba(200,132,58,0.08)', border:'1px solid var(--caramel)', borderRadius:10, padding:'8px 14px', textAlign:'center', minWidth:90 }}>
-              <div style={{ fontSize:15, fontWeight:700, color:'var(--caramel)' }}>${totalVal.toFixed(0)}</div>
-              <div style={{ fontSize:9, color:'var(--text-muted)', textTransform:'uppercase', marginTop:2 }}>Total Stock</div>
-              <div style={{ fontSize:9, color:'var(--text-muted)' }}>{activeItems.length} items</div>
-            </div>
-            {cats.map(cat => {
-              const items = activeItems.filter(i => i.cat === cat)
-              const val   = items.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
-              return (
-                <div key={cat} onClick={() => setActiveCategory(cat)} style={{
-                  flexShrink:0, background: activeCategory===cat ? 'var(--dark)' : '#fff',
-                  border:'1px solid var(--border)', borderRadius:10,
-                  padding:'8px 14px', textAlign:'center', minWidth:80, cursor:'pointer'
-                }}>
-                  <div style={{ fontSize:14, fontWeight:700, color: activeCategory===cat ? '#fff' : 'var(--dark)' }}>${val.toFixed(0)}</div>
-                  <div style={{ fontSize:9, color: activeCategory===cat ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)', textTransform:'uppercase', marginTop:2 }}>{cat}</div>
-                  <div style={{ fontSize:9, color: activeCategory===cat ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)' }}>{items.length} items</div>
-                </div>
-              )
-            })}
-          </div>
-        )
-      })()}
-
-      {/* Ice Cream banner */}
-      {activeCategory === 'Ice Cream' && (
-        <div>
-          <div style={{ background:'var(--dark)', borderRadius:12, padding:'12px 16px', marginBottom:10, display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, textAlign:'center' }}>
-            <div>
-              <div style={{ fontSize:18, fontWeight:700, color:'#D4A843' }}>{totalTubs.toFixed(1)}</div>
-              <div style={{ fontSize:10, color:'#aaa', textTransform:'uppercase' }}>Total Tubs</div>
-            </div>
-            <div>
-              <div style={{ fontSize:18, fontWeight:700, color:'var(--caramel)' }}>{Math.round(totalScoops)}</div>
-              <div style={{ fontSize:10, color:'#aaa', textTransform:'uppercase' }}>Total Scoops</div>
-            </div>
-            <div>
-              <div style={{ fontSize:18, fontWeight:700, color:'var(--green-ok)' }}>${totalValue.toFixed(0)}</div>
-              <div style={{ fontSize:10, color:'#aaa', textTransform:'uppercase' }}>Stock Value</div>
-            </div>
-          </div>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-            <div style={{ fontSize:12, color:'var(--text-muted)' }}>
-              {iceCreamItems.length} active{inactiveIceCream.length > 0 ? ` · ${inactiveIceCream.length} inactive` : ''}
-            </div>
-            {inactiveIceCream.length > 0 && (
-              <button onClick={() => setShowInactive(!showInactive)}
-                style={{ fontSize:11, padding:'4px 10px', border:'1px solid var(--border)', borderRadius:6, background:'none', cursor:'pointer', color:'var(--text-muted)' }}>
-                {showInactive ? 'Hide Inactive' : `Show Inactive (${inactiveIceCream.length})`}
-              </button>
-            )}
-          </div>
+      {/* Table */}
+      <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:12, overflow:'hidden' }}>
+        {/* Table header */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 80px 80px 100px 60px', gap:0, background:'var(--dark)', padding:'10px 14px' }}>
+          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase' }}>Item</div>
+          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', textAlign:'center' }}>Stock</div>
+          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', textAlign:'center' }}>PAR</div>
+          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', textAlign:'center' }}>Status</div>
+          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', textAlign:'center' }}>Adj</div>
         </div>
-      )}
 
-      {/* Inventory grid */}
-      <div className="inventory-grid">
-        {filtered.map(item => {
+        {/* Table rows */}
+        {filtered.length === 0 ? (
+          <div style={{ textAlign:'center', padding:32, color:'var(--text-muted)', fontSize:13 }}>No items found</div>
+        ) : filtered.map((item, idx) => {
           const s       = getStatus(item)
-          const pct     = Math.min(100, ((item.stock||0) / ((item.par||1) * 2)) * 100)
-          const barCls  = s === 'ok' ? 'fill-green' : s === 'low' ? 'fill-amber' : 'fill-red'
           const inactive = item.active === false
           return (
-            <div key={item.id} className="item-card" style={{ opacity: inactive ? 0.5 : 1 }}>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
-                <span style={{ fontSize:14, fontWeight:600, color:'var(--dark)' }}>{item.name}</span>
-                <div style={{ display:'flex', gap:6, alignItems:'center' }}>
-                  {inactive && <span style={{ fontSize:10, background:'#8B7355', color:'#fff', padding:'2px 6px', borderRadius:10 }}>Inactive</span>}
-                  {!inactive && statusPill(s)}
+            <div key={item.id} style={{
+              display:'grid', gridTemplateColumns:'1fr 80px 80px 100px 60px',
+              gap:0, padding:'10px 14px', alignItems:'center',
+              borderBottom: idx < filtered.length-1 ? '1px solid var(--border)' : 'none',
+              background: inactive ? '#FAFAFA' : s === 'critical' ? '#FFF5F5' : s === 'low' ? '#FFFBF0' : '#fff',
+              opacity: inactive ? 0.6 : 1,
+            }}>
+              {/* Name + meta */}
+              <div>
+                <div style={{ fontSize:13, fontWeight:600, color:'var(--dark)' }}>{item.name}</div>
+                <div style={{ fontSize:10, color:'var(--text-muted)', marginTop:1 }}>
+                  {item.vendor && <span>{item.vendor}</span>}
+                  {item.code && <span> · {item.code}</span>}
+                  {inactive && <span style={{ color:'#E74C3C' }}> · Inactive</span>}
                 </div>
               </div>
-              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
-                <div className="stock-bar">
-                  <div className={`stock-bar-fill ${barCls}`} style={{ width:`${pct}%` }}/>
-                </div>
-                <span className="vendor-tag">{item.vendor}</span>
+
+              {/* Stock — tap to edit */}
+              <div style={{ textAlign:'center' }}>
+                {editingStock === item.id ? (
+                  <input type="number" defaultValue={item.stock} autoFocus
+                    onBlur={e => { handleSetStock(item.id, e.target.value); setEditingStock(null) }}
+                    onKeyDown={e => { if(e.key==='Enter') { handleSetStock(item.id, e.target.value); setEditingStock(null) }}}
+                    style={{ width:52, textAlign:'center', fontWeight:700, fontSize:14, padding:'3px 4px', border:'1px solid var(--caramel)', borderRadius:6 }}/>
+                ) : (
+                  <div onClick={() => setEditingStock(item.id)}
+                    style={{ fontSize:16, fontWeight:700, color:'var(--dark)', cursor:'pointer', padding:'2px 6px', borderRadius:6, display:'inline-block' }}
+                    title="Tap to edit">
+                    {item.stock}
+                    <div style={{ fontSize:9, color:'var(--text-muted)', fontWeight:400 }}>{item.uom}</div>
+                  </div>
+                )}
               </div>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                  <button className="btn-adj" onClick={() => handleAdjust(item.id, -1)}>-</button>
-                  <input type="number" value={item.stock}
-                    onChange={e => handleSetStock(item.id, e.target.value)}
-                    style={{ width:52, textAlign:'center', fontWeight:700, fontSize:16, padding:'4px 6px', border:'1px solid var(--border)', borderRadius:8, background:'var(--cream)' }}/>
-                  <button className="btn-adj" onClick={() => handleAdjust(item.id, 1)}>+</button>
-                </div>
-                <div style={{ textAlign:'right' }}>
-                  {editingPar === item.id ? (
-                    <input type="number" defaultValue={item.par} autoFocus
-                      onBlur={e => handleSetPar(item.id, e.target.value)}
-                      onKeyDown={e => e.key==='Enter' && handleSetPar(item.id, e.target.value)}
-                      style={{ width:60, padding:'2px 6px', fontSize:11, textAlign:'center' }}/>
-                  ) : (
-                    <div style={{ fontSize:11, color:'var(--text-muted)', cursor:'pointer' }}
-                      onClick={() => setEditingPar(item.id)} title="Tap to edit PAR">
-                      Par: {item.par} {item.uom}
-                    </div>
-                  )}
-                  <div style={{ fontSize:10, color:'#aaa' }}>{item.code}</div>
-                  <button onClick={() => handleToggleActive(item.id)}
-                    style={{ fontSize:10, color: inactive ? 'var(--green-ok)' : 'var(--red-alert)', background:'none', border:'none', cursor:'pointer', padding:0, marginTop:2 }}>
-                    {inactive ? 'Activate' : 'Set Inactive'}
-                  </button>
-                </div>
+
+              {/* PAR — tap to edit */}
+              <div style={{ textAlign:'center' }}>
+                {editingPar === item.id ? (
+                  <input type="number" defaultValue={item.par} autoFocus
+                    onBlur={e => handleSetPar(item.id, e.target.value)}
+                    onKeyDown={e => e.key==='Enter' && handleSetPar(item.id, e.target.value)}
+                    style={{ width:52, textAlign:'center', fontSize:13, padding:'3px 4px', border:'1px solid var(--caramel)', borderRadius:6 }}/>
+                ) : (
+                  <div onClick={() => setEditingPar(item.id)}
+                    style={{ fontSize:13, color:'var(--text-muted)', cursor:'pointer', padding:'2px 6px', borderRadius:6, display:'inline-block' }}
+                    title="Tap to edit PAR">
+                    {item.par}
+                  </div>
+                )}
+              </div>
+
+              {/* Status */}
+              <div style={{ textAlign:'center' }}>
+                {statusDot(s)}
+              </div>
+
+              {/* +/- buttons */}
+              <div style={{ display:'flex', gap:4, justifyContent:'center' }}>
+                <button onClick={() => handleAdjust(item.id, -1)}
+                  style={{ width:24, height:24, borderRadius:6, border:'1px solid var(--border)', background:'#fff', cursor:'pointer', fontSize:14, fontWeight:700, color:'#E74C3C', display:'flex', alignItems:'center', justifyContent:'center', padding:0 }}>
+                  −
+                </button>
+                <button onClick={() => handleAdjust(item.id, 1)}
+                  style={{ width:24, height:24, borderRadius:6, border:'1px solid var(--border)', background:'#fff', cursor:'pointer', fontSize:14, fontWeight:700, color:'#27AE60', display:'flex', alignItems:'center', justifyContent:'center', padding:0 }}>
+                  +
+                </button>
               </div>
             </div>
           )
         })}
       </div>
 
-      {filtered.length === 0 && (
-        <div style={{ textAlign:'center', padding:32, color:'var(--text-muted)' }}>No items found</div>
-      )}
+      {/* Activate/Deactivate — small link below table */}
+      <div style={{ marginTop:8, fontSize:11, color:'var(--text-muted)', textAlign:'right' }}>
+        Tap item name to activate/deactivate ·
+        <button onClick={() => setShowInactive(!showInactive)}
+          style={{ background:'none', border:'none', cursor:'pointer', fontSize:11, color:'var(--caramel)', fontFamily:'inherit', marginLeft:4 }}>
+          {showInactive ? 'hide inactive' : 'show inactive'}
+        </button>
+      </div>
     </div>
   )
 }
