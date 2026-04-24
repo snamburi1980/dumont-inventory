@@ -10,6 +10,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
   const [allStores,     setAllStores]     = useState([])
   const [allRegions,    setAllRegions]    = useState([])
   const [showChangePwd, setShowChangePwd] = useState(false)
+  const [selectedRegion,setSelectedRegion]= useState('')
   const userConfig = auth?.userConfig
 
   useEffect(() => { loadOrgConfig(); loadStores() }, [userConfig?.orgId])
@@ -17,6 +18,13 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
   useEffect(() => {
     if (currentTheme) applyTheme(currentTheme)
   }, [currentTheme])
+
+  // Refresh stores when window gets focus
+  useEffect(() => {
+    function onFocus() { loadStores() }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [])
 
   async function loadStores() {
     try {
@@ -37,11 +45,11 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     } catch(e) {}
   }
 
-  const isSuperOwner     = auth?.isSuperOwner?.()
-  const role             = userConfig?.role || ''
-  const theme            = THEMES[currentTheme] || THEMES.warm
-  const logoData         = orgConfig?.logoData || null
-  const orgName          = orgConfig?.name     || 'Dumont'
+  const isSuperOwner = auth?.isSuperOwner?.()
+  const role         = userConfig?.role || ''
+  const theme        = THEMES[currentTheme] || THEMES.warm
+  const logoData     = orgConfig?.logoData || null
+  const orgName      = orgConfig?.name     || 'Dumont'
 
   function getAccessibleStores() {
     if (isSuperOwner) return allStores
@@ -55,13 +63,18 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     return store ? [store] : []
   }
 
-  const accessibleStores = getAccessibleStores()
+  const accessibleStores = getAccessibleStores().filter(s => {
+    if (!isSuperOwner) return true
+    if (!selectedRegion) return true
+    return s.regionId === selectedRegion
+  })
 
-  // Group tabs into sections for sidebar
+  // Grouped sidebar navigation
   const tabGroups = [
-    { label: 'Operations', ids: ['home','inventory','checklist','schedule'] },
+    { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers'] },
     { label: 'Commerce',   ids: ['sales','orders','delivery'] },
-    { label: 'Insights',   ids: ['cogs','admin'] },
+    { label: 'Insights',   ids: ['cogs'] },
+    { label: 'Admin',      ids: ['admin'] },
   ]
 
   return (
@@ -86,13 +99,15 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
           {/* Right side */}
           <div style={{ display:'flex', alignItems:'center', gap:6 }}>
             {isSuperOwner && allRegions.length > 1 && (
-              <select onChange={e => {
+              <select value={selectedRegion} onChange={e => {
                 const regionId = e.target.value
-                if (!regionId) return
-                const first = allStores.find(s => s.regionId === regionId)
-                if (first) setViewingStore(first.id)
+                setSelectedRegion(regionId)
+                if (regionId) {
+                  const first = allStores.find(s => s.regionId === regionId)
+                  if (first) setViewingStore(first.id)
+                }
               }} style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:8, padding:'4px 8px', fontSize:11, cursor:'pointer', fontFamily:'inherit', maxWidth:90 }}>
-                <option value="">All</option>
+                <option value="">All Regions</option>
                 {allRegions.map(r => (
                   <option key={r.id} value={r.id} style={{ background: theme.headerBg }}>{r.name}</option>
                 ))}
@@ -127,9 +142,9 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
           </div>
         </div>
 
-        {/* Mobile tab bar — horizontal scroll, shown on small screens */}
-        <div style={{ display:'flex', gap:2, overflowX:'auto', maxWidth:1200, margin:'0 auto', background: theme.tabBg,
-          scrollbarWidth:'none', msOverflowStyle:'none' }}
+        {/* Mobile tab bar — hidden on desktop */}
+        <div style={{ display:'flex', gap:2, overflowX:'auto', maxWidth:1200, margin:'0 auto',
+          background: theme.tabBg, scrollbarWidth:'none', msOverflowStyle:'none' }}
           className="mobile-tabs">
           {tabs.map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
@@ -145,7 +160,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
         </div>
       </div>
 
-      {/* Body — sidebar + content on desktop */}
+      {/* Body — sidebar on desktop, full width on mobile */}
       <div style={{ display:'flex', flex:1, maxWidth:1200, margin:'0 auto', width:'100%' }}>
 
         {/* Sidebar — desktop only */}
@@ -166,7 +181,6 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
                     border:'none', borderLeft: activeTab === tab.id ? '3px solid #C8843A' : '3px solid transparent',
                     fontSize:13, fontWeight: activeTab === tab.id ? 700 : 400,
                     cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s',
-                    display:'flex', alignItems:'center', gap:8,
                   }}>
                     {tab.label}
                   </button>
@@ -191,13 +205,12 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
         </div>
       )}
 
-      {/* CSS for responsive sidebar */}
       <style>{`
         .sidebar { display: flex; flex-direction: column; }
-        .mobile-tabs { display: none; }
+        .mobile-tabs { display: none !important; }
         @media (max-width: 768px) {
           .sidebar { display: none !important; }
-          .mobile-tabs { display: flex !important; }
+          .mobile-tabs { display: flex !important; overflow-x: auto; }
         }
       `}</style>
     </div>
