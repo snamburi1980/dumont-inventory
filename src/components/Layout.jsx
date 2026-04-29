@@ -14,12 +14,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
   const userConfig = auth?.userConfig
 
   useEffect(() => { loadOrgConfig(); loadStores() }, [userConfig?.orgId])
-
-  useEffect(() => {
-    if (currentTheme) applyTheme(currentTheme)
-  }, [currentTheme])
-
-  // Refresh stores when window gets focus
+  useEffect(() => { if (currentTheme) applyTheme(currentTheme) }, [currentTheme])
   useEffect(() => {
     function onFocus() { loadStores() }
     window.addEventListener('focus', onFocus)
@@ -69,12 +64,12 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     return s.regionId === selectedRegion
   })
 
-  // Grouped sidebar navigation
+  // disabled: true = greyed out, not clickable
   const tabGroups = [
-    { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister'] },
-    { label: 'Commerce',   ids: ['sales','orders','delivery'] },
-    { label: 'Insights',   ids: ['cogs'] },
-    { label: 'Admin',      ids: ['admin'] },
+    { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister'], disabled: false },
+    { label: 'Commerce',   ids: ['sales','orders','delivery'], disabled: true },
+    { label: 'Insights',   ids: ['cogs'],                      disabled: true },
+    { label: 'Admin',      ids: ['admin'],                     disabled: false },
   ]
 
   return (
@@ -142,46 +137,62 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
           </div>
         </div>
 
-        {/* Mobile tab bar — hidden on desktop */}
+        {/* Mobile tab bar */}
         <div style={{ display:'flex', gap:2, overflowX:'auto', maxWidth:1200, margin:'0 auto',
           background: theme.tabBg, scrollbarWidth:'none', msOverflowStyle:'none' }}
           className="mobile-tabs">
-          {tabs.map(tab => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-              padding:'10px 12px', background:'transparent',
-              color: activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.55)',
-              border:'none', borderBottom: activeTab === tab.id ? `2px solid ${theme.caramel}` : '2px solid transparent',
-              fontSize:11, fontWeight: activeTab === tab.id ? 700 : 400,
-              cursor:'pointer', whiteSpace:'nowrap', fontFamily:'inherit', transition:'color 0.15s'
-            }}>
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map(tab => {
+            const group      = tabGroups.find(g => g.ids.includes(tab.id))
+            const isDisabled = group?.disabled === true
+            return (
+              <button key={tab.id}
+                onClick={() => !isDisabled && setActiveTab(tab.id)}
+                style={{
+                  padding:'10px 12px', background:'transparent',
+                  color: isDisabled ? 'rgba(255,255,255,0.25)' : activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.55)',
+                  border:'none', borderBottom: !isDisabled && activeTab === tab.id ? `2px solid ${theme.caramel}` : '2px solid transparent',
+                  fontSize:11, fontWeight: activeTab === tab.id ? 700 : 400,
+                  cursor: isDisabled ? 'not-allowed' : 'pointer',
+                  whiteSpace:'nowrap', fontFamily:'inherit', transition:'color 0.15s'
+                }}>
+                {tab.label}
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* Body — sidebar on desktop, full width on mobile */}
+      {/* Body */}
       <div style={{ display:'flex', flex:1, maxWidth:1200, margin:'0 auto', width:'100%' }}>
 
         {/* Sidebar — desktop only */}
         <div className="sidebar" style={{ width:180, flexShrink:0, padding:'20px 0', borderRight:'1px solid #EDE0CC' }}>
           {tabGroups.map(group => {
-            const groupTabs = tabs.filter(t => group.ids.includes(t.id))
+            const groupTabs  = tabs.filter(t => group.ids.includes(t.id))
+            const isDisabled = group.disabled === true
             if (!groupTabs.length) return null
             return (
               <div key={group.label} style={{ marginBottom:20 }}>
-                <div style={{ fontSize:9, fontWeight:700, color:'#aaa', textTransform:'uppercase', letterSpacing:'0.8px', padding:'0 16px', marginBottom:6 }}>
+                {/* Group label */}
+                <div style={{ fontSize:9, fontWeight:700, color: isDisabled ? '#ccc' : '#aaa', textTransform:'uppercase', letterSpacing:'0.8px', padding:'0 16px', marginBottom:6, display:'flex', alignItems:'center', gap:4 }}>
                   {group.label}
+                  {isDisabled && <span style={{ fontSize:8, background:'#eee', color:'#bbb', borderRadius:3, padding:'1px 4px' }}>Soon</span>}
                 </div>
+                {/* Tab buttons */}
                 {groupTabs.map(tab => (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-                    width:'100%', textAlign:'left', padding:'9px 16px',
-                    background: activeTab === tab.id ? 'rgba(200,132,58,0.12)' : 'transparent',
-                    color: activeTab === tab.id ? '#2C1810' : '#8B7355',
-                    border:'none', borderLeft: activeTab === tab.id ? '3px solid #C8843A' : '3px solid transparent',
-                    fontSize:13, fontWeight: activeTab === tab.id ? 700 : 400,
-                    cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s',
-                  }}>
+                  <button key={tab.id}
+                    onClick={() => !isDisabled && setActiveTab(tab.id)}
+                    style={{
+                      width:'100%', textAlign:'left', padding:'9px 16px',
+                      background: !isDisabled && activeTab === tab.id ? 'rgba(200,132,58,0.12)' : 'transparent',
+                      color: isDisabled ? '#ccc' : activeTab === tab.id ? '#2C1810' : '#8B7355',
+                      border:'none',
+                      borderLeft: !isDisabled && activeTab === tab.id ? '3px solid #C8843A' : '3px solid transparent',
+                      fontSize:13, fontWeight: !isDisabled && activeTab === tab.id ? 700 : 400,
+                      cursor: isDisabled ? 'not-allowed' : 'pointer',
+                      fontFamily:'inherit', transition:'all 0.15s',
+                      textDecoration: isDisabled ? 'none' : 'none',
+                    }}>
                     {tab.label}
                   </button>
                 ))}

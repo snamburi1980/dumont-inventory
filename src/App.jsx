@@ -20,7 +20,6 @@ import ChangePassword from './components/ChangePassword'
 import Checklist      from './components/Checklist'
 import Picks          from './components/Picks'
 import Transfers      from './components/Transfers'
-import CashRegister from './components/CashRegister'
 
 export default function App() {
   const auth         = useAuth()
@@ -121,13 +120,13 @@ export default function App() {
     { id:'icecreamlog',  label:'Ice Cream Log' },
     { id:'checklist',    label:'Checklist'     },
     { id:'schedule',     label:'Schedule'      },
+    { id:'transfers',    label:'Transfers'     },
+    { id:'cashregister', label:'Cash Register' },
     { id:'sales',        label:'Sales'         },
     { id:'orders',       label:'Orders'        },
     { id:'delivery',     label:'Delivery'      },
-    { id:'transfers',    label:'Transfers'     },
     { id:'cogs',         label:'COGS'          },
     { id:'admin',        label:'Admin'         },
-    { id:'cashregister', label:'Cash Register' },
   ]
 
   function handleTabChange(tab) {
@@ -154,7 +153,6 @@ export default function App() {
         {activeTab === 'transfers'   && <Transfers auth={auth} showToast={showToast} />}
         {activeTab === 'cogs'        && <COGS      {...tabProps} />}
         {activeTab === 'admin'       && <Admin     {...tabProps} />}
-        {activeTab === 'cashregister' && <CashRegister viewingStore={viewingStore} auth={auth} showToast={showToast} />}
 
         {toast && (
           <div style={{
