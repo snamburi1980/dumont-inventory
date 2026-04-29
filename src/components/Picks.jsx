@@ -1,32 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { collection, addDoc, getDocs, query, orderBy, where } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import TipBanner from './TipBanner'
 
-export default function Picks({ invHook, viewingStore, auth, showToast }) {
+export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToast }) {
   const { inventory, saveInventory, loadInventory } = invHook
 
-  const [pendingPicks, setPendingPicks] = useState({})
-  const [saving,       setSaving]       = useState(false)
-  const [showReport,   setShowReport]   = useState(false)
-  const [usageData,    setUsageData]    = useState([])
-  const [usageMonth,   setUsageMonth]   = useState('')
-  const [loadingUsage, setLoadingUsage] = useState(false)
+  const [counts,      setCounts]      = useState({}) // { itemId: currentCount } starts at stock value
+  const [saving,      setSaving]      = useState(false)
+  const [showReport,  setShowReport]  = useState(false)
+  const [usageData,   setUsageData]   = useState([])
+  const [usageMonth,  setUsageMonth]  = useState('')
+  const [loadingUsage,setLoadingUsage]= useState(false)
 
   const userName      = auth?.userConfig?.name || 'Staff'
   const iceCreamItems = inventory.filter(i => i.cat === 'Ice Cream' && i.active !== false)
-  const totalPicks    = Object.values(pendingPicks).reduce((s, q) => s + q, 0)
 
-  function pick(id) {
-    const item = inventory.find(i => i.id === id)
-    if (!item) return
-    const alreadyPicked = pendingPicks[id] || 0
-    if (item.stock - alreadyPicked <= 0) { showToast('No more stock available'); return }
-    setPendingPicks(prev => ({ ...prev, [id]: alreadyPicked + 1 }))
+  // Reload inventory when tab opens to get latest stock
+  useEffect(() => {
+    if (viewingStore) invHook.loadInventory(viewingStore, viewingOrg || 'dumont')
+  }, [viewingStore, viewingOrg])
+
+  // Get current display count — defaults to stock value
+  function getCount(item) {
+    return counts[item.id] !== undefined ? counts[item.id] : item.stock
   }
 
+  function decrease(item) {
+    const current = getCount(item)
+    if (current <= 0) { showToast('Cannot go below 0'); return }
+    setCounts(prev => ({ ...prev, [item.id]: current - 1 }))
+  }
+
+  function increase(item) {
+    const current = getCount(item)
+    if (current >= item.stock) { showToast('Cannot exceed current stock'); return }
+    setCounts(prev => ({ ...prev, [item.id]: current + 1 }))
+  }
+
+  // Items that have been decreased
+  const changed = iceCreamItems.filter(item => {
+    const current = getCount(item)
+    return current < item.stock
+  })
+
+  const totalPicked = changed.reduce((s, item) => s + (item.stock - getCount(item)), 0)
+
+  function clearAll() { setCounts({}) }
+
   async function savePicks() {
-    if (totalPicks === 0) { showToast('No picks to save'); return }
+    if (changed.length === 0) { showToast('No changes to save'); return }
     setSaving(true)
     try {
       const now      = new Date()
@@ -34,37 +57,39 @@ export default function Picks({ invHook, viewingStore, auth, showToast }) {
       const month    = now.toLocaleDateString('en-US', { month:'long', year:'numeric' })
 
       const updatedInventory = inventory.map(item => {
-        const qty = pendingPicks[item.id] || 0
-        if (qty === 0) return item
-        return { ...item, stock: Math.max(0, Math.round((item.stock - qty) * 100) / 100) }
+        const newCount = getCount(item)
+        if (newCount === item.stock) return item
+        return { ...item, stock: Math.max(0, newCount) }
       })
 
       await saveInventory(viewingStore, updatedInventory)
-      loadInventory(viewingStore)
+      await loadInventory(viewingStore)
 
-      for (const [itemId, qty] of Object.entries(pendingPicks)) {
-        if (qty === 0) continue
-        const item = inventory.find(i => i.id === itemId)
-        if (!item) continue
+      for (const item of changed) {
+        const picked = item.stock - getCount(item)
         await addDoc(collection(db, 'stores', viewingStore, 'stockLog'), {
-          itemId,
-          itemName:   item.name,
-          category:   'Ice Cream',
-          delta:      -qty,
-          stockAfter: Math.max(0, (item.stock || 0) - qty),
+          itemId:    item.id,
+          itemName:  item.name,
+          category:  'Ice Cream',
+          delta:     -picked,
+          stockAfter: getCount(item),
           userName,
-          timestamp:  Date.now(),
-          date:       now.toLocaleDateString(),
+          timestamp: Date.now(),
+          date:      now.toLocaleDateString(),
           month,
           monthKey,
         })
       }
 
-      showToast(`✅ ${totalPicks} bucket${totalPicks > 1 ? 's' : ''} logged`)
-      setPendingPicks({})
+      showToast(`✅ ${totalPicked} bucket${totalPicked > 1 ? 's' : ''} logged`)
+      setCounts({})
     } catch(e) {
-      console.error(e)
-      showToast('Save failed — try again')
+      console.error('Save picks error:', e)
+      if (e.message?.includes('permission')) {
+        showToast('Session expired — please refresh')
+      } else {
+        showToast('Save failed — check connection and try again')
+      }
     }
     setSaving(false)
   }
@@ -103,97 +128,123 @@ export default function Picks({ invHook, viewingStore, auth, showToast }) {
 
   return (
     <div>
-      <TipBanner message="Tap − to log a bucket pick. Stock reduces automatically. Save when done. Monthly report shows total buckets used per flavor." />
+      <TipBanner message="Each flavor shows current stock. Tap − to log a bucket used. The number counts down. Tap Save when done." />
 
-      {/* Table */}
+      {/* Two column grid of flavors */}
       <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
-
-        {/* Header */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 80px 80px 60px', background:'var(--dark)', padding:'10px 14px' }}>
-          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase' }}>Flavor</div>
-          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', textAlign:'center' }}>In Stock</div>
-          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', textAlign:'center' }}>Picked</div>
-          <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', textAlign:'center' }}>Pick</div>
+        <div style={{ background:'var(--dark)', padding:'10px 16px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: totalPicked > 0 ? 8 : 0 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>🍨 Ice Cream Stock</div>
+            <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>
+              {new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' })}
+            </div>
+          </div>
+          {(() => {
+            const totalStock = iceCreamItems.reduce((s,i) => s + (i.stock||0), 0)
+            const totalAfter = iceCreamItems.reduce((s,i) => s + getCount(i), 0)
+            const picked     = totalStock - totalAfter
+            return (
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginTop:4 }}>
+                <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:8, padding:'6px 10px', textAlign:'center' }}>
+                  <div style={{ fontSize:16, fontWeight:800, color:'#C8843A' }}>{totalStock}</div>
+                  <div style={{ fontSize:9, color:'rgba(255,255,255,0.6)', textTransform:'uppercase' }}>Total Stock</div>
+                </div>
+                <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:8, padding:'6px 10px', textAlign:'center' }}>
+                  <div style={{ fontSize:16, fontWeight:800, color: picked > 0 ? '#E65100' : 'rgba(255,255,255,0.4)' }}>{picked}</div>
+                  <div style={{ fontSize:9, color:'rgba(255,255,255,0.6)', textTransform:'uppercase' }}>Picked Today</div>
+                </div>
+                <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:8, padding:'6px 10px', textAlign:'center' }}>
+                  <div style={{ fontSize:16, fontWeight:800, color:'#fff' }}>{totalAfter}</div>
+                  <div style={{ fontSize:9, color:'rgba(255,255,255,0.6)', textTransform:'uppercase' }}>Remaining</div>
+                </div>
+              </div>
+            )
+          })()}
         </div>
 
         {iceCreamItems.length === 0 ? (
           <div style={{ textAlign:'center', padding:32, color:'var(--text-muted)', fontSize:13 }}>
-            No ice cream items found — add stock in Inventory tab first
+            No ice cream items — add stock in Inventory tab first
           </div>
-        ) : iceCreamItems.map((item, idx) => {
-          const picked    = pendingPicks[item.id] || 0
-          const remaining = item.stock - picked
-          return (
-            <div key={item.id} style={{
-              display:'grid', gridTemplateColumns:'1fr 80px 80px 60px',
-              padding:'10px 14px', alignItems:'center',
-              borderBottom: idx < iceCreamItems.length-1 ? '1px solid var(--border)' : 'none',
-              background: picked > 0 ? '#FFF8F0' : '#fff'
-            }}>
-              {/* Flavor name */}
-              <div>
-                <div style={{ fontSize:13, fontWeight:600, color:'var(--dark)' }}>{item.name}</div>
-                <div style={{ fontSize:10, color:'var(--text-muted)' }}>{item.uom || 'tub'}</div>
-              </div>
+        ) : (
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'var(--border)' }}>
+            {iceCreamItems.map(item => {
+              const current  = getCount(item)
+              const picked   = item.stock - current
+              const atMax    = current >= item.stock
+              const atMin    = current <= 0
+              const changed  = picked > 0
 
-              {/* Remaining stock */}
-              <div style={{ textAlign:'center' }}>
-                <div style={{ fontSize:15, fontWeight:700, color: remaining <= 0 ? '#E74C3C' : remaining <= 1 ? '#E67E22' : 'var(--dark)' }}>
-                  {remaining}
+              return (
+                <div key={item.id} style={{
+                  background: changed ? '#FFF8F0' : '#fff',
+                  padding:'12px',
+                }}>
+                  {/* Row: flavor name + number + buttons all on same line */}
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:6 }}>
+                    {/* Flavor name */}
+                    <div style={{ flex:1, fontSize:13, fontWeight:600, color:'var(--dark)', fontFamily:'inherit', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                      {item.name}
+                      {changed && <span style={{ fontSize:10, color:'#E65100', marginLeft:4 }}>-{picked}</span>}
+                    </div>
+                    {/* Number same size as name */}
+                    <div style={{ fontSize:13, fontWeight:700, color: changed ? '#E65100' : 'var(--dark)', fontFamily:'inherit', flexShrink:0 }}>
+                      {current}
+                    </div>
+                    {/* +/- buttons */}
+                    <div style={{ display:'flex', gap:3, flexShrink:0 }}>
+                      <button onClick={() => increase(item)} disabled={atMax}
+                        style={{
+                          width:26, height:26, borderRadius:6,
+                          border: atMax ? '1px solid #EDE0CC' : '1px solid #27AE60',
+                          background: atMax ? '#F5F5F5' : '#E8F5E9',
+                          color: atMax ? '#ccc' : '#27AE60',
+                          cursor: atMax ? 'not-allowed' : 'pointer',
+                          fontSize:14, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', padding:0, fontFamily:'inherit'
+                        }}>+</button>
+                      <button onClick={() => decrease(item)} disabled={atMin}
+                        style={{
+                          width:26, height:26, borderRadius:6,
+                          border: atMin ? '1px solid #EDE0CC' : '1px solid var(--dark)',
+                          background: atMin ? '#F5F5F5' : 'var(--dark)',
+                          color: atMin ? '#ccc' : '#fff',
+                          cursor: atMin ? 'not-allowed' : 'pointer',
+                          fontSize:14, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', padding:0, fontFamily:'inherit'
+                        }}>−</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              {/* Picked count */}
-              <div style={{ textAlign:'center' }}>
-                {picked > 0
-                  ? <span style={{ fontSize:15, fontWeight:700, color:'#E65100' }}>{picked}</span>
-                  : <span style={{ fontSize:13, color:'#ccc' }}>—</span>
-                }
-              </div>
-
-              {/* Pick button */}
-              <div style={{ textAlign:'center' }}>
-                <button onClick={() => pick(item.id)} disabled={remaining <= 0}
-                  style={{ width:32, height:32, borderRadius:8, border:'none',
-                    background: remaining <= 0 ? '#EDE0CC' : 'var(--dark)',
-                    color:'#fff', cursor: remaining <= 0 ? 'not-allowed' : 'pointer',
-                    fontSize:18, fontWeight:700, display:'inline-flex', alignItems:'center', justifyContent:'center' }}>
-                  −
-                </button>
-              </div>
-            </div>
-          )
-        })}
+              )
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Save section */}
-      {totalPicks > 0 && (
+      {/* Save section — only show if changes made */}
+      {changed.length > 0 && (
         <div style={{ background:'#FFF3E0', border:'1px solid #FFB74D', borderRadius:12, padding:'14px 16px', marginBottom:14 }}>
-          <div style={{ fontSize:13, fontWeight:700, color:'#E65100', marginBottom:10 }}>
-            Review before saving
-          </div>
-          {Object.entries(pendingPicks).map(([id, qty]) => {
-            const item = inventory.find(i => i.id === id)
-            if (!item || qty === 0) return null
+          <div style={{ fontSize:13, fontWeight:700, color:'#E65100', marginBottom:10 }}>Review before saving</div>
+          {changed.map(item => {
+            const picked = item.stock - getCount(item)
             return (
-              <div key={id} style={{ display:'flex', justifyContent:'space-between', padding:'5px 0', borderBottom:'1px solid #FFE0B2', fontSize:13 }}>
+              <div key={item.id} style={{ display:'flex', justifyContent:'space-between', padding:'5px 0', borderBottom:'1px solid #FFE0B2', fontSize:13 }}>
                 <span style={{ color:'var(--dark)', fontWeight:500 }}>{item.name}</span>
-                <span style={{ fontWeight:700, color:'#E65100' }}>{qty} bucket{qty > 1 ? 's' : ''}</span>
+                <span style={{ fontWeight:700, color:'#E65100' }}>{picked} bucket{picked > 1 ? 's' : ''} used</span>
               </div>
             )
           })}
           <div style={{ display:'flex', justifyContent:'space-between', marginTop:10, paddingTop:8, borderTop:'2px solid #FFB74D' }}>
             <span style={{ fontSize:13, fontWeight:700, color:'var(--dark)' }}>Total</span>
-            <span style={{ fontSize:15, fontWeight:700, color:'#E65100' }}>{totalPicks} bucket{totalPicks > 1 ? 's' : ''}</span>
+            <span style={{ fontSize:15, fontWeight:700, color:'#E65100' }}>{totalPicked} buckets</span>
           </div>
           <div style={{ display:'flex', gap:8, marginTop:12 }}>
             <button onClick={savePicks} disabled={saving}
               style={{ flex:1, background: saving ? '#aaa' : '#E65100', color:'#fff', border:'none', borderRadius:10, padding:'12px', cursor:'pointer', fontSize:14, fontWeight:700, fontFamily:'inherit' }}>
-              {saving ? 'Saving...' : '✅ Save Picks'}
+              {saving ? 'Saving...' : '✅ Save'}
             </button>
-            <button onClick={() => setPendingPicks({})}
+            <button onClick={clearAll}
               style={{ padding:'12px 16px', background:'#888', color:'#fff', border:'none', borderRadius:10, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>
-              Cancel
+              Reset
             </button>
           </div>
         </div>
@@ -202,17 +253,16 @@ export default function Picks({ invHook, viewingStore, auth, showToast }) {
       {/* Monthly Usage Report */}
       <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:12, padding:'14px 16px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-          <div style={{ fontSize:13, fontWeight:700, color:'var(--dark)' }}>📊 Monthly Usage Report</div>
+          <div style={{ fontSize:13, fontWeight:700, color:'var(--dark)' }}>📊 Monthly Usage</div>
           <div style={{ display:'flex', gap:6 }}>
             {showReport && (
               <button onClick={async () => {
-                if (!window.confirm('Clear all usage logs for this month? This cannot be undone.')) return
-                const { collection, getDocs, deleteDoc, query, where } = await import('firebase/firestore')
-                const { db } = await import('../firebase/config')
+                if (!window.confirm('Clear all usage logs for this month?')) return
+                const { collection: col, getDocs: gd, deleteDoc, query: q2, where: w } = await import('firebase/firestore')
+                const { db: db2 } = await import('../firebase/config')
                 const now = new Date()
                 const selKey = usageMonth || `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
-                const q = query(collection(db, 'stores', viewingStore, 'stockLog'), where('monthKey', '==', selKey))
-                const snap = await (await import('firebase/firestore')).getDocs(q)
+                const snap = await gd(q2(col(db2, 'stores', viewingStore, 'stockLog'), w('monthKey', '==', selKey)))
                 for (const d of snap.docs) await deleteDoc(d.ref)
                 setUsageData([])
                 showToast('Usage log cleared')
@@ -222,7 +272,7 @@ export default function Picks({ invHook, viewingStore, auth, showToast }) {
             )}
             <button onClick={() => { setShowReport(!showReport); if (!showReport) loadUsage() }}
               style={{ background:'var(--dark)', color:'#fff', border:'none', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'inherit' }}>
-              {showReport ? 'Hide' : 'View Report'}
+              {showReport ? 'Hide' : 'View'}
             </button>
           </div>
         </div>
@@ -239,13 +289,10 @@ export default function Picks({ invHook, viewingStore, auth, showToast }) {
                 </button>
               ))}
             </div>
-
             {loadingUsage ? (
               <div style={{ textAlign:'center', padding:20, color:'var(--text-muted)' }}>Loading...</div>
             ) : usageData.length === 0 ? (
-              <div style={{ textAlign:'center', padding:20, color:'var(--text-muted)', fontSize:13 }}>
-                No picks logged for this month yet
-              </div>
+              <div style={{ textAlign:'center', padding:20, color:'var(--text-muted)', fontSize:13 }}>No picks logged yet</div>
             ) : (
               <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
                 <thead>

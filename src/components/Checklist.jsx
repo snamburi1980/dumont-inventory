@@ -200,12 +200,11 @@ export default function Checklist({ viewingStore, auth, showToast }) {
 
     setSubmitting(true)
     try {
-      // Store photos separately to keep main document small
       const itemsForStorage = items.map(i => ({
         label:   i.label,
         checked: i.checked,
         remarks: i.remarks,
-        photo:   i.photo || null,  // included — already compressed to <80KB each
+        photo:   i.photo || null,
       }))
 
       const submission = {
@@ -222,13 +221,32 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         hasPhotos:    items.some(i => i.photo),
       }
 
-      await addDoc(collection(db, 'stores', viewingStore, 'checklists'), submission)
-      showToast(`${type === 'opening' ? 'Opening' : 'Closing'} checklist submitted!`)
-      setView('menu')
+      // Retry up to 2 times on failure
+      let saved = false
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          await addDoc(collection(db, 'stores', viewingStore, 'checklists'), submission)
+          saved = true
+          break
+        } catch(err) {
+          if (attempt < 2) {
+            await new Promise(r => setTimeout(r, 1500))
+          } else {
+            throw err
+          }
+        }
+      }
+
+      if (saved) {
+        showToast(`${type === 'opening' ? 'Opening' : 'Closing'} checklist submitted!`)
+        setView('menu')
+      }
     } catch(e) {
       console.error('Submit error:', e)
       if (e.message?.includes('exceeds') || e.message?.includes('size')) {
-        showToast('Document too large — remove some photos and try again')
+        showToast('Too many photos — remove some and try again')
+      } else if (e.message?.includes('permission') || e.message?.includes('auth')) {
+        showToast('Session expired — please refresh and try again')
       } else {
         showToast('Submit failed — check your connection and try again')
       }

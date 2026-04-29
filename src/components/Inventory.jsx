@@ -10,6 +10,7 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
   const [editingPar,     setEditingPar]     = useState(null)
   const [editingStock,   setEditingStock]   = useState(null)
   const [locked,         setLocked]         = useState(true)
+  const [saveStatus,     setSaveStatus]     = useState(null) // null | 'saving' | 'saved' | 'error'
   const saveTimer = useRef(null)
   const lockTimer = useRef(null)
   const LOCK_TIMEOUT = 5 * 60 * 1000
@@ -57,9 +58,17 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
   }
 
   function scheduleSave() {
+    setSaveStatus('saving')
     clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
-      await saveInventory(viewingStore, inventory)
+      try {
+        await saveInventory(viewingStore, inventory)
+        setSaveStatus('saved')
+        setTimeout(() => setSaveStatus(null), 2000)
+      } catch(e) {
+        setSaveStatus('error')
+        showToast('Save failed — check your connection')
+      }
     }, 1200)
   }
 
@@ -105,27 +114,72 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
             </div>
           </div>
         </div>
-        <button onClick={locked ? unlock : () => { setLocked(true); showToast('Inventory locked') }}
-          style={{ background: locked ? '#E65100' : '#2E7D32', color:'#fff', border:'none', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit' }}>
-          {locked ? 'Unlock' : 'Lock'}
-        </button>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          {saveStatus === 'saving' && <span style={{ fontSize:11, color:'#8B7355' }}>Saving...</span>}
+          {saveStatus === 'saved'  && <span style={{ fontSize:11, color:'#27AE60' }}>✓ Saved</span>}
+          {saveStatus === 'error'  && <span style={{ fontSize:11, color:'#E74C3C' }}>⚠ Save failed</span>}
+          <button onClick={locked ? unlock : () => { setLocked(true); showToast('Inventory locked') }}
+            style={{ background: locked ? '#E65100' : '#2E7D32', color:'#fff', border:'none', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit' }}>
+            {locked ? 'Unlock' : 'Lock'}
+          </button>
+        </div>
       </div>
 
-      {/* Summary bar */}
-      <div style={{ display:'flex', gap:10, marginBottom:12 }}>
-        <div style={{ flex:1, background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
-          <div style={{ fontSize:18, fontWeight:700, color:'var(--caramel)' }}>${totalVal.toFixed(0)}</div>
-          <div style={{ fontSize:10, color:'var(--text-muted)', textTransform:'uppercase' }}>Stock Value</div>
-        </div>
-        <div style={{ flex:1, background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
-          <div style={{ fontSize:18, fontWeight:700, color: lowCount > 0 ? '#E74C3C' : '#27AE60' }}>{lowCount}</div>
-          <div style={{ fontSize:10, color:'var(--text-muted)', textTransform:'uppercase' }}>Low / Critical</div>
-        </div>
-        <div style={{ flex:1, background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
-          <div style={{ fontSize:18, fontWeight:700, color:'var(--dark)' }}>{activeItems.length}</div>
-          <div style={{ fontSize:10, color:'var(--text-muted)', textTransform:'uppercase' }}>Total Items</div>
-        </div>
-      </div>
+      {/* Category summary */}
+      {(() => {
+        const cats    = [...new Set(activeItems.map(i => i.cat))].filter(Boolean).sort()
+        const selItems = activeCategory === 'all' ? activeItems : activeItems.filter(i => i.cat === activeCategory)
+        const selVal   = selItems.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
+        const selLow   = selItems.filter(i => getStatus(i) !== 'ok').length
+        return (
+          <div>
+            {/* 3 stat cards for selected category */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, marginBottom:10 }}>
+              <div style={{ background:'rgba(200,132,58,0.08)', border:'1px solid var(--caramel)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
+                <div style={{ fontSize:16, fontWeight:700, color:'var(--caramel)' }}>${selVal.toFixed(0)}</div>
+                <div style={{ fontSize:9, color:'var(--text-muted)', textTransform:'uppercase', marginTop:2 }}>
+                  {activeCategory === 'all' ? 'Total Value' : `${activeCategory}`}
+                </div>
+              </div>
+              <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
+                <div style={{ fontSize:16, fontWeight:700, color: selLow > 0 ? '#E74C3C' : '#27AE60' }}>{selLow}</div>
+                <div style={{ fontSize:9, color:'var(--text-muted)', textTransform:'uppercase', marginTop:2 }}>Low/Critical</div>
+              </div>
+              <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
+                <div style={{ fontSize:16, fontWeight:700, color:'var(--dark)' }}>{selItems.length}</div>
+                <div style={{ fontSize:9, color:'var(--text-muted)', textTransform:'uppercase', marginTop:2 }}>Items</div>
+              </div>
+            </div>
+            {/* Category pill tabs with value */}
+            <div style={{ display:'flex', gap:6, overflowX:'auto', marginBottom:12, paddingBottom:2 }}>
+              <button onClick={() => setActiveCategory('all')} style={{
+                flexShrink:0, padding:'5px 12px', borderRadius:20,
+                border:'1px solid var(--border)', cursor:'pointer', fontFamily:'inherit',
+                background: activeCategory==='all' ? 'var(--dark)' : '#fff',
+                color: activeCategory==='all' ? '#fff' : 'var(--text-muted)', fontSize:11,
+                fontWeight: activeCategory==='all' ? 700 : 400
+              }}>All · ${totalVal.toFixed(0)}</button>
+              {cats.map(cat => {
+                const items = activeItems.filter(i => i.cat === cat)
+                const val   = items.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
+                const low   = items.filter(i => getStatus(i) !== 'ok').length
+                return (
+                  <button key={cat} onClick={() => setActiveCategory(cat)} style={{
+                    flexShrink:0, padding:'5px 12px', borderRadius:20,
+                    border: low > 0 ? '1px solid #E74C3C' : '1px solid var(--border)',
+                    cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap',
+                    background: activeCategory===cat ? 'var(--dark)' : '#fff',
+                    color: activeCategory===cat ? '#fff' : low > 0 ? '#E74C3C' : 'var(--text-muted)',
+                    fontSize:11, fontWeight: activeCategory===cat ? 700 : 400
+                  }}>
+                    {cat} · ${val.toFixed(0)}{low > 0 ? ` ⚠${low}` : ''}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Search + filters */}
       <div style={{ display:'flex', gap:8, marginBottom:10 }}>

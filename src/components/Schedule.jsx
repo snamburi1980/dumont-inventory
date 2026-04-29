@@ -41,6 +41,7 @@ export default function Schedule({ viewingStore, showToast }) {
   const [shifts,        setShifts]        = useState({})
   const [offset,        setOffset]        = useState(0)
   const [selectedDay,   setSelectedDay]   = useState(0) // mobile: which day is shown
+  const [mobileView,    setMobileView]    = useState('week') // mobile: 'week' | 'day'
   const [modal,         setModal]         = useState(null)
   const [shiftForm,     setShiftForm]     = useState({ start:'09:00', end:'17:00' })
   const [showCustom,    setShowCustom]    = useState(false)
@@ -81,28 +82,65 @@ export default function Schedule({ viewingStore, showToast }) {
 
   async function loadSchedule() {
     if (!viewingStore) return
+    // Always clear shifts first to prevent stale data showing
+    setShifts({})
     try {
       const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
       if (snap.exists()) {
         const d = snap.data()
         setMembers(d.members || [])
         setPresets(d.presets || [])
+        // Explicitly set to empty object if no shifts for this week
         setShifts(d.shifts?.[String(offset)] || {})
       }
-    } catch(e) { console.error(e) }
+    } catch(e) {
+      console.error(e)
+      setShifts({}) // clear on error too
+    }
   }
 
-  async function save(newMembers, newPresets, newShifts) {
+  async function save(newMembers, newPresets, newShifts, retries = 2) {
     if (!viewingStore) return
     try {
-      const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
+      const snap     = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
       const existing = snap.exists() ? snap.data() : {}
+      // Always preserve ALL existing week shifts, only update current week
+      const allShifts = { ...(existing.shifts || {}) }
+      if (newShifts !== null) {
+        allShifts[String(offset)] = newShifts
+      }
       await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
-        members: newMembers, presets: newPresets,
-        shifts: { ...(existing.shifts||{}), [String(offset)]: newShifts },
+        members:   newMembers,
+        presets:   newPresets,
+        shifts:    allShifts,
         updatedAt: Date.now()
       })
-    } catch(e) { showToast('Save failed') }
+    } catch(e) {
+      console.error('Schedule save error:', e)
+      if (retries > 0) {
+        await new Promise(r => setTimeout(r, 1000))
+        return save(newMembers, newPresets, newShifts, retries - 1)
+      }
+      showToast('⚠️ Save failed — check your connection')
+    }
+  }
+
+  // Save only members/presets without touching shifts at all
+  async function saveMetaOnly(newMembers, newPresets) {
+    if (!viewingStore) return
+    try {
+      const snap     = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
+      const existing = snap.exists() ? snap.data() : {}
+      await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
+        members:   newMembers,
+        presets:   newPresets,
+        shifts:    existing.shifts || {},
+        updatedAt: Date.now()
+      })
+    } catch(e) {
+      console.error('Schedule meta save error:', e)
+      showToast('⚠️ Save failed — check your connection')
+    }
   }
 
   function openCell(memberId, dayIdx) {
@@ -144,7 +182,7 @@ export default function Schedule({ viewingStore, showToast }) {
     if (!newStaff.name.trim()) { showToast('Enter name'); return }
     const updated = [...members, { id:String(Date.now()), ...newStaff }]
     setMembers(updated)
-    save(updated, presets, shifts)
+    saveMetaOnly(updated, presets)
     setNewStaff({ name:'', role:'', color: COLORS[updated.length % COLORS.length] })
     setShowAddStaff(false)
     showToast(`${newStaff.name} added`)
@@ -157,6 +195,7 @@ export default function Schedule({ viewingStore, showToast }) {
     DAYS.forEach((_,di) => delete newShifts[`${id}_${di}`])
     setMembers(updated)
     setShifts(newShifts)
+    saveMetaOnly(updated, presets)
     save(updated, presets, newShifts)
   }
 
@@ -164,7 +203,7 @@ export default function Schedule({ viewingStore, showToast }) {
     if (!editName.trim()) return
     const updated = members.map(m => m.id===id ? {...m,name:editName} : m)
     setMembers(updated)
-    save(updated, presets, shifts)
+    saveMetaOnly(updated, presets)
     setEditStaffId(null)
   }
 
@@ -172,7 +211,7 @@ export default function Schedule({ viewingStore, showToast }) {
     if (!newPreset.name.trim()) { showToast('Enter shift name'); return }
     const updated = [...presets, { id:String(Date.now()), ...newPreset }]
     setPresets(updated)
-    save(members, updated, shifts)
+    saveMetaOnly(members, updated)
     setNewPreset({ name:'', start:'09:00', end:'17:00', color: COLORS[updated.length % COLORS.length] })
     setShowAddPreset(false)
     showToast(`${newPreset.name} shift added`)
@@ -181,7 +220,7 @@ export default function Schedule({ viewingStore, showToast }) {
   function removePreset(id) {
     const updated = presets.filter(p => p.id !== id)
     setPresets(updated)
-    save(members, updated, shifts)
+    saveMetaOnly(members, updated)
   }
 
   function getHours(memberId) {
@@ -202,6 +241,13 @@ export default function Schedule({ viewingStore, showToast }) {
         showToast('Previous week copied!')
       }
     } catch(e) { showToast('Copy failed') }
+  }
+
+  async function clearWeek() {
+    if (!window.confirm(`Clear all shifts for ${weekLabel}?`)) return
+    setShifts({})
+    save(members, presets, {})
+    showToast('Week cleared ✅')
   }
 
   async function exportSnapshot() {
@@ -234,94 +280,161 @@ export default function Schedule({ viewingStore, showToast }) {
         {offset !== 0 && <button onClick={() => setOffset(0)} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#8B7355' }}>Today</button>}
       </div>
       <div style={{ display:'flex', gap:6 }}>
-        <button onClick={copyLastWeek} style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 10px', cursor:'pointer', fontSize:11, color:'#8B7355' }}>Copy Last Week</button>
-        <button onClick={exportSnapshot} style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:600 }}>Share</button>
+       <button onClick={copyLastWeek} style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 10px', cursor:'pointer', fontSize:11, color:'#8B7355' }}>Copy Last Week</button>
+<button onClick={clearWeek} style={{ background:'#fff', border:'1px solid #FFCDD2', borderRadius:8, padding:'6px 10px', cursor:'pointer', fontSize:11, color:'#E74C3C' }}>Clear Week</button>
+<button onClick={exportSnapshot} style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:600 }}>Share</button>
       </div>
     </div>
   )
 
-  // ── MOBILE VIEW ───────────────────────────────────────────
+  // ── MOBILE VIEW ──────────────────────────────────────────
   const MobileView = () => (
     <div>
-      {/* Day selector tabs */}
-      <div style={{ display:'flex', gap:4, marginBottom:14, overflowX:'auto', paddingBottom:4 }}>
-        {DAYS.map((day, di) => {
-          const hasShifts = members.some(m => (shifts[`${m.id}_${di}`]||[]).length > 0)
-          const today     = isToday(di)
-          return (
-            <button key={di} onClick={() => setSelectedDay(di)} style={{
-              flexShrink:0, padding:'8px 10px', borderRadius:10, cursor:'pointer',
-              fontFamily:'inherit', textAlign:'center', minWidth:44,
-              background: selectedDay===di ? '#2C1810' : today ? '#FFF3E0' : '#fff',
-              border: selectedDay===di ? '1px solid #2C1810' : today ? '1px solid #FFB74D' : '1px solid #EDE0CC',
-              color: selectedDay===di ? '#fff' : '#2C1810',
-            }}>
-              <div style={{ fontSize:11, fontWeight:700 }}>{day}</div>
-              <div style={{ fontSize:9, color: selectedDay===di ? 'rgba(255,255,255,0.7)' : '#8B7355', marginTop:1 }}>{getDayDate(di).split(' ')[1]}</div>
-              {hasShifts && <div style={{ width:5, height:5, borderRadius:'50%', background: selectedDay===di ? '#C8843A' : '#27AE60', margin:'3px auto 0' }}/>}
-            </button>
-          )
-        })}
+      {/* Week/Day toggle */}
+      <div style={{ display:'flex', gap:6, marginBottom:10 }}>
+        <button onClick={() => setMobileView('week')}
+          style={{ flex:1, padding:'7px', borderRadius:8, border:'1px solid #EDE0CC', cursor:'pointer', fontSize:11, fontFamily:'inherit',
+            background: mobileView==='week' ? '#2C1810' : '#fff', color: mobileView==='week' ? '#fff' : '#8B7355', fontWeight: mobileView==='week' ? 700 : 400 }}>
+          Week View
+        </button>
+        <button onClick={() => setMobileView('day')}
+          style={{ flex:1, padding:'7px', borderRadius:8, border:'1px solid #EDE0CC', cursor:'pointer', fontSize:11, fontFamily:'inherit',
+            background: mobileView==='day' ? '#2C1810' : '#fff', color: mobileView==='day' ? '#fff' : '#8B7355', fontWeight: mobileView==='day' ? 700 : 400 }}>
+          Day View
+        </button>
       </div>
 
-      {/* Selected day */}
-      <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
-        <div style={{ background:'#2C1810', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>{DAYS[selectedDay]} · {getDayDate(selectedDay)}</div>
-          {isToday(selectedDay) && <span style={{ fontSize:10, background:'#C8843A', color:'#fff', borderRadius:20, padding:'2px 8px' }}>Today</span>}
+      {/* WEEK VIEW — mini scrollable grid */}
+      {mobileView === 'week' && (
+        <div style={{ overflowX:'auto', marginBottom:14, background:'#fff', border:'1px solid #EDE0CC', borderRadius:12 }}>
+          <table style={{ width:'100%', borderCollapse:'collapse', minWidth:480 }}>
+            <thead>
+              <tr style={{ background:'#FAF7F2' }}>
+                <th style={{ padding:'8px', textAlign:'left', fontSize:11, color:'#8B7355', fontWeight:600, borderBottom:'1px solid #EDE0CC', width:80 }}>Staff</th>
+                {DAYS.map((d, di) => (
+                  <th key={d} style={{ padding:'8px 3px', textAlign:'center', fontSize:11, color: isToday(di) ? '#C8843A' : '#8B7355', fontWeight: isToday(di) ? 700 : 600, borderBottom:'1px solid #EDE0CC' }}>
+                    <div>{d}</div>
+                    <div style={{ fontSize:9, fontWeight:400, color:'#aaa' }}>{getDayDate(di).split(' ')[1]}</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {members.map(m => (
+                <tr key={m.id} style={{ borderBottom:'1px solid #F5EFE8' }}>
+                  <td style={{ padding:'6px 8px', verticalAlign:'middle' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+                      <div style={{ width:6, height:6, borderRadius:'50%', background:m.color, flexShrink:0 }}/>
+                      <span style={{ fontSize:11, fontWeight:600, color:'#2C1810' }}>{m.name}</span>
+                    </div>
+                  </td>
+                  {DAYS.map((_, di) => {
+                    const key      = `${m.id}_${di}`
+                    const cellData = shifts[key] || []
+                    return (
+                      <td key={di} onClick={() => openCell(m.id, di)}
+                        style={{ padding:'3px 2px', verticalAlign:'top', cursor:'pointer', background: isToday(di) ? '#FFFBF5' : 'transparent' }}>
+                        <div style={{ minHeight:28, display:'flex', flexDirection:'column', gap:1 }}>
+                          {cellData.map((sh, si) => (
+                            <div key={si} style={{ background: sh.color || m.color, color:'#fff', borderRadius:3, padding:'1px 3px', fontSize:8, fontWeight:600, whiteSpace:'nowrap', overflow:'hidden' }}>
+                              {to12(sh.start)}
+                            </div>
+                          ))}
+                          {cellData.length === 0 && (
+                            <div style={{ textAlign:'center', fontSize:12, color:'#EDE0CC', paddingTop:4 }}>+</div>
+                          )}
+                        </div>
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {members.length === 0 && (
+            <div style={{ textAlign:'center', padding:20, color:'#8B7355', fontSize:12 }}>No staff yet</div>
+          )}
         </div>
+      )}
 
-        {members.length === 0 ? (
-          <div style={{ textAlign:'center', padding:24, color:'#8B7355', fontSize:13 }}>No staff added yet</div>
-        ) : members.map((m, idx) => {
-          const key       = `${m.id}_${selectedDay}`
-          const cellData  = shifts[key] || []
-          const dayHrs    = cellData.reduce((s, sh) => s + Math.max(0, timeToMins(sh.end) - timeToMins(sh.start)), 0)
-          return (
-            <div key={m.id} style={{ borderBottom: idx < members.length-1 ? '1px solid #F5EFE8' : 'none', padding:'12px 16px' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:8, flex:1 }}>
-                  <div style={{ width:10, height:10, borderRadius:'50%', background:m.color, flexShrink:0 }}/>
-                  <div>
-                    <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{m.name}</div>
-                    {m.role && <div style={{ fontSize:10, color:'#8B7355' }}>{m.role}</div>}
-                  </div>
-                </div>
-                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                  {dayHrs > 0 && <span style={{ fontSize:12, fontWeight:700, color:'#C8843A' }}>{minsToHrs(dayHrs)}h</span>}
-                  <button onClick={() => openCell(m.id, selectedDay)}
-                    style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit' }}>
-                    + Shift
-                  </button>
-                </div>
-              </div>
+      {/* DAY VIEW */}
+      {mobileView === 'day' && (
+        <div>
+          {/* Day selector tabs */}
+          <div style={{ display:'flex', gap:4, marginBottom:10, overflowX:'auto', paddingBottom:4 }}>
+            {DAYS.map((day, di) => {
+              const hasShifts = members.some(m => (shifts[`${m.id}_${di}`]||[]).length > 0)
+              const todayDay  = isToday(di)
+              return (
+                <button key={di} onClick={() => setSelectedDay(di)} style={{
+                  flexShrink:0, padding:'8px 10px', borderRadius:10, cursor:'pointer',
+                  fontFamily:'inherit', textAlign:'center', minWidth:44,
+                  background: selectedDay===di ? '#2C1810' : todayDay ? '#FFF3E0' : '#fff',
+                  border: todayDay ? '1px solid #FFB74D' : '1px solid #EDE0CC',
+                  color: selectedDay===di ? '#fff' : '#2C1810',
+                }}>
+                  <div style={{ fontSize:11, fontWeight:700 }}>{day}</div>
+                  <div style={{ fontSize:9, color: selectedDay===di ? 'rgba(255,255,255,0.7)' : '#8B7355', marginTop:1 }}>{getDayDate(di).split(' ')[1]}</div>
+                  {hasShifts && <div style={{ width:5, height:5, borderRadius:'50%', background: selectedDay===di ? '#C8843A' : '#27AE60', margin:'3px auto 0' }}/>}
+                </button>
+              )
+            })}
+          </div>
 
-              {/* Shifts for this day */}
-              {cellData.length > 0 && (
-                <div style={{ marginTop:8, display:'flex', flexDirection:'column', gap:4 }}>
-                  {cellData.map((sh, si) => (
-                    <div key={si} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background: sh.color || m.color, borderRadius:8, padding:'6px 10px' }}>
-                      <span style={{ fontSize:12, fontWeight:600, color:'#fff' }}>
-                        {sh.name ? `${sh.name} · ` : ''}{to12(sh.start)} – {to12(sh.end)}
-                      </span>
-                      <button onClick={() => removeShift(key, si)}
-                        style={{ background:'rgba(255,255,255,0.2)', border:'none', borderRadius:4, padding:'2px 6px', cursor:'pointer', fontSize:11, color:'#fff', fontWeight:600 }}>
-                        ×
+          <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
+            <div style={{ background:'#2C1810', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>{DAYS[selectedDay]} · {getDayDate(selectedDay)}</div>
+              {isToday(selectedDay) && <span style={{ fontSize:10, background:'#C8843A', color:'#fff', borderRadius:20, padding:'2px 8px' }}>Today</span>}
+            </div>
+
+            {members.length === 0 ? (
+              <div style={{ textAlign:'center', padding:24, color:'#8B7355', fontSize:13 }}>No staff added yet</div>
+            ) : members.map((m, idx) => {
+              const key      = `${m.id}_${selectedDay}`
+              const cellData = shifts[key] || []
+              const dayHrs   = cellData.reduce((s, sh) => s + Math.max(0, timeToMins(sh.end) - timeToMins(sh.start)), 0)
+              return (
+                <div key={m.id} style={{ borderBottom: idx < members.length-1 ? '1px solid #F5EFE8' : 'none', padding:'12px 16px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, flex:1 }}>
+                      <div style={{ width:10, height:10, borderRadius:'50%', background:m.color, flexShrink:0 }}/>
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{m.name}</div>
+                        {m.role && <div style={{ fontSize:10, color:'#8B7355' }}>{m.role}</div>}
+                      </div>
+                    </div>
+                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                      {dayHrs > 0 && <span style={{ fontSize:12, fontWeight:700, color:'#C8843A' }}>{minsToHrs(dayHrs)}h</span>}
+                      <button onClick={() => openCell(m.id, selectedDay)}
+                        style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit' }}>
+                        + Shift
                       </button>
                     </div>
-                  ))}
+                  </div>
+                  {cellData.length > 0 && (
+                    <div style={{ marginTop:8, display:'flex', flexDirection:'column', gap:4 }}>
+                      {cellData.map((sh, si) => (
+                        <div key={si} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', background: sh.color || m.color, borderRadius:8, padding:'6px 10px' }}>
+                          <span style={{ fontSize:12, fontWeight:600, color:'#fff' }}>
+                            {sh.name ? `${sh.name} · ` : ''}{to12(sh.start)} – {to12(sh.end)}
+                          </span>
+                          <button onClick={() => removeShift(key, si)}
+                            style={{ background:'rgba(255,255,255,0.2)', border:'none', borderRadius:4, padding:'2px 6px', cursor:'pointer', fontSize:11, color:'#fff', fontWeight:600 }}>
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {cellData.length === 0 && <div style={{ marginTop:6, fontSize:11, color:'#aaa' }}>No shift assigned</div>}
                 </div>
-              )}
+              )
+            })}
+          </div>
+        </div>
+      )}
 
-              {cellData.length === 0 && (
-                <div style={{ marginTop:6, fontSize:11, color:'#aaa' }}>No shift assigned</div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Add staff button */}
+      {/* Add staff */}
       <button onClick={() => setShowAddStaff(true)}
         style={{ width:'100%', background:'#fff', border:'1.5px dashed #EDE0CC', borderRadius:10, padding:'11px', cursor:'pointer', fontSize:13, color:'#8B7355', fontWeight:500, marginBottom:14 }}>
         + Add Staff Member
@@ -347,7 +460,7 @@ export default function Schedule({ viewingStore, showToast }) {
     </div>
   )
 
-  // ── DESKTOP VIEW ──────────────────────────────────────────
+    // ── DESKTOP VIEW ──────────────────────────────────────────
   const DesktopView = () => (
     <div>
       {/* Shift Presets bar */}

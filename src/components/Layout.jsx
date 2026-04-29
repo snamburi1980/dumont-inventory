@@ -71,7 +71,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
 
   // Grouped sidebar navigation
   const tabGroups = [
-    { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers'] },
+    { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister'] },
     { label: 'Commerce',   ids: ['sales','orders','delivery'] },
     { label: 'Insights',   ids: ['cogs'] },
     { label: 'Admin',      ids: ['admin'] },
