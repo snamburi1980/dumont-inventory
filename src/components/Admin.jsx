@@ -32,21 +32,27 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   const [userSaved, setUserSaved] = useState(null)
   const [saving,    setSaving]    = useState(false)
 
+  const [users,       setUsers]       = useState([])
+  const [editingUser, setEditingUser] = useState(null)
+
   useEffect(() => { loadAll() }, [])
 
   async function loadAll() {
     setLoading(true)
     try {
-      const [orgSnap, regSnap, storeSnap, pendSnap] = await Promise.all([
+      const [orgSnap, regSnap, storeSnap, pendSnap, userSnap] = await Promise.all([
         getDocs(collection(db, 'orgs')),
         getDocs(collection(db, 'regions')),
         getDocs(collection(db, 'stores')),
         getDocs(collection(db, 'signupRequests')),
+        getDocs(collection(db, 'users')),
       ])
       setOrgs(orgSnap.docs.map(d => ({ id: d.id, ...d.data() })))
       setRegions(regSnap.docs.map(d => ({ id: d.id, ...d.data() })))
       setStores(storeSnap.docs.map(d => ({ id: d.id, ...d.data() })))
       setPending(pendSnap.docs.map(d => ({ id: d.id, ...d.data() })))
+      setUsers(userSnap.docs.map(d => ({ emailKey: d.id, ...d.data() }))
+        .sort((a, b) => (a.name || a.email || '').localeCompare(b.name || b.email || '')))
     } catch(e) { console.error(e) }
     setLoading(false)
   }
@@ -175,6 +181,22 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     showToast(`${req.email} rejected`)
   }
 
+  async function saveUserEdit(emailKey, updates) {
+    setSaving(true)
+    await updateDoc(doc(db, 'users', emailKey), updates)
+    setSaving(false)
+    showToast('User updated')
+    setEditingUser(null)
+    loadAll()
+  }
+
+  async function toggleUserActive(user) {
+    const newStatus = user.status === 'inactive' ? 'active' : 'inactive'
+    await updateDoc(doc(db, 'users', user.emailKey), { status: newStatus })
+    showToast(newStatus === 'active' ? `${user.name || user.email} activated` : `${user.name || user.email} deactivated`)
+    loadAll()
+  }
+
   const card  = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }
   const input = { width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#FDF6EC' }
   const btn   = (color='#2C1810') => ({ background:color, color:'#fff', border:'none', borderRadius:8, padding:'11px 16px', cursor:'pointer', fontSize:13, fontWeight:600, width:'100%', fontFamily:'inherit', opacity: saving ? 0.7 : 1 })
@@ -183,6 +205,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   const navTabs = isSuperOwnerUser ? [
     { id:'overview', label:'Overview' },
     { id:'setup',    label:'Setup'    },
+    { id:'users',    label:'Users'    },
     { id:'items',    label:'Items'    },
     { id:'pricing',  label:'Pricing'  },
     { id:'sop',      label:'SOPs'     },
@@ -329,8 +352,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
           <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:16 }}>
             {[
               { label:'Orgs',    value:orgs.length,    color:'#C8843A' },
-              { label:'Regions', value:regions.length, color:'#2980B9' },
               { label:'Stores',  value:stores.length,  color:'#27AE60' },
+              { label:'Users',   value:users.filter(u => u.status !== 'inactive').length, color:'#9B59B6' },
               { label:'Pending', value:pending.length, color:pending.length>0?'#E74C3C':'#8B7355' },
             ].map(({label,value,color}) => (
               <div key={label} style={{...card,textAlign:'center',marginBottom:0}}>
@@ -492,6 +515,72 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {view === 'users' && (
+        <div>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>All Users ({users.length})</div>
+            <button onClick={loadAll} style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Refresh</button>
+          </div>
+          {users.length === 0 && <div style={{textAlign:'center',padding:32,color:'#8B7355'}}>No users found</div>}
+          {users.map(user => {
+            const store = stores.find(s => s.id === (user.storeId || user.store))
+            const isEditing = editingUser?.emailKey === user.emailKey
+            const roleColors = { super_owner:'#9B59B6', regional_owner:'#2980B9', store_owner:'#C8843A', manager:'#27AE60', staff:'#8B7355' }
+            const roleColor = roleColors[user.role] || '#8B7355'
+            const isInactive = user.status === 'inactive'
+            return (
+              <div key={user.emailKey} style={{ ...card, opacity: isInactive ? 0.65 : 1 }}>
+                {!isEditing ? (
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.name || user.email}</div>
+                      <div style={{ fontSize:11, color:'#8B7355', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:6 }}>{user.email}</div>
+                      <div style={{ display:'flex', gap:5, flexWrap:'wrap', alignItems:'center' }}>
+                        <span style={{ fontSize:10, fontWeight:700, color:'#fff', background:roleColor, borderRadius:4, padding:'2px 7px' }}>{(user.role||'').replace(/_/g,' ')}</span>
+                        {store && <span style={{ fontSize:10, color:'#8B7355', background:'#F5EDE0', borderRadius:4, padding:'2px 7px' }}>{store.name}</span>}
+                        {isInactive && <span style={{ fontSize:10, color:'#E74C3C', background:'#FFEBEE', borderRadius:4, padding:'2px 7px' }}>Inactive</span>}
+                      </div>
+                    </div>
+                    <div style={{ display:'flex', gap:4, flexShrink:0 }}>
+                      <button onClick={() => setEditingUser({ ...user })}
+                        style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
+                      {user.email !== 'dumonttexas@gmail.com' && (
+                        <button onClick={() => toggleUserActive(user)}
+                          style={{ fontSize:11, color: isInactive ? '#27AE60' : '#E74C3C', background:'none', border:`1px solid ${isInactive ? '#C8E6C9' : '#FFCDD2'}`, borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>
+                          {isInactive ? 'Activate' : 'Deactivate'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Edit: {user.name || user.email}</div>
+                    <select value={editingUser.role || ''} onChange={e => setEditingUser(u => ({...u, role:e.target.value}))} style={input}>
+                      <option value="store_owner">Store Owner</option>
+                      <option value="manager">Manager</option>
+                      <option value="regional_owner">Regional Owner</option>
+                      <option value="staff">Staff</option>
+                    </select>
+                    <select value={editingUser.storeId || editingUser.store || ''} onChange={e => setEditingUser(u => ({...u, storeId:e.target.value}))} style={input}>
+                      <option value="">No Store Assigned</option>
+                      {stores.map(s => {
+                        const r = regions.find(r => r.id === s.regionId)
+                        return <option key={s.id} value={s.id}>{r ? `${r.name} › ` : ''}{s.name}</option>
+                      })}
+                    </select>
+                    <div style={{ display:'flex', gap:8 }}>
+                      <button onClick={() => saveUserEdit(user.emailKey, { role: editingUser.role, storeId: editingUser.storeId || editingUser.store || '', store: editingUser.storeId || editingUser.store || '' })}
+                        style={{ ...btn(), flex:1 }} disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</button>
+                      <button onClick={() => setEditingUser(null)} style={{ ...btn('#888'), flex:'none', padding:'11px 20px' }}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
 

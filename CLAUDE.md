@@ -293,12 +293,13 @@ Default theme: `warm`
 
 ## Pending / Roadmap
 ### Immediate fixes needed
-- [ ] Ice Cream Log — add month picker when logging buckets
-- [ ] COGS tab — wire up Sales + Delivery for real P&L (enable Commerce first)
+- [x] Ice Cream Log — date picker added to header; logs use selected date for monthKey
+- [x] COGS tab — enabled (Menu Margins live; COGS Report needs Sales data)
+- [ ] Enable Commerce (Sales tab) so COGS Report has real data
 - [ ] Test Cash Register Firestore rule is deployed
 
 ### Next phase — Enterprise & Multi-store
-- [ ] Tighten Admin — org onboarding flow for new franchise stores
+- [x] Tighten Admin — Users tab added (list/edit role+store, activate/deactivate)
 - [ ] Staff attendance (clock in/out vs scheduled)
 - [ ] Expiry date tracker
 - [ ] COGS report — Revenue minus ingredient cost = gross margin

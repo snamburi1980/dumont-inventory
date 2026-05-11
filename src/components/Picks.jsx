@@ -12,6 +12,7 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
   const [usageData,   setUsageData]   = useState([])
   const [usageMonth,  setUsageMonth]  = useState('')
   const [loadingUsage,setLoadingUsage]= useState(false)
+  const [logDate,     setLogDate]     = useState(() => new Date().toISOString().split('T')[0])
 
   const userName      = auth?.userConfig?.name || 'Staff'
   const iceCreamItems = inventory.filter(i => i.cat === 'Ice Cream' && i.active !== false)
@@ -52,7 +53,7 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
     if (changed.length === 0) { showToast('No changes to save'); return }
     setSaving(true)
     try {
-      const now      = new Date()
+      const now      = logDate ? new Date(logDate + 'T12:00:00') : new Date()
       const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
       const month    = now.toLocaleDateString('en-US', { month:'long', year:'numeric' })
 
@@ -135,8 +136,15 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
         <div style={{ background:'var(--dark)', padding:'10px 16px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: totalPicked > 0 ? 8 : 0 }}>
             <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>🍨 Ice Cream Stock</div>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>
-              {new Date().toLocaleDateString('en-US', { month:'short', day:'numeric' })}
+            <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+              <span style={{ fontSize:10, color:'rgba(255,255,255,0.5)' }}>Date:</span>
+              <input
+                type="date"
+                value={logDate}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={e => setLogDate(e.target.value)}
+                style={{ background:'rgba(255,255,255,0.15)', color:'#fff', border:'1px solid rgba(255,255,255,0.3)', borderRadius:6, padding:'3px 6px', fontSize:11, cursor:'pointer', fontFamily:'inherit', colorScheme:'dark' }}
+              />
             </div>
           </div>
           {(() => {

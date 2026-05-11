@@ -20,6 +20,7 @@ import ChangePassword from './components/ChangePassword'
 import Checklist      from './components/Checklist'
 import Picks          from './components/Picks'
 import Transfers      from './components/Transfers'
+import CashRegister   from './components/CashRegister'
 
 export default function App() {
   const auth         = useAuth()
@@ -144,12 +145,13 @@ export default function App() {
 
         {activeTab === 'home'        && <Home      {...tabProps} />}
         {activeTab === 'inventory'   && <Inventory {...tabProps} />}
-        {activeTab === 'icecreamlog' && <Picks invHook={invHook} viewingStore={viewingStore} auth={auth} showToast={showToast} />}
+        {activeTab === 'icecreamlog' && <Picks invHook={invHook} viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'checklist'   && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'schedule'    && <Schedule  {...tabProps} />}
         {activeTab === 'sales'       && <Sales     {...tabProps} />}
         {activeTab === 'orders'      && <Orders    {...tabProps} />}
         {activeTab === 'delivery'    && <Delivery  {...tabProps} />}
+        {activeTab === 'cashregister' && <CashRegister viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'transfers'   && <Transfers auth={auth} showToast={showToast} />}
         {activeTab === 'cogs'        && <COGS      {...tabProps} />}
         {activeTab === 'admin'       && <Admin     {...tabProps} />}

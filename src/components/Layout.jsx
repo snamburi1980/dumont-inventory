@@ -68,7 +68,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
   const tabGroups = [
     { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister'], disabled: false },
     { label: 'Commerce',   ids: ['sales','orders','delivery'], disabled: true },
-    { label: 'Insights',   ids: ['cogs'],                      disabled: true },
+    { label: 'Insights',   ids: ['cogs'],                      disabled: false },
     { label: 'Admin',      ids: ['admin'],                     disabled: false },
   ]
 

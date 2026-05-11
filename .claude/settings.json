@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 120,
+            "statusMessage": "Building and deploying to GitHub Pages...",
+            "command": "cd /Users/snamburi/dumont-inventory && if [ -n \"$(git status --porcelain 2>/dev/null)\" ]; then npm run build && git add . && git commit -m \"auto: build and deploy\" && git push origin main; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

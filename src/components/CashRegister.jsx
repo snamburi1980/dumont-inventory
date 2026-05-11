@@ -210,7 +210,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
             padding:'10px 14px', gap:8, alignItems:'center',
             borderBottom: idx < logs.length-1 ? '1px solid var(--border)' : 'none',
             background: idx%2===0 ? '#fff' : 'var(--cream)'
-          }} key={log.id}>
+          }}>
             <div>
               <div style={{ fontSize:12, fontWeight:600, color:'var(--dark)' }}>{log.date}</div>
               <div style={{ fontSize:10, color:'var(--text-muted)' }}>{log.loggedBy}</div>
