@@ -115,7 +115,10 @@ export default function App() {
     orgItemsHook, viewingOrg, setViewingOrg,
   }
 
-  const tabs = [
+  const role = auth.userConfig?.role || ''
+  const isStaff = role === 'staff'
+
+  const allTabs = [
     { id:'home',         label:'Home'          },
     { id:'inventory',    label:'Inventory'     },
     { id:'icecreamlog',  label:'Ice Cream Log' },
@@ -130,12 +133,25 @@ export default function App() {
     { id:'admin',        label:'Admin'         },
   ]
 
+  const staffAllowedTabs = ['home','inventory','icecreamlog','checklist']
+  const tabs = isStaff
+    ? allTabs.filter(t => staffAllowedTabs.includes(t.id))
+    : allTabs
+
   function handleTabChange(tab) {
+    if (isStaff && !staffAllowedTabs.includes(tab)) return
     if (tab === 'inventory' && auth.userConfig) {
       invHook.loadInventory(viewingStore, viewingOrg)
     }
     setActiveTab(tab)
   }
+
+  // Redirect staff away from restricted tabs on load
+  useEffect(() => {
+    if (isStaff && !staffAllowedTabs.includes(activeTab)) {
+      setActiveTab('home')
+    }
+  }, [isStaff, activeTab])
 
   return (
     <ErrorBoundary>

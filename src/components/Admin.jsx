@@ -14,7 +14,8 @@ import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
 const APP_URL = 'https://snamburi1980.github.io/dumont-inventory/'
 
 export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setViewingOrg, viewingStore }) {
-  const [view, setView] = useState(auth?.isSuperOwner?.() ? 'overview' : 'items')
+  const role0       = auth?.userConfig?.role || ''
+  const [view, setView] = useState(auth?.isSuperOwner?.() ? 'overview' : role0 === 'store_owner' ? 'users' : 'items')
   const [orgs,         setOrgs]         = useState([])
   const [regions,      setRegions]      = useState([])
   const [stores,       setStores]       = useState([])
@@ -138,12 +139,13 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     setNewStore({ name:'', regionId:'' })
   }
 
-  async function assignUser() {
+  async function assignUser(overrideStoreId) {
     if (!newUser.email.trim()) { showToast('Enter email'); return }
     if (!newUser.tempPassword?.trim()) { showToast('Enter a temporary password'); return }
     setSaving(true)
+    const resolvedStoreId = overrideStoreId || newUser.storeId
     const emailKey = newUser.email.toLowerCase().replace(/\./g,'_').replace(/@/g,'_at_')
-    const store    = stores.find(s => s.id === newUser.storeId)
+    const store    = stores.find(s => s.id === resolvedStoreId)
     const region   = regions.find(r => r.id === (newUser.regionId || store?.regionId))
     const org      = orgs.find(o => o.id === (newUser.orgId || region?.orgId))
     await setDoc(doc(db, 'users', emailKey), {
@@ -152,8 +154,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       role:                newUser.role,
       orgId:               org?.id    || viewingOrg || '',
       regionId:            region?.id || '',
-      storeId:             store?.id  || '',
-      store:               store?.id  || '',
+      storeId:             store?.id  || resolvedStoreId || '',
+      store:               store?.id  || resolvedStoreId || '',
       status:              'active',
       forcePasswordChange: true,
       createdAt:           Date.now()
@@ -201,10 +203,19 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   const input = { width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#FDF6EC' }
   const btn   = (color='#2C1810') => ({ background:color, color:'#fff', border:'none', borderRadius:8, padding:'11px 16px', cursor:'pointer', fontSize:13, fontWeight:600, width:'100%', fontFamily:'inherit', opacity: saving ? 0.7 : 1 })
   const isSuperOwnerUser = auth?.isSuperOwner?.()
+  const currentRole      = auth?.userConfig?.role || ''
+  const isStoreOwner     = currentRole === 'store_owner'
+  const currentStoreId   = auth?.userConfig?.storeId || auth?.userConfig?.store || ''
 
   const navTabs = isSuperOwnerUser ? [
     { id:'overview', label:'Overview' },
     { id:'setup',    label:'Setup'    },
+    { id:'users',    label:'Users'    },
+    { id:'items',    label:'Items'    },
+    { id:'pricing',  label:'Pricing'  },
+    { id:'sop',      label:'SOPs'     },
+    { id:'settings', label:'Settings' },
+  ] : isStoreOwner ? [
     { id:'users',    label:'Users'    },
     { id:'items',    label:'Items'    },
     { id:'pricing',  label:'Pricing'  },
@@ -520,67 +531,166 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
       {view === 'users' && (
         <div>
+          {/* Add new user form — store owners can add staff/manager to their store only */}
+          <div style={card}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>
+              {isStoreOwner ? 'Add Staff or Manager' : 'Assign User'}
+            </div>
+            {!isSuperOwnerUser && (
+              <div style={{ background:'#FFF3E0', borderRadius:8, padding:'8px 12px', marginBottom:10, fontSize:11, color:'#C8843A', lineHeight:1.6 }}>
+                First create the user in Firebase Console → Authentication → Add User, then fill in below.
+              </div>
+            )}
+            <input placeholder="Full Name" value={newUser.name} onChange={e => setNewUser(u=>({...u,name:e.target.value}))} style={input}/>
+            <input placeholder="Email address" value={newUser.email} onChange={e => setNewUser(u=>({...u,email:e.target.value}))} style={input}/>
+            <input placeholder="Temporary password (min 6 chars)" type="text" value={newUser.tempPassword||''} onChange={e => setNewUser(u=>({...u,tempPassword:e.target.value}))} style={input}/>
+            <select value={newUser.role} onChange={e => setNewUser(u=>({...u,role:e.target.value,storeId:'',regionId:'',orgId:''}))} style={input}>
+              {isStoreOwner ? (
+                <>
+                  <option value="staff">Staff</option>
+                  <option value="manager">Manager</option>
+                </>
+              ) : (
+                <>
+                  <option value="store_owner">Store Owner</option>
+                  <option value="manager">Manager</option>
+                  <option value="regional_owner">Regional Owner</option>
+                  <option value="org_owner">Org Owner</option>
+                  <option value="staff">Staff</option>
+                </>
+              )}
+            </select>
+            {isStoreOwner ? (
+              <div style={{ padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontSize:13, marginBottom:8, background:'#F5EDE0', color:'#2C1810' }}>
+                Store: {stores.find(s => s.id === currentStoreId)?.name || 'Your store'}
+              </div>
+            ) : (newUser.role==='store_owner'||newUser.role==='manager'||newUser.role==='staff') && (
+              <select value={newUser.storeId} onChange={e => setNewUser(u=>({...u,storeId:e.target.value}))} style={input}>
+                <option value="">Select Store</option>
+                {stores.map(s => {
+                  const region = regions.find(r=>r.id===s.regionId)
+                  const org    = orgs.find(o=>o.id===s.orgId)
+                  return <option key={s.id} value={s.id}>{org?.name} {'>'} {region?.name} {'>'} {s.name}</option>
+                })}
+              </select>
+            )}
+            {newUser.role==='regional_owner' && !isStoreOwner && (
+              <select value={newUser.regionId} onChange={e => setNewUser(u=>({...u,regionId:e.target.value}))} style={input}>
+                <option value="">Select Region</option>
+                {regions.map(r => {
+                  const org = orgs.find(o=>o.id===r.orgId)
+                  return <option key={r.id} value={r.id}>{org?.name} — {r.name}</option>
+                })}
+              </select>
+            )}
+            <button style={btn()} onClick={() => assignUser(isStoreOwner ? currentStoreId : undefined)} disabled={saving}>{saving ? 'Saving...' : 'Assign User'}</button>
+            {userSaved && (
+              <div style={{ marginTop:12, padding:'12px', background:'#E8F5E9', borderRadius:8, border:'1px solid #27AE60' }}>
+                <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:8 }}>User assigned! Share these details:</div>
+                {[
+                  { label:'App URL', value: APP_URL },
+                  { label:'Email',   value: userSaved.email },
+                  { label:'Role',    value: userSaved.role },
+                  { label:'Store',   value: userSaved.store || 'See admin' },
+                ].map(({label,value}) => (
+                  <div key={label} style={{ display:'flex', justifyContent:'space-between', fontSize:11, padding:'3px 0', borderBottom:'1px solid #C8E6C9' }}>
+                    <span style={{color:'#8B7355',fontWeight:600}}>{label}</span>
+                    <span style={{color:'#2C1810'}}>{value}</span>
+                  </div>
+                ))}
+                <button onClick={() => {
+                  const text = `Dumont Inventory App\nURL: ${APP_URL}\nEmail: ${userSaved.email}\nRole: ${userSaved.role}\nStore: ${userSaved.store}`
+                  navigator.clipboard.writeText(text).then(() => showToast('Copied!'))
+                }} style={{ marginTop:8, background:'#27AE60', color:'#fff', border:'none', borderRadius:6, padding:'7px 14px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit' }}>
+                  Copy to Share
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* User list */}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>All Users ({users.length})</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>
+              {isStoreOwner ? 'Your Store Users' : `All Users (${users.length})`}
+            </div>
             <button onClick={loadAll} style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Refresh</button>
           </div>
-          {users.length === 0 && <div style={{textAlign:'center',padding:32,color:'#8B7355'}}>No users found</div>}
-          {users.map(user => {
-            const store = stores.find(s => s.id === (user.storeId || user.store))
-            const isEditing = editingUser?.emailKey === user.emailKey
-            const roleColors = { super_owner:'#9B59B6', regional_owner:'#2980B9', store_owner:'#C8843A', manager:'#27AE60', staff:'#8B7355' }
-            const roleColor = roleColors[user.role] || '#8B7355'
-            const isInactive = user.status === 'inactive'
-            return (
-              <div key={user.emailKey} style={{ ...card, opacity: isInactive ? 0.65 : 1 }}>
-                {!isEditing ? (
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.name || user.email}</div>
-                      <div style={{ fontSize:11, color:'#8B7355', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:6 }}>{user.email}</div>
-                      <div style={{ display:'flex', gap:5, flexWrap:'wrap', alignItems:'center' }}>
-                        <span style={{ fontSize:10, fontWeight:700, color:'#fff', background:roleColor, borderRadius:4, padding:'2px 7px' }}>{(user.role||'').replace(/_/g,' ')}</span>
-                        {store && <span style={{ fontSize:10, color:'#8B7355', background:'#F5EDE0', borderRadius:4, padding:'2px 7px' }}>{store.name}</span>}
-                        {isInactive && <span style={{ fontSize:10, color:'#E74C3C', background:'#FFEBEE', borderRadius:4, padding:'2px 7px' }}>Inactive</span>}
+          {(() => {
+            const visibleUsers = isStoreOwner
+              ? users.filter(u => (u.storeId || u.store) === currentStoreId && u.role !== 'super_owner' && u.role !== 'regional_owner' && u.role !== 'store_owner')
+              : users
+            if (visibleUsers.length === 0) return <div style={{textAlign:'center',padding:32,color:'#8B7355'}}>No users found</div>
+            return visibleUsers.map(user => {
+              const store = stores.find(s => s.id === (user.storeId || user.store))
+              const isEditing = editingUser?.emailKey === user.emailKey
+              const roleColors = { super_owner:'#9B59B6', regional_owner:'#2980B9', store_owner:'#C8843A', manager:'#27AE60', staff:'#8B7355' }
+              const roleColor = roleColors[user.role] || '#8B7355'
+              const isInactive = user.status === 'inactive'
+              return (
+                <div key={user.emailKey} style={{ ...card, opacity: isInactive ? 0.65 : 1 }}>
+                  {!isEditing ? (
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.name || user.email}</div>
+                        <div style={{ fontSize:11, color:'#8B7355', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:6 }}>{user.email}</div>
+                        <div style={{ display:'flex', gap:5, flexWrap:'wrap', alignItems:'center' }}>
+                          <span style={{ fontSize:10, fontWeight:700, color:'#fff', background:roleColor, borderRadius:4, padding:'2px 7px' }}>{(user.role||'').replace(/_/g,' ')}</span>
+                          {store && <span style={{ fontSize:10, color:'#8B7355', background:'#F5EDE0', borderRadius:4, padding:'2px 7px' }}>{store.name}</span>}
+                          {isInactive && <span style={{ fontSize:10, color:'#E74C3C', background:'#FFEBEE', borderRadius:4, padding:'2px 7px' }}>Inactive</span>}
+                        </div>
+                      </div>
+                      <div style={{ display:'flex', gap:4, flexShrink:0 }}>
+                        <button onClick={() => setEditingUser({ ...user })}
+                          style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
+                        {user.email !== 'dumonttexas@gmail.com' && (
+                          <button onClick={() => toggleUserActive(user)}
+                            style={{ fontSize:11, color: isInactive ? '#27AE60' : '#E74C3C', background:'none', border:`1px solid ${isInactive ? '#C8E6C9' : '#FFCDD2'}`, borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>
+                            {isInactive ? 'Activate' : 'Deactivate'}
+                          </button>
+                        )}
                       </div>
                     </div>
-                    <div style={{ display:'flex', gap:4, flexShrink:0 }}>
-                      <button onClick={() => setEditingUser({ ...user })}
-                        style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
-                      {user.email !== 'dumonttexas@gmail.com' && (
-                        <button onClick={() => toggleUserActive(user)}
-                          style={{ fontSize:11, color: isInactive ? '#27AE60' : '#E74C3C', background:'none', border:`1px solid ${isInactive ? '#C8E6C9' : '#FFCDD2'}`, borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>
-                          {isInactive ? 'Activate' : 'Deactivate'}
-                        </button>
+                  ) : (
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Edit: {user.name || user.email}</div>
+                      <select value={editingUser.role || ''} onChange={e => setEditingUser(u => ({...u, role:e.target.value}))} style={input}>
+                        {isStoreOwner ? (
+                          <>
+                            <option value="staff">Staff</option>
+                            <option value="manager">Manager</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="store_owner">Store Owner</option>
+                            <option value="manager">Manager</option>
+                            <option value="regional_owner">Regional Owner</option>
+                            <option value="staff">Staff</option>
+                          </>
+                        )}
+                      </select>
+                      {!isStoreOwner && (
+                        <select value={editingUser.storeId || editingUser.store || ''} onChange={e => setEditingUser(u => ({...u, storeId:e.target.value}))} style={input}>
+                          <option value="">No Store Assigned</option>
+                          {stores.map(s => {
+                            const r = regions.find(r => r.id === s.regionId)
+                            return <option key={s.id} value={s.id}>{r ? `${r.name} › ` : ''}{s.name}</option>
+                          })}
+                        </select>
                       )}
+                      <div style={{ display:'flex', gap:8 }}>
+                        <button onClick={() => saveUserEdit(user.emailKey, {
+                          role: editingUser.role,
+                          storeId: isStoreOwner ? currentStoreId : (editingUser.storeId || editingUser.store || ''),
+                          store:   isStoreOwner ? currentStoreId : (editingUser.storeId || editingUser.store || ''),
+                        })} style={{ ...btn(), flex:1 }} disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</button>
+                        <button onClick={() => setEditingUser(null)} style={{ ...btn('#888'), flex:'none', padding:'11px 20px' }}>Cancel</button>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Edit: {user.name || user.email}</div>
-                    <select value={editingUser.role || ''} onChange={e => setEditingUser(u => ({...u, role:e.target.value}))} style={input}>
-                      <option value="store_owner">Store Owner</option>
-                      <option value="manager">Manager</option>
-                      <option value="regional_owner">Regional Owner</option>
-                      <option value="staff">Staff</option>
-                    </select>
-                    <select value={editingUser.storeId || editingUser.store || ''} onChange={e => setEditingUser(u => ({...u, storeId:e.target.value}))} style={input}>
-                      <option value="">No Store Assigned</option>
-                      {stores.map(s => {
-                        const r = regions.find(r => r.id === s.regionId)
-                        return <option key={s.id} value={s.id}>{r ? `${r.name} › ` : ''}{s.name}</option>
-                      })}
-                    </select>
-                    <div style={{ display:'flex', gap:8 }}>
-                      <button onClick={() => saveUserEdit(user.emailKey, { role: editingUser.role, storeId: editingUser.storeId || editingUser.store || '', store: editingUser.storeId || editingUser.store || '' })}
-                        style={{ ...btn(), flex:1 }} disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</button>
-                      <button onClick={() => setEditingUser(null)} style={{ ...btn('#888'), flex:'none', padding:'11px 20px' }}>Cancel</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
+                  )}
+                </div>
+              )
+            })
+          })()}
         </div>
       )}
 

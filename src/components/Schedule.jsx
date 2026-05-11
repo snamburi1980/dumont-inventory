@@ -54,6 +54,9 @@ export default function Schedule({ viewingStore, showToast }) {
   const [snapshotUrl,   setSnapshotUrl]   = useState(null)
   const schedRef = useRef(null)
 
+  const offsetRef = useRef(offset)
+  useEffect(() => { offsetRef.current = offset }, [offset])
+
   useEffect(() => { if (viewingStore) loadSchedule() }, [viewingStore, offset])
 
   // Set selected day to today on mobile
@@ -101,13 +104,19 @@ export default function Schedule({ viewingStore, showToast }) {
 
   async function save(newMembers, newPresets, newShifts, retries = 2) {
     if (!viewingStore) return
+    // Capture offset at call time to avoid stale closure writing to wrong week
+    const savedOffset = offsetRef.current
     try {
       const snap     = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
       const existing = snap.exists() ? snap.data() : {}
-      // Always preserve ALL existing week shifts, only update current week
+      // Preserve ALL existing weeks, only overwrite the week this save was triggered for
       const allShifts = { ...(existing.shifts || {}) }
       if (newShifts !== null) {
-        allShifts[String(offset)] = newShifts
+        if (Object.keys(newShifts).length === 0) {
+          delete allShifts[String(savedOffset)]
+        } else {
+          allShifts[String(savedOffset)] = newShifts
+        }
       }
       await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
         members:   newMembers,
@@ -246,7 +255,7 @@ export default function Schedule({ viewingStore, showToast }) {
   async function clearWeek() {
     if (!window.confirm(`Clear all shifts for ${weekLabel}?`)) return
     setShifts({})
-    save(members, presets, {})
+    await save(members, presets, {})
     showToast('Week cleared ✅')
   }
 

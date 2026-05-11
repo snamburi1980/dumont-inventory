@@ -42,6 +42,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
 
   const isSuperOwner = auth?.isSuperOwner?.()
   const role         = userConfig?.role || ''
+  const isStaff      = role === 'staff'
   const theme        = THEMES[currentTheme] || THEMES.warm
   const logoData     = orgConfig?.logoData || null
   const orgName      = orgConfig?.name     || 'Dumont'
@@ -64,8 +65,10 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     return s.regionId === selectedRegion
   })
 
-  // disabled: true = greyed out, not clickable
-  const tabGroups = [
+  // Staff only see Operations. Commerce/Insights/Admin hidden entirely for staff.
+  const tabGroups = isStaff ? [
+    { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist'], disabled: false },
+  ] : [
     { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister'], disabled: false },
     { label: 'Commerce',   ids: ['sales','orders','delivery'], disabled: true },
     { label: 'Insights',   ids: ['cogs'],                      disabled: false },
