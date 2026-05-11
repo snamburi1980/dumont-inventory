@@ -151,8 +151,6 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
 
       <TipBanner message="Your daily dashboard — check stock alerts, read announcements, and log issues for your store." />
 
-      <div style={{ fontSize:12, color:'#8B7355', marginBottom:8 }}>I am added by agent automatically</div>
-
       {/* Greeting */}
       <div style={{ marginBottom:16 }}>
         <div style={{ fontSize:20, fontWeight:700, color:'#2C1810' }}>
