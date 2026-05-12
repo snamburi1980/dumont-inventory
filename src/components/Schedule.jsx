@@ -112,11 +112,7 @@ export default function Schedule({ viewingStore, showToast }) {
       // Preserve ALL existing weeks, only overwrite the week this save was triggered for
       const allShifts = { ...(existing.shifts || {}) }
       if (newShifts !== null) {
-        if (Object.keys(newShifts).length === 0) {
-          delete allShifts[String(savedOffset)]
-        } else {
-          allShifts[String(savedOffset)] = newShifts
-        }
+        allShifts[String(savedOffset)] = newShifts
       }
       await setDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'), {
         members:   newMembers,
