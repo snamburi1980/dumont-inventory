@@ -65,9 +65,9 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     return s.regionId === selectedRegion
   })
 
-  // Staff only see Operations. Commerce/Insights/Admin hidden entirely for staff.
+  // Staff see all of Operations. Commerce/Insights/Admin hidden entirely for staff.
   const tabGroups = isStaff ? [
-    { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist'], disabled: false },
+    { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister'], disabled: false },
   ] : [
     { label: 'Operations', ids: ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister'], disabled: false },
     { label: 'Commerce',   ids: ['sales','orders','delivery'], disabled: true },

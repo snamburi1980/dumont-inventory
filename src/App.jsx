@@ -133,7 +133,7 @@ export default function App() {
     { id:'admin',        label:'Admin'         },
   ]
 
-  const staffAllowedTabs = ['home','inventory','icecreamlog','checklist']
+  const staffAllowedTabs = ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister']
   const tabs = isStaff
     ? allTabs.filter(t => staffAllowedTabs.includes(t.id))
     : allTabs
