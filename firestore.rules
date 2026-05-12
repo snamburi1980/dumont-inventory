@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function emailKey() {
+      return request.auth.token.email
+        .replace('.', '_')
+        .replace('.', '_')
+        .replace('.', '_')
+        .replace('@', '_at_');
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(emailKey())).data;
+    }
+
+    function isSuperOwner() {
+      return request.auth != null && request.auth.token.email == 'dumonttexas@gmail.com';
+    }
+
+    function hasStoreAccess(storeId) {
+      let u = userDoc();
+      return isSuperOwner()
+        || u.role == 'regional_owner'
+        || u.storeId == storeId
+        || u.store == storeId;
+    }
+
+    function isStoreOwnerOrAbove() {
+      let u = userDoc();
+      return isSuperOwner()
+        || u.role == 'regional_owner'
+        || u.role == 'store_owner';
+    }
+
+    // Users — read own record only; write by store_owner+ or super_owner
+    match /users/{emailKey} {
+      allow read: if isAuth() && (isSuperOwner() || emailKey() == emailKey);
+      allow write: if isAuth() && (isSuperOwner() || isStoreOwnerOrAbove());
+    }
+
+    // Orgs, regions, stores — any authenticated user can read; only super_owner writes
+    match /orgs/{id}    { allow read: if isAuth(); allow write: if isSuperOwner(); }
+    match /regions/{id} { allow read: if isAuth(); allow write: if isSuperOwner(); }
+    match /stores/{id}  { allow read: if isAuth(); allow write: if isSuperOwner(); }
+
+    // All per-store subcollections — scoped to users with access to that store
+    match /stores/{storeId}/{subcollection}/{docId} {
+      allow read, write: if isAuth() && hasStoreAccess(storeId);
+    }
+
+    // Transfers — global log, any authenticated user
+    match /transfers/{id} { allow read, write: if isAuth(); }
+
+    // Announcements — any auth user reads; store_owner+ writes
+    match /announcements/{id} {
+      allow read: if isAuth();
+      allow write: if isAuth() && isStoreOwnerOrAbove();
+    }
+
+    // Audit log — append only; super_owner can read
+    match /auditLog/{id} {
+      allow create: if isAuth();
+      allow read:   if isSuperOwner();
+    }
+
+    // Signup requests
+    match /signupRequests/{id} { allow read, write: if isAuth(); }
+  }
+}
