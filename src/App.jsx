@@ -36,6 +36,10 @@ export default function App() {
     return localStorage.getItem('dumont_theme') || 'warm'
   })
 
+  const role     = auth.userConfig?.role || ''
+  const isStaff  = role === 'staff'
+  const staffAllowedTabs = ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister']
+
   useEffect(() => { applyTheme(currentTheme) }, [])
 
   useEffect(() => {
@@ -115,9 +119,6 @@ export default function App() {
     orgItemsHook, viewingOrg, setViewingOrg,
   }
 
-  const role = auth.userConfig?.role || ''
-  const isStaff = role === 'staff'
-
   const allTabs = [
     { id:'home',         label:'Home'          },
     { id:'inventory',    label:'Inventory'     },
@@ -133,7 +134,6 @@ export default function App() {
     { id:'admin',        label:'Admin'         },
   ]
 
-  const staffAllowedTabs = ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister']
   const tabs = isStaff
     ? allTabs.filter(t => staffAllowedTabs.includes(t.id))
     : allTabs
@@ -145,13 +145,6 @@ export default function App() {
     }
     setActiveTab(tab)
   }
-
-  // Redirect staff away from restricted tabs on load
-  useEffect(() => {
-    if (isStaff && !staffAllowedTabs.includes(activeTab)) {
-      setActiveTab('home')
-    }
-  }, [isStaff, activeTab])
 
   return (
     <ErrorBoundary>
