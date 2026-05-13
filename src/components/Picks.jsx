@@ -82,11 +82,11 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
         return { ...item, stock: Math.max(0, (item.stock || 0) - session[item.id]) }
       })
       await saveInventory(viewingStore, updated)
-      await loadInventory(viewingStore)
+      await loadInventory(viewingStore, viewingOrg || 'dumont')
 
       showToast(`${totalBuckets} bucket${totalBuckets > 1 ? 's' : ''} logged`)
       setSession({})
-      loadUsage(activeMonth)
+      await loadUsage(activeMonth)
     } catch(e) {
       console.error(e)
       showToast('Save failed — try again')
@@ -123,30 +123,41 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
   }
 
   async function clearMonth() {
-    if (!window.confirm(`Clear all logs for this month? This will also restore inventory counts.`)) return
-    // Tally how many buckets to restore per item
-    const restore = {}
+    if (!window.confirm(`Clear all logs for this month? Inventory counts will be restored.`)) return
+
+    // Aggregate buckets to restore — match by name (always present) not just itemId
+    const restoreByName = {}
     usageDetails.forEach(log => {
-      if (!restore[log.itemId]) restore[log.itemId] = 0
-      restore[log.itemId] += Math.abs(log.delta)
+      const name    = log.itemName
+      const buckets = Math.abs(log.delta || 0)
+      if (name) restoreByName[name] = (restoreByName[name] || 0) + buckets
     })
+
     // Restore inventory
-    if (Object.keys(restore).length) {
+    if (Object.keys(restoreByName).length) {
       const updated = inventory.map(item => {
-        if (!restore[item.id]) return item
-        return { ...item, stock: (item.stock || 0) + restore[item.id] }
+        const add = restoreByName[item.name] || 0
+        if (!add) return item
+        return { ...item, stock: (item.stock || 0) + add }
       })
       try {
         await saveInventory(viewingStore, updated)
-        await loadInventory(viewingStore)
-      } catch(e) { console.error('Restore inventory failed', e) }
+        await loadInventory(viewingStore, viewingOrg || 'dumont')
+      } catch(e) {
+        showToast('Could not restore inventory')
+        console.error('Restore inventory failed', e)
+        return
+      }
     }
+
     // Delete log entries
     for (const d of usageDetails) {
       try { await deleteDoc(doc(db, 'stores', viewingStore, 'stockLog', d.id)) } catch(e) {}
     }
-    setUsageData([])
-    setUsageDetails([])
+
+    // Reload everything so UI is fresh without needing tab switch
+    setSession({})
+    await loadUsage(activeMonth)
     showToast('Cleared — inventory restored')
   }
 
