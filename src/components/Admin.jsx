@@ -177,14 +177,18 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   }
 
   async function createStore() {
-    if (!newStore.name.trim() || !newStore.regionId) { showToast('Fill all fields'); return }
-    const exists = stores.find(s => s.name.toLowerCase() === newStore.name.toLowerCase() && s.regionId === newStore.regionId)
-    if (exists) { showToast(`Store "${newStore.name}" already exists in this region`); return }
+    if (!newStore.name.trim()) { showToast('Enter a store name'); return }
+    // Auto-pick the only region if none selected
+    const resolvedRegionId = newStore.regionId || (regions.length === 1 ? regions[0].id : '')
     setSaving(true)
-    const region = regions.find(r => r.id === newStore.regionId)
+    const region = regions.find(r => r.id === resolvedRegionId)
     const ref = await addDoc(collection(db, 'stores'), {
-      name: newStore.name, regionId: newStore.regionId,
-      orgId: region?.orgId || '', active: true, createdAt: Date.now()
+      name:     newStore.name.trim(),
+      regionId: resolvedRegionId,
+      orgId:    region?.orgId || viewingOrg || 'dumont',
+      status:   'active',
+      active:   true,
+      createdAt: Date.now()
     })
     await logAudit({ action: AUDIT_ACTIONS.STORE_CREATED, orgId: region?.orgId, userEmail: auth.userConfig?.email, details: { name: newStore.name } })
     await loadAll()
@@ -547,15 +551,17 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
           {/* Create Store */}
           <div style={card}>
             <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Create Store</div>
-            <select value={newStore.regionId} onChange={e => setNewStore(s=>({...s,regionId:e.target.value}))} style={input}>
-              <option value="">Select Region</option>
-              {regions.map(r => {
-                const org = orgs.find(o=>o.id===r.orgId)
-                return <option key={r.id} value={r.id}>{org?.name} — {r.name}</option>
-              })}
-            </select>
             <input placeholder="Store name (e.g. Frisco, McKinney)" value={newStore.name}
               onChange={e => setNewStore(s=>({...s,name:e.target.value}))} style={input}/>
+            {regions.length > 1 && (
+              <select value={newStore.regionId} onChange={e => setNewStore(s=>({...s,regionId:e.target.value}))} style={input}>
+                <option value="">Select Region (optional)</option>
+                {regions.map(r => {
+                  const org = orgs.find(o=>o.id===r.orgId)
+                  return <option key={r.id} value={r.id}>{org?.name} — {r.name}</option>
+                })}
+              </select>
+            )}
             <button style={btn()} onClick={createStore} disabled={saving}>
               {saving ? 'Creating...' : '+ Create Store'}
             </button>
