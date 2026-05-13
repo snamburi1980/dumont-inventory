@@ -269,6 +269,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
   const navTabs = isSuperOwnerUser ? [
     { id:'overview', label:'Overview' },
+    { id:'stores',   label:'Stores'   },
     { id:'setup',    label:'Setup'    },
     { id:'users',    label:'Users'    },
     { id:'items',    label:'Items'    },
@@ -536,6 +537,92 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                 </div>
               )}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* STORES */}
+      {view === 'stores' && (
+        <div>
+          {/* Invite New Store */}
+          <div style={{ ...card, border:'1.5px solid #C8843A', marginBottom:16 }}>
+            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Invite New Store Owner</div>
+            <div style={{ fontSize:11, color:'#8B7355', marginBottom:12 }}>Creates a store and emails an onboarding link to the store owner.</div>
+            {inviteSent ? (
+              <div>
+                <div style={{ background:'#E8F5E9', border:'1px solid #27AE60', borderRadius:8, padding:'12px', marginBottom:10 }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:6 }}>✅ Invitation sent to {inviteSent.email}</div>
+                  <div style={{ fontSize:11, color:'#2C1810', marginBottom:6 }}>Store: {inviteSent.storeName}</div>
+                  <div style={{ fontSize:10, color:'#8B7355', wordBreak:'break-all', marginBottom:8 }}>{inviteSent.link}</div>
+                  <button onClick={() => { navigator.clipboard.writeText(inviteSent.link); showToast('Link copied!') }}
+                    style={{ background:'#27AE60', color:'#fff', border:'none', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit', marginRight:8 }}>
+                    Copy Link
+                  </button>
+                  <button onClick={() => setInviteSent(null)}
+                    style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontFamily:'inherit', color:'#8B7355' }}>
+                    Send Another
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <input placeholder="Store Name (e.g. Frisco)" value={inviteForm.name}
+                  onChange={e => setInviteForm(f=>({...f,name:e.target.value}))} style={input}/>
+                <input placeholder="Store Address (optional)" value={inviteForm.address}
+                  onChange={e => setInviteForm(f=>({...f,address:e.target.value}))} style={input}/>
+                <input placeholder="Store Owner Email" type="email" value={inviteForm.email}
+                  onChange={e => setInviteForm(f=>({...f,email:e.target.value}))} style={input}/>
+                <button onClick={inviteNewStore} disabled={inviting}
+                  style={{ ...btn('#C8843A'), opacity: inviting ? 0.7 : 1 }}>
+                  {inviting ? 'Sending...' : '📧 Send Onboarding Invitation'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Store list */}
+          <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>
+            All Stores ({stores.length})
+          </div>
+          {stores.map(store => {
+            const region = regions.find(r => r.id === store.regionId)
+            const org    = orgs.find(o => o.id === store.orgId)
+            return (
+              <div key={store.id} style={{ ...card, marginBottom:8 }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>{store.name}</div>
+                    <div style={{ fontSize:11, color:'#8B7355' }}>
+                      {org?.name}{region ? ` › ${region.name}` : ''}
+                      {store.address ? ` · ${store.address}` : ''}
+                    </div>
+                    <div style={{ display:'inline-block', marginTop:4, fontSize:10, fontWeight:600, borderRadius:4, padding:'2px 8px',
+                      background: store.status==='active' ? '#E8F5E9' : '#FFF3E0',
+                      color:      store.status==='active' ? '#27AE60' : '#C8843A',
+                    }}>
+                      {store.status || 'active'}
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', gap:6 }}>
+                    <button onClick={async () => {
+                      const name = window.prompt('Edit store name:', store.name)
+                      if (!name || name === store.name) return
+                      await updateDoc(doc(db, 'stores', store.id), { name })
+                      showToast('Updated'); loadAll()
+                    }} style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer' }}>
+                      Edit
+                    </button>
+                    <button onClick={() => deleteStore(store.id, store.name)}
+                      style={{ fontSize:11, color:'#E74C3C', background:'none', border:'1px solid #FFCDD2', borderRadius:6, padding:'4px 10px', cursor:'pointer' }}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+          {stores.length === 0 && !loading && (
+            <div style={{ ...card, textAlign:'center', color:'#8B7355' }}>No stores yet. Send an invitation above.</div>
           )}
         </div>
       )}
