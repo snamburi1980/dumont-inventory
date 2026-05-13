@@ -544,7 +544,24 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       {/* STORES */}
       {view === 'stores' && (
         <div>
-          {/* Invite New Store */}
+          {/* Create Store */}
+          <div style={card}>
+            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Create Store</div>
+            <select value={newStore.regionId} onChange={e => setNewStore(s=>({...s,regionId:e.target.value}))} style={input}>
+              <option value="">Select Region</option>
+              {regions.map(r => {
+                const org = orgs.find(o=>o.id===r.orgId)
+                return <option key={r.id} value={r.id}>{org?.name} — {r.name}</option>
+              })}
+            </select>
+            <input placeholder="Store name (e.g. Frisco, McKinney)" value={newStore.name}
+              onChange={e => setNewStore(s=>({...s,name:e.target.value}))} style={input}/>
+            <button style={btn()} onClick={createStore} disabled={saving}>
+              {saving ? 'Creating...' : '+ Create Store'}
+            </button>
+          </div>
+
+          {/* Invite New Store Owner */}
           <div style={{ ...card, border:'1.5px solid #C8843A', marginBottom:16 }}>
             <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Invite New Store Owner</div>
             <div style={{ fontSize:11, color:'#8B7355', marginBottom:12 }}>Creates a store and emails an onboarding link to the store owner.</div>
