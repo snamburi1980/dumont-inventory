@@ -70,6 +70,7 @@ export default function App() {
         storeName={decodeURIComponent(urlParams.get('store') || '')}
         storeId={urlParams.get('storeId') || ''}
         orgId={urlParams.get('orgId') || 'dumont'}
+        role={urlParams.get('role') || 'store_owner'}
       />
     )
   }

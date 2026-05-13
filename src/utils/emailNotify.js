@@ -51,12 +51,13 @@ export async function sendDeliveryNotification({ storeName, storeEmail, vendor, 
   })
 }
 
-// Store owner onboarding invitation
-export async function sendInvitationEmail({ toEmail, storeName, inviteLink }) {
+// Onboarding invitation — works for store_owner, manager, or staff
+export async function sendInvitationEmail({ toEmail, storeName, inviteLink, role = 'store_owner' }) {
+  const roleLabel = role === 'staff' ? 'Staff' : role === 'manager' ? 'Manager' : 'Store Owner'
   return sendEmail({
     to:       toEmail,
-    subject:  `You're invited to manage ${storeName} on Dumont Inventory`,
-    message:  `Hi,\n\nYou have been invited to set up and manage ${storeName} on the Dumont Inventory app.\n\nClick the link below to create your account and get started:\n\n${inviteLink}\n\nThis link expires in 72 hours.\n\nIf you did not expect this invitation, please ignore this email.\n\nDumont Creamery & Café`,
+    subject:  `You're invited to join ${storeName} on Dumont Inventory`,
+    message:  `Hi,\n\nYou have been invited as ${roleLabel} for ${storeName} on the Dumont Inventory app.\n\nClick the link below to create your account and get started:\n\n${inviteLink}\n\nThis link expires in 72 hours.\n\nIf you did not expect this invitation, please ignore this email.\n\nDumont Creamery & Café`,
     fromName: 'Dumont Creamery & Café',
   })
 }

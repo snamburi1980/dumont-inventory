@@ -2,73 +2,130 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ── Helper functions using Custom Claims (set by syncUserClaims function) ──
     function isAuth() {
       return request.auth != null;
     }
 
-    function emailKey() {
-      return request.auth.token.email
-        .replace('.', '_')
-        .replace('.', '_')
-        .replace('.', '_')
-        .replace('@', '_at_');
+    function role() {
+      return request.auth.token.get('role', 'staff');
     }
 
-    function userDoc() {
-      return get(/databases/$(database)/documents/users/$(emailKey())).data;
+    function claimStoreId() {
+      return request.auth.token.get('storeId', '');
     }
 
     function isSuperOwner() {
-      return request.auth != null && request.auth.token.email == 'dumonttexas@gmail.com';
+      return isAuth() && (
+        role() == 'super_owner' ||
+        request.auth.token.email == 'dumonttexas@gmail.com'
+      );
     }
 
-    function hasStoreAccess(storeId) {
-      let u = userDoc();
-      return isSuperOwner()
-        || u.role == 'regional_owner'
-        || u.storeId == storeId
-        || u.store == storeId;
+    function isRegionalOwner() {
+      return isAuth() && role() == 'regional_owner';
     }
 
     function isStoreOwnerOrAbove() {
-      let u = userDoc();
+      return isAuth() && (
+        role() == 'super_owner' ||
+        role() == 'regional_owner' ||
+        role() == 'store_owner' ||
+        request.auth.token.email == 'dumonttexas@gmail.com'
+      );
+    }
+
+    function isManagerOrAbove() {
+      return isAuth() && (
+        role() == 'super_owner' ||
+        role() == 'regional_owner' ||
+        role() == 'store_owner' ||
+        role() == 'manager' ||
+        request.auth.token.email == 'dumonttexas@gmail.com'
+      );
+    }
+
+    function canAccessStore(storeId) {
       return isSuperOwner()
-        || u.role == 'regional_owner'
-        || u.role == 'store_owner';
+        || isRegionalOwner()
+        || claimStoreId() == storeId;
     }
 
-    // Users — read own record only; write by store_owner+ or super_owner
+    // ── Users collection ───────────────────────────────────────────────────────
+    // Any auth user can read all user docs (needed for Admin Users list)
+    // Write: super_owner can write any; store_owner/manager can write users in their store
     match /users/{emailKey} {
-      allow read: if isAuth() && (isSuperOwner() || emailKey() == emailKey);
-      allow write: if isAuth() && (isSuperOwner() || isStoreOwnerOrAbove());
-    }
-
-    // Orgs, regions, stores — any authenticated user can read; only super_owner writes
-    match /orgs/{id}    { allow read: if isAuth(); allow write: if isSuperOwner(); }
-    match /regions/{id} { allow read: if isAuth(); allow write: if isSuperOwner(); }
-    match /stores/{id}  { allow read: if isAuth(); allow write: if isSuperOwner(); }
-
-    // All per-store subcollections — scoped to users with access to that store
-    match /stores/{storeId}/{subcollection}/{docId} {
-      allow read, write: if isAuth() && hasStoreAccess(storeId);
-    }
-
-    // Transfers — global log, any authenticated user
-    match /transfers/{id} { allow read, write: if isAuth(); }
-
-    // Announcements — any auth user reads; store_owner+ writes
-    match /announcements/{id} {
       allow read: if isAuth();
-      allow write: if isAuth() && isStoreOwnerOrAbove();
+      allow create: if isAuth() && (
+        isSuperOwner() ||
+        isStoreOwnerOrAbove() ||
+        // Allow users to create their own record (onboarding)
+        request.auth.token.email.lower() == emailKey.replace('_at_', '@').replace('_', '.')
+      );
+      allow update: if isAuth() && (
+        isSuperOwner() ||
+        isManagerOrAbove()
+      );
+      allow delete: if isSuperOwner();
     }
 
-    // Audit log — append only; super_owner can read
+    // ── Org / Region / Store metadata ──────────────────────────────────────────
+    match /orgs/{id} {
+      allow read:  if isAuth();
+      allow write: if isSuperOwner();
+    }
+
+    match /regions/{id} {
+      allow read:  if isAuth();
+      allow write: if isSuperOwner();
+    }
+
+    match /stores/{id} {
+      allow read:  if isAuth();
+      allow write: if isSuperOwner() || isStoreOwnerOrAbove();
+    }
+
+    // ── Per-store subcollections ───────────────────────────────────────────────
+    // inventory, stockLog, deliveries, checklists, schedule, cashRegister, salesLedger, etc.
+    // Only users assigned to that store (or super_owner) can read/write
+    match /stores/{storeId}/{subcollection}/{docId} {
+      allow read, write: if canAccessStore(storeId);
+    }
+
+    // Deep subcollections (e.g. stores/{id}/inventory/stock/items/{itemId})
+    match /stores/{storeId}/{subcollection}/{docId}/{rest=**} {
+      allow read, write: if canAccessStore(storeId);
+    }
+
+    // ── Org items (menu master) ────────────────────────────────────────────────
+    match /orgs/{orgId}/items/{itemId} {
+      allow read:  if isAuth();
+      allow write: if isSuperOwner() || isStoreOwnerOrAbove();
+    }
+
+    // ── Global collections ────────────────────────────────────────────────────
+    match /transfers/{id} {
+      allow read, write: if isAuth();
+    }
+
+    match /invitations/{id} {
+      allow read, write: if isAuth();
+    }
+
+    match /announcements/{id} {
+      allow read:  if isAuth();
+      allow write: if isManagerOrAbove();
+    }
+
+    match /signupRequests/{id} {
+      allow read, write: if isAuth();
+    }
+
+    // Audit log — anyone can append, only super_owner reads
     match /auditLog/{id} {
       allow create: if isAuth();
       allow read:   if isSuperOwner();
+      allow update, delete: if isSuperOwner();
     }
-
-    // Signup requests
-    match /signupRequests/{id} { allow read, write: if isAuth(); }
   }
 }

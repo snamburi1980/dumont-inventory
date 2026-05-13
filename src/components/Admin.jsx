@@ -42,6 +42,11 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   const [inviteSent,    setInviteSent]    = useState(null) // { email, link }
   const [inviting,      setInviting]      = useState(false)
 
+  // Invite staff/manager state
+  const [inviteUserForm, setInviteUserForm] = useState({ email:'', name:'', role:'staff' })
+  const [inviteUserSent, setInviteUserSent] = useState(null)
+  const [invitingUser,   setInvitingUser]   = useState(false)
+
   useEffect(() => { loadAll() }, [])
 
   async function loadAll() {
@@ -113,6 +118,46 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       showToast('Failed to send invitation')
     }
     setInviting(false)
+  }
+  // ── INVITE STAFF / MANAGER ────────────────────────────────
+  async function inviteUser() {
+    if (!inviteUserForm.email.trim()) { showToast('Enter email'); return }
+    const targetStoreId = currentStoreId || viewingStore
+    if (!targetStoreId) { showToast('No store selected'); return }
+    setInvitingUser(true)
+    try {
+      const store  = stores.find(s => s.id === targetStoreId)
+      const org    = orgs.find(o => o.id === (store?.orgId || viewingOrg))
+      const token  = crypto.randomUUID()
+      const expiresAt = Date.now() + 72 * 60 * 60 * 1000
+      await setDoc(doc(db, 'invitations', token), {
+        token,
+        email:     inviteUserForm.email.trim().toLowerCase(),
+        name:      inviteUserForm.name.trim(),
+        storeName: store?.name || '',
+        storeId:   targetStoreId,
+        orgId:     org?.id || viewingOrg || 'dumont',
+        role:      inviteUserForm.role,
+        status:    'pending',
+        expiresAt,
+        createdAt: Date.now(),
+        createdBy: auth.userConfig?.email,
+      })
+      const link = `${APP_URL}?token=${token}&email=${encodeURIComponent(inviteUserForm.email.trim().toLowerCase())}&store=${encodeURIComponent(store?.name || '')}&storeId=${targetStoreId}&orgId=${org?.id || 'dumont'}&role=${inviteUserForm.role}`
+      await sendInvitationEmail({
+        toEmail:   inviteUserForm.email.trim(),
+        storeName: store?.name || '',
+        inviteLink: link,
+        role:      inviteUserForm.role,
+      })
+      setInviteUserSent({ email: inviteUserForm.email.trim(), link, role: inviteUserForm.role, storeName: store?.name || '' })
+      setInviteUserForm({ email:'', name:'', role:'staff' })
+      showToast(`Invitation sent to ${inviteUserForm.email}`)
+    } catch(e) {
+      console.error(e)
+      showToast('Failed to send invitation')
+    }
+    setInvitingUser(false)
   }
   // ──────────────────────────────────────────────────────────
 
@@ -759,80 +804,70 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
       {view === 'users' && (
         <div>
-          {/* Add new user form — store owners can add staff/manager to their store only */}
-          <div style={card}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>
-              {isStoreOwner ? 'Add Staff or Manager' : 'Assign User'}
+          {/* Invite User — fully automated, no Firebase Console needed */}
+          <div style={{ ...card, border:'1.5px solid #2C1810' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Invite User</div>
+            <div style={{ fontSize:11, color:'#8B7355', marginBottom:12 }}>
+              Sends an email with a sign-up link. They create their own password — no Firebase Console needed.
             </div>
-            {!isSuperOwnerUser && (
-              <div style={{ background:'#FFF3E0', borderRadius:8, padding:'8px 12px', marginBottom:10, fontSize:11, color:'#C8843A', lineHeight:1.6 }}>
-                First create the user in Firebase Console → Authentication → Add User, then fill in below.
+            {inviteUserSent ? (
+              <div style={{ background:'#E8F5E9', border:'1px solid #27AE60', borderRadius:8, padding:'12px', marginBottom:4 }}>
+                <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:4 }}>
+                  Invitation sent to {inviteUserSent.email}
+                </div>
+                <div style={{ fontSize:11, color:'#2C1810', marginBottom:6 }}>
+                  Role: {inviteUserSent.role} · Store: {inviteUserSent.storeName}
+                </div>
+                <div style={{ fontSize:10, color:'#8B7355', wordBreak:'break-all', marginBottom:8 }}>{inviteUserSent.link}</div>
+                <div style={{ display:'flex', gap:8 }}>
+                  <button onClick={() => { navigator.clipboard.writeText(inviteUserSent.link); showToast('Link copied!') }}
+                    style={{ background:'#27AE60', color:'#fff', border:'none', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit' }}>
+                    Copy Link
+                  </button>
+                  <button onClick={() => setInviteUserSent(null)}
+                    style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontFamily:'inherit', color:'#8B7355' }}>
+                    Invite Another
+                  </button>
+                </div>
               </div>
-            )}
-            <input placeholder="Full Name" value={newUser.name} onChange={e => setNewUser(u=>({...u,name:e.target.value}))} style={input}/>
-            <input placeholder="Email address" value={newUser.email} onChange={e => setNewUser(u=>({...u,email:e.target.value}))} style={input}/>
-            <input placeholder="Temporary password (min 6 chars)" type="text" value={newUser.tempPassword||''} onChange={e => setNewUser(u=>({...u,tempPassword:e.target.value}))} style={input}/>
-            <select value={newUser.role} onChange={e => setNewUser(u=>({...u,role:e.target.value,storeId:'',regionId:'',orgId:''}))} style={input}>
-              {isManager ? (
-                <option value="staff">Staff</option>
-              ) : isStoreOwner ? (
-                <>
-                  <option value="staff">Staff</option>
-                  <option value="manager">Manager</option>
-                </>
-              ) : (
-                <>
-                  <option value="store_owner">Store Owner</option>
-                  <option value="manager">Manager</option>
-                  <option value="regional_owner">Regional Owner</option>
-                  <option value="org_owner">Org Owner</option>
-                  <option value="staff">Staff</option>
-                </>
-              )}
-            </select>
-            {(isStoreOwner || isManager) ? (
-              <div style={{ padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontSize:13, marginBottom:8, background:'#F5EDE0', color:'#2C1810' }}>
-                Store: {stores.find(s => s.id === currentStoreId)?.name || 'Your store'}
-              </div>
-            ) : (newUser.role==='store_owner'||newUser.role==='manager'||newUser.role==='staff') && (
-              <select value={newUser.storeId} onChange={e => setNewUser(u=>({...u,storeId:e.target.value}))} style={input}>
-                <option value="">Select Store</option>
-                {stores.map(s => {
-                  const region = regions.find(r=>r.id===s.regionId)
-                  const org    = orgs.find(o=>o.id===s.orgId)
-                  return <option key={s.id} value={s.id}>{org?.name} {'>'} {region?.name} {'>'} {s.name}</option>
-                })}
-              </select>
-            )}
-            {newUser.role==='regional_owner' && !isStoreOwner && (
-              <select value={newUser.regionId} onChange={e => setNewUser(u=>({...u,regionId:e.target.value}))} style={input}>
-                <option value="">Select Region</option>
-                {regions.map(r => {
-                  const org = orgs.find(o=>o.id===r.orgId)
-                  return <option key={r.id} value={r.id}>{org?.name} — {r.name}</option>
-                })}
-              </select>
-            )}
-            <button style={btn()} onClick={() => assignUser((isStoreOwner || isManager) ? currentStoreId : undefined)} disabled={saving}>{saving ? 'Saving...' : 'Assign User'}</button>
-            {userSaved && (
-              <div style={{ marginTop:12, padding:'12px', background:'#E8F5E9', borderRadius:8, border:'1px solid #27AE60' }}>
-                <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:8 }}>User assigned! Share these details:</div>
-                {[
-                  { label:'App URL', value: APP_URL },
-                  { label:'Email',   value: userSaved.email },
-                  { label:'Role',    value: userSaved.role },
-                  { label:'Store',   value: userSaved.store || 'See admin' },
-                ].map(({label,value}) => (
-                  <div key={label} style={{ display:'flex', justifyContent:'space-between', fontSize:11, padding:'3px 0', borderBottom:'1px solid #C8E6C9' }}>
-                    <span style={{color:'#8B7355',fontWeight:600}}>{label}</span>
-                    <span style={{color:'#2C1810'}}>{value}</span>
+            ) : (
+              <div>
+                <input placeholder="Full Name (optional)" value={inviteUserForm.name}
+                  onChange={e => setInviteUserForm(f=>({...f,name:e.target.value}))} style={input}/>
+                <input placeholder="Email address *" type="email" value={inviteUserForm.email}
+                  onChange={e => setInviteUserForm(f=>({...f,email:e.target.value}))} style={input}/>
+                <select value={inviteUserForm.role}
+                  onChange={e => setInviteUserForm(f=>({...f,role:e.target.value}))} style={input}>
+                  {isManager ? (
+                    <option value="staff">Staff</option>
+                  ) : isStoreOwner ? (
+                    <>
+                      <option value="staff">Staff</option>
+                      <option value="manager">Manager</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="staff">Staff</option>
+                      <option value="manager">Manager</option>
+                      <option value="store_owner">Store Owner</option>
+                    </>
+                  )}
+                </select>
+                {isSuperOwnerUser && (
+                  <select value={inviteUserForm.storeId || currentStoreId || ''}
+                    onChange={e => setInviteUserForm(f=>({...f,storeId:e.target.value}))} style={input}>
+                    <option value="">Select Store</option>
+                    {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                )}
+                {!isSuperOwnerUser && (
+                  <div style={{ padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontSize:12, marginBottom:8, background:'#F5EDE0', color:'#2C1810' }}>
+                    Store: {stores.find(s => s.id === currentStoreId)?.name || 'Your store'}
                   </div>
-                ))}
-                <button onClick={() => {
-                  const text = `Dumont Inventory App\nURL: ${APP_URL}\nEmail: ${userSaved.email}\nRole: ${userSaved.role}\nStore: ${userSaved.store}`
-                  navigator.clipboard.writeText(text).then(() => showToast('Copied!'))
-                }} style={{ marginTop:8, background:'#27AE60', color:'#fff', border:'none', borderRadius:6, padding:'7px 14px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit' }}>
-                  Copy to Share
+                )}
+                <button onClick={inviteUser} disabled={invitingUser}
+                  style={{ ...btn('#2C1810'), opacity: invitingUser ? 0.7 : 1 }}>
+                  {invitingUser ? 'Sending...' : '📧 Send Invitation'}
                 </button>
               </div>
             )}

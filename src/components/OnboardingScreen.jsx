@@ -5,7 +5,9 @@ import { auth, db } from '../firebase/config'
 
 const APP_BASE = 'https://snamburi1980.github.io/dumont-inventory/'
 
-export default function OnboardingScreen({ token, email, storeName, storeId, orgId }) {
+export default function OnboardingScreen({ token, email, storeName, storeId, orgId, role: roleProp }) {
+  const assignedRole  = roleProp || 'store_owner'
+  const isStaffOrMgr  = assignedRole === 'staff' || assignedRole === 'manager'
   const [step,        setStep]        = useState('form')   // form | seeding | done
   const [name,        setName]        = useState('')
   const [password,    setPassword]    = useState('')
@@ -58,7 +60,7 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
         uid,
         email,
         name:      name.trim(),
-        role:      'store_owner',
+        role:      assignedRole,
         storeId,
         store:     storeId,
         orgId:     orgId || 'dumont',
@@ -81,7 +83,11 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
         console.warn('Could not update invitation/store status', e)
       }
 
-      // 4. Load base items for seed step
+      // 4. Staff/manager skip inventory seeding — go straight to done
+      if (isStaffOrMgr) {
+        setStep('done')
+        return
+      }
       await loadBaseItems()
       setStep('seeding')
     } catch(e) {

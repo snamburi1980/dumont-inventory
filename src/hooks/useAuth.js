@@ -68,8 +68,9 @@ export function useAuth() {
     }
     setUserConfig(cfg)
     setPending(false)
-    // Force password change if flagged
     setNeedsPasswordChange(cfg.forcePasswordChange === true)
+    // Force token refresh so Custom Claims (set by Cloud Function) are picked up
+    try { await firebaseUser.getIdToken(true) } catch(_) {}
     setLoading(false)
   }
 
