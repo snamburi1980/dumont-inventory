@@ -425,6 +425,22 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       {/* OVERVIEW */}
       {view === 'overview' && (
         <div>
+          {/* Quick Create Store */}
+          <div style={{ ...card, display:'flex', gap:8, alignItems:'flex-end', marginBottom:16 }}>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:12, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Create Store</div>
+              <input placeholder="Store name (e.g. Frisco, McKinney)"
+                value={newStore.name}
+                onChange={e => setNewStore(s=>({...s, name:e.target.value}))}
+                onKeyDown={e => e.key==='Enter' && createStore()}
+                style={{ ...input, marginBottom:0 }}/>
+            </div>
+            <button onClick={createStore} disabled={saving}
+              style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'10px 18px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', whiteSpace:'nowrap', flexShrink:0 }}>
+              {saving ? '...' : '+ Create'}
+            </button>
+          </div>
+
           <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:16 }}>
             {[
               { label:'Orgs',    value:orgs.length,    color:'#C8843A' },
