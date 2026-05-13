@@ -11,10 +11,7 @@ import OnboardingScreen from './components/OnboardingScreen'
 import Layout         from './components/Layout'
 import Home           from './components/Home'
 import Inventory      from './components/Inventory'
-import Orders         from './components/Orders'
-import Sales          from './components/Sales'
-import Delivery       from './components/Delivery'
-import COGS           from './components/COGS'
+import Commerce       from './components/Commerce'
 import Schedule       from './components/Schedule'
 import Admin          from './components/Admin'
 import ChangePassword from './components/ChangePassword'
@@ -144,10 +141,7 @@ export default function App() {
     { id:'schedule',     label:'Schedule'      },
     { id:'transfers',    label:'Transfers'     },
     { id:'cashregister', label:'Cash Register' },
-    { id:'sales',        label:'Sales'         },
-    { id:'orders',       label:'Orders'        },
-    { id:'delivery',     label:'Delivery'      },
-    { id:'cogs',         label:'COGS'          },
+    { id:'commerce',     label:'Commerce'      },
     { id:'admin',        label:'Admin'         },
   ]
 
@@ -174,12 +168,9 @@ export default function App() {
         {activeTab === 'icecreamlog' && <Picks invHook={invHook} viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'checklist'   && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'schedule'    && <Schedule  {...tabProps} />}
-        {activeTab === 'sales'       && <Sales     {...tabProps} />}
-        {activeTab === 'orders'      && <Orders    {...tabProps} />}
-        {activeTab === 'delivery'    && <Delivery  {...tabProps} />}
         {activeTab === 'cashregister' && <CashRegister viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'transfers'   && <Transfers auth={auth} showToast={showToast} />}
-        {activeTab === 'cogs'        && <COGS      {...tabProps} />}
+        {activeTab === 'commerce'    && <Commerce  viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'admin'       && <Admin     {...tabProps} />}
 
         {toast && (
