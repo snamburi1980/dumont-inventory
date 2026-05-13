@@ -123,13 +123,31 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
   }
 
   async function clearMonth() {
-    if (!window.confirm(`Clear all logs for this month?`)) return
+    if (!window.confirm(`Clear all logs for this month? This will also restore inventory counts.`)) return
+    // Tally how many buckets to restore per item
+    const restore = {}
+    usageDetails.forEach(log => {
+      if (!restore[log.itemId]) restore[log.itemId] = 0
+      restore[log.itemId] += Math.abs(log.delta)
+    })
+    // Restore inventory
+    if (Object.keys(restore).length) {
+      const updated = inventory.map(item => {
+        if (!restore[item.id]) return item
+        return { ...item, stock: (item.stock || 0) + restore[item.id] }
+      })
+      try {
+        await saveInventory(viewingStore, updated)
+        await loadInventory(viewingStore)
+      } catch(e) { console.error('Restore inventory failed', e) }
+    }
+    // Delete log entries
     for (const d of usageDetails) {
       try { await deleteDoc(doc(db, 'stores', viewingStore, 'stockLog', d.id)) } catch(e) {}
     }
     setUsageData([])
     setUsageDetails([])
-    showToast('Cleared')
+    showToast('Cleared — inventory restored')
   }
 
   // ── Month list ──────────────────────────────────────────────
