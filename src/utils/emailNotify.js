@@ -50,3 +50,13 @@ export async function sendDeliveryNotification({ storeName, storeEmail, vendor, 
     message: `Delivery logged for ${storeName}\n\nVendor: ${vendor}\nDate: ${date}\nItems updated: ${itemCount}\nTotal cost: $${totalCost.toFixed(2)}\n\nInventory has been updated.\n\nDumont Inventory App`,
   })
 }
+
+// Store owner onboarding invitation
+export async function sendInvitationEmail({ toEmail, storeName, inviteLink }) {
+  return sendEmail({
+    to:       toEmail,
+    subject:  `You're invited to manage ${storeName} on Dumont Inventory`,
+    message:  `Hi,\n\nYou have been invited to set up and manage ${storeName} on the Dumont Inventory app.\n\nClick the link below to create your account and get started:\n\n${inviteLink}\n\nThis link expires in 72 hours.\n\nIf you did not expect this invitation, please ignore this email.\n\nDumont Creamery & Café`,
+    fromName: 'Dumont Creamery & Café',
+  })
+}

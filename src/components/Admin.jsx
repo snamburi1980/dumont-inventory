@@ -10,12 +10,13 @@ import Pricing      from './Pricing'
 import SOPManager   from './SOPManager'
 import OrgSettings  from './OrgSettings'
 import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
+import { sendInvitationEmail } from '../utils/emailNotify'
 
 const APP_URL = 'https://snamburi1980.github.io/dumont-inventory/'
 
 export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setViewingOrg, viewingStore }) {
   const role0       = auth?.userConfig?.role || ''
-  const [view, setView] = useState(auth?.isSuperOwner?.() ? 'overview' : role0 === 'store_owner' ? 'users' : 'items')
+  const [view, setView] = useState(auth?.isSuperOwner?.() ? 'overview' : (role0 === 'store_owner' || role0 === 'manager') ? 'users' : 'items')
   const [orgs,         setOrgs]         = useState([])
   const [regions,      setRegions]      = useState([])
   const [stores,       setStores]       = useState([])
@@ -35,6 +36,11 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
   const [users,       setUsers]       = useState([])
   const [editingUser, setEditingUser] = useState(null)
+
+  // Invite new store state
+  const [inviteForm,    setInviteForm]    = useState({ name:'', address:'', email:'' })
+  const [inviteSent,    setInviteSent]    = useState(null) // { email, link }
+  const [inviting,      setInviting]      = useState(false)
 
   useEffect(() => { loadAll() }, [])
 
@@ -57,6 +63,58 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     } catch(e) { console.error(e) }
     setLoading(false)
   }
+
+  // ── INVITE NEW STORE ──────────────────────────────────────
+  async function inviteNewStore() {
+    if (!inviteForm.name.trim()) { showToast('Enter store name'); return }
+    if (!inviteForm.email.trim()) { showToast('Enter owner email'); return }
+    setInviting(true)
+    try {
+      const org = orgs.find(o => o.id === viewingOrg) || orgs[0]
+      const region = regions.find(r => r.orgId === (org?.id || viewingOrg))
+      // Create store doc with pending status
+      const storeRef = await addDoc(collection(db, 'stores'), {
+        name:       inviteForm.name.trim(),
+        address:    inviteForm.address.trim(),
+        ownerEmail: inviteForm.email.trim().toLowerCase(),
+        orgId:      org?.id || viewingOrg || 'dumont',
+        regionId:   region?.id || '',
+        status:     'pending',
+        createdAt:  Date.now(),
+        createdBy:  auth.userConfig?.email,
+      })
+      // Generate token
+      const token = crypto.randomUUID()
+      const expiresAt = Date.now() + 72 * 60 * 60 * 1000
+      // Write invitation doc
+      await setDoc(doc(db, 'invitations', token), {
+        token,
+        email:     inviteForm.email.trim().toLowerCase(),
+        storeName: inviteForm.name.trim(),
+        storeId:   storeRef.id,
+        orgId:     org?.id || viewingOrg || 'dumont',
+        role:      'store_owner',
+        status:    'pending',
+        expiresAt,
+        createdAt: Date.now(),
+        createdBy: auth.userConfig?.email,
+      })
+      // Build invite link
+      const link = `${APP_URL}?token=${token}&email=${encodeURIComponent(inviteForm.email.trim().toLowerCase())}&store=${encodeURIComponent(inviteForm.name.trim())}&storeId=${storeRef.id}&orgId=${org?.id || 'dumont'}`
+      // Send email
+      await sendInvitationEmail({ toEmail: inviteForm.email.trim(), storeName: inviteForm.name.trim(), inviteLink: link })
+      await logAudit({ action: 'STORE_INVITED', userEmail: auth.userConfig?.email, details: { store: inviteForm.name, email: inviteForm.email } })
+      await loadAll()
+      setInviteSent({ email: inviteForm.email.trim(), link, storeName: inviteForm.name.trim() })
+      setInviteForm({ name:'', address:'', email:'' })
+      showToast(`Invitation sent to ${inviteForm.email}`)
+    } catch(e) {
+      console.error(e)
+      showToast('Failed to send invitation')
+    }
+    setInviting(false)
+  }
+  // ──────────────────────────────────────────────────────────
 
   // ── CASCADE DELETE ─────────────────────────────────────────
   async function deleteStore(storeId, storeName) {
@@ -205,7 +263,9 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   const isSuperOwnerUser = auth?.isSuperOwner?.()
   const currentRole      = auth?.userConfig?.role || ''
   const isStoreOwner     = currentRole === 'store_owner'
+  const isManager        = currentRole === 'manager'
   const currentStoreId   = auth?.userConfig?.storeId || auth?.userConfig?.store || ''
+  const canManageUsers   = isSuperOwnerUser || isStoreOwner || isManager
 
   const navTabs = isSuperOwnerUser ? [
     { id:'overview', label:'Overview' },
@@ -215,7 +275,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     { id:'pricing',  label:'Pricing'  },
     { id:'sop',      label:'SOPs'     },
     { id:'settings', label:'Settings' },
-  ] : isStoreOwner ? [
+  ] : (isStoreOwner || isManager) ? [
     { id:'users',    label:'Users'    },
     { id:'items',    label:'Items'    },
     { id:'pricing',  label:'Pricing'  },
@@ -439,6 +499,44 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               + Create New Organisation
             </button>
           )}
+
+          {/* Invite New Store — super_owner only */}
+          {isSuperOwnerUser && (
+            <div style={{ ...card, marginTop:16, border:'1.5px solid #C8843A' }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Invite New Store</div>
+              <div style={{ fontSize:11, color:'#8B7355', marginBottom:12 }}>Creates a store and emails an onboarding link to the new store owner.</div>
+              {inviteSent ? (
+                <div>
+                  <div style={{ background:'#E8F5E9', border:'1px solid #27AE60', borderRadius:8, padding:'12px', marginBottom:10 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:6 }}>✅ Invitation sent to {inviteSent.email}</div>
+                    <div style={{ fontSize:11, color:'#2C1810', marginBottom:6 }}>Store: {inviteSent.storeName}</div>
+                    <div style={{ fontSize:10, color:'#8B7355', wordBreak:'break-all', marginBottom:8 }}>{inviteSent.link}</div>
+                    <button onClick={() => { navigator.clipboard.writeText(inviteSent.link); showToast('Link copied!') }}
+                      style={{ background:'#27AE60', color:'#fff', border:'none', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit', marginRight:8 }}>
+                      Copy Link
+                    </button>
+                    <button onClick={() => setInviteSent(null)}
+                      style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontFamily:'inherit', color:'#8B7355' }}>
+                      Send Another
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <input placeholder="Store Name (e.g. Frisco)" value={inviteForm.name}
+                    onChange={e => setInviteForm(f=>({...f,name:e.target.value}))} style={input}/>
+                  <input placeholder="Store Address (optional)" value={inviteForm.address}
+                    onChange={e => setInviteForm(f=>({...f,address:e.target.value}))} style={input}/>
+                  <input placeholder="Store Owner Email" type="email" value={inviteForm.email}
+                    onChange={e => setInviteForm(f=>({...f,email:e.target.value}))} style={input}/>
+                  <button onClick={inviteNewStore} disabled={inviting}
+                    style={{ ...btn('#C8843A'), opacity: inviting ? 0.7 : 1 }}>
+                    {inviting ? 'Sending...' : '📧 Send Onboarding Invitation'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -545,7 +643,9 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             <input placeholder="Email address" value={newUser.email} onChange={e => setNewUser(u=>({...u,email:e.target.value}))} style={input}/>
             <input placeholder="Temporary password (min 6 chars)" type="text" value={newUser.tempPassword||''} onChange={e => setNewUser(u=>({...u,tempPassword:e.target.value}))} style={input}/>
             <select value={newUser.role} onChange={e => setNewUser(u=>({...u,role:e.target.value,storeId:'',regionId:'',orgId:''}))} style={input}>
-              {isStoreOwner ? (
+              {isManager ? (
+                <option value="staff">Staff</option>
+              ) : isStoreOwner ? (
                 <>
                   <option value="staff">Staff</option>
                   <option value="manager">Manager</option>
@@ -560,7 +660,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                 </>
               )}
             </select>
-            {isStoreOwner ? (
+            {(isStoreOwner || isManager) ? (
               <div style={{ padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontSize:13, marginBottom:8, background:'#F5EDE0', color:'#2C1810' }}>
                 Store: {stores.find(s => s.id === currentStoreId)?.name || 'Your store'}
               </div>
@@ -583,7 +683,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                 })}
               </select>
             )}
-            <button style={btn()} onClick={() => assignUser(isStoreOwner ? currentStoreId : undefined)} disabled={saving}>{saving ? 'Saving...' : 'Assign User'}</button>
+            <button style={btn()} onClick={() => assignUser((isStoreOwner || isManager) ? currentStoreId : undefined)} disabled={saving}>{saving ? 'Saving...' : 'Assign User'}</button>
             {userSaved && (
               <div style={{ marginTop:12, padding:'12px', background:'#E8F5E9', borderRadius:8, border:'1px solid #27AE60' }}>
                 <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:8 }}>User assigned! Share these details:</div>
@@ -616,7 +716,9 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             <button onClick={loadAll} style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Refresh</button>
           </div>
           {(() => {
-            const visibleUsers = isStoreOwner
+            const visibleUsers = isManager
+              ? users.filter(u => (u.storeId || u.store) === currentStoreId && u.role === 'staff')
+              : isStoreOwner
               ? users.filter(u => (u.storeId || u.store) === currentStoreId && u.role !== 'super_owner' && u.role !== 'regional_owner' && u.role !== 'store_owner')
               : users
             if (visibleUsers.length === 0) return <div style={{textAlign:'center',padding:32,color:'#8B7355'}}>No users found</div>
@@ -654,7 +756,9 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                     <div>
                       <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Edit: {user.name || user.email}</div>
                       <select value={editingUser.role || ''} onChange={e => setEditingUser(u => ({...u, role:e.target.value}))} style={input}>
-                        {isStoreOwner ? (
+                        {isManager ? (
+                          <option value="staff">Staff</option>
+                        ) : isStoreOwner ? (
                           <>
                             <option value="staff">Staff</option>
                             <option value="manager">Manager</option>

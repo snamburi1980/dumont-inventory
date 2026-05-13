@@ -46,15 +46,18 @@ export function useAuth() {
           return
         }
       } else {
-        // First login — write profile
-        const emailKey2 = firebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_')
-        await setDoc(doc(db, 'users', emailKey2), {
-          email: firebaseUser.email,
-          store: cfg.store,
-          role:  cfg.role,
-          name:  cfg.name,
-          createdAt: Date.now()
-        })
+        // Skip auto-create during onboarding — OnboardingScreen writes the correct doc
+        const isOnboarding = new URLSearchParams(window.location.search).get('token')
+        if (!isOnboarding) {
+          const emailKey2 = firebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_')
+          await setDoc(doc(db, 'users', emailKey2), {
+            email: firebaseUser.email,
+            store: cfg.store,
+            role:  cfg.role,
+            name:  cfg.name,
+            createdAt: Date.now()
+          })
+        }
       }
     } catch(e) {
       console.warn('Could not load user profile', e)

@@ -6,7 +6,8 @@ import { useOrgItems }  from './hooks/useOrgItems'
 import { applyTheme }   from './utils/themes'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
-import LoginScreen    from './components/LoginScreen'
+import LoginScreen      from './components/LoginScreen'
+import OnboardingScreen from './components/OnboardingScreen'
 import Layout         from './components/Layout'
 import Home           from './components/Home'
 import Inventory      from './components/Inventory'
@@ -23,6 +24,7 @@ import Transfers      from './components/Transfers'
 import CashRegister   from './components/CashRegister'
 
 export default function App() {
+  // All hooks must be called before any conditional returns
   const auth         = useAuth()
   const invHook      = useInventory()
   const { toast, showToast } = useToast()
@@ -59,6 +61,21 @@ export default function App() {
       invHook.loadInventory(viewingStore, viewingOrg)
     }
   }, [viewingStore])
+
+  // Onboarding invitation link — checked after hooks, before auth gate
+  const urlParams     = new URLSearchParams(window.location.search)
+  const inviteToken   = urlParams.get('token')
+  if (inviteToken) {
+    return (
+      <OnboardingScreen
+        token={inviteToken}
+        email={decodeURIComponent(urlParams.get('email') || '')}
+        storeName={decodeURIComponent(urlParams.get('store') || '')}
+        storeId={urlParams.get('storeId') || ''}
+        orgId={urlParams.get('orgId') || 'dumont'}
+      />
+    )
+  }
 
   if (auth.loading) {
     return (
