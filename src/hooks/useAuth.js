@@ -39,6 +39,10 @@ export function useAuth() {
         const fd = snap.data()
         if (fd.role === 'owner') fd.role = 'super_owner'
         cfg = { ...cfg, ...fd }
+        // Hardcoded users always keep their hardcoded role
+        if (HARDCODED_USERS[firebaseUser.email]) {
+          cfg.role = HARDCODED_USERS[firebaseUser.email].role
+        }
         // Check pending
         if (fd.status === 'pending') {
           setPending(true)
