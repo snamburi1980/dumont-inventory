@@ -178,27 +178,31 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
   async function createStore() {
     if (!newStore.name.trim()) { showToast('Enter a store name'); return }
-    // Auto-pick the only region if none selected
     const resolvedRegionId = newStore.regionId || (regions.length === 1 ? regions[0].id : '')
     setSaving(true)
-    const region = regions.find(r => r.id === resolvedRegionId)
-    const ref = await addDoc(collection(db, 'stores'), {
-      name:     newStore.name.trim(),
-      regionId: resolvedRegionId,
-      orgId:    region?.orgId || viewingOrg || 'dumont',
-      status:   'active',
-      active:   true,
-      createdAt: Date.now()
-    })
-    await logAudit({ action: AUDIT_ACTIONS.STORE_CREATED, orgId: region?.orgId, userEmail: auth.userConfig?.email, details: { name: newStore.name } })
-    await loadAll()
-    setSaving(false)
-    showToast(`Store "${newStore.name}" created`)
-    if (setupStep === 'store') {
-      setSetupStep('user')
-      setNewUser(u => ({ ...u, storeId: ref.id }))
+    try {
+      const region = regions.find(r => r.id === resolvedRegionId)
+      const ref = await addDoc(collection(db, 'stores'), {
+        name:      newStore.name.trim(),
+        regionId:  resolvedRegionId,
+        orgId:     region?.orgId || viewingOrg || 'dumont',
+        status:    'active',
+        active:    true,
+        createdAt: Date.now()
+      })
+      try { await logAudit({ action: AUDIT_ACTIONS.STORE_CREATED, orgId: region?.orgId, userEmail: auth.userConfig?.email, details: { name: newStore.name } }) } catch(_) {}
+      await loadAll()
+      showToast(`Store "${newStore.name}" created`)
+      if (setupStep === 'store') {
+        setSetupStep('user')
+        setNewUser(u => ({ ...u, storeId: ref.id }))
+      }
+      setNewStore({ name:'', regionId:'' })
+    } catch(e) {
+      console.error('createStore failed:', e)
+      showToast(`Failed: ${e.code === 'permission-denied' ? 'Check Firestore rules' : e.message || 'Unknown error'}`)
     }
-    setNewStore({ name:'', regionId:'' })
+    setSaving(false)
   }
 
   async function assignUser(overrideStoreId) {
