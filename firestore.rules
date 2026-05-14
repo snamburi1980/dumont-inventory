@@ -81,7 +81,7 @@ service cloud.firestore {
     }
 
     match /stores/{id} {
-      allow read:  if isAuth();
+      allow read:  if canAccessStore(id);
       allow write: if isSuperOwner() || isStoreOwnerOrAbove();
     }
 
