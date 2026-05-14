@@ -104,6 +104,11 @@ service cloud.firestore {
     }
 
     // ── Global collections ────────────────────────────────────────────────────
+    // Schedule — accessible to any authenticated user (same pattern as cashRegister/stockLog)
+    match /stores/{storeId}/schedule/{docId} {
+      allow read, write: if isAuth();
+    }
+
     match /transfers/{id} {
       allow read, write: if isAuth();
     }

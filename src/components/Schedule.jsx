@@ -52,6 +52,8 @@ export default function Schedule({ viewingStore, showToast }) {
   const [editStaffId,   setEditStaffId]   = useState(null)
   const [editName,      setEditName]      = useState('')
   const [snapshotUrl,   setSnapshotUrl]   = useState(null)
+  const [loadError,     setLoadError]     = useState(null)
+  const [loadingData,   setLoadingData]   = useState(false)
   const schedRef = useRef(null)
 
   const offsetRef = useRef(offset)
@@ -85,7 +87,8 @@ export default function Schedule({ viewingStore, showToast }) {
 
   async function loadSchedule() {
     if (!viewingStore) return
-    // Always clear shifts first to prevent stale data showing
+    setLoadError(null)
+    setLoadingData(true)
     setShifts({})
     try {
       const snap = await getDoc(doc(db, 'stores', viewingStore, 'schedule', 'data'))
@@ -93,13 +96,18 @@ export default function Schedule({ viewingStore, showToast }) {
         const d = snap.data()
         setMembers(d.members || [])
         setPresets(d.presets || [])
-        // Explicitly set to empty object if no shifts for this week
         setShifts(d.shifts?.[String(offset)] || {})
       }
     } catch(e) {
-      console.error(e)
-      setShifts({}) // clear on error too
+      console.error('Schedule load error:', e)
+      if (e.code === 'permission-denied') {
+        setLoadError('permission')
+      } else {
+        setLoadError('network')
+      }
+      setShifts({})
     }
+    setLoadingData(false)
   }
 
   async function save(newMembers, newPresets, newShifts, retries = 2) {
@@ -612,7 +620,29 @@ export default function Schedule({ viewingStore, showToast }) {
         </div>
       )}
 
-      {isMobile ? <MobileView /> : <DesktopView />}
+      {loadingData ? (
+    <div style={{ textAlign:'center', padding:40, color:'#8B7355', fontSize:13 }}>Loading schedule…</div>
+  ) : loadError === 'permission' ? (
+    <div style={{ background:'#FFF3E0', border:'1px solid #FFB74D', borderRadius:12, padding:20, marginBottom:14 }}>
+      <div style={{ fontSize:15, fontWeight:700, color:'#E65100', marginBottom:6 }}>⚠️ Schedule access denied</div>
+      <div style={{ fontSize:13, color:'#5D4037', lineHeight:'1.5', marginBottom:12 }}>
+        Your account doesn't have permission to load this store's schedule yet. This usually fixes itself after signing out and back in.
+      </div>
+      <button onClick={() => loadSchedule()}
+        style={{ background:'#E65100', color:'#fff', border:'none', borderRadius:8, padding:'8px 18px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit' }}>
+        Retry
+      </button>
+    </div>
+  ) : loadError === 'network' ? (
+    <div style={{ background:'#FFEBEE', border:'1px solid #FFCDD2', borderRadius:12, padding:20, marginBottom:14 }}>
+      <div style={{ fontSize:14, fontWeight:700, color:'#C62828', marginBottom:6 }}>Connection error</div>
+      <div style={{ fontSize:13, color:'#5D4037', marginBottom:12 }}>Could not load the schedule — check your connection.</div>
+      <button onClick={() => loadSchedule()}
+        style={{ background:'#C62828', color:'#fff', border:'none', borderRadius:8, padding:'8px 18px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit' }}>
+        Retry
+      </button>
+    </div>
+  ) : isMobile ? <MobileView /> : <DesktopView />}
 
       {/* Cell Modal — same for both */}
       {modal && member && (
