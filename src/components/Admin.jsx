@@ -89,7 +89,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         ownerRole:  inviteForm.ownerRole || 'store_owner',
         orgId:      org?.id || viewingOrg || 'dumont',
         regionId:   region?.id || '',
-        status:     'pending',
+        status:     'active',
         createdAt:  Date.now(),
         createdBy:  auth.userConfig?.email,
       })
