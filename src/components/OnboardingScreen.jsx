@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
 
@@ -12,8 +12,10 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
   const [name,        setName]        = useState('')
   const [password,    setPassword]    = useState('')
   const [confirm,     setConfirm]     = useState('')
-  const [error,       setError]       = useState('')
-  const [saving,      setSaving]      = useState(false)
+  const [error,          setError]          = useState('')
+  const [saving,         setSaving]         = useState(false)
+  const [existingAccount,setExistingAccount]= useState(false)
+  const [resetSent,      setResetSent]      = useState(false)
   const [baseItems,   setBaseItems]   = useState([])
   const [seedItems,   setSeedItems]   = useState([])
   const [seeding,     setSeeding]     = useState(false)
@@ -42,61 +44,80 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
     }
   }
 
+  async function writeUserDocAndContinue(uid) {
+    const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_')
+    await setDoc(doc(db, 'users', emailKey), {
+      uid,
+      email,
+      name:      name.trim() || email,
+      role:      assignedRole,
+      storeId,
+      store:     storeId,
+      orgId:     orgId || 'dumont',
+      status:    'active',
+      forcePasswordChange: false,
+      createdAt: Date.now(),
+    })
+    try {
+      const invSnap = await getDoc(doc(db, 'invitations', token))
+      if (invSnap.exists()) {
+        const inv = invSnap.data()
+        if (inv.status === 'pending' && inv.expiresAt > Date.now()) {
+          await updateDoc(doc(db, 'invitations', token), { status: 'accepted', acceptedAt: Date.now() })
+          await updateDoc(doc(db, 'stores', storeId), { status: 'active' })
+        }
+      }
+    } catch(e) {
+      console.warn('Could not update invitation/store status', e)
+    }
+    if (isStaffOrMgr) { setStep('done'); return }
+    await loadBaseItems()
+    setStep('seeding')
+  }
+
   async function handleCreateAccount(e) {
     e.preventDefault()
     setError('')
-    if (!name.trim()) { setError('Please enter your full name'); return }
+    if (!existingAccount && !name.trim()) { setError('Please enter your full name'); return }
     if (password.length < 6) { setError('Password must be at least 6 characters'); return }
-    if (password !== confirm) { setError('Passwords do not match'); return }
+    if (!existingAccount && password !== confirm) { setError('Passwords do not match'); return }
     setSaving(true)
     try {
-      // 1. Create Firebase Auth account
-      const cred = await createUserWithEmailAndPassword(auth, email, password)
-      const uid  = cred.user.uid
-      const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_')
-
-      // 2. Write correct Firestore user doc immediately (before loadUserConfig runs)
-      await setDoc(doc(db, 'users', emailKey), {
-        uid,
-        email,
-        name:      name.trim(),
-        role:      assignedRole,
-        storeId,
-        store:     storeId,
-        orgId:     orgId || 'dumont',
-        status:    'active',
-        forcePasswordChange: false,
-        createdAt: Date.now(),
-      })
-
-      // 3. Validate invitation token and update statuses (now authenticated)
-      try {
-        const invSnap = await getDoc(doc(db, 'invitations', token))
-        if (invSnap.exists()) {
-          const inv = invSnap.data()
-          if (inv.status === 'pending' && inv.expiresAt > Date.now()) {
-            await updateDoc(doc(db, 'invitations', token), { status: 'accepted', acceptedAt: Date.now() })
-            await updateDoc(doc(db, 'stores', storeId), { status: 'active' })
-          }
-        }
-      } catch(e) {
-        console.warn('Could not update invitation/store status', e)
+      if (existingAccount) {
+        // Sign in with existing credentials and apply invitation
+        const cred = await signInWithEmailAndPassword(auth, email, password)
+        await writeUserDocAndContinue(cred.user.uid)
+      } else {
+        // Create new account
+        const cred = await createUserWithEmailAndPassword(auth, email, password)
+        await writeUserDocAndContinue(cred.user.uid)
       }
-
-      // 4. Staff/manager skip inventory seeding — go straight to done
-      if (isStaffOrMgr) {
-        setStep('done')
-        return
-      }
-      await loadBaseItems()
-      setStep('seeding')
     } catch(e) {
-      if (e.code === 'auth/email-already-in-use') setError('An account with this email already exists. Please sign in instead.')
-      else if (e.code === 'auth/weak-password') setError('Password must be at least 6 characters.')
-      else setError('Something went wrong. Please try again.')
-      console.error(e)
+      if (e.code === 'auth/email-already-in-use') {
+        setExistingAccount(true)
+        setPassword('')
+        setConfirm('')
+        setError('')
+      } else if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+        setError('Incorrect password. Try again or use "Forgot password" below.')
+      } else if (e.code === 'auth/weak-password') {
+        setError('Password must be at least 6 characters.')
+      } else {
+        setError('Something went wrong. Please try again.')
+        console.error(e)
+      }
     }
     setSaving(false)
+  }
+
+  async function handleForgotPassword() {
+    try {
+      await sendPasswordResetEmail(auth, email)
+      setResetSent(true)
+      setError('')
+    } catch(e) {
+      setError('Could not send reset email. Try again.')
+    }
   }
 
   async function handleSeedInventory() {
@@ -238,33 +259,64 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
           <div style={{ fontSize:13, color:'#8B7355' }}>Setting up <strong>{storeName}</strong></div>
         </div>
 
-        <div style={{ background:'#FFF3E0', border:'1px solid #FFB74D', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:12, color:'#C8843A' }}>
-          You've been invited as the Store Owner for <strong>{storeName}</strong>. Create your account below.
-        </div>
+        {existingAccount ? (
+          <div style={{ background:'#E3F2FD', border:'1px solid #90CAF9', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:12, color:'#1565C0' }}>
+            This email already has an account. Enter your existing password to accept this invitation and get access to <strong>{storeName}</strong>.
+          </div>
+        ) : (
+          <div style={{ background:'#FFF3E0', border:'1px solid #FFB74D', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:12, color:'#C8843A' }}>
+            You've been invited as <strong>{assignedRole.replace(/_/g,' ')}</strong> for <strong>{storeName}</strong>. Create your account below.
+          </div>
+        )}
 
-        <form onSubmit={handleCreateAccount}>
-          <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Email</div>
-          <input value={email} readOnly style={{ ...inp, background:'#F5EFE8', color:'#8B7355', cursor:'not-allowed' }} />
+        {resetSent ? (
+          <div style={{ background:'#E8F5E9', border:'1px solid #A5D6A7', borderRadius:8, padding:'14px', marginBottom:12, fontSize:13, color:'#2E7D32', textAlign:'center' }}>
+            Password reset email sent to <strong>{email}</strong>. Check your inbox, reset your password, then come back to this link and sign in.
+          </div>
+        ) : (
+          <form onSubmit={handleCreateAccount}>
+            <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Email</div>
+            <input value={email} readOnly style={{ ...inp, background:'#F5EFE8', color:'#8B7355', cursor:'not-allowed' }} />
 
-          <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Your Full Name</div>
-          <input placeholder="e.g. Jane Smith" value={name} onChange={e => setName(e.target.value)} style={inp} required />
+            {!existingAccount && (
+              <>
+                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Your Full Name</div>
+                <input placeholder="e.g. Jane Smith" value={name} onChange={e => setName(e.target.value)} style={inp} required />
+              </>
+            )}
 
-          <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Create Password</div>
-          <input type="password" placeholder="Min 6 characters" value={password} onChange={e => setPassword(e.target.value)} style={inp} required />
-
-          <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Confirm Password</div>
-          <input type="password" placeholder="Re-enter password" value={confirm} onChange={e => setConfirm(e.target.value)} style={inp} required />
-
-          {error && (
-            <div style={{ background:'#FFEBEE', border:'1px solid #FFCDD2', borderRadius:8, padding:'10px 14px', marginBottom:12, fontSize:13, color:'#C62828' }}>
-              {error}
+            <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>
+              {existingAccount ? 'Your Existing Password' : 'Create Password'}
             </div>
-          )}
+            <input type="password" placeholder="Enter password" value={password} onChange={e => setPassword(e.target.value)} style={inp} required />
 
-          <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>
-            {saving ? 'Creating Account...' : 'Create Account & Continue →'}
-          </button>
-        </form>
+            {!existingAccount && (
+              <>
+                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Confirm Password</div>
+                <input type="password" placeholder="Re-enter password" value={confirm} onChange={e => setConfirm(e.target.value)} style={inp} required />
+              </>
+            )}
+
+            {error && (
+              <div style={{ background:'#FFEBEE', border:'1px solid #FFCDD2', borderRadius:8, padding:'10px 14px', marginBottom:12, fontSize:13, color:'#C62828' }}>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>
+              {saving
+                ? (existingAccount ? 'Signing In...' : 'Creating Account...')
+                : (existingAccount ? 'Sign In & Accept Invitation →' : 'Create Account & Continue →')}
+            </button>
+
+            {existingAccount && (
+              <button type="button" onClick={handleForgotPassword}
+                style={{ width:'100%', marginTop:10, background:'none', border:'none', color:'#8B7355', cursor:'pointer', fontSize:12, fontFamily:'inherit', textDecoration:'underline' }}>
+                Forgot password? Send reset email
+              </button>
+            )}
+          </form>
+        )}
       </div>
     </div>
   )

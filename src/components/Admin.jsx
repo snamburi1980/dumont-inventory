@@ -3,7 +3,9 @@ import {
   collection, getDocs, addDoc, updateDoc,
   deleteDoc, doc, setDoc
 } from 'firebase/firestore'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 import { db } from '../firebase/config'
+import app from '../firebase/config'
 import ItemManager  from './ItemManager'
 import OrgSetup     from './OrgSetup'
 import Pricing      from './Pricing'
@@ -316,7 +318,13 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   }
 
   async function deleteUser(user) {
-    if (!window.confirm(`Delete "${user.name || user.email}" permanently? This cannot be undone.`)) return
+    if (!window.confirm(`Delete "${user.name || user.email}" permanently? This removes them from the app and their login account. This cannot be undone.`)) return
+    try {
+      const deleteAuthUser = httpsCallable(getFunctions(app), 'deleteAuthUser')
+      await deleteAuthUser({ email: user.email })
+    } catch(e) {
+      console.warn('Could not delete Auth account:', e.message)
+    }
     await deleteDoc(doc(db, 'users', user.emailKey))
     showToast(`${user.name || user.email} deleted`)
     loadAll()

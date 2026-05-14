@@ -30,6 +30,26 @@ exports.syncUserClaims = onDocumentWritten('users/{emailKey}', async (event) => 
   }
 })
 
+// ── Delete a Firebase Auth user account ──────────────────────────────────────
+exports.deleteAuthUser = onCall({ cors: true }, async (request) => {
+  const caller = request.auth
+  if (!caller) throw new HttpsError('unauthenticated', 'Must be signed in')
+  if (caller.token.role !== 'super_owner' && caller.token.email !== 'dumonttexas@gmail.com') {
+    throw new HttpsError('permission-denied', 'Only super_owner can delete Auth accounts')
+  }
+  const { email } = request.data
+  if (!email) throw new HttpsError('invalid-argument', 'email required')
+  try {
+    const userRecord = await getAuth().getUserByEmail(email)
+    await getAuth().deleteUser(userRecord.uid)
+    console.log(`Auth account deleted for ${email}`)
+    return { success: true }
+  } catch (e) {
+    if (e.code === 'auth/user-not-found') return { success: true }
+    throw new HttpsError('internal', e.message)
+  }
+})
+
 // ── Create a Firebase Auth user account (called from Admin invite flow) ──────
 // Needed because createUserWithEmailAndPassword can only be called by the
 // user themselves. This function is called by super_owner / store_owner to
