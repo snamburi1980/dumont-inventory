@@ -41,7 +41,7 @@ export default function App() {
 
   const role     = auth.userConfig?.role || ''
   const isStaff  = role === 'staff'
-  const staffAllowedTabs = ['home','inventory','icecreamlog','checklist','schedule','transfers','cashregister']
+  const staffAllowedTabs = ['home','checklist','icecreamlog','inventory']
 
   useEffect(() => { applyTheme(currentTheme) }, [])
 
@@ -207,16 +207,17 @@ export default function App() {
     orgItemsHook, viewingOrg, setViewingOrg,
   }
 
+  // Ordered by daily workflow: Dashboard → Checklist → Scoops → Inventory → Schedule → Cash → Transfers
   const allTabs = [
-    { id:'home',         label:'Home'          },
-    { id:'inventory',    label:'Inventory'     },
-    { id:'icecreamlog',  label:'Ice Cream Log' },
-    { id:'checklist',    label:'Checklist'     },
-    { id:'schedule',     label:'Schedule'      },
-    { id:'transfers',    label:'Transfers'     },
-    { id:'cashregister', label:'Cash Register' },
-    { id:'commerce',     label:'Commerce'      },
-    { id:'admin',        label:'Admin'         },
+    { id:'home',         label:'Dashboard',  icon:'🏠' },
+    { id:'checklist',    label:'Checklist',  icon:'✅' },
+    { id:'icecreamlog',  label:'Scoops',     icon:'🍦' },
+    { id:'inventory',    label:'Inventory',  icon:'📦' },
+    { id:'schedule',     label:'Schedule',   icon:'📅' },
+    { id:'cashregister', label:'Cash',       icon:'💵' },
+    { id:'transfers',    label:'Transfers',  icon:'↔️' },
+    { id:'commerce',     label:'Commerce',   icon:'🛒' },
+    { id:'admin',        label:'Admin',      icon:'⚙️' },
   ]
 
   const tabs = isStaff
@@ -238,15 +239,15 @@ export default function App() {
         currentTheme={currentTheme} onThemeChange={setCurrentTheme} showToast={showToast}
         onBackToHQ={isSuperOwner ? () => setHqMode(true) : null}>
 
-        {activeTab === 'home'        && <Home      {...tabProps} />}
-        {activeTab === 'inventory'   && <Inventory {...tabProps} />}
-        {activeTab === 'icecreamlog' && <Picks invHook={invHook} viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
-        {activeTab === 'checklist'   && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
-        {activeTab === 'schedule'    && <Schedule  {...tabProps} />}
+        {activeTab === 'home'         && <Home      {...tabProps} />}
+        {activeTab === 'inventory'    && <Inventory {...tabProps} />}
+        {activeTab === 'icecreamlog'  && <Picks invHook={invHook} viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
+        {activeTab === 'checklist'    && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
+        {activeTab === 'schedule'     && <Schedule  {...tabProps} />}
         {activeTab === 'cashregister' && <CashRegister viewingStore={viewingStore} auth={auth} showToast={showToast} />}
-        {activeTab === 'transfers'   && <Transfers auth={auth} showToast={showToast} />}
-        {activeTab === 'commerce'    && <Commerce  viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
-        {activeTab === 'admin'       && <Admin     {...tabProps} />}
+        {activeTab === 'transfers'    && <Transfers auth={auth} showToast={showToast} />}
+        {activeTab === 'commerce'     && <Commerce  viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
+        {activeTab === 'admin'        && <Admin     {...tabProps} />}
 
         {toast && (
           <div style={{
