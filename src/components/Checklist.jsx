@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { collection, addDoc, getDocs, query, orderBy, limit, where } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import TipBanner from './TipBanner'
@@ -61,15 +61,14 @@ const CLOSING_ITEMS = [
   'Keep the A-board inside the store',
 ]
 
-const MAX_PHOTO_SIZE = 400   // max width/height in pixels
-const PHOTO_QUALITY  = 0.5   // jpeg quality
-const MAX_B64_BYTES  = 80000 // ~80KB per photo max
+const MAX_PHOTO_SIZE = 400
+const PHOTO_QUALITY  = 0.5
+const MAX_B64_BYTES  = 80000
 
 function initItems(items) {
   return items.map(label => ({ label, checked: false, remarks: '', photo: null }))
 }
 
-// Aggressive compression for iPhone/Android photos
 function compressPhoto(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -79,36 +78,22 @@ function compressPhoto(file) {
         try {
           const canvas = document.createElement('canvas')
           let w = img.width, h = img.height
-
-          // Scale down to MAX_PHOTO_SIZE
           if (w > h) {
             if (w > MAX_PHOTO_SIZE) { h = Math.round(h * MAX_PHOTO_SIZE / w); w = MAX_PHOTO_SIZE }
           } else {
             if (h > MAX_PHOTO_SIZE) { w = Math.round(w * MAX_PHOTO_SIZE / h); h = MAX_PHOTO_SIZE }
           }
-
-          canvas.width  = w
-          canvas.height = h
+          canvas.width = w; canvas.height = h
           const ctx = canvas.getContext('2d')
           ctx.drawImage(img, 0, 0, w, h)
-
-          // Try quality 0.5 first
           let compressed = canvas.toDataURL('image/jpeg', PHOTO_QUALITY)
-
-          // If still too large, reduce quality further
+          if (compressed.length > MAX_B64_BYTES) compressed = canvas.toDataURL('image/jpeg', 0.3)
           if (compressed.length > MAX_B64_BYTES) {
-            compressed = canvas.toDataURL('image/jpeg', 0.3)
+            const c2 = document.createElement('canvas')
+            c2.width = Math.round(w * 0.6); c2.height = Math.round(h * 0.6)
+            c2.getContext('2d').drawImage(img, 0, 0, c2.width, c2.height)
+            compressed = c2.toDataURL('image/jpeg', 0.3)
           }
-
-          // If still too large, reduce dimensions further
-          if (compressed.length > MAX_B64_BYTES) {
-            const canvas2 = document.createElement('canvas')
-            canvas2.width  = Math.round(w * 0.6)
-            canvas2.height = Math.round(h * 0.6)
-            canvas2.getContext('2d').drawImage(img, 0, 0, canvas2.width, canvas2.height)
-            compressed = canvas2.toDataURL('image/jpeg', 0.3)
-          }
-
           resolve(compressed)
         } catch(e) { reject(e) }
       }
@@ -120,28 +105,47 @@ function compressPhoto(file) {
   })
 }
 
-// Estimate total document size
 function estimateSize(items) {
   return items.reduce((s, i) => s + (i.photo ? i.photo.length : 0) + (i.remarks?.length || 0) + 100, 0)
 }
 
 export default function Checklist({ viewingStore, auth, showToast }) {
-  const [view,        setView]        = useState('menu')
-  const [type,        setType]        = useState(null)
-  const [items,       setItems]       = useState([])
-  const [firstName,   setFirstName]   = useState('')
-  const [lastName,    setLastName]    = useState('')
-  const [submitting,  setSubmitting]  = useState(false)
-  const [history,     setHistory]     = useState([])
-  const [histType,    setHistType]    = useState('opening')
-  const [loadingHist, setLoadingHist] = useState(false)
-  const [expandedId,  setExpandedId]  = useState(null)
-  const [compressing, setCompressing] = useState(null) // idx of item being compressed
+  const [view,               setView]               = useState('menu')
+  const [type,               setType]               = useState(null)
+  const [items,              setItems]              = useState([])
+  const [firstName,          setFirstName]          = useState('')
+  const [lastName,           setLastName]           = useState('')
+  const [submitting,         setSubmitting]         = useState(false)
+  const [history,            setHistory]            = useState([])
+  const [histType,           setHistType]           = useState('opening')
+  const [loadingHist,        setLoadingHist]        = useState(false)
+  const [expandedId,         setExpandedId]         = useState(null)
+  const [compressing,        setCompressing]        = useState(null)
+  const [todayStatus,        setTodayStatus]        = useState({ opening: false, closing: false })
+  const [showUncheckedWarn,  setShowUncheckedWarn]  = useState(false)
   const fileRefs = useRef({})
 
   const now     = new Date()
   const dateStr = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
   const timeStr = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true })
+
+  useEffect(() => { checkTodayStatus() }, [viewingStore])
+
+  async function checkTodayStatus() {
+    if (!viewingStore) return
+    try {
+      const today = now.toLocaleDateString()
+      const snap = await getDocs(query(
+        collection(db, 'stores', viewingStore, 'checklists'),
+        where('date', '==', today)
+      ))
+      const subs = snap.docs.map(d => d.data())
+      setTodayStatus({
+        opening: subs.some(s => s.type === 'opening'),
+        closing: subs.some(s => s.type === 'closing'),
+      })
+    } catch(e) {}
+  }
 
   function startForm(t) {
     setType(t)
@@ -149,6 +153,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     const name = auth?.userConfig?.name || ''
     setFirstName(name.split(' ')[0] || '')
     setLastName(name.split(' ').slice(1).join(' ') || '')
+    setShowUncheckedWarn(false)
     setView(t)
   }
 
@@ -166,16 +171,11 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     setCompressing(idx)
     try {
       const compressed = await compressPhoto(file)
-      // Warn if still large
-      const kb = Math.round(compressed.length * 0.75 / 1024)
-      if (kb > 100) console.warn(`Photo for item ${idx} is ${kb}KB after compression`)
       setItems(prev => prev.map((item, i) => i === idx ? { ...item, photo: compressed } : item))
     } catch(e) {
-      console.error('Photo compression failed:', e)
       showToast('Could not process photo — try a smaller image')
     }
     setCompressing(null)
-    // Reset file input
     if (fileRefs.current[idx]) fileRefs.current[idx].value = ''
   }
 
@@ -185,43 +185,34 @@ export default function Checklist({ viewingStore, auth, showToast }) {
 
   async function handleSubmit() {
     if (!firstName.trim()) { showToast('Enter your first name'); return }
-
     const unchecked = items.filter(i => !i.checked).length
-    if (unchecked > 0) {
-      if (!window.confirm(`${unchecked} item${unchecked > 1 ? 's' : ''} not checked. Submit anyway?`)) return
-    }
-
-    // Check estimated size — Firestore limit is 1MB per document
-    const estSize = estimateSize(items)
-    if (estSize > 800000) {
-      showToast('Too many photos — please remove some photos and try again')
+    if (unchecked > 0 && !showUncheckedWarn) {
+      setShowUncheckedWarn(true)
       return
     }
+    setShowUncheckedWarn(false)
+    await submitChecklist()
+  }
 
+  async function submitChecklist() {
+    const estSize = estimateSize(items)
+    if (estSize > 800000) {
+      showToast('Too many photos — please remove some and try again')
+      return
+    }
     setSubmitting(true)
     try {
       const itemsForStorage = items.map(i => ({
-        label:   i.label,
-        checked: i.checked,
-        remarks: i.remarks,
-        photo:   i.photo || null,
+        label: i.label, checked: i.checked, remarks: i.remarks, photo: i.photo || null,
       }))
-
       const submission = {
-        type,
-        storeId:      viewingStore,
-        firstName:    firstName.trim(),
-        lastName:     lastName.trim(),
-        submittedAt:  Date.now(),
-        date:         now.toLocaleDateString(),
-        time:         timeStr,
-        items:        itemsForStorage,
-        totalItems:   items.length,
+        type, storeId: viewingStore,
+        firstName: firstName.trim(), lastName: lastName.trim(),
+        submittedAt: Date.now(), date: now.toLocaleDateString(), time: timeStr,
+        items: itemsForStorage, totalItems: items.length,
         checkedItems: items.filter(i => i.checked).length,
-        hasPhotos:    items.some(i => i.photo),
+        hasPhotos: items.some(i => i.photo),
       }
-
-      // Retry up to 2 times on failure
       let saved = false
       for (let attempt = 0; attempt < 3; attempt++) {
         try {
@@ -229,20 +220,16 @@ export default function Checklist({ viewingStore, auth, showToast }) {
           saved = true
           break
         } catch(err) {
-          if (attempt < 2) {
-            await new Promise(r => setTimeout(r, 1500))
-          } else {
-            throw err
-          }
+          if (attempt < 2) await new Promise(r => setTimeout(r, 1500))
+          else throw err
         }
       }
-
       if (saved) {
         showToast(`${type === 'opening' ? 'Opening' : 'Closing'} checklist submitted!`)
+        await checkTodayStatus()
         setView('menu')
       }
     } catch(e) {
-      console.error('Submit error:', e)
       if (e.message?.includes('exceeds') || e.message?.includes('size')) {
         showToast('Too many photos — remove some and try again')
       } else if (e.message?.includes('permission') || e.message?.includes('auth')) {
@@ -269,7 +256,6 @@ export default function Checklist({ viewingStore, auth, showToast }) {
       const snap = await getDocs(q)
       setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })))
     } catch(e) {
-      console.error('Load history error:', e)
       showToast('Could not load history — check your connection')
     }
     setLoadingHist(false)
@@ -285,31 +271,74 @@ export default function Checklist({ viewingStore, auth, showToast }) {
   if (view === 'menu') {
     return (
       <div>
-        <TipBanner message="Complete the opening or closing checklist daily. Your submission is timestamped as proof of completion. View history for the last 30 days." />
+        <TipBanner message="Complete the opening or closing checklist daily. Your submission is timestamped as proof of completion." />
         <div style={{ fontSize:13, color:'#8B7355', marginBottom:16 }}>{dateStr}</div>
+
+        {/* Today's status summary */}
+        <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'12px 16px', marginBottom:16 }}>
+          <div style={{ fontSize:11, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>
+            Today's Status
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            <div style={{
+              flex:1, padding:'8px 12px', borderRadius:8, textAlign:'center',
+              background: todayStatus.opening ? '#E8F5E9' : '#FFF3E0',
+              border: `1px solid ${todayStatus.opening ? '#81C784' : '#FFB74D'}`,
+            }}>
+              <div style={{ fontSize:18, marginBottom:2 }}>🌅</div>
+              <div style={{ fontSize:12, fontWeight:700, color: todayStatus.opening ? '#2E7D32' : '#E65100' }}>
+                {todayStatus.opening ? '✓ Submitted' : 'Not done'}
+              </div>
+              <div style={{ fontSize:10, color:'#8B7355' }}>Opening</div>
+            </div>
+            <div style={{
+              flex:1, padding:'8px 12px', borderRadius:8, textAlign:'center',
+              background: todayStatus.closing ? '#E8F5E9' : '#F5F5F5',
+              border: `1px solid ${todayStatus.closing ? '#81C784' : '#EDE0CC'}`,
+            }}>
+              <div style={{ fontSize:18, marginBottom:2 }}>🌙</div>
+              <div style={{ fontSize:12, fontWeight:700, color: todayStatus.closing ? '#2E7D32' : '#999' }}>
+                {todayStatus.closing ? '✓ Submitted' : 'Pending'}
+              </div>
+              <div style={{ fontSize:10, color:'#8B7355' }}>Closing</div>
+            </div>
+          </div>
+        </div>
+
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:20 }}>
           <div onClick={() => startForm('opening')}
-            style={{ background:'#fff', border:'2px solid #27AE60', borderRadius:14, padding:20, cursor:'pointer', textAlign:'center' }}>
+            style={{ background:'#fff', border:`2px solid ${todayStatus.opening ? '#81C784' : '#27AE60'}`, borderRadius:14, padding:20, cursor:'pointer', textAlign:'center', position:'relative' }}>
+            {todayStatus.opening && (
+              <div style={{ position:'absolute', top:8, right:8, background:'#27AE60', color:'#fff', borderRadius:20, padding:'1px 8px', fontSize:9, fontWeight:700 }}>
+                DONE
+              </div>
+            )}
             <div style={{ fontSize:32, marginBottom:8 }}>🌅</div>
             <div style={{ fontSize:15, fontWeight:700, color:'#27AE60' }}>Opening</div>
             <div style={{ fontSize:11, color:'#8B7355', marginTop:4 }}>{OPENING_ITEMS.length} items</div>
           </div>
           <div onClick={() => startForm('closing')}
-            style={{ background:'#fff', border:'2px solid #E74C3C', borderRadius:14, padding:20, cursor:'pointer', textAlign:'center' }}>
+            style={{ background:'#fff', border:`2px solid ${todayStatus.closing ? '#81C784' : '#E74C3C'}`, borderRadius:14, padding:20, cursor:'pointer', textAlign:'center', position:'relative' }}>
+            {todayStatus.closing && (
+              <div style={{ position:'absolute', top:8, right:8, background:'#27AE60', color:'#fff', borderRadius:20, padding:'1px 8px', fontSize:9, fontWeight:700 }}>
+                DONE
+              </div>
+            )}
             <div style={{ fontSize:32, marginBottom:8 }}>🌙</div>
             <div style={{ fontSize:15, fontWeight:700, color:'#E74C3C' }}>Closing</div>
             <div style={{ fontSize:11, color:'#8B7355', marginTop:4 }}>{CLOSING_ITEMS.length} items</div>
           </div>
         </div>
+
         <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px' }}>
           <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>History (Last 30 days)</div>
           <div style={{ display:'flex', gap:8 }}>
             {['opening','closing'].map(t => (
               <button key={t} onClick={() => { setView('history'); loadHistory(t) }}
-                style={{ flex:1, padding:'8px', border:'1px solid #EDE0CC', borderRadius:8, cursor:'pointer', fontSize:12,
+                style={{ flex:1, padding:'10px', border:'1px solid #EDE0CC', borderRadius:8, cursor:'pointer', fontSize:12,
                   background: t==='opening' ? '#E8F5E9' : '#FFEBEE',
                   color: t==='opening' ? '#27AE60' : '#E74C3C', fontWeight:600, fontFamily:'inherit' }}>
-                {t === 'opening' ? '🌅 Opening' : '🌙 Closing'}
+                {t === 'opening' ? '🌅 Opening History' : '🌙 Closing History'}
               </button>
             ))}
           </div>
@@ -323,13 +352,13 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     return (
       <div>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-          <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{'<'} Back</button>
+          <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355', fontFamily:'inherit' }}>← Back</button>
           <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', textTransform:'capitalize' }}>{histType} History</div>
         </div>
         <div style={{ display:'flex', gap:8, marginBottom:16 }}>
           {['opening','closing'].map(t => (
             <button key={t} onClick={() => loadHistory(t)}
-              style={{ padding:'6px 14px', borderRadius:20, border:'1px solid #EDE0CC', cursor:'pointer', fontSize:12, fontFamily:'inherit',
+              style={{ padding:'7px 16px', borderRadius:20, border:'1px solid #EDE0CC', cursor:'pointer', fontSize:12, fontFamily:'inherit',
                 background: histType===t ? '#2C1810' : '#fff', color: histType===t ? '#fff' : '#8B7355' }}>
               {t === 'opening' ? '🌅 Opening' : '🌙 Closing'}
             </button>
@@ -380,68 +409,95 @@ export default function Checklist({ viewingStore, auth, showToast }) {
   // ── FORM ──
   return (
     <div>
-      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-        <button onClick={() => setView('menu')} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{'<'} Back</button>
+      {/* Sticky progress header */}
+      <div style={{
+        position:'sticky', top:52, zIndex:50, marginBottom:12,
+        background: color, borderRadius:10,
+        padding:'10px 14px', boxShadow:'0 2px 10px rgba(0,0,0,0.2)',
+        display:'flex', justifyContent:'space-between', alignItems:'center',
+      }}>
         <div>
-          <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>
-            {type === 'opening' ? '🌅 Opening' : '🌙 Closing'} Checklist
+          <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>
+            {type === 'opening' ? '🌅 Opening' : '🌙 Closing'} · {completed}/{total}
           </div>
-          <div style={{ fontSize:11, color:'#8B7355' }}>{dateStr} · {timeStr}</div>
+          <div style={{ background:'rgba(255,255,255,0.3)', borderRadius:4, height:5, marginTop:5, width:140 }}>
+            <div style={{ background:'#fff', borderRadius:4, height:5, width:`${pct}%`, transition:'width 0.3s' }}/>
+          </div>
+        </div>
+        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+          <button onClick={() => setView('menu')} style={{ background:'rgba(255,255,255,0.2)', color:'#fff', border:'none', borderRadius:8, padding:'7px 12px', cursor:'pointer', fontSize:12, fontFamily:'inherit' }}>
+            ← Back
+          </button>
+          <button onClick={handleSubmit} disabled={submitting}
+            style={{ background:'#fff', color, border:'none', borderRadius:8, padding:'7px 14px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', opacity: submitting ? 0.7 : 1 }}>
+            {submitting ? 'Saving…' : 'Submit ↑'}
+          </button>
         </div>
       </div>
 
-      {/* Staff name */}
+      {/* Date + Staff name */}
       <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }}>
-        <div style={{ fontSize:12, fontWeight:600, color:'#2C1810', marginBottom:8 }}>Checklist updated by</div>
+        <div style={{ fontSize:11, color:'#8B7355', marginBottom:8 }}>{dateStr} · {timeStr}</div>
+        <div style={{ fontSize:12, fontWeight:600, color:'#2C1810', marginBottom:8 }}>Submitted by</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-          <input placeholder="First Name" value={firstName} onChange={e => setFirstName(e.target.value)} style={inp}/>
-          <input placeholder="Last Name"  value={lastName}  onChange={e => setLastName(e.target.value)}  style={inp}/>
+          <input placeholder="First Name *" value={firstName} onChange={e => setFirstName(e.target.value)} style={inp}/>
+          <input placeholder="Last Name"    value={lastName}  onChange={e => setLastName(e.target.value)}  style={inp}/>
         </div>
       </div>
 
-      {/* Progress */}
-      <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'12px 16px', marginBottom:12 }}>
-        <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-          <span style={{ fontSize:12, color:'#8B7355' }}>Progress</span>
-          <span style={{ fontSize:12, fontWeight:700, color }}>{completed}/{total} ({pct}%)</span>
+      {/* Unchecked warning (replaces window.confirm) */}
+      {showUncheckedWarn && (
+        <div style={{ background:'#FFF3E0', border:'1px solid #FFB74D', borderRadius:12, padding:'14px 16px', marginBottom:12 }}>
+          <div style={{ fontSize:14, fontWeight:700, color:'#E65100', marginBottom:4 }}>
+            ⚠ {items.filter(i => !i.checked).length} items not checked
+          </div>
+          <div style={{ fontSize:12, color:'#8B7355', marginBottom:12 }}>
+            Some checklist items are still unchecked. Submit anyway?
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            <button onClick={submitChecklist}
+              style={{ flex:1, background:'#E65100', color:'#fff', border:'none', borderRadius:8, padding:'10px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }}>
+              Submit Anyway
+            </button>
+            <button onClick={() => setShowUncheckedWarn(false)}
+              style={{ padding:'10px 16px', background:'#fff', border:'1px solid #EDE0CC', borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit', color:'#8B7355' }}>
+              Keep Checking
+            </button>
+          </div>
         </div>
-        <div style={{ background:'#EDE0CC', borderRadius:4, height:8 }}>
-          <div style={{ background:color, borderRadius:4, height:8, width:`${pct}%`, transition:'width 0.3s' }}/>
-        </div>
-      </div>
+      )}
 
       {/* Items */}
       <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:16 }}>
         {items.map((item, idx) => (
           <div key={idx} style={{ borderBottom: idx < items.length-1 ? '1px solid #F5EFE8' : 'none' }}>
             <div onClick={() => toggle(idx)}
-              style={{ display:'flex', gap:12, padding:'12px 16px', cursor:'pointer', alignItems:'flex-start',
+              style={{ display:'flex', gap:12, padding:'13px 16px', cursor:'pointer', alignItems:'flex-start',
                 background: item.checked ? (type==='opening' ? '#F0FFF4' : '#FFF5F5') : '#fff', transition:'background 0.15s' }}>
-              <div style={{ width:24, height:24, borderRadius:6, border:`2px solid ${item.checked ? color : '#EDE0CC'}`,
+              <div style={{ width:26, height:26, borderRadius:7, border:`2px solid ${item.checked ? color : '#EDE0CC'}`,
                 background: item.checked ? color : '#fff', flexShrink:0, marginTop:1,
                 display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.15s' }}>
                 {item.checked && <span style={{ color:'#fff', fontSize:14, fontWeight:700 }}>✓</span>}
               </div>
-              <span style={{ fontSize:13, color: item.checked ? '#2C1810' : '#555', lineHeight:1.4 }}>
+              <span style={{ fontSize:13, color: item.checked ? '#2C1810' : '#555', lineHeight:1.5 }}>
                 {item.label}
               </span>
             </div>
 
-            {/* Remarks + Photo — only when checked */}
             {item.checked && (
-              <div style={{ paddingLeft:52, paddingRight:16, paddingBottom:12, background: type==='opening' ? '#F0FFF4' : '#FFF5F5' }}
+              <div style={{ paddingLeft:54, paddingRight:16, paddingBottom:12, background: type==='opening' ? '#F0FFF4' : '#FFF5F5' }}
                 onClick={e => e.stopPropagation()}>
                 <input placeholder="Remarks (optional)" value={item.remarks}
                   onChange={e => setRemarks(idx, e.target.value)}
-                  style={{ ...inp, fontSize:11, padding:'5px 8px', marginBottom:6 }}/>
+                  style={{ ...inp, fontSize:11, padding:'6px 8px', marginBottom:8 }}/>
                 <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                   {compressing === idx ? (
-                    <span style={{ fontSize:11, color:'#8B7355' }}>Compressing photo...</span>
+                    <span style={{ fontSize:11, color:'#8B7355' }}>Compressing…</span>
                   ) : item.photo ? (
                     <>
-                      <img src={item.photo} alt="attached" style={{ width:56, height:56, objectFit:'cover', borderRadius:6, border:'1px solid #EDE0CC' }}/>
+                      <img src={item.photo} alt="attached" style={{ width:64, height:64, objectFit:'cover', borderRadius:8, border:'1px solid #EDE0CC' }}/>
                       <button onClick={() => removePhoto(idx)}
-                        style={{ background:'#FFEBEE', border:'none', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#E74C3C', fontWeight:600, fontFamily:'inherit' }}>
+                        style={{ background:'#FFEBEE', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, color:'#E74C3C', fontWeight:600, fontFamily:'inherit' }}>
                         Remove
                       </button>
                     </>
@@ -452,9 +508,9 @@ export default function Checklist({ viewingStore, auth, showToast }) {
                         onChange={e => handlePhoto(idx, e)}
                         style={{ display:'none' }}/>
                       <button onClick={() => fileRefs.current[idx]?.click()}
-                        style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:6, padding:'5px 12px',
-                          cursor:'pointer', fontSize:11, color:'#8B7355', fontFamily:'inherit' }}>
-                        📷 Photo
+                        style={{ background:'#fff', border:'1.5px dashed #C8843A', borderRadius:8, padding:'7px 16px',
+                          cursor:'pointer', fontSize:12, color:'#C8843A', fontFamily:'inherit', fontWeight:600 }}>
+                        📷 Add Photo
                       </button>
                     </>
                   )}
@@ -465,14 +521,14 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         ))}
       </div>
 
-      {/* Submit */}
+      {/* Bottom submit (visible without scrolling on desktop) */}
       <button onClick={handleSubmit} disabled={submitting}
         style={{ width:'100%', background: submitting ? '#aaa' : color, color:'#fff', border:'none',
-          borderRadius:12, padding:'14px', cursor:'pointer', fontSize:15, fontWeight:700,
+          borderRadius:12, padding:'15px', cursor:'pointer', fontSize:15, fontWeight:700,
           fontFamily:'inherit', marginBottom:8 }}>
-        {submitting ? 'Submitting...' : `Submit ${type === 'opening' ? 'Opening' : 'Closing'} Checklist`}
+        {submitting ? 'Submitting…' : `Submit ${type === 'opening' ? 'Opening' : 'Closing'} Checklist (${completed}/${total})`}
       </button>
-      <div style={{ fontSize:11, color:'#8B7355', textAlign:'center', marginBottom:20 }}>
+      <div style={{ fontSize:11, color:'#8B7355', textAlign:'center', marginBottom:24 }}>
         Photos are compressed automatically for faster upload
       </div>
     </div>

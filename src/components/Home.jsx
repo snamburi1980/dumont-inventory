@@ -8,15 +8,16 @@ import { db } from '../firebase/config'
 
 export default function Home({ invHook, viewingStore, setActiveTab, auth, showToast }) {
   const { inventory, getStatus } = invHook
-  const [announcements,  setAnnouncements]  = useState([])
-  const [issues,         setIssues]         = useState([])
-  const [lastSale,       setLastSale]       = useState(null)
-  const [newAnnounce,    setNewAnnounce]    = useState({ title:'', message:'', link:'', file:null, fileName:null })
-  const [newIssue,       setNewIssue]       = useState({ title:'', description:'' })
-  const [showNewIssue,   setShowNewIssue]   = useState(false)
-  const [showNewAnnounce,setShowNewAnnounce]= useState(false)
-  const [posting,        setPosting]        = useState(false)
-  const [storeName,      setStoreName]      = useState('')
+  const [announcements,   setAnnouncements]   = useState([])
+  const [issues,          setIssues]          = useState([])
+  const [newAnnounce,     setNewAnnounce]     = useState({ title:'', message:'', link:'', file:null, fileName:null })
+  const [newIssue,        setNewIssue]        = useState({ title:'', description:'' })
+  const [showNewIssue,    setShowNewIssue]    = useState(false)
+  const [showNewAnnounce, setShowNewAnnounce] = useState(false)
+  const [posting,         setPosting]         = useState(false)
+  const [storeName,       setStoreName]       = useState('')
+  const [todayChecklist,  setTodayChecklist]  = useState({ opening: false, closing: false })
+  const [showResolved,    setShowResolved]    = useState(false)
   const isSuperOwner = auth.isSuperOwner()
 
   useEffect(() => {
@@ -29,12 +30,9 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       } catch(e) { setStoreName('') }
     }
     fetchStoreName()
-  }, [viewingStore])
-
-  useEffect(() => {
     loadAnnouncements()
     loadIssues()
-    loadLastSale()
+    checkTodayChecklist()
   }, [viewingStore])
 
   async function loadAnnouncements() {
@@ -46,18 +44,27 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
   }
 
   async function loadIssues() {
+    if (!viewingStore) return
     try {
-      const q = query(collection(db, 'stores', viewingStore, 'issues'), orderBy('createdAt', 'desc'), limit(10))
+      const q = query(collection(db, 'stores', viewingStore, 'issues'), orderBy('createdAt', 'desc'), limit(20))
       const snap = await getDocs(q)
       setIssues(snap.docs.map(d => ({ id: d.id, ...d.data() })))
     } catch(e) {}
   }
 
-  async function loadLastSale() {
+  async function checkTodayChecklist() {
+    if (!viewingStore) return
     try {
-      const q = query(collection(db, 'stores', viewingStore, 'salesLedger'), orderBy('appliedAt', 'desc'), limit(1))
-      const snap = await getDocs(q)
-      if (!snap.empty) setLastSale(snap.docs[0].data())
+      const today = new Date().toLocaleDateString()
+      const snap = await getDocs(query(
+        collection(db, 'stores', viewingStore, 'checklists'),
+        where('date', '==', today)
+      ))
+      const subs = snap.docs.map(d => d.data())
+      setTodayChecklist({
+        opening: subs.some(s => s.type === 'opening'),
+        closing: subs.some(s => s.type === 'closing'),
+      })
     } catch(e) {}
   }
 
@@ -102,8 +109,8 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       status: 'open', createdAt: Date.now(),
       createdBy: auth.userConfig?.name || 'Manager', store: viewingStore,
     }
-    await addDoc(collection(db, 'stores', viewingStore, 'issues'), entry)
-    setIssues(prev => [{ id: Date.now(), ...entry }, ...prev])
+    const ref = await addDoc(collection(db, 'stores', viewingStore, 'issues'), entry)
+    setIssues(prev => [{ id: ref.id, ...entry }, ...prev])
     setNewIssue({ title:'', description:'' })
     setShowNewIssue(false)
   }
@@ -113,16 +120,18 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
     setIssues(prev => prev.map(i => i.id === id ? { ...i, status:'resolved' } : i))
   }
 
-  const active      = inventory.filter(i => i.active !== false)
-  const critical    = active.filter(i => getStatus(i) === 'critical')
-  const low         = active.filter(i => getStatus(i) === 'low')
-  const totalValue  = active.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
+  const active       = inventory.filter(i => i.active !== false)
+  const critical     = active.filter(i => getStatus(i) === 'critical')
+  const low          = active.filter(i => getStatus(i) === 'low')
+  const totalValue   = active.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
   const iceCreamItems = inventory.filter(i => i.cat === 'Ice Cream' && i.active !== false)
-  const totalTubs   = iceCreamItems.reduce((s,i) => s + (i.stock||0), 0)
-  const lowFlavors  = iceCreamItems.filter(i => getStatus(i) !== 'ok')
-  const openIssues  = issues.filter(i => i.status === 'open')
-  const hour        = new Date().getHours()
-  const greeting    = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const totalTubs    = iceCreamItems.reduce((s,i) => s + (i.stock||0), 0)
+  const lowFlavors   = iceCreamItems.filter(i => getStatus(i) !== 'ok')
+  const openIssues   = issues.filter(i => i.status === 'open')
+  const resolvedIssues = issues.filter(i => i.status === 'resolved')
+  const displayIssues  = showResolved ? issues : openIssues
+  const hour         = new Date().getHours()
+  const greeting     = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
   const cardStyle = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }
 
@@ -151,15 +160,60 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
 
       <TipBanner message="Your daily dashboard — check stock alerts, read announcements, and log issues for your store." />
 
-      <div style={{ fontSize:12, color:'#8B7355', marginBottom:8 }}>Sasi Namburi  anitha</div>
-
       {/* Greeting */}
-      <div style={{ marginBottom:16 }}>
+      <div style={{ marginBottom:14 }}>
         <div style={{ fontSize:20, fontWeight:700, color:'#2C1810' }}>
           {greeting}{storeName ? `, ${storeName}` : ''}
         </div>
         <div style={{ fontSize:12, color:'#8B7355' }}>
           {new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })}
+        </div>
+      </div>
+
+      {/* Today's Checklist Status */}
+      <div style={{ ...cardStyle, padding:'12px 16px' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>
+            Today's Checklists
+          </div>
+          <button onClick={() => setActiveTab('checklist')}
+            style={{ fontSize:11, color:'#C8843A', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
+            Open →
+          </button>
+        </div>
+        <div style={{ display:'flex', gap:10, marginTop:10 }}>
+          <div onClick={() => setActiveTab('checklist')} style={{
+            flex:1, display:'flex', alignItems:'center', gap:8, padding:'10px 12px',
+            background: todayChecklist.opening ? '#E8F5E9' : '#FFF3E0',
+            border: `1px solid ${todayChecklist.opening ? '#81C784' : '#FFB74D'}`,
+            borderRadius:10, cursor:'pointer',
+          }}>
+            <span style={{ fontSize:20 }}>🌅</span>
+            <div>
+              <div style={{ fontSize:12, fontWeight:700, color: todayChecklist.opening ? '#2E7D32' : '#E65100' }}>
+                Opening
+              </div>
+              <div style={{ fontSize:10, color: todayChecklist.opening ? '#27AE60' : '#8B7355' }}>
+                {todayChecklist.opening ? '✓ Submitted' : 'Not yet done'}
+              </div>
+            </div>
+          </div>
+          <div onClick={() => setActiveTab('checklist')} style={{
+            flex:1, display:'flex', alignItems:'center', gap:8, padding:'10px 12px',
+            background: todayChecklist.closing ? '#E8F5E9' : '#F5F5F5',
+            border: `1px solid ${todayChecklist.closing ? '#81C784' : '#EDE0CC'}`,
+            borderRadius:10, cursor:'pointer',
+          }}>
+            <span style={{ fontSize:20 }}>🌙</span>
+            <div>
+              <div style={{ fontSize:12, fontWeight:700, color: todayChecklist.closing ? '#2E7D32' : '#999' }}>
+                Closing
+              </div>
+              <div style={{ fontSize:10, color: todayChecklist.closing ? '#27AE60' : '#aaa' }}>
+                {todayChecklist.closing ? '✓ Submitted' : 'End of day'}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -238,17 +292,22 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       {(critical.length > 0 || low.length > 0) && (
         <div style={cardStyle}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-            <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>Stock Alerts</div>
-            <button onClick={() => setActiveTab('orders')}
+            <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>
+              Stock Alerts
+              <span style={{ marginLeft:6, background:'#FFEBEE', color:'#E74C3C', borderRadius:20, padding:'1px 8px', fontSize:10 }}>
+                {critical.length + low.length}
+              </span>
+            </div>
+            <button onClick={() => setActiveTab('inventory')}
               style={{ fontSize:11, color:'#C8843A', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
-              View Orders
+              View Inventory →
             </button>
           </div>
-          {[...critical,...low].slice(0,6).map(item => (
+          {[...critical,...low].map(item => (
             <div key={item.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid #EDE0CC' }}>
               <div>
                 <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{item.name}</div>
-                <div style={{ fontSize:11, color:'#8B7355' }}>{item.code}</div>
+                <div style={{ fontSize:11, color:'#8B7355' }}>{item.cat}</div>
               </div>
               <div style={{ textAlign:'right' }}>
                 <div style={{ fontSize:13, fontWeight:700, color: getStatus(item)==='critical'?'#E74C3C':'#E67E22' }}>
@@ -262,23 +321,23 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       )}
 
       {/* Quick Stats */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginBottom:12 }}>
-        {[
-          { value:`$${totalValue.toLocaleString('en-US',{maximumFractionDigits:0})}`, label:'Stock Value', color:'#C8843A' },
-          { value: lastSale ? `$${(lastSale.revenue||0).toLocaleString('en-US',{maximumFractionDigits:0})}` : '--', label:'Last Sale', color:'#27AE60' },
-          { value: totalTubs.toFixed(1), label:'Ice Cream Tubs', color:'#C8843A' },
-        ].map(({value,label,color}) => (
-          <div key={label} style={{ ...cardStyle, marginBottom:0, textAlign:'center' }}>
-            <div style={{ fontSize:18, fontWeight:700, color }}>{value}</div>
-            <div style={{ fontSize:10, color:'#8B7355', textTransform:'uppercase' }}>{label}</div>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:12 }}>
+        <div style={{ ...cardStyle, marginBottom:0, textAlign:'center' }}>
+          <div style={{ fontSize:20, fontWeight:700, color:'#C8843A' }}>
+            ${totalValue.toLocaleString('en-US',{maximumFractionDigits:0})}
           </div>
-        ))}
+          <div style={{ fontSize:10, color:'#8B7355', textTransform:'uppercase' }}>Stock Value</div>
+        </div>
+        <div style={{ ...cardStyle, marginBottom:0, textAlign:'center' }}>
+          <div style={{ fontSize:20, fontWeight:700, color:'#C8843A' }}>{totalTubs.toFixed(1)}</div>
+          <div style={{ fontSize:10, color:'#8B7355', textTransform:'uppercase' }}>Ice Cream Tubs</div>
+        </div>
       </div>
 
       {/* Low flavors */}
       {lowFlavors.length > 0 && (
         <div style={{ ...cardStyle, borderLeft:'3px solid #E74C3C', marginBottom:12 }}>
-          <div style={{ fontSize:12, fontWeight:700, color:'#E74C3C', marginBottom:4 }}>Low Ice Cream Flavors</div>
+          <div style={{ fontSize:12, fontWeight:700, color:'#E74C3C', marginBottom:4 }}>⚠ Low Ice Cream Flavors</div>
           <div style={{ fontSize:12, color:'#8B7355' }}>{lowFlavors.map(i=>i.name).join(', ')}</div>
         </div>
       )}
@@ -286,22 +345,35 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       {/* Issues */}
       <div style={cardStyle}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-          <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>
-            Issues {openIssues.length > 0 && `(${openIssues.length} open)`}
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>Issues</div>
+            {openIssues.length > 0 && (
+              <span style={{ background:'#FFF3E0', color:'#E67E22', borderRadius:20, padding:'1px 8px', fontSize:10, fontWeight:700 }}>
+                {openIssues.length} open
+              </span>
+            )}
           </div>
-          <button onClick={() => setShowNewIssue(!showNewIssue)}
-            style={{ fontSize:11, color:'#C8843A', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
-            + Log Issue
-          </button>
+          <div style={{ display:'flex', gap:8 }}>
+            {resolvedIssues.length > 0 && (
+              <button onClick={() => setShowResolved(v => !v)}
+                style={{ fontSize:11, color:'#8B7355', background:'none', border:'none', cursor:'pointer' }}>
+                {showResolved ? 'Hide resolved' : `+${resolvedIssues.length} resolved`}
+              </button>
+            )}
+            <button onClick={() => setShowNewIssue(!showNewIssue)}
+              style={{ fontSize:11, color:'#C8843A', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
+              + Log Issue
+            </button>
+          </div>
         </div>
         {showNewIssue && (
           <div style={{ background:'#FDF6EC', borderRadius:10, padding:12, marginBottom:12 }}>
             <input placeholder="Issue title" value={newIssue.title}
               onChange={e => setNewIssue(i=>({...i,title:e.target.value}))}
-              style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13 }}/>
+              style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, boxSizing:'border-box' }}/>
             <textarea placeholder="Details (optional)" value={newIssue.description}
               onChange={e => setNewIssue(i=>({...i,description:e.target.value}))}
-              rows={2} style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, resize:'none' }}/>
+              rows={2} style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, resize:'none', boxSizing:'border-box' }}/>
             <div style={{ display:'flex', gap:8 }}>
               <button onClick={logIssue}
                 style={{ flex:1, background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'8px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
@@ -314,24 +386,28 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
             </div>
           </div>
         )}
-        {issues.length === 0 ? (
-          <div style={{ fontSize:13, color:'#8B7355', textAlign:'center', padding:'12px 0' }}>No issues logged</div>
-        ) : issues.slice(0,5).map(issue => (
+        {displayIssues.length === 0 ? (
+          <div style={{ fontSize:13, color:'#8B7355', textAlign:'center', padding:'12px 0' }}>
+            {openIssues.length === 0 ? 'No open issues 🎉' : 'No issues logged'}
+          </div>
+        ) : displayIssues.slice(0, 10).map(issue => (
           <div key={issue.id} style={{ padding:'10px 12px', borderRadius:10, marginBottom:8,
-            background: issue.status==='resolved'?'#F5F5F5':'#FFF3E0',
-            borderLeft:`3px solid ${issue.status==='resolved'?'#ccc':'#E67E22'}` }}>
+            background: issue.status==='resolved' ? '#F9F9F9' : '#FFF3E0',
+            borderLeft: `3px solid ${issue.status==='resolved' ? '#ccc' : '#E67E22'}` }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:13, fontWeight:600, color:issue.status==='resolved'?'#999':'#2C1810' }}>{issue.title}</div>
+                <div style={{ fontSize:13, fontWeight:600, color: issue.status==='resolved' ? '#999' : '#2C1810' }}>
+                  {issue.status==='resolved' && <span style={{ fontSize:11, marginRight:6 }}>✓</span>}
+                  {issue.title}
+                </div>
                 {issue.description && <div style={{ fontSize:11, color:'#8B7355', marginTop:2 }}>{issue.description}</div>}
                 <div style={{ fontSize:10, color:'#aaa', marginTop:4 }}>
                   {issue.createdBy} · {new Date(issue.createdAt).toLocaleDateString()}
-                  {issue.status==='resolved' && ' · Resolved'}
                 </div>
               </div>
-              {issue.status==='open' && (
+              {issue.status === 'open' && (
                 <button onClick={() => resolveIssue(issue.id)}
-                  style={{ fontSize:11, color:'#27AE60', background:'none', border:'1px solid #27AE60', borderRadius:6, padding:'3px 8px', cursor:'pointer', marginLeft:8, whiteSpace:'nowrap' }}>
+                  style={{ fontSize:11, color:'#27AE60', background:'none', border:'1px solid #27AE60', borderRadius:6, padding:'4px 10px', cursor:'pointer', marginLeft:8, whiteSpace:'nowrap', fontFamily:'inherit' }}>
                   Resolve
                 </button>
               )}
@@ -341,14 +417,14 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       </div>
 
       {/* Quick Actions */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <button onClick={() => setActiveTab('sales')}
-          style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:10, padding:'12px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
-          Upload Sales
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:16 }}>
+        <button onClick={() => setActiveTab('checklist')}
+          style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:10, padding:'14px 12px', cursor:'pointer', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          ✅ Start Checklist
         </button>
-        <button onClick={() => setActiveTab('delivery')}
-          style={{ background:'#C8843A', color:'#fff', border:'none', borderRadius:10, padding:'12px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
-          Log Delivery
+        <button onClick={() => setActiveTab('icecreamlog')}
+          style={{ background:'#C8843A', color:'#fff', border:'none', borderRadius:10, padding:'14px 12px', cursor:'pointer', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          🍦 Log Scoops
         </button>
       </div>
     </div>
