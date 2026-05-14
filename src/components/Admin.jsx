@@ -14,9 +14,9 @@ import { sendInvitationEmail } from '../utils/emailNotify'
 
 const APP_URL = 'https://snamburi1980.github.io/dumont-inventory/'
 
-export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setViewingOrg, viewingStore }) {
+export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setViewingOrg, viewingStore, defaultView }) {
   const role0       = auth?.userConfig?.role || ''
-  const [view, setView] = useState(auth?.isSuperOwner?.() ? 'overview' : (role0 === 'store_owner' || role0 === 'manager') ? 'users' : 'items')
+  const [view, setView] = useState(defaultView || (auth?.isSuperOwner?.() ? 'overview' : (role0 === 'store_owner' || role0 === 'manager') ? 'users' : 'items'))
   const [orgs,         setOrgs]         = useState([])
   const [regions,      setRegions]      = useState([])
   const [stores,       setStores]       = useState([])

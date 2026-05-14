@@ -5,7 +5,7 @@ import { THEMES, applyTheme } from '../utils/themes'
 import ThemeSwitcher from './ThemeSwitcher'
 import ChangePassword from './ChangePassword'
 
-export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingStore, setViewingStore, children, currentTheme, onThemeChange, showToast }) {
+export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingStore, setViewingStore, children, currentTheme, onThemeChange, showToast, onBackToHQ }) {
   const [orgConfig,     setOrgConfig]     = useState(null)
   const [allStores,     setAllStores]     = useState([])
   const [allRegions,    setAllRegions]    = useState([])
@@ -176,7 +176,17 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
             return (
               <div key={group.label} style={{ marginBottom:20 }}>
                 {/* Group label */}
-                <div style={{ fontSize:9, fontWeight:700, color: isDisabled ? '#ccc' : '#aaa', textTransform:'uppercase', letterSpacing:'0.8px', padding:'0 16px', marginBottom:6, display:'flex', alignItems:'center', gap:4 }}>
+                {group.label === 'Operations' && onBackToHQ && (
+            <button onClick={onBackToHQ} style={{
+              width:'100%', textAlign:'left', padding:'8px 16px', background:'none',
+              border:'none', borderBottom:'1px solid #EDE0CC', fontSize:12, fontWeight:600,
+              color:'#C8843A', cursor:'pointer', fontFamily:'inherit', marginBottom:8,
+              display:'flex', alignItems:'center', gap:4,
+            }}>
+              ← HQ
+            </button>
+          )}
+          <div style={{ fontSize:9, fontWeight:700, color: isDisabled ? '#ccc' : '#aaa', textTransform:'uppercase', letterSpacing:'0.8px', padding:'0 16px', marginBottom:6, display:'flex', alignItems:'center', gap:4 }}>
                   {group.label}
                   {isDisabled && <span style={{ fontSize:8, background:'#eee', color:'#bbb', borderRadius:3, padding:'1px 4px' }}>Soon</span>}
                 </div>

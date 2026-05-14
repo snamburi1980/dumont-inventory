@@ -8,6 +8,8 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 
 import LoginScreen      from './components/LoginScreen'
 import OnboardingScreen from './components/OnboardingScreen'
+import HQLayout       from './components/HQLayout'
+import HQDashboard    from './components/HQDashboard'
 import Layout         from './components/Layout'
 import Home           from './components/Home'
 import Inventory      from './components/Inventory'
@@ -29,6 +31,8 @@ export default function App() {
   const { needsPasswordChange, setNeedsPasswordChange } = auth
 
   const [activeTab,    setActiveTab]    = useState('home')
+  const [hqMode,       setHqMode]       = useState(true)
+  const [hqActiveTab,  setHqActiveTab]  = useState('hq_dashboard')
   const [viewingStore, setViewingStore] = useState('')
   const [viewingOrg,   setViewingOrg]   = useState('dumont')
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -128,6 +132,75 @@ export default function App() {
     )
   }
 
+  const isSuperOwner = auth.isSuperOwner?.()
+
+  // ── Super owner HQ mode ───────────────────────────────────────────────────
+  if (isSuperOwner && hqMode) {
+    const hqTabProps = {
+      auth, invHook, viewingStore, setViewingStore,
+      showToast, setActiveTab,
+      orgItemsHook, viewingOrg, setViewingOrg,
+    }
+
+    function enterOpsMode(storeId) {
+      if (storeId) {
+        setViewingStore(storeId)
+        invHook.loadInventory(storeId, viewingOrg)
+      }
+      setActiveTab('home')
+      setHqMode(false)
+    }
+
+    return (
+      <ErrorBoundary>
+        <HQLayout
+          auth={auth}
+          activeTab={hqActiveTab}
+          setActiveTab={setHqActiveTab}
+          currentTheme={currentTheme}
+          onThemeChange={t => { setCurrentTheme(t); localStorage.setItem('dumont_theme', t) }}
+          showToast={showToast}
+          viewingStore={viewingStore}
+          setViewingStore={s => { setViewingStore(s); if (s) invHook.loadInventory(s, viewingOrg) }}
+          onViewStoreOps={() => enterOpsMode(viewingStore)}>
+
+          {hqActiveTab === 'hq_dashboard' && (
+            <HQDashboard onViewStore={enterOpsMode} />
+          )}
+          {hqActiveTab === 'hq_stores' && (
+            <Admin {...hqTabProps} defaultView="stores" />
+          )}
+          {hqActiveTab === 'hq_analytics' && (
+            viewingStore
+              ? <Commerce viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />
+              : <div style={{ textAlign:'center', padding:60, color:'#8B7355' }}>
+                  <div style={{ fontSize:16, fontWeight:600, color:'#2C1810', marginBottom:8 }}>Select a store to view analytics</div>
+                  <div style={{ fontSize:13 }}>Use the store dropdown in the header above</div>
+                </div>
+          )}
+          {hqActiveTab === 'hq_users' && (
+            <Admin {...hqTabProps} defaultView="users" />
+          )}
+          {hqActiveTab === 'hq_settings' && (
+            <Admin {...hqTabProps} defaultView="settings" />
+          )}
+
+          {toast && (
+            <div style={{
+              position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)',
+              background:'#2C1810', color:'#fff', padding:'12px 24px',
+              borderRadius:24, fontSize:13, fontWeight:600,
+              boxShadow:'0 4px 16px rgba(0,0,0,0.2)', zIndex:9999, whiteSpace:'nowrap',
+            }}>
+              {toast}
+            </div>
+          )}
+        </HQLayout>
+      </ErrorBoundary>
+    )
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   const tabProps = {
     auth, invHook, viewingStore, setViewingStore,
     showToast, setActiveTab,
@@ -162,7 +235,8 @@ export default function App() {
     <ErrorBoundary>
       <Layout auth={auth} tabs={tabs} activeTab={activeTab} setActiveTab={handleTabChange}
         viewingStore={viewingStore} setViewingStore={setViewingStore}
-        currentTheme={currentTheme} onThemeChange={setCurrentTheme} showToast={showToast}>
+        currentTheme={currentTheme} onThemeChange={setCurrentTheme} showToast={showToast}
+        onBackToHQ={isSuperOwner ? () => setHqMode(true) : null}>
 
         {activeTab === 'home'        && <Home      {...tabProps} />}
         {activeTab === 'inventory'   && <Inventory {...tabProps} />}
