@@ -310,6 +310,13 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     loadAll()
   }
 
+  async function deleteUser(user) {
+    if (!window.confirm(`Delete "${user.name || user.email}" permanently? This cannot be undone.`)) return
+    await deleteDoc(doc(db, 'users', user.emailKey))
+    showToast(`${user.name || user.email} deleted`)
+    loadAll()
+  }
+
   const card  = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }
   const input = { width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#FDF6EC' }
   const btn   = (color='#2C1810') => ({ background:color, color:'#fff', border:'none', borderRadius:8, padding:'11px 16px', cursor:'pointer', fontSize:13, fontWeight:600, width:'100%', fontFamily:'inherit', opacity: saving ? 0.7 : 1 })
@@ -910,10 +917,16 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                         <button onClick={() => setEditingUser({ ...user })}
                           style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
                         {user.email !== 'dumonttexas@gmail.com' && (
-                          <button onClick={() => toggleUserActive(user)}
-                            style={{ fontSize:11, color: isInactive ? '#27AE60' : '#E74C3C', background:'none', border:`1px solid ${isInactive ? '#C8E6C9' : '#FFCDD2'}`, borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>
-                            {isInactive ? 'Activate' : 'Deactivate'}
-                          </button>
+                          <>
+                            <button onClick={() => toggleUserActive(user)}
+                              style={{ fontSize:11, color: isInactive ? '#27AE60' : '#E74C3C', background:'none', border:`1px solid ${isInactive ? '#C8E6C9' : '#FFCDD2'}`, borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>
+                              {isInactive ? 'Activate' : 'Deactivate'}
+                            </button>
+                            <button onClick={() => deleteUser(user)}
+                              style={{ fontSize:11, color:'#fff', background:'#E74C3C', border:'none', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>
+                              Delete
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
