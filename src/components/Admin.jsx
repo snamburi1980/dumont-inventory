@@ -38,7 +38,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   const [editingUser, setEditingUser] = useState(null)
 
   // Invite new store state
-  const [inviteForm,    setInviteForm]    = useState({ name:'', address:'', email:'' })
+  const [inviteForm,    setInviteForm]    = useState({ name:'', address:'', phone:'', ownerName:'', email:'', ownerRole:'store_owner' })
   const [inviteSent,    setInviteSent]    = useState(null) // { email, link }
   const [inviting,      setInviting]      = useState(false)
 
@@ -81,7 +81,10 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       const storeRef = await addDoc(collection(db, 'stores'), {
         name:       inviteForm.name.trim(),
         address:    inviteForm.address.trim(),
+        phone:      inviteForm.phone.trim(),
+        ownerName:  inviteForm.ownerName.trim(),
         ownerEmail: inviteForm.email.trim().toLowerCase(),
+        ownerRole:  inviteForm.ownerRole || 'store_owner',
         orgId:      org?.id || viewingOrg || 'dumont',
         regionId:   region?.id || '',
         status:     'pending',
@@ -92,26 +95,28 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       const token = crypto.randomUUID()
       const expiresAt = Date.now() + 72 * 60 * 60 * 1000
       // Write invitation doc
+      const inviteRole = inviteForm.ownerRole || 'store_owner'
       await setDoc(doc(db, 'invitations', token), {
         token,
         email:     inviteForm.email.trim().toLowerCase(),
+        name:      inviteForm.ownerName.trim(),
         storeName: inviteForm.name.trim(),
         storeId:   storeRef.id,
         orgId:     org?.id || viewingOrg || 'dumont',
-        role:      'store_owner',
+        role:      inviteRole,
         status:    'pending',
         expiresAt,
         createdAt: Date.now(),
         createdBy: auth.userConfig?.email,
       })
       // Build invite link
-      const link = `${APP_URL}?token=${token}&email=${encodeURIComponent(inviteForm.email.trim().toLowerCase())}&store=${encodeURIComponent(inviteForm.name.trim())}&storeId=${storeRef.id}&orgId=${org?.id || 'dumont'}`
+      const link = `${APP_URL}?token=${token}&email=${encodeURIComponent(inviteForm.email.trim().toLowerCase())}&store=${encodeURIComponent(inviteForm.name.trim())}&storeId=${storeRef.id}&orgId=${org?.id || 'dumont'}&role=${inviteRole}`
       // Send email
-      await sendInvitationEmail({ toEmail: inviteForm.email.trim(), storeName: inviteForm.name.trim(), inviteLink: link })
+      await sendInvitationEmail({ toEmail: inviteForm.email.trim(), storeName: inviteForm.name.trim(), inviteLink: link, role: inviteRole })
       await logAudit({ action: 'STORE_INVITED', userEmail: auth.userConfig?.email, details: { store: inviteForm.name, email: inviteForm.email } })
       await loadAll()
       setInviteSent({ email: inviteForm.email.trim(), link, storeName: inviteForm.name.trim() })
-      setInviteForm({ name:'', address:'', email:'' })
+      setInviteForm({ name:'', address:'', phone:'', ownerName:'', email:'', ownerRole:'store_owner' })
       showToast(`Invitation sent to ${inviteForm.email}`)
     } catch(e) {
       console.error(e)
@@ -481,21 +486,11 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       {/* OVERVIEW */}
       {view === 'overview' && (
         <div>
-          {/* Quick Create Store */}
-          <div style={{ ...card, display:'flex', gap:8, alignItems:'flex-end', marginBottom:16 }}>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:12, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Create Store</div>
-              <input placeholder="Store name (e.g. Frisco, McKinney)"
-                value={newStore.name}
-                onChange={e => setNewStore(s=>({...s, name:e.target.value}))}
-                onKeyDown={e => e.key==='Enter' && createStore()}
-                style={{ ...input, marginBottom:0 }}/>
-            </div>
-            <button onClick={createStore} disabled={saving}
-              style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'10px 18px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', whiteSpace:'nowrap', flexShrink:0 }}>
-              {saving ? '...' : '+ Create'}
-            </button>
-          </div>
+          {/* Quick nav to Stores */}
+          <button onClick={() => setView('stores')}
+            style={{ ...btn('#2C1810'), marginBottom:16 }}>
+            + Create New Store & Send Invitation
+          </button>
 
           <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:16 }}>
             {[
@@ -577,99 +572,60 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             </button>
           )}
 
-          {/* Invite New Store — super_owner only */}
-          {isSuperOwnerUser && (
-            <div style={{ ...card, marginTop:16, border:'1.5px solid #C8843A' }}>
-              <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Invite New Store</div>
-              <div style={{ fontSize:11, color:'#8B7355', marginBottom:12 }}>Creates a store and emails an onboarding link to the new store owner.</div>
-              {inviteSent ? (
-                <div>
-                  <div style={{ background:'#E8F5E9', border:'1px solid #27AE60', borderRadius:8, padding:'12px', marginBottom:10 }}>
-                    <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:6 }}>✅ Invitation sent to {inviteSent.email}</div>
-                    <div style={{ fontSize:11, color:'#2C1810', marginBottom:6 }}>Store: {inviteSent.storeName}</div>
-                    <div style={{ fontSize:10, color:'#8B7355', wordBreak:'break-all', marginBottom:8 }}>{inviteSent.link}</div>
-                    <button onClick={() => { navigator.clipboard.writeText(inviteSent.link); showToast('Link copied!') }}
-                      style={{ background:'#27AE60', color:'#fff', border:'none', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit', marginRight:8 }}>
-                      Copy Link
-                    </button>
-                    <button onClick={() => setInviteSent(null)}
-                      style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontFamily:'inherit', color:'#8B7355' }}>
-                      Send Another
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <input placeholder="Store Name (e.g. Frisco)" value={inviteForm.name}
-                    onChange={e => setInviteForm(f=>({...f,name:e.target.value}))} style={input}/>
-                  <input placeholder="Store Address (optional)" value={inviteForm.address}
-                    onChange={e => setInviteForm(f=>({...f,address:e.target.value}))} style={input}/>
-                  <input placeholder="Store Owner Email" type="email" value={inviteForm.email}
-                    onChange={e => setInviteForm(f=>({...f,email:e.target.value}))} style={input}/>
-                  <button onClick={inviteNewStore} disabled={inviting}
-                    style={{ ...btn('#C8843A'), opacity: inviting ? 0.7 : 1 }}>
-                    {inviting ? 'Sending...' : '📧 Send Onboarding Invitation'}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
 
       {/* STORES */}
       {view === 'stores' && (
         <div>
-          {/* Create Store */}
-          <div style={card}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Create Store</div>
-            <input placeholder="Store name (e.g. Frisco, McKinney)" value={newStore.name}
-              onChange={e => setNewStore(s=>({...s,name:e.target.value}))} style={input}/>
-            {regions.length > 1 && (
-              <select value={newStore.regionId} onChange={e => setNewStore(s=>({...s,regionId:e.target.value}))} style={input}>
-                <option value="">Select Region (optional)</option>
-                {regions.map(r => {
-                  const org = orgs.find(o=>o.id===r.orgId)
-                  return <option key={r.id} value={r.id}>{org?.name} — {r.name}</option>
-                })}
-              </select>
-            )}
-            <button style={btn()} onClick={createStore} disabled={saving}>
-              {saving ? 'Creating...' : '+ Create Store'}
-            </button>
-          </div>
-
-          {/* Invite New Store Owner */}
-          <div style={{ ...card, border:'1.5px solid #C8843A', marginBottom:16 }}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Invite New Store Owner</div>
-            <div style={{ fontSize:11, color:'#8B7355', marginBottom:12 }}>Creates a store and emails an onboarding link to the store owner.</div>
+          {/* Single combined form */}
+          <div style={{ ...card, marginBottom:20 }}>
             {inviteSent ? (
               <div>
-                <div style={{ background:'#E8F5E9', border:'1px solid #27AE60', borderRadius:8, padding:'12px', marginBottom:10 }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:6 }}>✅ Invitation sent to {inviteSent.email}</div>
-                  <div style={{ fontSize:11, color:'#2C1810', marginBottom:6 }}>Store: {inviteSent.storeName}</div>
-                  <div style={{ fontSize:10, color:'#8B7355', wordBreak:'break-all', marginBottom:8 }}>{inviteSent.link}</div>
-                  <button onClick={() => { navigator.clipboard.writeText(inviteSent.link); showToast('Link copied!') }}
-                    style={{ background:'#27AE60', color:'#fff', border:'none', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit', marginRight:8 }}>
-                    Copy Link
-                  </button>
-                  <button onClick={() => setInviteSent(null)}
-                    style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontFamily:'inherit', color:'#8B7355' }}>
-                    Send Another
-                  </button>
+                <div style={{ background:'#E8F5E9', border:'1px solid #27AE60', borderRadius:10, padding:'16px', marginBottom:4 }}>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#27AE60', marginBottom:6 }}>Store created & invitation sent!</div>
+                  <div style={{ fontSize:12, color:'#2C1810', marginBottom:4 }}>Store: <strong>{inviteSent.storeName}</strong></div>
+                  <div style={{ fontSize:12, color:'#2C1810', marginBottom:10 }}>Invitation emailed to: <strong>{inviteSent.email}</strong></div>
+                  <div style={{ fontSize:10, color:'#8B7355', wordBreak:'break-all', marginBottom:12 }}>{inviteSent.link}</div>
+                  <div style={{ display:'flex', gap:8 }}>
+                    <button onClick={() => { navigator.clipboard.writeText(inviteSent.link); showToast('Link copied!') }}
+                      style={{ background:'#27AE60', color:'#fff', border:'none', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'inherit' }}>
+                      Copy Invite Link
+                    </button>
+                    <button onClick={() => setInviteSent(null)}
+                      style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:12, fontFamily:'inherit', color:'#8B7355' }}>
+                      + Add Another Store
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
               <div>
-                <input placeholder="Store Name (e.g. Frisco)" value={inviteForm.name}
+                <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Create Store & Invite Owner</div>
+                <div style={{ fontSize:12, color:'#8B7355', marginBottom:16 }}>Fills in all details, creates the store, and emails an onboarding link in one step.</div>
+
+                <div style={{ fontSize:11, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>Store Details</div>
+                <input placeholder="Store Name *  (e.g. Frisco, McKinney)" value={inviteForm.name}
                   onChange={e => setInviteForm(f=>({...f,name:e.target.value}))} style={input}/>
-                <input placeholder="Store Address (optional)" value={inviteForm.address}
+                <input placeholder="Store Address" value={inviteForm.address}
                   onChange={e => setInviteForm(f=>({...f,address:e.target.value}))} style={input}/>
-                <input placeholder="Store Owner Email" type="email" value={inviteForm.email}
+                <input placeholder="Store Phone Number" type="tel" value={inviteForm.phone}
+                  onChange={e => setInviteForm(f=>({...f,phone:e.target.value}))} style={input}/>
+
+                <div style={{ fontSize:11, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8, marginTop:4 }}>Owner Details</div>
+                <input placeholder="Owner Name" value={inviteForm.ownerName}
+                  onChange={e => setInviteForm(f=>({...f,ownerName:e.target.value}))} style={input}/>
+                <input placeholder="Owner Email *" type="email" value={inviteForm.email}
                   onChange={e => setInviteForm(f=>({...f,email:e.target.value}))} style={input}/>
+                <select value={inviteForm.ownerRole} onChange={e => setInviteForm(f=>({...f,ownerRole:e.target.value}))} style={input}>
+                  <option value="store_owner">Store Owner</option>
+                  <option value="manager">Manager</option>
+                  <option value="regional_owner">Regional Owner</option>
+                </select>
+
                 <button onClick={inviteNewStore} disabled={inviting}
-                  style={{ ...btn('#C8843A'), opacity: inviting ? 0.7 : 1 }}>
-                  {inviting ? 'Sending...' : '📧 Send Onboarding Invitation'}
+                  style={{ ...btn('#2C1810'), marginTop:4, opacity: inviting ? 0.7 : 1 }}>
+                  {inviting ? 'Creating & Sending...' : 'Create Store & Send Invitation'}
                 </button>
               </div>
             )}
