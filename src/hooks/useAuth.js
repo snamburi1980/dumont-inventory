@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase/config'
+import { httpsCallable } from 'firebase/functions'
+import { auth, db, functions } from '../firebase/config'
 
 const HARDCODED_USERS = {
   'dumonttexas@gmail.com':    { role:'super_owner', store:'',  name:'Sasikanth' },
@@ -69,7 +70,14 @@ export function useAuth() {
     setUserConfig(cfg)
     setPending(false)
     setNeedsPasswordChange(cfg.forcePasswordChange === true)
-    // Force token refresh so Custom Claims (set by Cloud Function) are picked up
+    // Sync custom claims (role/storeId/orgId) into the JWT token so Firestore rules work.
+    // ensureClaims reads the user's Firestore doc and stamps claims for users who haven't
+    // had their claims set yet (e.g., existed before syncUserClaims was deployed).
+    try {
+      const ensureClaims = httpsCallable(functions, 'ensureClaims')
+      await ensureClaims()
+    } catch(_) {}
+    // Force token refresh so the stamped Custom Claims are picked up immediately
     try { await firebaseUser.getIdToken(true) } catch(_) {}
     setLoading(false)
   }

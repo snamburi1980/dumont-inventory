@@ -9,6 +9,32 @@ initializeApp()
 // ── Sync Custom Claims whenever a users/{emailKey} doc is written ────────────
 // This stamps role + storeId + orgId into the Firebase Auth token so Firestore
 // security rules can enforce per-store data isolation without extra DB reads.
+// ── Ensure custom claims are set for the calling user ────────────────────────
+// Called on every login from useAuth.js. Reads the user's Firestore doc and stamps
+// role/storeId/orgId claims into the token so Firestore security rules work correctly.
+// This fixes the case where users existed before syncUserClaims was deployed.
+exports.ensureClaims = onCall({ cors: true }, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in')
+  const email    = request.auth.token.email
+  const emailKey = email.replace(/\./g, '_').replace(/@/g, '_at_')
+  try {
+    const db   = getFirestore()
+    const snap = await db.collection('users').doc(emailKey).get()
+    if (!snap.exists()) return { skipped: true, reason: 'no user doc' }
+    const data   = snap.data()
+    const claims = {
+      role:    data.role    || 'staff',
+      storeId: data.storeId || data.store || '',
+      orgId:   data.orgId   || 'dumont',
+    }
+    await getAuth().setCustomUserClaims(request.auth.uid, claims)
+    return { success: true, claims }
+  } catch(e) {
+    console.error('ensureClaims failed:', e)
+    return { error: e.message }
+  }
+})
+
 exports.syncUserClaims = onDocumentWritten('users/{emailKey}', async (event) => {
   const after = event.data?.after?.data()
   if (!after?.email) return
