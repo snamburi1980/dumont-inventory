@@ -34,10 +34,9 @@ export default function Transfers({ auth, showToast, viewingStore }) {
       const snap = await getDocs(q)
       const all = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       const isSuperOwner = auth?.isSuperOwner?.()
-      // Non-super-owners only see transfers they originated
-      setTransfers(isSuperOwner ? all : all.filter(t =>
-        !t.originStoreId || t.originStoreId === viewingStore
-      ))
+      // Non-super-owners only see transfers they originated.
+      // Old transfers without originStoreId are only visible to super_owner.
+      setTransfers(isSuperOwner ? all : all.filter(t => t.originStoreId === viewingStore))
     } catch(e) { console.error(e) }
     setLoading(false)
   }
