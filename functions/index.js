@@ -1,8 +1,29 @@
 const { onDocumentWritten } = require('firebase-functions/v2/firestore')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
-const { initializeApp } = require('firebase-admin/app')
-const { getAuth } = require('firebase-admin/auth')
-const { getFirestore } = require('firebase-admin/firestore')
+const { onSchedule }         = require('firebase-functions/v2/scheduler')
+const { defineSecret }       = require('firebase-functions/v2/params')
+const { initializeApp }      = require('firebase-admin/app')
+const { getAuth }            = require('firebase-admin/auth')
+const { getFirestore }       = require('firebase-admin/firestore')
+const { google }             = require('googleapis')
+
+const AnthropicLib    = require('@anthropic-ai/sdk')
+const Anthropic       = AnthropicLib.default || AnthropicLib
+
+// ── Firebase secrets for invoice pipeline ────────────────────────────────────
+const GMAIL_CLIENT_ID     = defineSecret('GMAIL_CLIENT_ID')
+const GMAIL_CLIENT_SECRET = defineSecret('GMAIL_CLIENT_SECRET')
+const GMAIL_REFRESH_TOKEN = defineSecret('GMAIL_REFRESH_TOKEN')
+const ANTHROPIC_API_KEY   = defineSecret('ANTHROPIC_API_KEY')
+
+const KNOWN_SENDERS = [
+  'ben-e-keith',
+  'bek.com',
+  'stripe.com',
+  'apparatus',
+  'sentryinsights',
+  'dumonttexas@gmail.com',  // owner can forward/send test invoices
+]
 
 initializeApp()
 
@@ -153,3 +174,145 @@ exports.createAuthUser = onCall({ cors: true }, async (request) => {
     throw new HttpsError('internal', e.message)
   }
 })
+
+// ── Invoice pipeline: scan Gmail every 20 min, parse with Claude ─────────────
+exports.parseInvoices = onSchedule({
+  schedule: 'every 20 minutes',
+  timeZone: 'America/Chicago',
+  secrets: [GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, ANTHROPIC_API_KEY],
+}, async () => {
+  const db = getFirestore()
+
+  const oauth2Client = new google.auth.OAuth2(
+    GMAIL_CLIENT_ID.value(),
+    GMAIL_CLIENT_SECRET.value()
+  )
+  oauth2Client.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN.value() })
+  const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
+  const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY.value() })
+
+  // Last-check timestamp (default: 7 days ago on first run)
+  const metaRef      = db.collection('_invoiceMeta').doc('lastCheck')
+  const meta         = await metaRef.get()
+  const lastCheckSec = meta.exists
+    ? Math.floor(meta.data().ts / 1000)
+    : Math.floor((Date.now() - 7 * 24 * 3600 * 1000) / 1000)
+
+  const fromQuery = KNOWN_SENDERS.map(s => `from:${s}`).join(' OR ')
+  const q         = `(${fromQuery}) after:${lastCheckSec}`
+
+  let messages = []
+  try {
+    const resp = await gmail.users.messages.list({ userId: 'me', q, maxResults: 25 })
+    messages   = resp.data.messages || []
+  } catch (e) {
+    console.error('Gmail list failed:', e.message)
+    return
+  }
+  console.log(`parseInvoices: ${messages.length} candidate emails`)
+
+  for (const msg of messages) {
+    try {
+      // Skip duplicates
+      const dup = await db.collection('invoices').where('emailId', '==', msg.id).limit(1).get()
+      if (!dup.empty) continue
+
+      const full    = await gmail.users.messages.get({ userId: 'me', id: msg.id, format: 'full' })
+      const headers = full.data.payload?.headers || []
+      const subject = headers.find(h => h.name === 'Subject')?.value || ''
+      const from    = headers.find(h => h.name === 'From')?.value    || ''
+      const date    = headers.find(h => h.name === 'Date')?.value    || ''
+      const body    = extractEmailBody(full.data.payload)
+
+      if (!body || body.length < 30) continue
+
+      let parsed = null
+      try {
+        const aiResp = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1024,
+          messages: [{
+            role: 'user',
+            content: `Extract invoice/billing data from this email and return ONLY valid JSON (no markdown, no explanation):
+{
+  "vendor": "vendor company name",
+  "invoiceNumber": "invoice or order number or null",
+  "invoiceDate": "YYYY-MM-DD or null",
+  "dueDate": "YYYY-MM-DD or null",
+  "storeName": "store or location name if mentioned, else null",
+  "items": [{ "description": "item name", "qty": 1, "unit": "each", "unitCost": 0.00, "total": 0.00 }],
+  "subtotal": 0.00,
+  "tax": 0.00,
+  "total": 0.00,
+  "notes": "delivery notes, payment terms, or empty string"
+}
+
+Subject: ${subject}
+From: ${from}
+Body:
+${body.substring(0, 4000)}`,
+          }],
+        })
+        const text  = (aiResp.content[0]?.text || '').trim()
+        const match = text.match(/\{[\s\S]*\}/)
+        if (match) parsed = JSON.parse(match[0])
+      } catch (e) {
+        console.error(`Claude parse error for ${msg.id}:`, e.message)
+      }
+
+      await db.collection('invoices').add({
+        emailId:       msg.id,
+        subject,
+        from,
+        emailDate:     date,
+        body:          body.substring(0, 600),
+        vendor:        parsed?.vendor        || vendorFromEmail(from),
+        invoiceNumber: parsed?.invoiceNumber || null,
+        invoiceDate:   parsed?.invoiceDate   || null,
+        dueDate:       parsed?.dueDate       || null,
+        storeName:     parsed?.storeName     || null,
+        items:         parsed?.items         || [],
+        subtotal:      Number(parsed?.subtotal) || 0,
+        tax:           Number(parsed?.tax)       || 0,
+        total:         Number(parsed?.total)     || 0,
+        notes:         parsed?.notes         || '',
+        orgId:        'dumont',
+        approved:      false,
+        approvedBy:    null,
+        approvedAt:    null,
+        createdAt:     Date.now(),
+      })
+      console.log(`Saved invoice: "${subject}" from ${from}`)
+    } catch (e) {
+      console.error(`Error processing ${msg.id}:`, e.message)
+    }
+  }
+
+  await metaRef.set({ ts: Date.now() })
+})
+
+function extractEmailBody(payload) {
+  if (!payload) return ''
+  if (payload.body?.data) return Buffer.from(payload.body.data, 'base64').toString('utf-8')
+  if (payload.parts) {
+    for (const part of payload.parts) {
+      if (part.mimeType === 'text/plain' && part.body?.data) {
+        return Buffer.from(part.body.data, 'base64').toString('utf-8')
+      }
+    }
+    for (const part of payload.parts) {
+      const nested = extractEmailBody(part)
+      if (nested) return nested
+    }
+  }
+  return ''
+}
+
+function vendorFromEmail(from) {
+  if (from.toLowerCase().includes('bek.com'))        return 'Ben E. Keith'
+  if (from.toLowerCase().includes('stripe'))         return 'Stripe'
+  if (from.toLowerCase().includes('apparatus'))      return 'Apparatus TX'
+  if (from.toLowerCase().includes('sentryinsight'))  return 'Sentry Insights'
+  const match = from.match(/^([^<@]+)/)
+  return match ? match[1].trim() : from
+}

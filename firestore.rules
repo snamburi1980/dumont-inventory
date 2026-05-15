@@ -132,5 +132,18 @@ service cloud.firestore {
       allow read:   if isSuperOwner();
       allow update, delete: if isSuperOwner();
     }
+
+    // Invoice inbox — written by Cloud Function (admin SDK bypasses rules)
+    // Managers+ can read; store_owner+ can update (approve); super_owner can delete
+    match /invoices/{id} {
+      allow read:             if isManagerOrAbove();
+      allow update:           if isStoreOwnerOrAbove();
+      allow delete:           if isSuperOwner();
+    }
+
+    // Invoice pipeline metadata — Cloud Function only (admin SDK)
+    match /_invoiceMeta/{id} {
+      allow read, write: if isSuperOwner();
+    }
   }
 }
