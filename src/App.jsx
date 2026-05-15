@@ -20,6 +20,7 @@ import ChangePassword from './components/ChangePassword'
 import Checklist      from './components/Checklist'
 import Picks          from './components/Picks'
 import Records        from './components/Records'
+import Bulletin       from './components/Bulletin'
 
 export default function App() {
   // All hooks must be called before any conditional returns
@@ -40,7 +41,7 @@ export default function App() {
 
   const role     = auth.userConfig?.role || ''
   const isStaff  = role === 'staff'
-  const staffAllowedTabs = ['home','checklist','icecreamlog','inventory']
+  const staffAllowedTabs = ['home','bulletin','checklist','icecreamlog','inventory']
 
   useEffect(() => { applyTheme(currentTheme) }, [])
 
@@ -209,6 +210,7 @@ export default function App() {
   // Ordered by daily workflow: Dashboard → Checklist → Scoops → Inventory → Schedule → Cash → Transfers
   const allTabs = [
     { id:'home',         label:'Home',      icon:'🏠' },
+    { id:'bulletin',     label:'Bulletin',  icon:'📋' },
     { id:'checklist',    label:'Checklist', icon:'✅' },
     { id:'icecreamlog',  label:'Scoops',    icon:'🍦' },
     { id:'inventory',    label:'Inventory', icon:'📦' },
@@ -241,6 +243,7 @@ export default function App() {
         {activeTab === 'icecreamlog'  && <Picks invHook={invHook} viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'checklist'    && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'schedule'     && <Schedule  {...tabProps} />}
+        {activeTab === 'bulletin'     && <Bulletin auth={auth} showToast={showToast} />}
         {activeTab === 'records'      && <Records viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'commerce'     && <Commerce viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'admin'        && <Admin     {...tabProps} />}

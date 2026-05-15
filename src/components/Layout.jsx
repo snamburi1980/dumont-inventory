@@ -83,9 +83,9 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
   })
 
   const tabGroups = isStaff ? [
-    { label: 'Operations', ids: ['home','checklist','icecreamlog','inventory'], disabled: false },
+    { label: 'Operations', ids: ['home','bulletin','checklist','icecreamlog','inventory'], disabled: false },
   ] : [
-    { label: 'Operations', ids: ['home','checklist','icecreamlog','inventory','schedule','records'], disabled: false },
+    { label: 'Operations', ids: ['home','bulletin','checklist','icecreamlog','inventory','schedule','records'], disabled: false },
     { label: 'Admin',      ids: ['admin'], disabled: false },
   ]
 
