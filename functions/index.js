@@ -177,7 +177,7 @@ exports.createAuthUser = onCall({ cors: true }, async (request) => {
 
 // ── Invoice pipeline: scan Gmail every 20 min, parse with Claude ─────────────
 exports.parseInvoices = onSchedule({
-  schedule: 'every 20 minutes',
+  schedule: '0 8 1,15 * *',
   timeZone: 'America/Chicago',
   secrets: [GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, ANTHROPIC_API_KEY],
 }, async () => {
