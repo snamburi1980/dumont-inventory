@@ -7,10 +7,11 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
   const [activeCategory, setActiveCategory] = useState('all')
   const [search,         setSearch]         = useState('')
   const [showInactive,   setShowInactive]   = useState(false)
-  const [editingPar,     setEditingPar]     = useState(null)
-  const [editingStock,   setEditingStock]   = useState(null)
-  const [locked,         setLocked]         = useState(true)
-  const [saveStatus,     setSaveStatus]     = useState(null)
+  const [editingPar,        setEditingPar]        = useState(null)
+  const [editingStock,      setEditingStock]      = useState(null)
+  const [locked,            setLocked]            = useState(true)
+  const [saveStatus,        setSaveStatus]        = useState(null)
+  const [confirmDeactivate, setConfirmDeactivate] = useState(null)
   const saveTimer = useRef(null)
   const lockTimer = useRef(null)
   const LOCK_TIMEOUT = 5 * 60 * 1000
@@ -72,10 +73,12 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
   }
 
   async function handleToggleActive(id) {
+    if (locked) { showToast('Tap Unlock to make changes'); return }
     const updated = inventory.map(i => i.id === id ? {...i, active: i.active === false ? true : false} : i)
     toggleActive(id)
     await saveInventory(viewingStore, updated)
     showToast('Updated')
+    setConfirmDeactivate(null)
   }
 
   async function handleSetPar(id, value) {
@@ -228,11 +231,24 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
                       Inactive · Activate
                     </button>
                   )}
-                  {!inactive && auth?.userConfig?.role !== 'staff' && (
-                    <button onClick={() => handleToggleActive(item.id)}
+                  {!inactive && auth?.userConfig?.role !== 'staff' && confirmDeactivate !== item.id && (
+                    <button onClick={() => { if(locked){ showToast('Tap Unlock to make changes'); return; } setConfirmDeactivate(item.id) }}
                       style={{ fontSize:9, background:'#F5F5F5', color:'#999', border:'none', borderRadius:4, padding:'1px 6px', cursor:'pointer', fontFamily:'inherit', opacity:0.6 }}>
                       Deactivate
                     </button>
+                  )}
+                  {!inactive && confirmDeactivate === item.id && (
+                    <span style={{ display:'inline-flex', alignItems:'center', gap:4 }}>
+                      <span style={{ fontSize:9, color:'#E74C3C', fontWeight:600 }}>Sure?</span>
+                      <button onClick={() => handleToggleActive(item.id)}
+                        style={{ fontSize:9, background:'#E74C3C', color:'#fff', border:'none', borderRadius:4, padding:'1px 6px', cursor:'pointer', fontFamily:'inherit', fontWeight:700 }}>
+                        Yes
+                      </button>
+                      <button onClick={() => setConfirmDeactivate(null)}
+                        style={{ fontSize:9, background:'#eee', color:'#666', border:'none', borderRadius:4, padding:'1px 6px', cursor:'pointer', fontFamily:'inherit' }}>
+                        No
+                      </button>
+                    </span>
                   )}
                 </div>
               </div>

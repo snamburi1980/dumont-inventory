@@ -108,10 +108,10 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
   // Month filter options derived from actual data
   const allMonthKeys = [...new Set(logs.map(l => l.monthKey).filter(Boolean))].sort().reverse()
   const thisMonthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
-  const activeFilter = filterMonth || thisMonthKey
-  const monthLogs    = logs.filter(l => l.monthKey === activeFilter)
+  const monthLogs    = filterMonth ? logs.filter(l => l.monthKey === filterMonth) : logs
   const avgClosing   = monthLogs.length ? monthLogs.reduce((s,l) => s+(l.closingCash||0),0) / monthLogs.length : 0
   const totalDiff    = monthLogs.reduce((s,l) => s+(l.difference||0), 0)
+  const activeFilterLabel = filterMonth ? (logs.find(l => l.monthKey === filterMonth)?.month || filterMonth) : 'All'
 
   const diff    = (parseFloat(form.closingCash)||0) - (parseFloat(form.openingCash)||0)
   const hasDiff = form.openingCash && form.closingCash
@@ -219,15 +219,21 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
             <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>History</div>
             <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>{monthLogs.length} entries</div>
           </div>
-          {allMonthKeys.length > 1 && (
+          {allMonthKeys.length > 0 && (
             <div style={{ display:'flex', gap:6, overflowX:'auto', scrollbarWidth:'none' }}>
+              <button onClick={() => setFilterMonth('')}
+                style={{ padding:'4px 12px', borderRadius:20, border:'1px solid rgba(255,255,255,0.3)', cursor:'pointer', fontSize:11, fontFamily:'inherit', whiteSpace:'nowrap', flexShrink:0,
+                  background: !filterMonth ? 'rgba(255,255,255,0.25)' : 'transparent',
+                  color:'#fff', fontWeight: !filterMonth ? 700 : 400 }}>
+                All
+              </button>
               {allMonthKeys.map(mk => {
                 const label = logs.find(l => l.monthKey === mk)?.month || mk
                 return (
                   <button key={mk} onClick={() => setFilterMonth(mk)}
                     style={{ padding:'4px 12px', borderRadius:20, border:'1px solid rgba(255,255,255,0.3)', cursor:'pointer', fontSize:11, fontFamily:'inherit', whiteSpace:'nowrap', flexShrink:0,
-                      background: activeFilter===mk ? 'rgba(255,255,255,0.25)' : 'transparent',
-                      color: '#fff', fontWeight: activeFilter===mk ? 700 : 400 }}>
+                      background: filterMonth===mk ? 'rgba(255,255,255,0.25)' : 'transparent',
+                      color:'#fff', fontWeight: filterMonth===mk ? 700 : 400 }}>
                     {label}
                   </button>
                 )
@@ -239,7 +245,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
         {loading ? (
           <div style={{ textAlign:'center', padding:24, color:'var(--text-muted)' }}>Loading…</div>
         ) : monthLogs.length === 0 ? (
-          <div style={{ textAlign:'center', padding:24, color:'var(--text-muted)', fontSize:13 }}>No entries for this month</div>
+          <div style={{ textAlign:'center', padding:24, color:'var(--text-muted)', fontSize:13 }}>No entries yet</div>
         ) : (
           <>
             {/* Column headers — hidden on mobile via CSS */}
@@ -330,7 +336,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
             {/* Month total footer */}
             <div style={{ display:'grid', gridTemplateColumns:'110px 90px 90px 90px 1fr 100px', padding:'10px 14px', gap:8, background:'var(--dark)' }}
               className="cash-table-header">
-              <div style={{ fontSize:11, fontWeight:700, color:'#fff' }}>This Month</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#fff' }}>{activeFilterLabel}</div>
               <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>{monthLogs.length} days</div>
               <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>Avg ${avgClosing.toFixed(0)}</div>
               <div style={{ fontSize:14, fontWeight:800, color:'#C8843A' }}>
