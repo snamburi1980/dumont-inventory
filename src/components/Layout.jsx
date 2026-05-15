@@ -189,6 +189,25 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
                       <span style={{ fontSize:15 }}>🔑</span> Change Password
                     </button>
 
+                    <button
+                      onClick={async () => {
+                        setShowUserMenu(false)
+                        try {
+                          if ('serviceWorker' in navigator) {
+                            const regs = await navigator.serviceWorker.getRegistrations()
+                            await Promise.all(regs.map(r => r.unregister()))
+                          }
+                          if ('caches' in window) {
+                            const keys = await caches.keys()
+                            await Promise.all(keys.map(k => caches.delete(k)))
+                          }
+                        } catch(_) {}
+                        window.location.reload(true)
+                      }}
+                      style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#8B7355', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
+                      <span style={{ fontSize:15 }}>🔄</span> Clear Cache & Update
+                    </button>
+
                     {onBackToHQ && (
                       <button
                         onClick={() => { onBackToHQ(); setShowUserMenu(false) }}

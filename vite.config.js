@@ -36,6 +36,7 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
+        navigationPreload: false,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         navigateFallback: '/dumont-inventory/index.html',
         runtimeCaching: [
