@@ -3,11 +3,13 @@ import { collection, query, where, orderBy, onSnapshot,
          addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
-const LINK_CATS = ['SOP', 'Form', 'Policy', 'Contact', 'Training', 'Other']
+const LINK_CATS    = ['SOP', 'Form', 'Policy', 'Contact', 'Training', 'Other']
+const CONTACT_CATS = ['Food Supplier', 'Equipment', 'Maintenance', 'Utilities', 'Staffing', 'Other']
 
-const emptyAnn   = () => ({ title: '', body: '', pinned: false })
-const emptyLink  = () => ({ name: '', url: '', category: 'SOP' })
-const emptyIssue = () => ({ title: '', description: '', status: 'open' })
+const emptyAnn     = () => ({ title: '', body: '', pinned: false })
+const emptyLink    = () => ({ name: '', url: '', category: 'SOP' })
+const emptyIssue   = () => ({ title: '', description: '', status: 'open' })
+const emptyContact = () => ({ name: '', category: 'Food Supplier', phone: '', email: '', notes: '' })
 
 function SectionHeader({ icon, title, count, onAdd, editMode }) {
   return (
@@ -52,31 +54,36 @@ export default function Bulletin({ auth, showToast }) {
   const [announcements, setAnnouncements] = useState([])
   const [links,         setLinks]         = useState([])
   const [issues,        setIssues]        = useState([])
+  const [contacts,      setContacts]      = useState([])
   const [loading,       setLoading]       = useState(true)
 
   const isSuperOwner = auth.isSuperOwner?.()
   const [editMode, setEditMode] = useState(false)
   const [saving,   setSaving]   = useState(false)
 
-  const [addingAnn,   setAddingAnn]   = useState(false)
-  const [addingLink,  setAddingLink]  = useState(false)
-  const [addingIssue, setAddingIssue] = useState(false)
-  const [editingItem, setEditingItem] = useState(null)
+  const [addingAnn,     setAddingAnn]     = useState(false)
+  const [addingLink,    setAddingLink]    = useState(false)
+  const [addingIssue,   setAddingIssue]   = useState(false)
+  const [addingContact, setAddingContact] = useState(false)
+  const [editingItem,   setEditingItem]   = useState(null)
 
-  const [annForm,   setAnnForm]   = useState(emptyAnn())
-  const [linkForm,  setLinkForm]  = useState(emptyLink())
-  const [issueForm, setIssueForm] = useState(emptyIssue())
+  const [annForm,     setAnnForm]     = useState(emptyAnn())
+  const [linkForm,    setLinkForm]    = useState(emptyLink())
+  const [issueForm,   setIssueForm]   = useState(emptyIssue())
+  const [contactForm, setContactForm] = useState(emptyContact())
 
   useEffect(() => {
     let n = 0
-    const done = () => { if (++n >= 3) setLoading(false) }
-    const q1 = query(collection(db, 'announcements'),  where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
-    const q2 = query(collection(db, 'bulletinLinks'),  where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
-    const q3 = query(collection(db, 'bulletinIssues'), where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
+    const done = () => { if (++n >= 4) setLoading(false) }
+    const q1 = query(collection(db, 'announcements'),    where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
+    const q2 = query(collection(db, 'bulletinLinks'),    where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
+    const q3 = query(collection(db, 'bulletinIssues'),   where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
+    const q4 = query(collection(db, 'bulletinContacts'), where('orgId', '==', 'dumont'), orderBy('category',  'asc'))
     const u1 = onSnapshot(q1, s => { setAnnouncements(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
     const u2 = onSnapshot(q2, s => { setLinks(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
     const u3 = onSnapshot(q3, s => { setIssues(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
-    return () => { u1(); u2(); u3() }
+    const u4 = onSnapshot(q4, s => { setContacts(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
+    return () => { u1(); u2(); u3(); u4() }
   }, [])
 
   // ── Announcements ──────────────────────────────────────────────────────────
@@ -170,6 +177,32 @@ export default function Bulletin({ auth, showToast }) {
     showToast('Deleted')
   }
 
+  // ── Contacts ───────────────────────────────────────────────────────────────
+  async function saveContact() {
+    if (!contactForm.name.trim()) { showToast('Name is required'); return }
+    setSaving(true)
+    try {
+      if (editingItem?.type === 'contact') {
+        await updateDoc(doc(db, 'bulletinContacts', editingItem.id), { ...contactForm, updatedAt: Date.now() })
+        setEditingItem(null)
+      } else {
+        await addDoc(collection(db, 'bulletinContacts'), {
+          ...contactForm, orgId: 'dumont', createdBy: auth.user.email, createdAt: Date.now(),
+        })
+        setAddingContact(false)
+      }
+      setContactForm(emptyContact())
+      showToast(editingItem ? 'Contact updated' : 'Contact added')
+    } catch (e) { showToast('Error: ' + e.message) }
+    setSaving(false)
+  }
+
+  async function deleteContact(id) {
+    if (!window.confirm('Delete this contact?')) return
+    await deleteDoc(doc(db, 'bulletinContacts', id))
+    showToast('Deleted')
+  }
+
   // ── Shared style helpers ───────────────────────────────────────────────────
   const inp = {
     width: '100%', padding: '9px 11px', border: '1px solid var(--border)',
@@ -194,7 +227,7 @@ export default function Bulletin({ auth, showToast }) {
       {/* Edit mode toggle — super owner only */}
       {isSuperOwner && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-          <button onClick={() => { setEditMode(v => !v); setAddingAnn(false); setAddingLink(false); setAddingIssue(false); setEditingItem(null) }}
+          <button onClick={() => { setEditMode(v => !v); setAddingAnn(false); setAddingLink(false); setAddingIssue(false); setAddingContact(false); setEditingItem(null) }}
             style={{
               padding: '7px 16px', borderRadius: 20, cursor: 'pointer',
               fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
@@ -477,6 +510,115 @@ export default function Bulletin({ auth, showToast }) {
                         </>
                       )}
                     </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Section 4: Vendor Contacts ───────────────────────────────────── */}
+      <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 14, padding: 16, marginBottom: 16 }}>
+        <SectionHeader icon="📞" title="Vendor Contacts" count={contacts.length}
+          onAdd={() => { setAddingContact(true); setContactForm(emptyContact()); setEditingItem(null) }}
+          editMode={editMode} />
+
+        {addingContact && (
+          <InlineForm saving={saving} onSave={saveContact} onCancel={() => { setAddingContact(false); setContactForm(emptyContact()) }} fields={
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div>
+                {label('Name')}
+                <input style={inp} placeholder="e.g. Ben E. Keith" value={contactForm.name} onChange={e => setContactForm(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                {label('Category')}
+                <select style={inp} value={contactForm.category} onChange={e => setContactForm(f => ({ ...f, category: e.target.value }))}>
+                  {CONTACT_CATS.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                {label('Phone')}
+                <input style={inp} placeholder="(555) 123-4567" value={contactForm.phone} onChange={e => setContactForm(f => ({ ...f, phone: e.target.value }))} />
+              </div>
+              <div>
+                {label('Email')}
+                <input style={inp} placeholder="rep@vendor.com" value={contactForm.email} onChange={e => setContactForm(f => ({ ...f, email: e.target.value }))} />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                {label('Notes')}
+                <input style={inp} placeholder="Account #, delivery days, rep name…" value={contactForm.notes} onChange={e => setContactForm(f => ({ ...f, notes: e.target.value }))} />
+              </div>
+            </div>
+          } />
+        )}
+
+        {contacts.length === 0 && !addingContact && (
+          <div style={{ color: '#8B7355', fontSize: 13, padding: '8px 0' }}>No contacts added yet.</div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {contacts.map(c => (
+            <div key={c.id}>
+              {editingItem?.type === 'contact' && editingItem.id === c.id ? (
+                <InlineForm saving={saving} onSave={saveContact} onCancel={() => { setEditingItem(null); setContactForm(emptyContact()) }} fields={
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div>
+                      {label('Name')}
+                      <input style={inp} value={contactForm.name} onChange={e => setContactForm(f => ({ ...f, name: e.target.value }))} />
+                    </div>
+                    <div>
+                      {label('Category')}
+                      <select style={inp} value={contactForm.category} onChange={e => setContactForm(f => ({ ...f, category: e.target.value }))}>
+                        {CONTACT_CATS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      {label('Phone')}
+                      <input style={inp} value={contactForm.phone} onChange={e => setContactForm(f => ({ ...f, phone: e.target.value }))} />
+                    </div>
+                    <div>
+                      {label('Email')}
+                      <input style={inp} value={contactForm.email} onChange={e => setContactForm(f => ({ ...f, email: e.target.value }))} />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      {label('Notes')}
+                      <input style={inp} value={contactForm.notes} onChange={e => setContactForm(f => ({ ...f, notes: e.target.value }))} />
+                    </div>
+                  </div>
+                } />
+              ) : (
+                <div style={{ padding: '12px 14px', background: '#FAFAF8', borderRadius: 10, border: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--dark)' }}>{c.name}</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#F5EFE8', color: '#8B7355' }}>{c.category}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                        {c.phone && (
+                          <a href={`tel:${c.phone.replace(/\D/g,'')}`}
+                            style={{ fontSize: 13, color: '#C8843A', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            📱 {c.phone}
+                          </a>
+                        )}
+                        {c.email && (
+                          <a href={`mailto:${c.email}`}
+                            style={{ fontSize: 13, color: '#C8843A', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            ✉️ {c.email}
+                          </a>
+                        )}
+                      </div>
+                      {c.notes && (
+                        <div style={{ fontSize: 12, color: '#8B7355', marginTop: 4 }}>{c.notes}</div>
+                      )}
+                    </div>
+                    {editMode && (
+                      <div style={{ display: 'flex', flexShrink: 0 }}>
+                        {editBtn(() => { setEditingItem({ type: 'contact', id: c.id }); setContactForm({ name: c.name, category: c.category || 'Food Supplier', phone: c.phone || '', email: c.email || '', notes: c.notes || '' }) })}
+                        {delBtn(() => deleteContact(c.id))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

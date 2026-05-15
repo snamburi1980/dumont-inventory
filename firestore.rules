@@ -133,6 +133,11 @@ service cloud.firestore {
       allow write: if isSuperOwner();
     }
 
+    match /bulletinContacts/{id} {
+      allow read:  if isAuth();
+      allow write: if isSuperOwner();
+    }
+
     match /signupRequests/{id} {
       allow read, write: if isAuth();
     }
