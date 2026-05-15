@@ -21,6 +21,7 @@ import Checklist      from './components/Checklist'
 import Picks          from './components/Picks'
 import Records        from './components/Records'
 import Bulletin       from './components/Bulletin'
+import PLSimulator   from './components/PLSimulator'
 
 export default function App() {
   // All hooks must be called before any conditional returns
@@ -216,6 +217,7 @@ export default function App() {
     { id:'inventory',    label:'Inventory', icon:'📦' },
     { id:'schedule',     label:'Schedule',  icon:'📅' },
     { id:'records',      label:'Records',   icon:'📒' },
+    { id:'pnl',          label:'P&L',       icon:'📈' },
     { id:'admin',        label:'Admin',     icon:'⚙️' },
   ]
 
@@ -245,6 +247,7 @@ export default function App() {
         {activeTab === 'schedule'     && <Schedule  {...tabProps} />}
         {activeTab === 'bulletin'     && <Bulletin auth={auth} showToast={showToast} />}
         {activeTab === 'records'      && <Records viewingStore={viewingStore} auth={auth} showToast={showToast} />}
+        {activeTab === 'pnl'          && <PLSimulator />}
         {activeTab === 'commerce'     && <Commerce viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'admin'        && <Admin     {...tabProps} />}
 

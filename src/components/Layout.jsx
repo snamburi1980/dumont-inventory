@@ -86,6 +86,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     { label: 'Operations', ids: ['home','bulletin','checklist','icecreamlog','inventory'], disabled: false },
   ] : [
     { label: 'Operations', ids: ['home','bulletin','checklist','icecreamlog','inventory','schedule','records'], disabled: false },
+    { label: 'Insights',   ids: ['pnl'], disabled: false },
     { label: 'Admin',      ids: ['admin'], disabled: false },
   ]
 
