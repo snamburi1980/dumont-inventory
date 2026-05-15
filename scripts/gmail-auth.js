@@ -9,8 +9,8 @@ const http       = require('http')
 const url        = require('url')
 const { exec }   = require('child_process')
 
-const CLIENT_ID     = process.env.GMAIL_CLIENT_ID     || 'REDACTED_CLIENT_ID'
-const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || 'REDACTED_CLIENT_SECRET'
+const CLIENT_ID     = process.env.GMAIL_CLIENT_ID     || 'PASTE_CLIENT_ID_HERE'
+const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET || 'PASTE_CLIENT_SECRET_HERE'
 const REDIRECT_URI  = 'http://localhost:3000'
 const SCOPES        = ['https://www.googleapis.com/auth/gmail.readonly']
 
