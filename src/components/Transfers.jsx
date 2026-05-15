@@ -6,7 +6,7 @@ import TipBanner from './TipBanner'
 const CATEGORIES = ['Ice Cream', 'Boba', 'Coffee', 'Dry Stock', 'Packaging', 'Condiments', 'Other']
 const EMPTY = { fromStore:'', toStore:'', date: new Date().toISOString().split('T')[0], category:'', item:'', desc:'', quantity:'', cost:'' }
 
-export default function Transfers({ auth, showToast }) {
+export default function Transfers({ auth, showToast, viewingStore }) {
   const [transfers,   setTransfers]   = useState([])
   const [loading,     setLoading]     = useState(false)
   const [saving,      setSaving]      = useState(false)
@@ -30,9 +30,14 @@ export default function Transfers({ auth, showToast }) {
   async function loadTransfers() {
     setLoading(true)
     try {
-      const q = query(collection(db, 'transfers'), orderBy('timestamp', 'desc'), limit(100))
+      const q = query(collection(db, 'transfers'), orderBy('timestamp', 'desc'), limit(200))
       const snap = await getDocs(q)
-      setTransfers(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      const isSuperOwner = auth?.isSuperOwner?.()
+      // Non-super-owners only see transfers they originated
+      setTransfers(isSuperOwner ? all : all.filter(t =>
+        !t.originStoreId || t.originStoreId === viewingStore
+      ))
     } catch(e) { console.error(e) }
     setLoading(false)
   }
@@ -47,19 +52,20 @@ export default function Transfers({ auth, showToast }) {
     try {
       const entryDate = form.date ? new Date(form.date + 'T12:00:00') : new Date()
       const data = {
-        fromStore: form.fromStore.trim(),
-        toStore:   form.toStore.trim(),
-        category:  form.category,
-        item:      form.item.trim(),
-        desc:      form.desc.trim(),
-        quantity:  parseFloat(form.quantity) || 0,
-        cost:      parseFloat(form.cost) || 0,
-        totalCost: (parseFloat(form.cost)||0) * (parseFloat(form.quantity)||0),
-        loggedBy:  auth?.userConfig?.name || 'Admin',
-        timestamp: entryDate.getTime(),
-        date:      entryDate.toLocaleDateString(),
-        month:     entryDate.toLocaleDateString('en-US', { month:'long', year:'numeric' }),
-        monthKey:  `${entryDate.getFullYear()}-${String(entryDate.getMonth()+1).padStart(2,'0')}`,
+        fromStore:     form.fromStore.trim(),
+        toStore:       form.toStore.trim(),
+        category:      form.category,
+        item:          form.item.trim(),
+        desc:          form.desc.trim(),
+        quantity:      parseFloat(form.quantity) || 0,
+        cost:          parseFloat(form.cost) || 0,
+        totalCost:     (parseFloat(form.cost)||0) * (parseFloat(form.quantity)||0),
+        loggedBy:      auth?.userConfig?.name || 'Admin',
+        originStoreId: viewingStore || '',
+        timestamp:     entryDate.getTime(),
+        date:          entryDate.toLocaleDateString(),
+        month:         entryDate.toLocaleDateString('en-US', { month:'long', year:'numeric' }),
+        monthKey:      `${entryDate.getFullYear()}-${String(entryDate.getMonth()+1).padStart(2,'0')}`,
       }
 
       if (editId) {

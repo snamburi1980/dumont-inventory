@@ -245,7 +245,7 @@ export default function App() {
         {activeTab === 'checklist'    && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'schedule'     && <Schedule  {...tabProps} />}
         {activeTab === 'cashregister' && <CashRegister viewingStore={viewingStore} auth={auth} showToast={showToast} />}
-        {activeTab === 'transfers'    && <Transfers auth={auth} showToast={showToast} />}
+        {activeTab === 'transfers'    && <Transfers auth={auth} showToast={showToast} viewingStore={viewingStore} />}
         {activeTab === 'commerce'     && <Commerce  viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'admin'        && <Admin     {...tabProps} />}
 

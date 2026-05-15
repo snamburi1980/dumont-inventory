@@ -284,15 +284,15 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
             <button key={tab.id}
               onClick={() => !isDisabled && setActiveTab(tab.id)}
               style={{
-                flex:'0 0 auto', minWidth:64, padding:'8px 6px 6px',
+                flex:'0 0 auto', minWidth:68, padding:'10px 8px 8px',
                 background:'transparent', border:'none', cursor: isDisabled ? 'not-allowed' : 'pointer',
                 display:'flex', flexDirection:'column', alignItems:'center', gap:3,
                 borderTop: isActive ? `2px solid ${theme.caramel || '#C8843A'}` : '2px solid transparent',
                 transition:'all 0.15s',
               }}>
-              <span style={{ fontSize:18, opacity: isDisabled ? 0.25 : 1, lineHeight:1 }}>{tab.icon}</span>
+              <span style={{ fontSize:20, opacity: isDisabled ? 0.25 : 1, lineHeight:1 }}>{tab.icon}</span>
               <span style={{
-                fontSize:10, fontWeight: isActive ? 700 : 400, fontFamily:'inherit',
+                fontSize:11, fontWeight: isActive ? 700 : 400, fontFamily:'inherit',
                 color: isDisabled ? 'rgba(255,255,255,0.2)' : isActive ? '#fff' : 'rgba(255,255,255,0.5)',
                 whiteSpace:'nowrap',
               }}>
@@ -322,7 +322,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
           .mobile-bottom-nav { display: flex !important; }
           .mobile-only       { display: block !important; }
           .desktop-only      { display: none !important; }
-          .main-content      { padding-bottom: 74px !important; }
+          .main-content      { padding: 16px 16px 80px !important; }
         }
         .mobile-bottom-nav::-webkit-scrollbar { display: none; }
       `}</style>
