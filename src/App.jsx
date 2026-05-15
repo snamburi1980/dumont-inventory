@@ -19,8 +19,7 @@ import Admin          from './components/Admin'
 import ChangePassword from './components/ChangePassword'
 import Checklist      from './components/Checklist'
 import Picks          from './components/Picks'
-import Transfers      from './components/Transfers'
-import CashRegister   from './components/CashRegister'
+import Records        from './components/Records'
 
 export default function App() {
   // All hooks must be called before any conditional returns
@@ -209,15 +208,13 @@ export default function App() {
 
   // Ordered by daily workflow: Dashboard → Checklist → Scoops → Inventory → Schedule → Cash → Transfers
   const allTabs = [
-    { id:'home',         label:'Dashboard',  icon:'🏠' },
-    { id:'checklist',    label:'Checklist',  icon:'✅' },
-    { id:'icecreamlog',  label:'Scoops',     icon:'🍦' },
-    { id:'inventory',    label:'Inventory',  icon:'📦' },
-    { id:'schedule',     label:'Schedule',   icon:'📅' },
-    { id:'cashregister', label:'Cash',       icon:'💵' },
-    { id:'transfers',    label:'Transfers',  icon:'↔️' },
-    { id:'commerce',     label:'Commerce',   icon:'🛒' },
-    { id:'admin',        label:'Admin',      icon:'⚙️' },
+    { id:'home',         label:'Home',      icon:'🏠' },
+    { id:'checklist',    label:'Checklist', icon:'✅' },
+    { id:'icecreamlog',  label:'Scoops',    icon:'🍦' },
+    { id:'inventory',    label:'Inventory', icon:'📦' },
+    { id:'schedule',     label:'Schedule',  icon:'📅' },
+    { id:'records',      label:'Records',   icon:'📒' },
+    { id:'admin',        label:'Admin',     icon:'⚙️' },
   ]
 
   const tabs = isStaff
@@ -244,9 +241,8 @@ export default function App() {
         {activeTab === 'icecreamlog'  && <Picks invHook={invHook} viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'checklist'    && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'schedule'     && <Schedule  {...tabProps} />}
-        {activeTab === 'cashregister' && <CashRegister viewingStore={viewingStore} auth={auth} showToast={showToast} />}
-        {activeTab === 'transfers'    && <Transfers auth={auth} showToast={showToast} viewingStore={viewingStore} />}
-        {activeTab === 'commerce'     && <Commerce  viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
+        {activeTab === 'records'      && <Records viewingStore={viewingStore} auth={auth} showToast={showToast} />}
+        {activeTab === 'commerce'     && <Commerce viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'admin'        && <Admin     {...tabProps} />}
 
         {toast && (

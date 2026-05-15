@@ -85,9 +85,8 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
   const tabGroups = isStaff ? [
     { label: 'Operations', ids: ['home','checklist','icecreamlog','inventory'], disabled: false },
   ] : [
-    { label: 'Operations', ids: ['home','checklist','icecreamlog','inventory','schedule','cashregister','transfers'], disabled: false },
-    { label: 'Commerce',   ids: ['commerce'], disabled: false },
-    { label: 'Admin',      ids: ['admin'],    disabled: false },
+    { label: 'Operations', ids: ['home','checklist','icecreamlog','inventory','schedule','records'], disabled: false },
+    { label: 'Admin',      ids: ['admin'], disabled: false },
   ]
 
   return (
@@ -182,6 +181,14 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
                       <div style={{ fontSize:11, color:'#8B7355', marginBottom:6, fontWeight:600 }}>Theme</div>
                       <ThemeSwitcher currentTheme={currentTheme || 'warm'} onThemeChange={v => { if (onThemeChange) onThemeChange(v); setShowUserMenu(false) }} />
                     </div>
+
+                    {!isStaff && (
+                      <button
+                        onClick={() => { setActiveTab('admin'); setShowUserMenu(false) }}
+                        style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#2C1810', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
+                        <span style={{ fontSize:15 }}>⚙️</span> Admin
+                      </button>
+                    )}
 
                     <button
                       onClick={() => { setShowChangePwd(true); setShowUserMenu(false) }}
@@ -295,7 +302,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
         scrollbarWidth:'none', msOverflowStyle:'none',
         borderTop:'1px solid rgba(255,255,255,0.1)',
       }}>
-        {tabs.map(tab => {
+        {tabs.filter(t => t.id !== 'admin').map(tab => {
           const group      = tabGroups.find(g => g.ids.includes(tab.id))
           const isDisabled = group?.disabled === true
           const isActive   = activeTab === tab.id
