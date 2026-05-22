@@ -122,17 +122,17 @@ export default function PLSimulator() {
     const scEBITDA = scGP - annOpex
     const scNet    = scEBITDA * (1 - tax)
     const scMgn    = scRev > 0 ? scNet/scRev : 0
-    const onTarget = scMgn >= tgt
 
-    // ── What to do to hit target ───────────────────────────────────────────
-    // Extra revenue needed (at current blend) to hit target
-    const tgtDenom   = scGPrate * (1 - tax) - tgt
-    const tgtRevNeeded = tgtDenom > 0 && scRev > 0 && !onTarget
-      ? (annOpex * (1-tax)) / tgtDenom - scRev
+    // ── Target analysis — always based on ACTUAL P&L (same as P&L tab) ────
+    const onTarget = netMgn >= tgt
+
+    const tgtDenom     = gpRate * (1 - tax) - tgt
+    const tgtRevNeeded = tgtDenom > 0 && totRev > 0 && !onTarget
+      ? (annOpex * (1-tax)) / tgtDenom - totRev
       : null
 
     // Best category to push (highest GP%)
-    const bestCat  = [...CATS].sort((a,b) => (catData[b]?.gpPct||0) - (catData[a]?.gpPct||0))[0]
+    const bestCat    = [...CATS].sort((a,b) => (catData[b]?.gpPct||0) - (catData[a]?.gpPct||0))[0]
     const bestGPunit = avgP[bestCat] - avgC[bestCat]
     const extraUnits = bestGPunit > 0 && tgtRevNeeded != null
       ? Math.ceil(tgtRevNeeded / (bestGPunit * days))
@@ -189,7 +189,7 @@ export default function PLSimulator() {
       {tab === 'target' && (
         <div>
 
-          {/* Big status */}
+          {/* Big status — uses actual P&L values, same as P&L tab */}
           <div style={{
             background: onTarget ? '#F0FFF4' : '#FFF5F5',
             border:`2px solid ${onTarget ? '#9AE6B4' : '#FC8181'}`,
@@ -197,31 +197,31 @@ export default function PLSimulator() {
           }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
               <div>
-                <div style={{ fontSize:28, fontWeight:800, color: mc(scMgn), lineHeight:1 }}>
+                <div style={{ fontSize:28, fontWeight:800, color: mc(netMgn), lineHeight:1 }}>
                   {onTarget ? '✅ YES — You\'re on target' : '⚠️ NOT YET — Below target'}
                 </div>
                 <div style={{ fontSize:14, color:'#555', marginTop:8, lineHeight:1.6 }}>
-                  Net margin: <strong style={{ color: mc(scMgn) }}>{pp(scMgn)}</strong>
+                  Net margin: <strong style={{ color: mc(netMgn) }}>{pp(netMgn)}</strong>
                   {' '}vs target <strong>{pp(settings.targetMargin)}</strong>
                   {' — '}
                   {onTarget
-                    ? <span style={{ color:'#276749' }}>+{((scMgn-settings.targetMargin)*100).toFixed(1)}pp above target</span>
-                    : <span style={{ color:'#C53030' }}>{((settings.targetMargin-scMgn)*100).toFixed(1)}pp to close</span>
+                    ? <span style={{ color:'#276749' }}>+{((netMgn-settings.targetMargin)*100).toFixed(1)}pp above target</span>
+                    : <span style={{ color:'#C53030' }}>{((settings.targetMargin-netMgn)*100).toFixed(1)}pp to close</span>
                   }
                 </div>
               </div>
               <div style={{ textAlign:'right' }}>
-                <div style={{ fontSize:36, fontWeight:800, color: mc(scMgn), lineHeight:1 }}>{pp(scMgn)}</div>
-                <div style={{ fontSize:12, color:'#8B7355', marginTop:4 }}>net margin (this mix)</div>
+                <div style={{ fontSize:36, fontWeight:800, color: mc(netMgn), lineHeight:1 }}>{pp(netMgn)}</div>
+                <div style={{ fontSize:12, color:'#8B7355', marginTop:4 }}>net margin</div>
               </div>
             </div>
 
-            {/* KPI row */}
+            {/* KPI row — same numbers as P&L tab */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginTop:16 }}>
               {[
-                ['Annual Revenue',  fmt(scRev),    '#276749'],
-                ['EBITDA',          fmt(scEBITDA),  scEBITDA>0?'#276749':'#C53030'],
-                ['Net Income/Year', fmt(scNet),     scNet>0?'#276749':'#C53030'],
+                ['Annual Revenue',  fmt(totRev),  '#276749'],
+                ['EBITDA',          fmt(ebitda),   ebitda>0?'#276749':'#C53030'],
+                ['Net Income/Year', fmt(netInc),   netInc>0?'#276749':'#C53030'],
               ].map(([label,val,col])=>(
                 <div key={label} style={{ background:'rgba(255,255,255,0.7)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
                   <div style={{ fontSize:18, fontWeight:700, color:col }}>{val}</div>
@@ -261,19 +261,22 @@ export default function PLSimulator() {
                   <span style={{ fontSize:18, flexShrink:0 }}>3️⃣</span>
                   <div style={{ fontSize:13, color:'#555', lineHeight:1.5 }}>
                     Reduce annual OPEX by <strong style={{ color:'#2C1810' }}>
-                      {fmt(Math.max(0, annOpex - (scGP - settings.targetMargin * scRev / (1-settings.taxRate))))}
+                      {fmt(Math.max(0, annOpex - (totGP - settings.targetMargin * totRev / (1-settings.taxRate))))}
                     </strong>
-                    {' '}(current OPEX is {pp(scRev>0?annOpex/scRev:0)} of revenue)
+                    {' '}(OPEX is currently {pp(totRev>0?annOpex/totRev:0)} of revenue)
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Mix sliders */}
+          {/* Mix sliders — what-if simulator */}
+          <div style={{ fontSize:11, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.8px', marginBottom:8 }}>
+            Simulate a Different Mix — What If?
+          </div>
           <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:16, marginBottom:16 }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14, flexWrap:'wrap', gap:8 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>Adjust Sales Mix</div>
+              <div style={{ fontSize:13, color:'#555' }}>Drag sliders to model a different sales mix and see what happens</div>
               <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                 <span style={{ fontSize:12, color:'#8B7355' }}>Total units/day:</span>
                 <input type="number" min={0} value={mixTotal} style={{ ...inp, width:70, fontSize:14 }}
@@ -355,18 +358,15 @@ export default function PLSimulator() {
             </table>
           </div>
 
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
-            {[
-              ['OPEX', fmt(annOpex), '#C8843A', pp(scRev>0?annOpex/scRev:0)+' of revenue'],
-              ['EBITDA', fmt(scEBITDA), scEBITDA>0?'#276749':'#C53030', 'before tax'],
-              ['Net Margin', pp(scMgn), mc(scMgn), `target: ${pp(settings.targetMargin)}`],
-            ].map(([l,v,col,sub])=>(
-              <div key={l} style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:10, padding:'12px 14px', textAlign:'center' }}>
-                <div style={{ fontSize:18, fontWeight:700, color:col }}>{v}</div>
-                <div style={{ fontSize:11, fontWeight:600, color:'#2C1810', marginTop:4 }}>{l}</div>
-                <div style={{ fontSize:10, color:'#8B7355', marginTop:2 }}>{sub}</div>
-              </div>
-            ))}
+          <div style={{ background: scMgn>=settings.targetMargin?'#F0FFF4':'#FFF5F5', border:`1px solid ${scMgn>=settings.targetMargin?'#9AE6B4':'#FC8181'}`, borderRadius:10, padding:'12px 16px' }}>
+            <div style={{ fontSize:13, fontWeight:700, color: mc(scMgn), marginBottom:4 }}>
+              {scMgn>=settings.targetMargin ? `✅ This mix hits target — ${pp(scMgn)} net margin` : `⚠️ This mix misses — ${pp(scMgn)} vs ${pp(settings.targetMargin)} target`}
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, fontSize:12, color:'#555' }}>
+              <div>Revenue: <strong>{fmt(scRev)}</strong></div>
+              <div>EBITDA: <strong style={{ color: scEBITDA>0?'#276749':'#C53030' }}>{fmt(scEBITDA)}</strong></div>
+              <div>Net Income: <strong style={{ color: scNet>0?'#276749':'#C53030' }}>{fmt(scNet)}</strong></div>
+            </div>
           </div>
         </div>
       )}
