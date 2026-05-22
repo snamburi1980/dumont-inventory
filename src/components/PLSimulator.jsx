@@ -40,7 +40,7 @@ const pp   = n => `${(Number(n||0)*100).toFixed(1)}%`
 const sum  = a => a.reduce((x,y) => x+y, 0)
 
 export default function PLSimulator() {
-  const [tab,      setTab]      = useState('target')
+  const [tab,      setTab]      = useState('inputs')
   const [products, setProducts] = useState(() => ld('pls5_products', INIT_PRODUCTS))
   const [opex,     setOpex]     = useState(() => ld('pls5_opex',     INIT_OPEX))
   const [settings, setSettings] = useState(() => ld('pls5_settings', { daysPerYear:360, taxRate:0.08, targetMargin:0.15 }))
@@ -179,10 +179,10 @@ export default function PLSimulator() {
 
       {/* Tab bar */}
       <div style={{ display:'flex', gap:6, marginBottom:20, flexWrap:'wrap' }}>
-        <button style={tabBtn('target')} onClick={()=>setTab('target')}>🎯 Am I on Target?</button>
-        <button style={tabBtn('pl')}     onClick={()=>setTab('pl')}>📊 Full P&L</button>
-        <button style={tabBtn('push')}   onClick={()=>setTab('push')}>📣 What to Sell</button>
-        <button style={tabBtn('inputs')} onClick={()=>setTab('inputs')}>⚙️ Inputs</button>
+        <button style={tabBtn('inputs')} onClick={()=>setTab('inputs')}>① Inputs</button>
+        <button style={tabBtn('pl')}     onClick={()=>setTab('pl')}>② P&amp;L</button>
+        <button style={tabBtn('target')} onClick={()=>setTab('target')}>③ Am I on Target?</button>
+        <button style={tabBtn('push')}   onClick={()=>setTab('push')}>④ What to Sell</button>
       </div>
 
       {/* ── 🎯 Am I on Target? ──────────────────────────────────────────────── */}
@@ -452,8 +452,14 @@ export default function PLSimulator() {
               </tbody>
             </table>
           </div>
-          <div style={{ fontSize:11, color:'#aaa', marginTop:8 }}>
-            Based on {settings.daysPerYear} operating days and units/day set in ⚙️ Inputs.
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:12 }}>
+            <div style={{ fontSize:11, color:'#aaa' }}>Based on {settings.daysPerYear} days/year · units set in ① Inputs.</div>
+            <button onClick={()=>setTab('target')} style={{
+              background:'#2C1810', color:'#fff', border:'none', borderRadius:8,
+              padding:'10px 20px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit',
+            }}>
+              Am I on Target? →
+            </button>
           </div>
         </div>
       )}
@@ -546,6 +552,7 @@ export default function PLSimulator() {
                   <th style={{ ...th, textAlign:'center' }}>Units/Day</th>
                   <th style={{ ...th, textAlign:'right' }}>Sell Price</th>
                   <th style={{ ...th, textAlign:'right' }}>Cost</th>
+                  <th style={{ ...th, textAlign:'right' }}>COGS %</th>
                   <th style={{ ...th, textAlign:'right' }}>GP %</th>
                 </tr>
               </thead>
@@ -569,6 +576,10 @@ export default function PLSimulator() {
                         <td style={{ ...td, textAlign:'right' }}>
                           <input type="number" step="0.01" min={0} value={p.cost} style={{ ...inp, width:65 }}
                             onChange={e=>setP(p.id,'cost',e.target.value)} />
+                        </td>
+                        <td style={{ ...td, textAlign:'right', fontWeight:600,
+                          color: p.price>0 && p.cost/p.price<0.30 ? '#276749' : p.price>0 && p.cost/p.price<0.40 ? '#C8843A' : '#C53030' }}>
+                          {p.price > 0 ? pp(p.cost/p.price) : '—'}
                         </td>
                         <td style={{ ...td, textAlign:'right', fontWeight:700,
                           color:p.gpPct>=0.75?'#276749':p.gpPct>=0.65?'#C8843A':'#C53030' }}>
@@ -614,7 +625,15 @@ export default function PLSimulator() {
               </tbody>
             </table>
           </div>
-          <div style={{ fontSize:11, color:'#aaa', marginTop:8 }}>All inputs auto-save to this device.</div>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:12 }}>
+            <div style={{ fontSize:11, color:'#aaa' }}>All inputs auto-save to this device.</div>
+            <button onClick={()=>setTab('pl')} style={{
+              background:'#2C1810', color:'#fff', border:'none', borderRadius:8,
+              padding:'10px 20px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit',
+            }}>
+              View P&amp;L →
+            </button>
+          </div>
         </div>
       )}
     </div>
