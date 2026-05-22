@@ -527,13 +527,31 @@ export default function PLSimulator() {
           <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:16, marginBottom:16 }}>
             <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:12 }}>Business Settings</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
-              {[['daysPerYear','Days Open / Year'],['taxRate','Tax Rate (e.g. 0.08)'],['targetMargin','Target Net Margin (e.g. 0.15)']].map(([k,label])=>(
-                <div key={k}>
-                  <div style={{ fontSize:12, color:'#8B7355', marginBottom:4 }}>{label}</div>
-                  <input type="number" step="any" value={settings[k]} style={{ ...inp, width:'100%' }}
-                    onChange={e => setSt(k, e.target.value)} />
+              <div>
+                <div style={{ fontSize:12, color:'#8B7355', marginBottom:4 }}>Days Open / Year</div>
+                <input type="number" min={1} max={365} value={settings.daysPerYear} style={{ ...inp, width:'100%' }}
+                  onChange={e => setSt('daysPerYear', e.target.value)} />
+              </div>
+              <div>
+                <div style={{ fontSize:12, color:'#8B7355', marginBottom:4 }}>Tax Rate</div>
+                <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+                  <input type="number" min={0} max={100} step={0.1}
+                    value={+(settings.taxRate * 100).toFixed(1)}
+                    style={{ ...inp, flex:1 }}
+                    onChange={e => setSt('taxRate', (Number(e.target.value)||0) / 100)} />
+                  <span style={{ fontSize:13, color:'#8B7355' }}>%</span>
                 </div>
-              ))}
+              </div>
+              <div>
+                <div style={{ fontSize:12, color:'#8B7355', marginBottom:4 }}>Target Net Margin</div>
+                <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+                  <input type="number" min={0} max={100} step={0.5}
+                    value={+(settings.targetMargin * 100).toFixed(1)}
+                    style={{ ...inp, flex:1 }}
+                    onChange={e => setSt('targetMargin', (Number(e.target.value)||0) / 100)} />
+                  <span style={{ fontSize:13, color:'#8B7355' }}>%</span>
+                </div>
+              </div>
             </div>
           </div>
 
