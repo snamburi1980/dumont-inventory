@@ -1,17 +1,19 @@
 import { useState, useMemo } from 'react'
 
 const INIT_PRODUCTS = [
-  { id:1,  cat:'Ice Cream', name:'Kids Scoop',        price:4.25,  cost:1.20, unitsDay:40 },
-  { id:2,  cat:'Ice Cream', name:'Medium Scoop',       price:4.95,  cost:1.40, unitsDay:40 },
-  { id:3,  cat:'Ice Cream', name:'Large Scoop',        price:6.95,  cost:2.10, unitsDay:20 },
-  { id:4,  cat:'Ice Cream', name:'Hand Packed',        price:13.95, cost:4.00, unitsDay:10 },
-  { id:5,  cat:'Ice Cream', name:'Sampler',            price:10.45, cost:3.00, unitsDay:10 },
-  { id:6,  cat:'Drinks',    name:'Drinks',             price:6.25,  cost:0.67, unitsDay:30 },
-  { id:7,  cat:'Coffee',    name:'Americano',          price:3.75,  cost:0.94, unitsDay:0  },
-  { id:8,  cat:'Coffee',    name:'Espresso',           price:3.25,  cost:0.94, unitsDay:0  },
-  { id:9,  cat:'Coffee',    name:'Cappuccino / Latte', price:4.75,  cost:1.31, unitsDay:5  },
-  { id:10, cat:'Coffee',    name:'Mocha',              price:5.45,  cost:1.59, unitsDay:5  },
-  { id:11, cat:'Coffee',    name:'Specialty Coffee',   price:6.25,  cost:1.84, unitsDay:25 },
+  { id:1,  cat:'Ice Cream', name:'Kids Scoop',         price:4.95,  cost:1.20, unitsDay:40 },
+  { id:2,  cat:'Ice Cream', name:'Medium Scoop',        price:7.25,  cost:1.40, unitsDay:40 },
+  { id:3,  cat:'Ice Cream', name:'Large Scoop',         price:6.25,  cost:2.10, unitsDay:20 },
+  { id:4,  cat:'Ice Cream', name:'Hand Packed',         price:13.95, cost:4.00, unitsDay:10 },
+  { id:5,  cat:'Ice Cream', name:'Sampler',             price:10.45, cost:3.00, unitsDay:10 },
+  { id:6,  cat:'Drinks',    name:'Drinks (Tea/Slush)',  price:6.25,  cost:0.67, unitsDay:30 },
+  { id:7,  cat:'Drinks',    name:'Falooda',             price:9.99,  cost:1.00, unitsDay:0  },
+  { id:8,  cat:'Drinks',    name:'Milk Shake',          price:9.99,  cost:3.00, unitsDay:0  },
+  { id:9,  cat:'Coffee',    name:'Americano',           price:3.75,  cost:0.94, unitsDay:0  },
+  { id:10, cat:'Coffee',    name:'Espresso',            price:3.25,  cost:0.94, unitsDay:0  },
+  { id:11, cat:'Coffee',    name:'Cappuccino / Latte',  price:4.75,  cost:1.31, unitsDay:5  },
+  { id:12, cat:'Coffee',    name:'Mocha',               price:5.45,  cost:1.59, unitsDay:5  },
+  { id:13, cat:'Coffee',    name:'Specialty Coffee',    price:6.25,  cost:1.84, unitsDay:25 },
 ]
 
 const INIT_OPEX = [
@@ -42,27 +44,27 @@ const sum  = arr => arr.reduce((a,b) => a+b, 0)
 
 export default function PLSimulator() {
   const [view,     setView]     = useState('pl')
-  const [products, setProducts] = useState(() => load('pls2_products', INIT_PRODUCTS))
-  const [opex,     setOpex]     = useState(() => load('pls2_opex',     INIT_OPEX))
-  const [settings, setSettings] = useState(() => load('pls2_settings', { daysPerYear:360, taxRate:0.08, targetMargin:0.15 }))
-  const [mixTotal, setMixTotal] = useState(() => load('pls2_mixTotal', 190))
-  const [mixPct,   setMixPct]   = useState(() => load('pls2_mixPct',   { 'Ice Cream':0.40, Drinks:0.30, Coffee:0.30 }))
+  const [products, setProducts] = useState(() => load('pls3_products', INIT_PRODUCTS))
+  const [opex,     setOpex]     = useState(() => load('pls3_opex',     INIT_OPEX))
+  const [settings, setSettings] = useState(() => load('pls3_settings', { daysPerYear:360, taxRate:0.08, targetMargin:0.15 }))
+  const [mixTotal, setMixTotal] = useState(() => load('pls3_mixTotal', 190))
+  const [mixPct,   setMixPct]   = useState(() => load('pls3_mixPct',   { 'Ice Cream':0.40, Drinks:0.30, Coffee:0.30 }))
 
   function updateProduct(id, field, val) {
     const updated = products.map(p => p.id === id ? { ...p, [field]: Number(val)||0 } : p)
-    setProducts(updated); save('pls2_products', updated)
+    setProducts(updated); save('pls3_products', updated)
   }
   function updateOpex(i, val) {
     const updated = opex.map((e,idx) => idx === i ? { ...e, monthly: Number(val)||0 } : e)
-    setOpex(updated); save('pls2_opex', updated)
+    setOpex(updated); save('pls3_opex', updated)
   }
   function updateSetting(k, v) {
     const updated = { ...settings, [k]: Number(v)||0 }
-    setSettings(updated); save('pls2_settings', updated)
+    setSettings(updated); save('pls3_settings', updated)
   }
   function updateMixPct(cat, val) {
     const updated = { ...mixPct, [cat]: Number(val)||0 }
-    setMixPct(updated); save('pls2_mixPct', updated)
+    setMixPct(updated); save('pls3_mixPct', updated)
   }
 
   const calc = useMemo(() => {
@@ -404,7 +406,7 @@ export default function PLSimulator() {
             <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:10, padding:14 }}>
               <div style={{ fontSize:12, color:'#8B7355', fontWeight:600, marginBottom:8 }}>Total Daily Units</div>
               <input type="number" min={0} value={mixTotal} style={{ ...inp, width:'100%', fontSize:16, padding:'8px 12px' }}
-                onChange={e => { const v=Number(e.target.value)||0; setMixTotal(v); save('pls2_mixTotal',v) }} />
+                onChange={e => { const v=Number(e.target.value)||0; setMixTotal(v); save('pls3_mixTotal',v) }} />
             </div>
             <div style={{
               background: Math.abs(mixPctTotal-1)<0.001 ? '#F0FFF4' : '#FFF5F5',
