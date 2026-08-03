@@ -64,11 +64,20 @@ export default function HQDashboard({ onViewStore }) {
 
         const revenue      = crSnap.docs.reduce((s, d) => s + (Number(d.data().difference) || 0), 0)
         const lastChecklist = clSnap.docs[0]?.data()?.submittedAt || null
-        const stockDoc      = invSnap.docs.find(d => d.id === 'stock')
-        const items         = stockDoc ? Object.values(stockDoc.data() || {}) : []
-        const lowStock      = items.filter(i => i.active !== false && i.qty <= (i.par * 0.5)).length
+        // Stock doc is a FLAT map: {itemId}: number, plus par_{id}/par_override_{id}/active_{id} keys
+        const stockDoc = invSnap.docs.find(d => d.id === 'stock')
+        const data     = stockDoc ? (stockDoc.data() || {}) : {}
+        let lowStock = 0, totalItems = 0
+        for (const [key, val] of Object.entries(data)) {
+          if (key.startsWith('par_') || key.startsWith('active_')) continue
+          if (typeof val !== 'number') continue
+          if (data[`active_${key}`] === false) continue
+          totalItems++
+          const par = data[`par_override_${key}`] ?? data[`par_${key}`] ?? 1
+          if (val < par) lowStock++
+        }
 
-        result[store.id] = { revenue, lastChecklist, lowStock, totalItems: items.filter(i => i.active !== false).length }
+        result[store.id] = { revenue, lastChecklist, lowStock, totalItems }
       } catch (e) {
         result[store.id] = { revenue: 0, lastChecklist: null, lowStock: 0, totalItems: 0 }
       }

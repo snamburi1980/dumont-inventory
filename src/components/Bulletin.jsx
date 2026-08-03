@@ -50,7 +50,8 @@ function InlineForm({ fields, onSave, onCancel, saving }) {
   )
 }
 
-export default function Bulletin({ auth, showToast }) {
+export default function Bulletin({ auth, showToast, viewingOrg }) {
+  const orgId = viewingOrg || auth.userConfig?.orgId || 'dumont'
   const [announcements, setAnnouncements] = useState([])
   const [links,         setLinks]         = useState([])
   const [issues,        setIssues]        = useState([])
@@ -75,16 +76,16 @@ export default function Bulletin({ auth, showToast }) {
   useEffect(() => {
     let n = 0
     const done = () => { if (++n >= 4) setLoading(false) }
-    const q1 = query(collection(db, 'announcements'),    where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
-    const q2 = query(collection(db, 'bulletinLinks'),    where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
-    const q3 = query(collection(db, 'bulletinIssues'),   where('orgId', '==', 'dumont'), orderBy('createdAt', 'desc'))
-    const q4 = query(collection(db, 'bulletinContacts'), where('orgId', '==', 'dumont'), orderBy('category',  'asc'))
+    const q1 = query(collection(db, 'announcements'),    where('orgId', '==', orgId), orderBy('createdAt', 'desc'))
+    const q2 = query(collection(db, 'bulletinLinks'),    where('orgId', '==', orgId), orderBy('createdAt', 'desc'))
+    const q3 = query(collection(db, 'bulletinIssues'),   where('orgId', '==', orgId), orderBy('createdAt', 'desc'))
+    const q4 = query(collection(db, 'bulletinContacts'), where('orgId', '==', orgId), orderBy('category',  'asc'))
     const u1 = onSnapshot(q1, s => { setAnnouncements(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
     const u2 = onSnapshot(q2, s => { setLinks(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
     const u3 = onSnapshot(q3, s => { setIssues(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
     const u4 = onSnapshot(q4, s => { setContacts(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
     return () => { u1(); u2(); u3(); u4() }
-  }, [])
+  }, [orgId])
 
   // ── Announcements ──────────────────────────────────────────────────────────
   const sortedAnn = [...announcements].sort((a, b) => {
@@ -102,7 +103,7 @@ export default function Bulletin({ auth, showToast }) {
         setEditingItem(null)
       } else {
         await addDoc(collection(db, 'announcements'), {
-          ...annForm, orgId: 'dumont', createdBy: auth.user.email, createdAt: Date.now(),
+          ...annForm, orgId, createdBy: auth.user.email, createdAt: Date.now(),
         })
         setAddingAnn(false)
       }
@@ -130,7 +131,7 @@ export default function Bulletin({ auth, showToast }) {
         setEditingItem(null)
       } else {
         await addDoc(collection(db, 'bulletinLinks'), {
-          ...linkForm, url, orgId: 'dumont', createdBy: auth.user.email, createdAt: Date.now(),
+          ...linkForm, url, orgId, createdBy: auth.user.email, createdAt: Date.now(),
         })
         setAddingLink(false)
       }
@@ -156,7 +157,7 @@ export default function Bulletin({ auth, showToast }) {
         setEditingItem(null)
       } else {
         await addDoc(collection(db, 'bulletinIssues'), {
-          ...issueForm, orgId: 'dumont', createdBy: auth.user.email, createdAt: Date.now(),
+          ...issueForm, orgId, createdBy: auth.user.email, createdAt: Date.now(),
         })
         setAddingIssue(false)
       }
@@ -187,7 +188,7 @@ export default function Bulletin({ auth, showToast }) {
         setEditingItem(null)
       } else {
         await addDoc(collection(db, 'bulletinContacts'), {
-          ...contactForm, orgId: 'dumont', createdBy: auth.user.email, createdAt: Date.now(),
+          ...contactForm, orgId, createdBy: auth.user.email, createdAt: Date.now(),
         })
         setAddingContact(false)
       }

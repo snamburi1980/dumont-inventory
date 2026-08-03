@@ -216,8 +216,12 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
 
 ## Pending / Roadmap
 ### Known issues
-- [ ] HQDashboard lowStock metric reads stock doc wrong (see Key Component Behaviors)
-- [ ] Bulletin/Invoices hardcode orgId 'dumont' (real org id is dumont_creamery__cafe)
+- [x] HQDashboard lowStock metric — FIXED (parses flat stock doc correctly)
+- [x] Bulletin/Invoices hardcoded orgId — FIXED (viewingOrg prop threaded through; App resolves
+      first real org when user doc lacks orgId; super_owner doc now has orgId set)
+- [ ] Ghost catalog `orgs/dumont/items` (108 stale items, accidentally seeded when super_owner's
+      viewingOrg defaulted to 'dumont') still exists in Firestore — nothing references it after the
+      orgId fix; superseded by orgs/dumont_creamery__cafe/items (126, actively used). Safe to purge.
 - [ ] Inventory sync conflict — last write wins when 2 devices edit simultaneously
 - [ ] Firebase offline queue — changes lost if connection drops mid-save
 - [ ] Schedule snapshot fails on Safari (html2canvas)

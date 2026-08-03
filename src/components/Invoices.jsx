@@ -11,7 +11,8 @@ const empty = () => ({
   storeName: '', total: '', notes: '',
 })
 
-export default function Invoices({ auth, showToast }) {
+export default function Invoices({ auth, showToast, viewingOrg }) {
+  const orgId = viewingOrg || auth.userConfig?.orgId || 'dumont'
   const [invoices, setInvoices] = useState([])
   const [loading,  setLoading]  = useState(true)
   const [filter,   setFilter]   = useState('all')
@@ -27,7 +28,7 @@ export default function Invoices({ auth, showToast }) {
     if (!canManage) { setLoading(false); return }
     const q = query(
       collection(db, 'invoices'),
-      where('orgId', '==', 'dumont'),
+      where('orgId', '==', orgId),
       orderBy('createdAt', 'desc')
     )
     return onSnapshot(q, snap => {
@@ -37,7 +38,7 @@ export default function Invoices({ auth, showToast }) {
       console.error('invoices:', err)
       setLoading(false)
     })
-  }, [canManage])
+  }, [canManage, orgId])
 
   if (!canManage) return (
     <div style={{ textAlign: 'center', padding: 40, color: '#6B7F78', fontSize: 13 }}>
@@ -60,7 +61,7 @@ export default function Invoices({ auth, showToast }) {
       await addDoc(collection(db, 'invoices'), {
         ...form,
         total:     Number(form.total) || 0,
-        orgId:    'dumont',
+        orgId,
         approved:  false,
         approvedBy: null,
         approvedAt: null,

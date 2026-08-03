@@ -4,7 +4,7 @@ import Transfers    from './Transfers'
 import Invoices     from './Invoices'
 import COGS         from './COGS'
 
-export default function Records({ viewingStore, auth, showToast }) {
+export default function Records({ viewingStore, auth, showToast, viewingOrg }) {
   const role      = auth.userConfig?.role || ''
   const canManage = auth.isSuperOwner?.() || ['store_owner', 'regional_owner', 'manager'].includes(role)
 
@@ -29,7 +29,7 @@ export default function Records({ viewingStore, auth, showToast }) {
       </div>
       {view === 'cash'      && <CashRegister viewingStore={viewingStore} auth={auth} showToast={showToast} />}
       {view === 'transfers' && <Transfers    viewingStore={viewingStore} auth={auth} showToast={showToast} />}
-      {view === 'invoices'  && <Invoices     auth={auth} showToast={showToast} />}
+      {view === 'invoices'  && <Invoices     auth={auth} showToast={showToast} viewingOrg={viewingOrg} />}
       {view === 'cogs'      && <COGS         viewingStore={viewingStore} />}
     </div>
   )

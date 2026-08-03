@@ -47,15 +47,26 @@ export default function App() {
   useEffect(() => { applyTheme(currentTheme) }, [])
 
   useEffect(() => {
-    if (auth.userConfig) {
+    if (!auth.userConfig) return
+    ;(async () => {
       const isSuperOwner = auth.isSuperOwner()
       const store = auth.userConfig.storeId || auth.userConfig.store || ''
-      const org   = auth.userConfig.orgId   || 'dumont'
+      let   org   = auth.userConfig.orgId || ''
+      if (!org) {
+        // User doc has no orgId (e.g. original super_owner) — resolve to the first
+        // real org instead of the legacy 'dumont' literal, which pointed at a ghost catalog
+        try {
+          const { collection, getDocs } = await import('firebase/firestore')
+          const { db } = await import('./firebase/config')
+          const snap = await getDocs(collection(db, 'orgs'))
+          org = snap.docs[0]?.id || 'dumont'
+        } catch(e) { org = 'dumont' }
+      }
       if (store && !isSuperOwner) setViewingStore(store)
       setViewingOrg(org)
       if (store) invHook.loadInventory(store, org)
       orgItemsHook.loadItems(org)
-    }
+    })()
   }, [auth.userConfig])
 
   useEffect(() => {
@@ -245,8 +256,8 @@ export default function App() {
         {activeTab === 'icecreamlog'  && <Picks invHook={invHook} viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'checklist'    && <Checklist viewingStore={viewingStore} auth={auth} showToast={showToast} />}
         {activeTab === 'schedule'     && <Schedule  {...tabProps} />}
-        {activeTab === 'bulletin'     && <Bulletin auth={auth} showToast={showToast} />}
-        {activeTab === 'records'      && <Records viewingStore={viewingStore} auth={auth} showToast={showToast} />}
+        {activeTab === 'bulletin'     && <Bulletin auth={auth} showToast={showToast} viewingOrg={viewingOrg} />}
+        {activeTab === 'records'      && <Records viewingStore={viewingStore} auth={auth} showToast={showToast} viewingOrg={viewingOrg} />}
         {activeTab === 'pnl'          && <PLSimulator />}
         {activeTab === 'commerce'     && <Commerce viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'admin'        && <Admin     {...tabProps} />}
