@@ -131,7 +131,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
   const resolvedIssues = issues.filter(i => i.status === 'resolved')
   const displayIssues  = showResolved ? issues : openIssues
   const hour         = new Date().getHours()
-  const greeting     = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const greeting     = (hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening') + ' TEST SASI'
 
   const cardStyle = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }
 
