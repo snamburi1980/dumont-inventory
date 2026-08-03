@@ -126,10 +126,11 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     }
     setInviting(false)
   }
-  // ── INVITE STAFF / MANAGER ────────────────────────────────
+  // ── INVITE STAFF / MANAGER (super_owner only) ─────────────
   async function inviteUser() {
+    if (!auth?.isSuperOwner?.()) { showToast('Only HQ can invite users'); return }
     if (!inviteUserForm.email.trim()) { showToast('Enter email'); return }
-    const targetStoreId = currentStoreId || viewingStore
+    const targetStoreId = inviteUserForm.storeId || currentStoreId || viewingStore
     if (!targetStoreId) { showToast('No store selected'); return }
     setInvitingUser(true)
     try {
@@ -169,41 +170,65 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   // ──────────────────────────────────────────────────────────
 
   // ── CASCADE DELETE ─────────────────────────────────────────
+  // clearStoreData (Cloud Function, super_owner only) wipes the store doc,
+  // every subcollection under it (inventory, checklists, schedule, stockLog,
+  // cashRegister...), its invitations, and optionally its users + logins.
   async function deleteStore(storeId, storeName) {
-    if (!window.confirm(`Delete store "${storeName}"? This cannot be undone.`)) return
-    await deleteDoc(doc(db, 'stores', storeId))
-    showToast(`Store "${storeName}" deleted`)
+    if (!window.confirm(`Delete store "${storeName}" and ALL its data (inventory, checklists, schedules, cash register, logs)? This cannot be undone.`)) return
+    const alsoUsers = window.confirm(`Also delete the user accounts and logins assigned to "${storeName}"?\n\nOK = delete users too · Cancel = keep users`)
+    setLoading(true)
+    try {
+      const clearStoreData = httpsCallable(getFunctions(app), 'clearStoreData')
+      const res = await clearStoreData({ storeId, deleteUsers: alsoUsers })
+      const cleared = res.data?.usersDeleted?.length || 0
+      await logAudit({ action: 'STORE_CLEARED', userEmail: auth.userConfig?.email, details: { storeId, storeName, usersDeleted: cleared } })
+      showToast(`Store "${storeName}" cleared${cleared ? ` · ${cleared} user(s) removed` : ''}`)
+    } catch(e) {
+      console.error(e)
+      showToast(`Failed to clear store: ${e.message}`)
+    }
+    setLoading(false)
     loadAll()
   }
 
   async function deleteRegion(regionId, regionName, regionStores) {
-    if (!window.confirm(`Delete region "${regionName}" and its ${regionStores.length} store(s)? This cannot be undone.`)) return
-    // Delete all stores in region
-    for (const store of regionStores) {
-      await deleteDoc(doc(db, 'stores', store.id))
+    if (!window.confirm(`Delete region "${regionName}" and its ${regionStores.length} store(s), including ALL their data and users? This cannot be undone.`)) return
+    setLoading(true)
+    try {
+      const clearStoreData = httpsCallable(getFunctions(app), 'clearStoreData')
+      for (const store of regionStores) {
+        await clearStoreData({ storeId: store.id, deleteUsers: true })
+      }
+      await deleteDoc(doc(db, 'regions', regionId))
+      showToast(`Region "${regionName}" and ${regionStores.length} store(s) deleted`)
+    } catch(e) {
+      console.error(e)
+      showToast(`Failed: ${e.message}`)
     }
-    await deleteDoc(doc(db, 'regions', regionId))
-    showToast(`Region "${regionName}" and ${regionStores.length} store(s) deleted`)
+    setLoading(false)
     loadAll()
   }
 
   async function deleteOrg(orgId, orgName) {
-    if (!window.confirm(`Delete org "${orgName}" and ALL its regions and stores? This cannot be undone.`)) return
-    // Find all regions for this org
-    const orgRegions = regions.filter(r => r.orgId === orgId)
-    // Find all stores for this org
-    const orgStores  = stores.filter(s => s.orgId === orgId)
-    // Delete all stores
-    for (const store of orgStores) {
-      await deleteDoc(doc(db, 'stores', store.id))
+    if (!window.confirm(`Delete org "${orgName}" and ALL its regions, stores, data and users? This cannot be undone.`)) return
+    setLoading(true)
+    try {
+      const orgRegions = regions.filter(r => r.orgId === orgId)
+      const orgStores  = stores.filter(s => s.orgId === orgId)
+      const clearStoreData = httpsCallable(getFunctions(app), 'clearStoreData')
+      for (const store of orgStores) {
+        await clearStoreData({ storeId: store.id, deleteUsers: true })
+      }
+      for (const region of orgRegions) {
+        await deleteDoc(doc(db, 'regions', region.id))
+      }
+      await deleteDoc(doc(db, 'orgs', orgId))
+      showToast(`Org "${orgName}" and all its regions/stores deleted`)
+    } catch(e) {
+      console.error(e)
+      showToast(`Failed: ${e.message}`)
     }
-    // Delete all regions
-    for (const region of orgRegions) {
-      await deleteDoc(doc(db, 'regions', region.id))
-    }
-    // Delete org
-    await deleteDoc(doc(db, 'orgs', orgId))
-    showToast(`Org "${orgName}" and all its regions/stores deleted`)
+    setLoading(false)
     loadAll()
   }
   // ──────────────────────────────────────────────────────────
@@ -775,7 +800,20 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
       {view === 'users' && (
         <div>
-          {/* Invite User — fully automated, no Firebase Console needed */}
+          {/* Store owners/managers cannot manage users — they request HQ */}
+          {!isSuperOwnerUser && (
+            <div style={{ ...card, background:'#FDF6EC', borderLeft:'3px solid #C8843A' }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Need to add or change a user?</div>
+              <div style={{ fontSize:12, color:'#8B7355', lineHeight:1.6 }}>
+                User accounts are managed by Dumont HQ. Email{' '}
+                <a href="mailto:dumonttexas@gmail.com" style={{ color:'#C8843A', fontWeight:600 }}>dumonttexas@gmail.com</a>{' '}
+                with the person's name, email address, and role (staff or manager) — you'll be notified once their access is ready.
+              </div>
+            </div>
+          )}
+
+          {/* Invite User — super_owner only */}
+          {isSuperOwnerUser && (
           <div style={{ ...card, border:'1.5px solid #2C1810' }}>
             <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Invite User</div>
             <div style={{ fontSize:11, color:'#8B7355', marginBottom:12 }}>
@@ -809,33 +847,15 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                   onChange={e => setInviteUserForm(f=>({...f,email:e.target.value}))} style={input}/>
                 <select value={inviteUserForm.role}
                   onChange={e => setInviteUserForm(f=>({...f,role:e.target.value}))} style={input}>
-                  {isManager ? (
-                    <option value="staff">Staff</option>
-                  ) : isStoreOwner ? (
-                    <>
-                      <option value="staff">Staff</option>
-                      <option value="manager">Manager</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="staff">Staff</option>
-                      <option value="manager">Manager</option>
-                      <option value="store_owner">Store Owner</option>
-                    </>
-                  )}
+                  <option value="staff">Staff</option>
+                  <option value="manager">Manager</option>
+                  <option value="store_owner">Store Owner</option>
                 </select>
-                {isSuperOwnerUser && (
-                  <select value={inviteUserForm.storeId || currentStoreId || ''}
-                    onChange={e => setInviteUserForm(f=>({...f,storeId:e.target.value}))} style={input}>
-                    <option value="">Select Store</option>
-                    {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                  </select>
-                )}
-                {!isSuperOwnerUser && (
-                  <div style={{ padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontSize:12, marginBottom:8, background:'#F5EDE0', color:'#2C1810' }}>
-                    Store: {stores.find(s => s.id === currentStoreId)?.name || 'Your store'}
-                  </div>
-                )}
+                <select value={inviteUserForm.storeId || currentStoreId || ''}
+                  onChange={e => setInviteUserForm(f=>({...f,storeId:e.target.value}))} style={input}>
+                  <option value="">Select Store</option>
+                  {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
                 <button onClick={inviteUser} disabled={invitingUser}
                   style={{ ...btn('#2C1810'), opacity: invitingUser ? 0.7 : 1 }}>
                   {invitingUser ? 'Sending...' : '📧 Send Invitation'}
@@ -843,6 +863,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               </div>
             )}
           </div>
+          )}
 
           {/* User list */}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
@@ -877,6 +898,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                           {isInactive && <span style={{ fontSize:10, color:'#E74C3C', background:'#FFEBEE', borderRadius:4, padding:'2px 7px' }}>Inactive</span>}
                         </div>
                       </div>
+                      {isSuperOwnerUser && (
                       <div style={{ display:'flex', gap:4, flexShrink:0 }}>
                         <button onClick={() => setEditingUser({ ...user })}
                           style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
@@ -893,41 +915,29 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                           </>
                         )}
                       </div>
+                      )}
                     </div>
                   ) : (
                     <div>
                       <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Edit: {user.name || user.email}</div>
                       <select value={editingUser.role || ''} onChange={e => setEditingUser(u => ({...u, role:e.target.value}))} style={input}>
-                        {isManager ? (
-                          <option value="staff">Staff</option>
-                        ) : isStoreOwner ? (
-                          <>
-                            <option value="staff">Staff</option>
-                            <option value="manager">Manager</option>
-                          </>
-                        ) : (
-                          <>
-                            <option value="store_owner">Store Owner</option>
-                            <option value="manager">Manager</option>
-                            <option value="regional_owner">Regional Owner</option>
-                            <option value="staff">Staff</option>
-                          </>
-                        )}
+                        <option value="store_owner">Store Owner</option>
+                        <option value="manager">Manager</option>
+                        <option value="regional_owner">Regional Owner</option>
+                        <option value="staff">Staff</option>
                       </select>
-                      {!isStoreOwner && (
-                        <select value={editingUser.storeId || editingUser.store || ''} onChange={e => setEditingUser(u => ({...u, storeId:e.target.value}))} style={input}>
-                          <option value="">No Store Assigned</option>
-                          {stores.map(s => {
-                            const r = regions.find(r => r.id === s.regionId)
-                            return <option key={s.id} value={s.id}>{r ? `${r.name} › ` : ''}{s.name}</option>
-                          })}
-                        </select>
-                      )}
+                      <select value={editingUser.storeId || editingUser.store || ''} onChange={e => setEditingUser(u => ({...u, storeId:e.target.value}))} style={input}>
+                        <option value="">No Store Assigned</option>
+                        {stores.map(s => {
+                          const r = regions.find(r => r.id === s.regionId)
+                          return <option key={s.id} value={s.id}>{r ? `${r.name} › ` : ''}{s.name}</option>
+                        })}
+                      </select>
                       <div style={{ display:'flex', gap:8 }}>
                         <button onClick={() => saveUserEdit(user.emailKey, {
                           role: editingUser.role,
-                          storeId: isStoreOwner ? currentStoreId : (editingUser.storeId || editingUser.store || ''),
-                          store:   isStoreOwner ? currentStoreId : (editingUser.storeId || editingUser.store || ''),
+                          storeId: editingUser.storeId || editingUser.store || '',
+                          store:   editingUser.storeId || editingUser.store || '',
                         })} style={{ ...btn(), flex:1 }} disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</button>
                         <button onClick={() => setEditingUser(null)} style={{ ...btn('#888'), flex:'none', padding:'11px 20px' }}>Cancel</button>
                       </div>

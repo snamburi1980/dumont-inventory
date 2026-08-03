@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'firebase/auth'
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
 
@@ -7,7 +7,6 @@ const APP_BASE = 'https://snamburi1980.github.io/dumont-inventory/'
 
 export default function OnboardingScreen({ token, email, storeName, storeId, orgId, role: roleProp }) {
   const assignedRole  = roleProp || 'store_owner'
-  const isStaffOrMgr  = assignedRole === 'staff' || assignedRole === 'manager'
   const [step,        setStep]        = useState('form')   // form | seeding | done
   const [name,        setName]        = useState('')
   const [password,    setPassword]    = useState('')
@@ -45,32 +44,49 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
   }
 
   async function writeUserDocAndContinue(uid) {
+    // The invitation doc (created by the super_owner) is the source of truth
+    // for role/store — never the URL params, which can be tampered with.
+    // Firestore rules enforce this server-side too.
+    const invSnap = await getDoc(doc(db, 'invitations', token))
+    if (!invSnap.exists()) {
+      await signOut(auth)
+      setError('This invitation was not found. Please ask your administrator for a new one.')
+      return
+    }
+    const inv = invSnap.data()
+    if (inv.status !== 'pending' || inv.expiresAt < Date.now()) {
+      await signOut(auth)
+      setError('This invitation has expired or was already used. Please ask your administrator for a new one.')
+      return
+    }
+    if ((inv.email || '').toLowerCase() !== email.toLowerCase()) {
+      await signOut(auth)
+      setError('This invitation was issued for a different email address.')
+      return
+    }
+    const invStoreId = inv.storeId || storeId
     const emailKey = email.replace(/\./g,'_').replace(/@/g,'_at_')
     await setDoc(doc(db, 'users', emailKey), {
       uid,
-      email,
-      name:      name.trim() || email,
-      role:      assignedRole,
-      storeId,
-      store:     storeId,
-      orgId:     orgId || 'dumont',
-      status:    'active',
+      email:       email.toLowerCase(),
+      name:        name.trim() || email,
+      role:        inv.role || 'staff',
+      storeId:     invStoreId,
+      store:       invStoreId,
+      orgId:       inv.orgId || orgId || 'dumont',
+      inviteToken: token,
+      status:      'active',
       forcePasswordChange: false,
-      createdAt: Date.now(),
+      createdAt:   Date.now(),
     })
     try {
-      const invSnap = await getDoc(doc(db, 'invitations', token))
-      if (invSnap.exists()) {
-        const inv = invSnap.data()
-        if (inv.status === 'pending' && inv.expiresAt > Date.now()) {
-          await updateDoc(doc(db, 'invitations', token), { status: 'accepted', acceptedAt: Date.now() })
-          await updateDoc(doc(db, 'stores', storeId), { status: 'active' })
-        }
-      }
+      await updateDoc(doc(db, 'invitations', token), { status: 'accepted', acceptedAt: Date.now() })
+      await updateDoc(doc(db, 'stores', invStoreId), { status: 'active' })
     } catch(e) {
       console.warn('Could not update invitation/store status', e)
     }
-    if (isStaffOrMgr) { setStep('done'); return }
+    const finalRole = inv.role || assignedRole
+    if (finalRole === 'staff' || finalRole === 'manager') { setStep('done'); return }
     await loadBaseItems()
     setStep('seeding')
   }

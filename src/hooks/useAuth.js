@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { httpsCallable } from 'firebase/functions'
 import { auth, db, functions } from '../firebase/config'
 
 const HARDCODED_USERS = {
   'dumonttexas@gmail.com':    { role:'super_owner', store:'',  name:'Sasikanth' },
-  'txccpointwest@gmail.com':  { role:'store_owner',  store:'',  name:'Store Owner' },
 }
 
 export function useAuth() {
@@ -32,7 +31,9 @@ export function useAuth() {
   }, [])
 
   async function loadUserConfig(firebaseUser) {
-    let cfg = HARDCODED_USERS[firebaseUser.email] || { role:'manager', store:'', name:firebaseUser.email }
+    // Unknown accounts default to the least-privileged role — real roles come
+    // from the Firestore users doc created by the super_owner / invite flow
+    let cfg = HARDCODED_USERS[firebaseUser.email] || { role:'staff', store:'', name:firebaseUser.email }
     try {
       const emailKey = firebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_')
       const snap = await getDoc(doc(db, 'users', emailKey))
@@ -50,20 +51,9 @@ export function useAuth() {
           setLoading(false)
           return
         }
-      } else {
-        // Skip auto-create during onboarding — OnboardingScreen writes the correct doc
-        const isOnboarding = new URLSearchParams(window.location.search).get('token')
-        if (!isOnboarding) {
-          const emailKey2 = firebaseUser.email.replace(/\./g,'_').replace(/@/g,'_at_')
-          await setDoc(doc(db, 'users', emailKey2), {
-            email: firebaseUser.email,
-            store: cfg.store,
-            role:  cfg.role,
-            name:  cfg.name,
-            createdAt: Date.now()
-          })
-        }
       }
+      // No auto-create for unknown accounts: user docs are created only by the
+      // super_owner (Admin) or through a valid invitation (OnboardingScreen).
     } catch(e) {
       console.warn('Could not load user profile', e)
     }

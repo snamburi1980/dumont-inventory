@@ -52,19 +52,34 @@ service cloud.firestore {
     }
 
     // ── Users collection ───────────────────────────────────────────────────────
-    // Any auth user can read all user docs (needed for Admin Users list)
-    // Write: super_owner can write any; store_owner/manager can write users in their store
+    // User management is super_owner only. The one exception: an invitee may
+    // create their OWN doc during onboarding, but only with the exact role/store
+    // from a pending, unexpired invitation created by the super_owner.
+    function hasValidInvite(data) {
+      let inv = get(/databases/$(database)/documents/invitations/$(data.inviteToken)).data;
+      return inv.email == request.auth.token.email
+        && inv.role == data.role
+        && inv.storeId == data.storeId
+        && inv.status == 'pending'
+        && inv.expiresAt > request.time.toMillis();
+    }
+
     match /users/{emailKey} {
       allow read: if isAuth();
-      allow create: if isAuth() && (
-        isSuperOwner() ||
-        isStoreOwnerOrAbove() ||
-        // Allow users to create their own record (onboarding)
-        request.auth.token.email.lower() == emailKey.replace('_at_', '@').replace('_', '.')
+      allow create: if isSuperOwner() || (
+        isAuth()
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role != 'super_owner'
+        && request.resource.data.inviteToken is string
+        && hasValidInvite(request.resource.data)
       );
-      allow update: if isAuth() && (
-        isSuperOwner() ||
-        isManagerOrAbove()
+      // Non-super users may only touch harmless fields on their OWN doc
+      // (e.g. clearing forcePasswordChange after first login)
+      allow update: if isSuperOwner() || (
+        isAuth()
+        && resource.data.email == request.auth.token.email
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['forcePasswordChange', 'name'])
       );
       allow delete: if isSuperOwner();
     }
@@ -81,8 +96,10 @@ service cloud.firestore {
     }
 
     match /stores/{id} {
-      allow read:  if canAccessStore(id);
-      allow write: if isSuperOwner() || isStoreOwnerOrAbove();
+      allow read:   if canAccessStore(id);
+      allow create, delete: if isSuperOwner();
+      // Store owners can edit their OWN store's doc only
+      allow update: if isSuperOwner() || (isStoreOwnerOrAbove() && claimStoreId() == id);
     }
 
     // ── Per-store subcollections ───────────────────────────────────────────────
@@ -113,8 +130,18 @@ service cloud.firestore {
       allow read, write: if isAuth();
     }
 
+    // Invitations: only super_owner can mint them. An invitee may read theirs
+    // and mark it accepted during onboarding — nothing else.
     match /invitations/{id} {
-      allow read, write: if isAuth();
+      allow read: if isAuth();
+      allow create, delete: if isSuperOwner();
+      allow update: if isSuperOwner() || (
+        isAuth()
+        && resource.data.email == request.auth.token.email
+        && request.resource.data.status == 'accepted'
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status', 'acceptedAt'])
+      );
     }
 
     match /announcements/{id} {
@@ -139,7 +166,8 @@ service cloud.firestore {
     }
 
     match /signupRequests/{id} {
-      allow read, write: if isAuth();
+      allow create: if isAuth();
+      allow read, update, delete: if isSuperOwner();
     }
 
     // Audit log — anyone can append, only super_owner reads

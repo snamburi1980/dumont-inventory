@@ -84,25 +84,15 @@ exports.createAuthUser = onCall({ cors: true }, async (request) => {
   const caller = request.auth
   if (!caller) throw new HttpsError('unauthenticated', 'Must be signed in')
 
-  // Verify caller is super_owner or store_owner via Custom Claims
+  // User management is super_owner only — store owners/managers request HQ
   const callerClaims = caller.token
-  const allowedRoles = ['super_owner', 'store_owner', 'manager']
-  if (!allowedRoles.includes(callerClaims.role)) {
-    throw new HttpsError('permission-denied', 'Insufficient role')
+  if (callerClaims.role !== 'super_owner' && callerClaims.email !== 'dumonttexas@gmail.com') {
+    throw new HttpsError('permission-denied', 'Only super_owner can create accounts')
   }
 
   const { email, tempPassword, name, role, storeId, orgId } = request.data
   if (!email || !tempPassword) throw new HttpsError('invalid-argument', 'email and tempPassword required')
-
-  // store_owner and manager can only create staff/manager for their own store
-  if (callerClaims.role !== 'super_owner') {
-    if (!['staff', 'manager'].includes(role)) {
-      throw new HttpsError('permission-denied', 'Can only create staff or manager accounts')
-    }
-    if (storeId && storeId !== callerClaims.storeId) {
-      throw new HttpsError('permission-denied', 'Can only create users for your own store')
-    }
-  }
+  if (role === 'super_owner') throw new HttpsError('permission-denied', 'Cannot create super_owner accounts')
 
   const auth = getAuth()
   const db   = getFirestore()
@@ -150,6 +140,63 @@ exports.createAuthUser = onCall({ cors: true }, async (request) => {
     if (e.code === 'auth/email-already-exists') {
       throw new HttpsError('already-exists', 'An account with this email already exists')
     }
+    throw new HttpsError('internal', e.message)
+  }
+})
+
+// ── Clear a store: all its data, and optionally its users ────────────────────
+// super_owner only. Recursively deletes stores/{storeId} (inventory, checklists,
+// schedule, stockLog, cashRegister, etc.), the store doc itself, its invitations,
+// and — when deleteUsers is true — the Firestore user docs AND Firebase Auth
+// accounts of everyone assigned to that store.
+exports.clearStoreData = onCall({ cors: true, timeoutSeconds: 300 }, async (request) => {
+  const caller = request.auth
+  if (!caller) throw new HttpsError('unauthenticated', 'Must be signed in')
+  if (caller.token.role !== 'super_owner' && caller.token.email !== 'dumonttexas@gmail.com') {
+    throw new HttpsError('permission-denied', 'Only super_owner can clear stores')
+  }
+
+  const { storeId, deleteUsers } = request.data
+  if (!storeId) throw new HttpsError('invalid-argument', 'storeId required')
+
+  const db   = getFirestore()
+  const auth = getAuth()
+  const result = { storeDeleted: false, usersDeleted: [], invitationsDeleted: 0 }
+
+  try {
+    // Delete users assigned to this store (Firestore doc + Auth account)
+    if (deleteUsers) {
+      const userSnap = await db.collection('users').where('storeId', '==', storeId).get()
+      const legacySnap = await db.collection('users').where('store', '==', storeId).get()
+      const seen = new Set()
+      for (const d of [...userSnap.docs, ...legacySnap.docs]) {
+        if (seen.has(d.id)) continue
+        seen.add(d.id)
+        const u = d.data()
+        if (u.role === 'super_owner' || u.email === 'dumonttexas@gmail.com') continue
+        try {
+          const rec = await auth.getUserByEmail(u.email)
+          await auth.deleteUser(rec.uid)
+        } catch (e) {
+          if (e.code !== 'auth/user-not-found') console.warn(`Auth delete failed for ${u.email}:`, e.message)
+        }
+        await d.ref.delete()
+        result.usersDeleted.push(u.email)
+      }
+    }
+
+    // Delete invitations pointing at this store
+    const invSnap = await db.collection('invitations').where('storeId', '==', storeId).get()
+    for (const d of invSnap.docs) { await d.ref.delete(); result.invitationsDeleted++ }
+
+    // Recursively delete the store doc and every subcollection under it
+    await db.recursiveDelete(db.doc(`stores/${storeId}`))
+    result.storeDeleted = true
+
+    console.log(`Store ${storeId} cleared by ${caller.token.email}:`, result)
+    return { success: true, ...result }
+  } catch (e) {
+    console.error('clearStoreData failed:', e)
     throw new HttpsError('internal', e.message)
   }
 })

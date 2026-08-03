@@ -154,6 +154,12 @@ const tabGroups = [
 ## Role Hierarchy & Access Control
 Roles stored in Firestore `users` collection.
 
+**User management is super_owner ONLY** (as of Aug 2026):
+- Only super_owner can invite/edit/deactivate/delete users. Store owners and managers see a "contact HQ (dumonttexas@gmail.com)" note in Admin → Users instead of an invite form.
+- Firestore rules enforce this server-side: user docs can only be created by super_owner or by an invitee holding a valid pending invitation token (role/store come from the invitation doc, not URL params). Users can only update `forcePasswordChange`/`name` on their own doc.
+- Cloud Function `clearStoreData({ storeId, deleteUsers })` (super_owner only): recursively wipes a store's doc + all subcollections + its invitations, and optionally its users (Firestore docs + Auth accounts). Wired to Admin store/region/org Delete buttons.
+- Deploy backend changes with `firebase deploy --only firestore:rules` / `--only functions` (firebase.json is configured).
+
 | Role | Access |
 |------|--------|
 | `super_owner` | Everything (dumonttexas@gmail.com hardcoded) |
