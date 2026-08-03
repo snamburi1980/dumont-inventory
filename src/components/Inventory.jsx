@@ -9,6 +9,7 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
   const [showInactive,   setShowInactive]   = useState(false)
   const [editingPar,        setEditingPar]        = useState(null)
   const [editingStock,      setEditingStock]      = useState(null)
+  const [showOrderList,     setShowOrderList]     = useState(false)
   const [locked,            setLocked]            = useState(true)
   const [saveStatus,        setSaveStatus]        = useState(null)
   const [confirmDeactivate, setConfirmDeactivate] = useState(null)
@@ -42,6 +43,24 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
   const activeItems = inventory.filter(i => i.active !== false)
   const totalVal    = activeItems.reduce((s,i) => s + (i.stock||0) * (i.cost||i.cost_price||0), 0)
   const lowCount    = activeItems.filter(i => getStatus(i) !== 'ok').length
+
+  // Order list: everything below PAR, suggested qty = PAR − stock (rounded up)
+  const orderItems = activeItems
+    .filter(i => getStatus(i) !== 'ok')
+    .map(i => ({ ...i, orderQty: Math.max(1, Math.ceil((i.par || 0) - (i.stock || 0))) }))
+    .sort((a,b) => (a.cat||'').localeCompare(b.cat||'') || (a.name||'').localeCompare(b.name||''))
+
+  function copyOrderList() {
+    const date = new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+    let text = `Dumont Order List — ${date}\n`
+    let lastCat = null
+    orderItems.forEach(i => {
+      const cat = i.cat || 'Other'
+      if (cat !== lastCat) { text += `\n${cat.toUpperCase()}\n`; lastCat = cat }
+      text += `• ${i.name} — order ${i.orderQty} ${i.uom || ''} (stock ${i.stock ?? 0} / PAR ${i.par ?? 0})${i.vendor ? ` [${i.vendor}]` : ''}\n`
+    })
+    navigator.clipboard.writeText(text).then(() => showToast('Order list copied — paste into a text or email'))
+  }
 
   function handleAdjust(id, delta) {
     if (locked) { showToast('Tap Unlock to make changes'); return }
@@ -192,7 +211,56 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
           style={{ padding:'9px 14px', border:'1px solid var(--border)', borderRadius:8, background: showInactive ? 'var(--dark)' : '#fff', color: showInactive ? '#fff' : 'var(--text-muted)', cursor:'pointer', fontSize:12, fontFamily:'inherit', whiteSpace:'nowrap' }}>
           {showInactive ? 'Hide Inactive' : 'Show Inactive'}
         </button>
+        <button onClick={() => setShowOrderList(v => !v)}
+          style={{ padding:'9px 14px', border: orderItems.length ? '1px solid #C1683C' : '1px solid var(--border)', borderRadius:8,
+            background: showOrderList ? '#C1683C' : '#fff', color: showOrderList ? '#fff' : orderItems.length ? '#C1683C' : 'var(--text-muted)',
+            cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'inherit', whiteSpace:'nowrap' }}>
+          📋 Order List{orderItems.length ? ` (${orderItems.length})` : ''}
+        </button>
       </div>
+
+      {/* Order list — items below PAR with suggested order quantities */}
+      {showOrderList && (
+        <div style={{ background:'#fff', border:'1.5px solid #C1683C', borderRadius:12, overflow:'hidden', marginBottom:12 }}>
+          <div style={{ background:'#C1683C', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>📋 Suggested Order — {orderItems.length} item{orderItems.length !== 1 ? 's' : ''} below PAR</div>
+            {orderItems.length > 0 && (
+              <button onClick={copyOrderList}
+                style={{ background:'#fff', color:'#C1683C', border:'none', borderRadius:6, padding:'5px 12px', cursor:'pointer', fontSize:11, fontWeight:700, fontFamily:'inherit' }}>
+                Copy to Share
+              </button>
+            )}
+          </div>
+          {orderItems.length === 0 ? (
+            <div style={{ padding:20, textAlign:'center', color:'var(--text-muted)', fontSize:13 }}>
+              Everything is at or above PAR — nothing to order 🎉
+            </div>
+          ) : orderItems.map((item, idx) => {
+            const prevCat = idx > 0 ? (orderItems[idx-1].cat || 'Other') : null
+            const cat     = item.cat || 'Other'
+            return (
+              <div key={item.id}>
+                {cat !== prevCat && (
+                  <div style={{ background:'#EEE3D3', padding:'5px 16px', fontSize:10, fontWeight:700, color:'#C1683C', textTransform:'uppercase', letterSpacing:'0.5px' }}>
+                    {cat}
+                  </div>
+                )}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 16px', borderBottom:'1px solid #EFEBE0' }}>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:600, color:'var(--dark)' }}>{item.name}</div>
+                    <div style={{ fontSize:10, color:'var(--text-muted)' }}>
+                      stock {item.stock ?? 0} / PAR {item.par ?? 0}{item.vendor ? ` · ${item.vendor}` : ''}
+                    </div>
+                  </div>
+                  <div style={{ fontSize:14, fontWeight:800, color:'#C1683C', whiteSpace:'nowrap' }}>
+                    +{item.orderQty} {item.uom || ''}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* Table */}
       <div style={{ background:'#fff', border:'1px solid var(--border)', borderRadius:12, overflow:'hidden' }}>

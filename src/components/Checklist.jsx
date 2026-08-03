@@ -65,6 +65,14 @@ const MAX_PHOTO_SIZE = 400
 const PHOTO_QUALITY  = 0.5
 const MAX_B64_BYTES  = 80000
 
+// Freezer temperature fields (°F). maxOk = highest acceptable reading;
+// anything above shows a red warning (industry: storage ≤ 0°F, dipping 6–10°F).
+const TEMP_FIELDS = [
+  { key:'walkin',  label:'Walk-in Freezer',  maxOk: 0  },
+  { key:'dipping', label:'Dipping Cabinets', maxOk: 10 },
+  { key:'cake',    label:'Cake Freezer',     maxOk: 0  },
+]
+
 function initItems(items) {
   return items.map(label => ({ label, checked: false, remarks: '', photo: null }))
 }
@@ -123,6 +131,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
   const [compressing,        setCompressing]        = useState(null)
   const [todayStatus,        setTodayStatus]        = useState({ opening: false, closing: false })
   const [showUncheckedWarn,  setShowUncheckedWarn]  = useState(false)
+  const [temps,              setTemps]              = useState({})
   const fileRefs = useRef({})
 
   const now     = new Date()
@@ -154,6 +163,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
     setFirstName(name.split(' ')[0] || '')
     setLastName(name.split(' ').slice(1).join(' ') || '')
     setShowUncheckedWarn(false)
+    setTemps({})
     setView(t)
   }
 
@@ -205,6 +215,19 @@ export default function Checklist({ viewingStore, auth, showToast }) {
       const itemsForStorage = items.map(i => ({
         label: i.label, checked: i.checked, remarks: i.remarks, photo: i.photo || null,
       }))
+      // Temperatures: store numeric readings + whether any is out of range
+      const tempReadings = {}
+      let tempAlert = false
+      TEMP_FIELDS.forEach(f => {
+        const v = temps[f.key]
+        if (v !== undefined && v !== '') {
+          const num = parseFloat(v)
+          if (!isNaN(num)) {
+            tempReadings[f.key] = num
+            if (num > f.maxOk) tempAlert = true
+          }
+        }
+      })
       const submission = {
         type, storeId: viewingStore,
         firstName: firstName.trim(), lastName: lastName.trim(),
@@ -212,6 +235,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         items: itemsForStorage, totalItems: items.length,
         checkedItems: items.filter(i => i.checked).length,
         hasPhotos: items.some(i => i.photo),
+        temps: tempReadings, tempAlert,
       }
       let saved = false
       for (let attempt = 0; attempt < 3; attempt++) {
@@ -373,7 +397,10 @@ export default function Checklist({ viewingStore, auth, showToast }) {
             <div onClick={() => setExpandedId(expandedId===h.id ? null : h.id)}
               style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 16px', cursor:'pointer' }}>
               <div>
-                <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{h.date} · {h.time}</div>
+                <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>
+                  {h.date} · {h.time}
+                  {h.tempAlert && <span style={{ marginLeft:6, fontSize:9, fontWeight:700, color:'#fff', background:'#C53D18', borderRadius:4, padding:'2px 6px' }}>TEMP ⚠</span>}
+                </div>
                 <div style={{ fontSize:11, color:'#6B7F78' }}>{h.firstName} {h.lastName}{h.hasPhotos ? ' · 📷' : ''}</div>
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -385,6 +412,19 @@ export default function Checklist({ viewingStore, auth, showToast }) {
             </div>
             {expandedId === h.id && (
               <div style={{ borderTop:'1px solid #E3DDD0', padding:'10px 16px' }}>
+                {h.temps && Object.keys(h.temps).length > 0 && (
+                  <div style={{ display:'flex', gap:8, flexWrap:'wrap', paddingBottom:8, marginBottom:8, borderBottom:'1px solid #EFEBE0' }}>
+                    {TEMP_FIELDS.filter(f => h.temps[f.key] !== undefined).map(f => {
+                      const bad = h.temps[f.key] > f.maxOk
+                      return (
+                        <span key={f.key} style={{ fontSize:11, fontWeight:600, borderRadius:6, padding:'3px 8px',
+                          background: bad ? '#FFEBEE' : '#E8F5E9', color: bad ? '#C53D18' : '#2E7D32' }}>
+                          🌡 {f.label}: {h.temps[f.key]}°F{bad ? ' ⚠' : ''}
+                        </span>
+                      )
+                    })}
+                  </div>
+                )}
                 {h.items?.map((item, i) => (
                   <div key={i} style={{ padding:'6px 0', borderBottom:'1px solid #EFEBE0' }}>
                     <div style={{ display:'flex', gap:8, alignItems:'flex-start' }}>
@@ -442,6 +482,33 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
           <input placeholder="First Name *" value={firstName} onChange={e => setFirstName(e.target.value)} style={inp}/>
           <input placeholder="Last Name"    value={lastName}  onChange={e => setLastName(e.target.value)}  style={inp}/>
+        </div>
+      </div>
+
+      {/* Freezer temperatures — record actual readings, flag out-of-range */}
+      <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:'14px 16px', marginBottom:12 }}>
+        <div style={{ fontSize:12, fontWeight:700, color:'#1A4C48', marginBottom:2 }}>🌡 Freezer Temperatures (°F)</div>
+        <div style={{ fontSize:10, color:'#6B7F78', marginBottom:10 }}>
+          Record the display readings. Freezers should be at or below 0°F, dipping cabinets 6–10°F.
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:8 }}>
+          {TEMP_FIELDS.map(f => {
+            const val   = temps[f.key] ?? ''
+            const num   = parseFloat(val)
+            const isBad = val !== '' && !isNaN(num) && num > f.maxOk
+            return (
+              <div key={f.key}>
+                <div style={{ fontSize:10, fontWeight:600, color: isBad ? '#C53D18' : '#6B7F78', marginBottom:4 }}>{f.label}</div>
+                <input type="number" step="0.5" placeholder="°F" value={val}
+                  onChange={e => setTemps(prev => ({ ...prev, [f.key]: e.target.value }))}
+                  style={{ ...inp, marginBottom:0, textAlign:'center', fontWeight:700,
+                    border: isBad ? '2px solid #C53D18' : '1px solid #E3DDD0',
+                    background: isBad ? '#FFF5F2' : '#F6F4ED',
+                    color: isBad ? '#C53D18' : '#1A4C48' }}/>
+                {isBad && <div style={{ fontSize:9, color:'#C53D18', fontWeight:700, marginTop:3 }}>⚠ Above {f.maxOk}°F — check unit!</div>}
+              </div>
+            )
+          })}
         </div>
       </div>
 
