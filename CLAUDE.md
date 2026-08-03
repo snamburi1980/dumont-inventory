@@ -154,6 +154,8 @@ stores/{storeId}/stockLog/{id}        — Picks logs: {itemId, itemName, delta(n
 stores/{storeId}/checklists/{id}      — {type: opening|closing, date(locale string), items[{label,checked,remarks,photo(b64)}], …}
 stores/{storeId}/schedule/data        — ONE DOC: {members, presets, shifts: {weekOffset: {…}}}
 stores/{storeId}/cashRegister/{id}    — {date, openingCash, closingCash, difference, comments, monthKey}
+stores/{storeId}/cashMovements/{id}   — cash in/out log: {type:'in'|'out', amount, reason, note, loggedBy,
+                                        timestamp, dateRaw "YYYY-MM-DD", monthKey} (Records → Cash → In/Out tab)
 stores/{storeId}/salesLedger/{id}     — Clover upload summaries {revenue, itemsSold, period, rows[], appliedAt}
 stores/{storeId}/deliveries/{id}      — delivery log entries (Commerce → Deliveries)
 stores/{storeId}/issues/{id}          — Home tab issues {title, description, status open|resolved}
