@@ -161,18 +161,18 @@ export default function PLSimulator() {
     tgtRevNeeded, bestCat, extraUnits, catGPperUnit, ranked,
   } = c
 
-  const mc = m => m >= 0.20 ? '#276749' : m >= 0.15 ? '#C8843A' : '#C53030'
+  const mc = m => m >= 0.20 ? '#276749' : m >= 0.15 ? '#C1683C' : '#C53030'
 
   const tabBtn = id => ({
     padding:'9px 16px', borderRadius:20, cursor:'pointer', whiteSpace:'nowrap',
     fontSize:13, fontWeight: tab===id ? 700 : 500, fontFamily:'inherit',
-    background: tab===id ? '#2C1810' : '#fff',
-    color:      tab===id ? '#fff'    : '#8B7355',
-    border:     tab===id ? 'none'    : '1px solid #EDE0CC',
+    background: tab===id ? '#1A4C48' : '#fff',
+    color:      tab===id ? '#fff'    : '#6B7F78',
+    border:     tab===id ? 'none'    : '1px solid #E3DDD0',
   })
-  const th = { padding:'10px 14px', fontSize:11, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.04em', background:'#FAFAF8', whiteSpace:'nowrap' }
-  const td = { padding:'10px 14px', fontSize:13, borderTop:'1px solid #EDE0CC' }
-  const inp = { padding:'6px 8px', border:'1px solid #EDE0CC', borderRadius:6, fontSize:13, fontFamily:'inherit', background:'#fff', textAlign:'right' }
+  const th = { padding:'10px 14px', fontSize:11, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.04em', background:'#FAFAF8', whiteSpace:'nowrap' }
+  const td = { padding:'10px 14px', fontSize:13, borderTop:'1px solid #E3DDD0' }
+  const inp = { padding:'6px 8px', border:'1px solid #E3DDD0', borderRadius:6, fontSize:13, fontFamily:'inherit', background:'#fff', textAlign:'right' }
 
   return (
     <div style={{ maxWidth:860 }}>
@@ -212,7 +212,7 @@ export default function PLSimulator() {
               </div>
               <div style={{ textAlign:'right' }}>
                 <div style={{ fontSize:36, fontWeight:800, color: mc(netMgn), lineHeight:1 }}>{pp(netMgn)}</div>
-                <div style={{ fontSize:12, color:'#8B7355', marginTop:4 }}>net margin</div>
+                <div style={{ fontSize:12, color:'#6B7F78', marginTop:4 }}>net margin</div>
               </div>
             </div>
 
@@ -225,7 +225,7 @@ export default function PLSimulator() {
               ].map(([label,val,col])=>(
                 <div key={label} style={{ background:'rgba(255,255,255,0.7)', borderRadius:10, padding:'10px 14px', textAlign:'center' }}>
                   <div style={{ fontSize:18, fontWeight:700, color:col }}>{val}</div>
-                  <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{label}</div>
+                  <div style={{ fontSize:11, color:'#6B7F78', marginTop:3 }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -234,7 +234,7 @@ export default function PLSimulator() {
           {/* What to do (only if not on target) */}
           {!onTarget && (
             <div style={{ background:'#FFFBF0', border:'1px solid #F5D78A', borderRadius:12, padding:16, marginBottom:20 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>
                 To hit {pp(settings.targetMargin)} target, do one of these:
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
@@ -242,7 +242,7 @@ export default function PLSimulator() {
                   <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
                     <span style={{ fontSize:18, flexShrink:0 }}>1️⃣</span>
                     <div style={{ fontSize:13, color:'#555', lineHeight:1.5 }}>
-                      Sell <strong style={{ color:'#2C1810' }}>{extraUnits} more {bestCat} units/day</strong>
+                      Sell <strong style={{ color:'#1A4C48' }}>{extraUnits} more {bestCat} units/day</strong>
                       {' '}({bestCat} has your best margin at {pp(catData[bestCat]?.gpPct||0)})
                       {' → '}<strong style={{ color:'#276749' }}>adds {fmt(extraUnits * (c.avgP[bestCat]-c.avgC[bestCat]) * settings.daysPerYear)}/year to profit</strong>
                     </div>
@@ -252,7 +252,7 @@ export default function PLSimulator() {
                   <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
                     <span style={{ fontSize:18, flexShrink:0 }}>2️⃣</span>
                     <div style={{ fontSize:13, color:'#555', lineHeight:1.5 }}>
-                      Grow total revenue by <strong style={{ color:'#2C1810' }}>{fmt(tgtRevNeeded)}/year</strong>
+                      Grow total revenue by <strong style={{ color:'#1A4C48' }}>{fmt(tgtRevNeeded)}/year</strong>
                       {' '}({fmt(tgtRevNeeded/settings.daysPerYear)}/day) while keeping the same mix
                     </div>
                   </div>
@@ -260,7 +260,7 @@ export default function PLSimulator() {
                 <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
                   <span style={{ fontSize:18, flexShrink:0 }}>3️⃣</span>
                   <div style={{ fontSize:13, color:'#555', lineHeight:1.5 }}>
-                    Reduce annual OPEX by <strong style={{ color:'#2C1810' }}>
+                    Reduce annual OPEX by <strong style={{ color:'#1A4C48' }}>
                       {fmt(Math.max(0, annOpex - (totGP - settings.targetMargin * totRev / (1-settings.taxRate))))}
                     </strong>
                     {' '}(OPEX is currently {pp(totRev>0?annOpex/totRev:0)} of revenue)
@@ -271,14 +271,14 @@ export default function PLSimulator() {
           )}
 
           {/* Mix sliders — what-if simulator */}
-          <div style={{ fontSize:11, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.8px', marginBottom:8 }}>
+          <div style={{ fontSize:11, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.8px', marginBottom:8 }}>
             Simulate a Different Mix — What If?
           </div>
-          <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:16, marginBottom:16 }}>
+          <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:16, marginBottom:16 }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14, flexWrap:'wrap', gap:8 }}>
               <div style={{ fontSize:13, color:'#555' }}>Drag sliders to model a different sales mix and see what happens</div>
               <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                <span style={{ fontSize:12, color:'#8B7355' }}>Total units/day:</span>
+                <span style={{ fontSize:12, color:'#6B7F78' }}>Total units/day:</span>
                 <input type="number" min={0} value={mixTotal} style={{ ...inp, width:70, fontSize:14 }}
                   onChange={e => { const v=Number(e.target.value)||0; setMixTotal(v); sv('pls5_mixTotal',v) }} />
               </div>
@@ -290,11 +290,11 @@ export default function PLSimulator() {
               return (
                 <div key={cat} style={{ marginBottom:14 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
-                    <span style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{cat}</span>
+                    <span style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{cat}</span>
                     <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-                      <span style={{ fontSize:12, color:'#8B7355' }}>{units} units/day</span>
+                      <span style={{ fontSize:12, color:'#6B7F78' }}>{units} units/day</span>
                       <span style={{ fontSize:12, fontWeight:700,
-                        color: gpPct>=0.75?'#276749':gpPct>=0.65?'#C8843A':'#C53030' }}>
+                        color: gpPct>=0.75?'#276749':gpPct>=0.65?'#C1683C':'#C53030' }}>
                         GP {pp(gpPct)}
                       </span>
                     </div>
@@ -308,7 +308,7 @@ export default function PLSimulator() {
                         value={Math.round((mixPct[cat]||0)*100)}
                         onChange={e => setMix(cat, (Number(e.target.value)||0)/100)}
                         style={{ ...inp, width:52 }} />
-                      <span style={{ fontSize:13, color:'#8B7355' }}>%</span>
+                      <span style={{ fontSize:13, color:'#6B7F78' }}>%</span>
                     </div>
                   </div>
                 </div>
@@ -323,7 +323,7 @@ export default function PLSimulator() {
           </div>
 
           {/* Scenario results table */}
-          <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
+          <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
                 <tr>
@@ -342,13 +342,13 @@ export default function PLSimulator() {
                     <td style={{ ...td, textAlign:'right' }}>{fmt(r.rev)}</td>
                     <td style={{ ...td, textAlign:'right', color:'#276749', fontWeight:600 }}>{fmt(r.gp)}</td>
                     <td style={{ ...td, textAlign:'right', fontWeight:700,
-                      color:r.gpPct>=0.75?'#276749':r.gpPct>=0.65?'#C8843A':'#C53030' }}>
+                      color:r.gpPct>=0.75?'#276749':r.gpPct>=0.65?'#C1683C':'#C53030' }}>
                       {pp(r.gpPct)}
                     </td>
                   </tr>
                 ))}
-                <tr style={{ background:'#F5F0E8', borderTop:'2px solid #EDE0CC' }}>
-                  <td style={{ ...td, fontWeight:700, color:'#2C1810' }}>Total</td>
+                <tr style={{ background:'#F5F0E8', borderTop:'2px solid #E3DDD0' }}>
+                  <td style={{ ...td, fontWeight:700, color:'#1A4C48' }}>Total</td>
                   <td style={{ ...td, textAlign:'right', fontWeight:700 }}>{mixTotal}</td>
                   <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#276749' }}>{fmt(scRev)}</td>
                   <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#276749' }}>{fmt(scGP)}</td>
@@ -374,10 +374,10 @@ export default function PLSimulator() {
       {/* ── 📊 Full P&L ─────────────────────────────────────────────────────── */}
       {tab === 'pl' && (
         <div>
-          <div style={{ fontSize:12, color:'#8B7355', marginBottom:14 }}>
+          <div style={{ fontSize:12, color:'#6B7F78', marginBottom:14 }}>
             Based on units/day set in ⚙️ Inputs. Adjust the mix in 🎯 Am I on Target? to model scenarios.
           </div>
-          <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden' }}>
+          <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, overflow:'hidden' }}>
             <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
               <thead>
                 <tr>
@@ -394,13 +394,13 @@ export default function PLSimulator() {
                   <tr key={cat}>
                     <td style={{ ...td, paddingLeft:24, color:'#555' }}>{cat}</td>
                     <td style={{ ...td, textAlign:'right' }}>{fmt(catData[cat]?.rev)}</td>
-                    <td style={{ ...td, textAlign:'right', color:'#8B7355' }}>{totRev>0?pp((catData[cat]?.rev||0)/totRev):'—'}</td>
+                    <td style={{ ...td, textAlign:'right', color:'#6B7F78' }}>{totRev>0?pp((catData[cat]?.rev||0)/totRev):'—'}</td>
                   </tr>
                 ))}
                 <tr style={{ background:'#E8F5E9' }}>
                   <td style={{ ...td, fontWeight:700, color:'#276749' }}>Total Revenue</td>
                   <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#276749' }}>{fmt(totRev)}</td>
-                  <td style={{ ...td, textAlign:'right', color:'#8B7355' }}>100%</td>
+                  <td style={{ ...td, textAlign:'right', color:'#6B7F78' }}>100%</td>
                 </tr>
                 <tr style={{ background:'#FFF5F5' }}>
                   <td style={{ ...td, fontWeight:700, color:'#C53030', fontSize:11, textTransform:'uppercase', letterSpacing:'0.05em' }} colSpan={3}>Cost of Goods Sold</td>
@@ -409,7 +409,7 @@ export default function PLSimulator() {
                   <tr key={cat}>
                     <td style={{ ...td, paddingLeft:24, color:'#555' }}>{cat} COGS</td>
                     <td style={{ ...td, textAlign:'right' }}>{fmt(catData[cat]?.cogs)}</td>
-                    <td style={{ ...td, textAlign:'right', color:'#8B7355' }}>{totRev>0?pp((catData[cat]?.cogs||0)/totRev):'—'}</td>
+                    <td style={{ ...td, textAlign:'right', color:'#6B7F78' }}>{totRev>0?pp((catData[cat]?.cogs||0)/totRev):'—'}</td>
                   </tr>
                 ))}
                 <tr style={{ background:'#FFF0F0' }}>
@@ -423,24 +423,24 @@ export default function PLSimulator() {
                   <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#276749' }}>{pp(gpRate)}</td>
                 </tr>
                 <tr style={{ background:'#FFF8F0' }}>
-                  <td style={{ ...td, fontWeight:700, color:'#C8843A', fontSize:11, textTransform:'uppercase', letterSpacing:'0.05em' }} colSpan={3}>Operating Expenses</td>
+                  <td style={{ ...td, fontWeight:700, color:'#C1683C', fontSize:11, textTransform:'uppercase', letterSpacing:'0.05em' }} colSpan={3}>Operating Expenses</td>
                 </tr>
                 {opex.map(e => (
                   <tr key={e.name}>
                     <td style={{ ...td, paddingLeft:24, color:'#555' }}>{e.name}</td>
                     <td style={{ ...td, textAlign:'right' }}>{fmt(e.monthly*12)}</td>
-                    <td style={{ ...td, textAlign:'right', color:'#8B7355' }}>{totRev>0?pp(e.monthly*12/totRev):'—'}</td>
+                    <td style={{ ...td, textAlign:'right', color:'#6B7F78' }}>{totRev>0?pp(e.monthly*12/totRev):'—'}</td>
                   </tr>
                 ))}
                 <tr style={{ background:'#FFF0DC' }}>
-                  <td style={{ ...td, fontWeight:700, color:'#C8843A' }}>Total OPEX</td>
-                  <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#C8843A' }}>{fmt(annOpex)}</td>
-                  <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#C8843A' }}>{totRev>0?pp(annOpex/totRev):'—'}</td>
+                  <td style={{ ...td, fontWeight:700, color:'#C1683C' }}>Total OPEX</td>
+                  <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#C1683C' }}>{fmt(annOpex)}</td>
+                  <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#C1683C' }}>{totRev>0?pp(annOpex/totRev):'—'}</td>
                 </tr>
                 <tr style={{ background: ebitda>0?'#E8F5E9':'#FFF5F5' }}>
                   <td style={{ ...td, fontWeight:700, color: ebitda>0?'#276749':'#C53030' }}>EBITDA</td>
                   <td style={{ ...td, textAlign:'right', fontWeight:700, color: ebitda>0?'#276749':'#C53030' }}>{fmt(ebitda)}</td>
-                  <td style={{ ...td, textAlign:'right', color:'#8B7355' }}>{totRev>0?pp(ebitda/totRev):'—'}</td>
+                  <td style={{ ...td, textAlign:'right', color:'#6B7F78' }}>{totRev>0?pp(ebitda/totRev):'—'}</td>
                 </tr>
                 <tr style={{ background: netInc>0?'#C6F6D5':'#FED7D7' }}>
                   <td style={{ ...td, fontWeight:700, fontSize:14, color: mc(netMgn) }}>
@@ -455,7 +455,7 @@ export default function PLSimulator() {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:12 }}>
             <div style={{ fontSize:11, color:'#aaa' }}>Based on {settings.daysPerYear} days/year · units set in ① Inputs.</div>
             <button onClick={()=>setTab('target')} style={{
-              background:'#2C1810', color:'#fff', border:'none', borderRadius:8,
+              background:'#1A4C48', color:'#fff', border:'none', borderRadius:8,
               padding:'10px 20px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit',
             }}>
               Am I on Target? →
@@ -467,18 +467,18 @@ export default function PLSimulator() {
       {/* ── 📣 What to Sell ─────────────────────────────────────────────────── */}
       {tab === 'push' && (
         <div>
-          <div style={{ fontSize:12, color:'#8B7355', marginBottom:14 }}>
+          <div style={{ fontSize:12, color:'#6B7F78', marginBottom:14 }}>
             Products ranked by <strong>profit per unit</strong> — push the top ones hardest.
             The number shows how much each extra unit/day adds to annual profit.
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:24 }}>
             {ranked.map((p, i) => (
               <div key={p.id} style={{ display:'flex', alignItems:'center', gap:12,
-                padding:'12px 14px', background:'#fff', border:'1px solid #EDE0CC', borderRadius:10 }}>
+                padding:'12px 14px', background:'#fff', border:'1px solid #E3DDD0', borderRadius:10 }}>
                 <div style={{ fontSize:13, fontWeight:700, color:'#aaa', width:22, textAlign:'center' }}>#{i+1}</div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{p.name}</div>
-                  <div style={{ fontSize:11, color:'#8B7355', marginTop:2 }}>
+                  <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{p.name}</div>
+                  <div style={{ fontSize:11, color:'#6B7F78', marginTop:2 }}>
                     Sell {fmtD(p.price)} · Cost {fmtD(p.cost)} · Profit/unit {fmtD(p.gpUnit)}
                     {p.unitsDay === 0 && <span style={{ color:'#C53030', marginLeft:8, fontWeight:600 }}>⚠ not being sold</span>}
                   </div>
@@ -487,20 +487,20 @@ export default function PLSimulator() {
                   <div style={{ fontSize:15, fontWeight:700, color:'#276749' }}>
                     +{fmt(p.gpUnit * settings.daysPerYear)}/yr
                   </div>
-                  <div style={{ fontSize:10, color:'#8B7355' }}>per extra unit/day</div>
+                  <div style={{ fontSize:10, color:'#6B7F78' }}>per extra unit/day</div>
                 </div>
                 <div style={{ textAlign:'right', flexShrink:0, minWidth:48 }}>
                   <div style={{ fontSize:16, fontWeight:700,
-                    color:p.gpPct>=0.75?'#276749':p.gpPct>=0.65?'#C8843A':'#C53030' }}>
+                    color:p.gpPct>=0.75?'#276749':p.gpPct>=0.65?'#C1683C':'#C53030' }}>
                     {pp(p.gpPct)}
                   </div>
-                  <div style={{ fontSize:10, color:'#8B7355' }}>margin</div>
+                  <div style={{ fontSize:10, color:'#6B7F78' }}>margin</div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:10 }}>Strategic Tips</div>
+          <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:10 }}>Strategic Tips</div>
           {[
             ['☕', 'Push Coffee', 'Highest margin category. Upsell a coffee with every ice cream order — each extra sale is nearly pure profit.'],
             ['🍹', 'Falooda & Milk Shake', 'High sell price with solid margin. These elevate your average transaction value — promote them at the counter.'],
@@ -509,10 +509,10 @@ export default function PLSimulator() {
             ['📦', 'Hand Packed & Sampler', 'Premium items with strong margins. Great for gifting — push during weekends and events.'],
           ].map(([icon, tip, body]) => (
             <div key={tip} style={{ display:'flex', gap:12, padding:'12px 14px', background:'#fff',
-              border:'1px solid #EDE0CC', borderRadius:10, marginBottom:8 }}>
+              border:'1px solid #E3DDD0', borderRadius:10, marginBottom:8 }}>
               <span style={{ fontSize:20, flexShrink:0 }}>{icon}</span>
               <div>
-                <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:2 }}>{tip}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:2 }}>{tip}</div>
                 <div style={{ fontSize:12, color:'#555', lineHeight:1.5 }}>{body}</div>
               </div>
             </div>
@@ -524,42 +524,42 @@ export default function PLSimulator() {
       {tab === 'inputs' && (
         <div>
           {/* Business settings */}
-          <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:16, marginBottom:16 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:12 }}>Business Settings</div>
+          <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:16, marginBottom:16 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:12 }}>Business Settings</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
               <div>
-                <div style={{ fontSize:12, color:'#8B7355', marginBottom:4 }}>Days Open / Year</div>
+                <div style={{ fontSize:12, color:'#6B7F78', marginBottom:4 }}>Days Open / Year</div>
                 <input type="number" min={1} max={365} value={settings.daysPerYear} style={{ ...inp, width:'100%' }}
                   onChange={e => setSt('daysPerYear', e.target.value)} />
               </div>
               <div>
-                <div style={{ fontSize:12, color:'#8B7355', marginBottom:4 }}>Tax Rate</div>
+                <div style={{ fontSize:12, color:'#6B7F78', marginBottom:4 }}>Tax Rate</div>
                 <div style={{ display:'flex', alignItems:'center', gap:4 }}>
                   <input type="number" min={0} max={100} step={0.1}
                     value={+(settings.taxRate * 100).toFixed(1)}
                     style={{ ...inp, flex:1 }}
                     onChange={e => setSt('taxRate', (Number(e.target.value)||0) / 100)} />
-                  <span style={{ fontSize:13, color:'#8B7355' }}>%</span>
+                  <span style={{ fontSize:13, color:'#6B7F78' }}>%</span>
                 </div>
               </div>
               <div>
-                <div style={{ fontSize:12, color:'#8B7355', marginBottom:4 }}>Target Net Margin</div>
+                <div style={{ fontSize:12, color:'#6B7F78', marginBottom:4 }}>Target Net Margin</div>
                 <div style={{ display:'flex', alignItems:'center', gap:4 }}>
                   <input type="number" min={0} max={100} step={0.5}
                     value={+(settings.targetMargin * 100).toFixed(1)}
                     style={{ ...inp, flex:1 }}
                     onChange={e => setSt('targetMargin', (Number(e.target.value)||0) / 100)} />
-                  <span style={{ fontSize:13, color:'#8B7355' }}>%</span>
+                  <span style={{ fontSize:13, color:'#6B7F78' }}>%</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Units/day */}
-          <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:16 }}>
-            <div style={{ padding:'12px 16px', borderBottom:'1px solid #EDE0CC', fontSize:13, fontWeight:700, color:'#2C1810' }}>
+          <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, overflow:'hidden', marginBottom:16 }}>
+            <div style={{ padding:'12px 16px', borderBottom:'1px solid #E3DDD0', fontSize:13, fontWeight:700, color:'#1A4C48' }}>
               Daily Units Sold per Item
-              <span style={{ fontSize:11, fontWeight:400, color:'#8B7355', marginLeft:8 }}>
+              <span style={{ fontSize:11, fontWeight:400, color:'#6B7F78', marginLeft:8 }}>
                 (total: {sum(products.map(p=>p.unitsDay))}/day)
               </span>
             </div>
@@ -578,7 +578,7 @@ export default function PLSimulator() {
                 {CATS.map(cat => (
                   <>
                     <tr key={`h-${cat}`} style={{ background:'#FAFAF8' }}>
-                      <td colSpan={5} style={{ ...td, fontWeight:700, fontSize:11, textTransform:'uppercase', letterSpacing:'0.05em', color:'#8B7355', padding:'7px 14px' }}>{cat}</td>
+                      <td colSpan={5} style={{ ...td, fontWeight:700, fontSize:11, textTransform:'uppercase', letterSpacing:'0.05em', color:'#6B7F78', padding:'7px 14px' }}>{cat}</td>
                     </tr>
                     {prods.filter(p=>p.cat===cat).map(p=>(
                       <tr key={p.id}>
@@ -596,11 +596,11 @@ export default function PLSimulator() {
                             onChange={e=>setP(p.id,'cost',e.target.value)} />
                         </td>
                         <td style={{ ...td, textAlign:'right', fontWeight:600,
-                          color: p.price>0 && p.cost/p.price<0.30 ? '#276749' : p.price>0 && p.cost/p.price<0.40 ? '#C8843A' : '#C53030' }}>
+                          color: p.price>0 && p.cost/p.price<0.30 ? '#276749' : p.price>0 && p.cost/p.price<0.40 ? '#C1683C' : '#C53030' }}>
                           {p.price > 0 ? pp(p.cost/p.price) : '—'}
                         </td>
                         <td style={{ ...td, textAlign:'right', fontWeight:700,
-                          color:p.gpPct>=0.75?'#276749':p.gpPct>=0.65?'#C8843A':'#C53030' }}>
+                          color:p.gpPct>=0.75?'#276749':p.gpPct>=0.65?'#C1683C':'#C53030' }}>
                           {pp(p.gpPct)}
                         </td>
                       </tr>
@@ -612,8 +612,8 @@ export default function PLSimulator() {
           </div>
 
           {/* OPEX */}
-          <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden' }}>
-            <div style={{ padding:'12px 16px', borderBottom:'1px solid #EDE0CC', fontSize:13, fontWeight:700, color:'#2C1810' }}>
+          <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, overflow:'hidden' }}>
+            <div style={{ padding:'12px 16px', borderBottom:'1px solid #E3DDD0', fontSize:13, fontWeight:700, color:'#1A4C48' }}>
               Monthly Operating Expenses
             </div>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
@@ -632,13 +632,13 @@ export default function PLSimulator() {
                       <input type="number" min={0} value={e.monthly} style={{ ...inp, width:80 }}
                         onChange={ev=>setO(i,ev.target.value)} />
                     </td>
-                    <td style={{ ...td, textAlign:'right', color:'#C8843A', fontWeight:600 }}>{fmt(e.monthly*12)}</td>
+                    <td style={{ ...td, textAlign:'right', color:'#C1683C', fontWeight:600 }}>{fmt(e.monthly*12)}</td>
                   </tr>
                 ))}
                 <tr style={{ background:'#FFF0DC' }}>
-                  <td style={{ ...td, fontWeight:700, color:'#C8843A' }}>Total</td>
+                  <td style={{ ...td, fontWeight:700, color:'#C1683C' }}>Total</td>
                   <td style={{ ...td, textAlign:'center', fontWeight:700 }}>{fmt(annOpex/12)}/mo</td>
-                  <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#C8843A' }}>{fmt(annOpex)}/yr</td>
+                  <td style={{ ...td, textAlign:'right', fontWeight:700, color:'#C1683C' }}>{fmt(annOpex)}/yr</td>
                 </tr>
               </tbody>
             </table>
@@ -646,7 +646,7 @@ export default function PLSimulator() {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:12 }}>
             <div style={{ fontSize:11, color:'#aaa' }}>All inputs auto-save to this device.</div>
             <button onClick={()=>setTab('pl')} style={{
-              background:'#2C1810', color:'#fff', border:'none', borderRadius:8,
+              background:'#1A4C48', color:'#fff', border:'none', borderRadius:8,
               padding:'10px 20px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit',
             }}>
               View P&amp;L →

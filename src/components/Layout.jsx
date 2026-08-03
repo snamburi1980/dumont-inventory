@@ -102,11 +102,11 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
             {logoData ? (
               <img src={logoData} alt={orgName} style={{ height:40, maxWidth:120, objectFit:'contain' }} />
             ) : (
-              <div style={{ width:40, height:40, borderRadius:8, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'serif', fontSize:22, fontWeight:700, color:'#fff' }}>
+              <div style={{ width:40, height:40, borderRadius:8, background:'rgba(227,156,116,0.2)', border:'1px solid rgba(227,156,116,0.5)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'"Bebas Neue", sans-serif', fontSize:24, color:'#E39C74' }}>
                 {orgName.charAt(0).toUpperCase()}
               </div>
             )}
-            <span style={{ fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.8)' }}>{orgName}</span>
+            <span style={{ fontFamily:'"Bebas Neue", sans-serif', fontSize:18, letterSpacing:3, color:'#fff' }}>{orgName}</span>
           </div>
 
           {/* Right side */}
@@ -164,36 +164,36 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
               {showUserMenu && (
                 <div style={{
                   position:'absolute', right:0, top:44,
-                  background:'#fff', border:'1px solid #EDE0CC',
+                  background:'#fff', border:'1px solid #E3DDD0',
                   borderRadius:12, boxShadow:'0 8px 32px rgba(0,0,0,0.18)',
                   minWidth:210, zIndex:300,
                 }}>
                   {/* User info */}
-                  <div style={{ padding:'14px 16px', borderBottom:'1px solid #EDE0CC' }}>
-                    <div style={{ fontSize:14, fontWeight:700, color:'#2C1810' }}>{userName}</div>
-                    <div style={{ fontSize:11, color:'#8B7355', marginTop:2, textTransform:'capitalize' }}>
+                  <div style={{ padding:'14px 16px', borderBottom:'1px solid #E3DDD0' }}>
+                    <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48' }}>{userName}</div>
+                    <div style={{ fontSize:11, color:'#6B7F78', marginTop:2, textTransform:'capitalize' }}>
                       {(role || 'staff').replace(/_/g,' ')}
                     </div>
                   </div>
 
                   <div style={{ padding:'6px 0' }}>
                     {/* Theme — mobile only (desktop has it in header) */}
-                    <div className="mobile-only" style={{ padding:'6px 16px 2px', borderBottom:'1px solid #F5EFE8', marginBottom:4 }}>
-                      <div style={{ fontSize:11, color:'#8B7355', marginBottom:6, fontWeight:600 }}>Theme</div>
+                    <div className="mobile-only" style={{ padding:'6px 16px 2px', borderBottom:'1px solid #EFEBE0', marginBottom:4 }}>
+                      <div style={{ fontSize:11, color:'#6B7F78', marginBottom:6, fontWeight:600 }}>Theme</div>
                       <ThemeSwitcher currentTheme={currentTheme || 'warm'} onThemeChange={v => { if (onThemeChange) onThemeChange(v); setShowUserMenu(false) }} />
                     </div>
 
                     {!isStaff && (
                       <button
                         onClick={() => { setActiveTab('admin'); setShowUserMenu(false) }}
-                        style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#2C1810', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
+                        style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#1A4C48', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
                         <span style={{ fontSize:15 }}>⚙️</span> Admin
                       </button>
                     )}
 
                     <button
                       onClick={() => { setShowChangePwd(true); setShowUserMenu(false) }}
-                      style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#2C1810', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
+                      style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#1A4C48', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
                       <span style={{ fontSize:15 }}>🔑</span> Change Password
                     </button>
 
@@ -212,19 +212,19 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
                         } catch(_) {}
                         window.location.reload(true)
                       }}
-                      style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#8B7355', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
+                      style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#6B7F78', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
                       <span style={{ fontSize:15 }}>🔄</span> Clear Cache & Update
                     </button>
 
                     {onBackToHQ && (
                       <button
                         onClick={() => { onBackToHQ(); setShowUserMenu(false) }}
-                        style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#C8843A', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
+                        style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#C1683C', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
                         <span style={{ fontSize:15 }}>🏢</span> Back to HQ
                       </button>
                     )}
 
-                    <div style={{ borderTop:'1px solid #F5EFE8', marginTop:4 }}>
+                    <div style={{ borderTop:'1px solid #EFEBE0', marginTop:4 }}>
                       <button
                         onClick={auth?.logout}
                         style={{ width:'100%', textAlign:'left', padding:'10px 16px', background:'none', border:'none', fontSize:13, color:'#C62828', cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:10 }}>
@@ -243,12 +243,12 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
       <div style={{ display:'flex', flex:1, maxWidth:1200, margin:'0 auto', width:'100%' }}>
 
         {/* Sidebar — desktop only */}
-        <div className="sidebar" style={{ width:190, flexShrink:0, padding:'20px 0', borderRight:'1px solid #EDE0CC' }}>
+        <div className="sidebar" style={{ width:190, flexShrink:0, padding:'20px 0', borderRight:'1px solid #E3DDD0' }}>
           {onBackToHQ && (
             <button onClick={onBackToHQ} style={{
               width:'100%', textAlign:'left', padding:'8px 16px', background:'none',
-              border:'none', borderBottom:'1px solid #EDE0CC', fontSize:12, fontWeight:600,
-              color:'#C8843A', cursor:'pointer', fontFamily:'inherit', marginBottom:8,
+              border:'none', borderBottom:'1px solid #E3DDD0', fontSize:12, fontWeight:600,
+              color:'#C1683C', cursor:'pointer', fontFamily:'inherit', marginBottom:8,
               display:'flex', alignItems:'center', gap:6,
             }}>
               🏢 Back to HQ
@@ -271,9 +271,9 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
                     style={{
                       width:'100%', textAlign:'left', padding:'9px 16px',
                       background: !isDisabled && activeTab === tab.id ? 'rgba(200,132,58,0.12)' : 'transparent',
-                      color: isDisabled ? '#ccc' : activeTab === tab.id ? '#2C1810' : '#8B7355',
+                      color: isDisabled ? '#ccc' : activeTab === tab.id ? '#1A4C48' : '#6B7F78',
                       border:'none',
-                      borderLeft: !isDisabled && activeTab === tab.id ? '3px solid #C8843A' : '3px solid transparent',
+                      borderLeft: !isDisabled && activeTab === tab.id ? '3px solid #C1683C' : '3px solid transparent',
                       fontSize:13, fontWeight: !isDisabled && activeTab === tab.id ? 700 : 400,
                       cursor: isDisabled ? 'not-allowed' : 'pointer',
                       fontFamily:'inherit', transition:'all 0.15s',
@@ -314,7 +314,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
                 flex:'0 0 auto', minWidth:68, padding:'10px 8px 8px',
                 background:'transparent', border:'none', cursor: isDisabled ? 'not-allowed' : 'pointer',
                 display:'flex', flexDirection:'column', alignItems:'center', gap:3,
-                borderTop: isActive ? `2px solid ${theme.caramel || '#C8843A'}` : '2px solid transparent',
+                borderTop: isActive ? `2px solid ${theme.caramel || '#C1683C'}` : '2px solid transparent',
                 transition:'all 0.15s',
               }}>
               <span style={{ fontSize:20, opacity: isDisabled ? 0.25 : 1, lineHeight:1 }}>{tab.icon}</span>

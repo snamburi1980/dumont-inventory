@@ -171,18 +171,18 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
     window.location.reload()
   }
 
-  const inp = { width:'100%', padding:'11px 12px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:14, marginBottom:12, boxSizing:'border-box', background:'#FDF6EC' }
-  const btnPrimary = { width:'100%', background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'13px', cursor:'pointer', fontSize:14, fontWeight:700, fontFamily:'inherit' }
-  const card = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:14, padding:'24px', width:'100%', maxWidth:420 }
+  const inp = { width:'100%', padding:'11px 12px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:14, marginBottom:12, boxSizing:'border-box', background:'#F6F4ED' }
+  const btnPrimary = { width:'100%', background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'13px', cursor:'pointer', fontSize:14, fontWeight:700, fontFamily:'inherit' }
+  const card = { background:'#fff', border:'1px solid #E3DDD0', borderRadius:14, padding:'24px', width:'100%', maxWidth:420 }
 
   // ── Invalid token ──────────────────────────────────────────
   if (tokenValid === false) {
     return (
-      <div style={{ minHeight:'100vh', background:'#FDF6EC', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+      <div style={{ minHeight:'100vh', background:'#F6F4ED', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
         <div style={{ ...card, textAlign:'center' }}>
           <div style={{ fontSize:40, marginBottom:12 }}>⚠️</div>
-          <div style={{ fontSize:17, fontWeight:700, color:'#2C1810', marginBottom:8 }}>Invalid Invitation Link</div>
-          <div style={{ fontSize:13, color:'#8B7355', marginBottom:20 }}>This link is missing required information or has already been used. Please contact your administrator for a new invitation.</div>
+          <div style={{ fontSize:17, fontWeight:700, color:'#1A4C48', marginBottom:8 }}>Invalid Invitation Link</div>
+          <div style={{ fontSize:13, color:'#6B7F78', marginBottom:20 }}>This link is missing required information or has already been used. Please contact your administrator for a new invitation.</div>
           <a href={APP_BASE} style={{ ...btnPrimary, display:'block', textDecoration:'none', textAlign:'center' }}>Go to App</a>
         </div>
       </div>
@@ -192,8 +192,8 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
   // ── Checking ───────────────────────────────────────────────
   if (tokenValid === null) {
     return (
-      <div style={{ minHeight:'100vh', background:'#FDF6EC', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ fontSize:14, color:'#8B7355' }}>Validating invitation...</div>
+      <div style={{ minHeight:'100vh', background:'#F6F4ED', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <div style={{ fontSize:14, color:'#6B7F78' }}>Validating invitation...</div>
       </div>
     )
   }
@@ -201,12 +201,12 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
   // ── Step: Done ─────────────────────────────────────────────
   if (step === 'done') {
     return (
-      <div style={{ minHeight:'100vh', background:'#FDF6EC', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+      <div style={{ minHeight:'100vh', background:'#F6F4ED', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
         <div style={{ ...card, textAlign:'center' }}>
           <div style={{ fontSize:48, marginBottom:12 }}>🎉</div>
-          <div style={{ fontSize:18, fontWeight:700, color:'#2C1810', marginBottom:8 }}>You're all set!</div>
-          <div style={{ fontSize:14, color:'#8B7355', marginBottom:8 }}><strong>{storeName}</strong> is ready to go.</div>
-          <div style={{ fontSize:13, color:'#8B7355', marginBottom:24 }}>Update your inventory quantities as deliveries arrive.</div>
+          <div style={{ fontSize:18, fontWeight:700, color:'#1A4C48', marginBottom:8 }}>You're all set!</div>
+          <div style={{ fontSize:14, color:'#6B7F78', marginBottom:8 }}><strong>{storeName}</strong> is ready to go.</div>
+          <div style={{ fontSize:13, color:'#6B7F78', marginBottom:24 }}>Update your inventory quantities as deliveries arrive.</div>
           <button onClick={handleComplete} style={btnPrimary}>Open {storeName} →</button>
         </div>
       </div>
@@ -216,34 +216,34 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
   // ── Step: Inventory Seed ───────────────────────────────────
   if (step === 'seeding') {
     return (
-      <div style={{ minHeight:'100vh', background:'#FDF6EC', padding:20 }}>
+      <div style={{ minHeight:'100vh', background:'#F6F4ED', padding:20 }}>
         <div style={{ maxWidth:600, margin:'0 auto' }}>
           <div style={{ textAlign:'center', marginBottom:24, paddingTop:20 }}>
-            <div style={{ fontSize:32, fontWeight:700, color:'#2C1810', fontFamily:'serif', marginBottom:4 }}>D</div>
-            <div style={{ fontSize:17, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Set Up Your Inventory</div>
-            <div style={{ fontSize:13, color:'#8B7355' }}>Below is the Dumont base catalog. Set starting quantities (leave 0 if not in stock yet) and confirm.</div>
+            <div style={{ fontSize:32, fontWeight:700, color:'#1A4C48', fontFamily:'serif', marginBottom:4 }}>D</div>
+            <div style={{ fontSize:17, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Set Up Your Inventory</div>
+            <div style={{ fontSize:13, color:'#6B7F78' }}>Below is the Dumont base catalog. Set starting quantities (leave 0 if not in stock yet) and confirm.</div>
           </div>
 
           {seedItems.length === 0 ? (
-            <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:24, textAlign:'center', color:'#8B7355', marginBottom:16 }}>
+            <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:24, textAlign:'center', color:'#6B7F78', marginBottom:16 }}>
               No base catalog found. You can add items from Admin → Items after setup.
             </div>
           ) : (
-            <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:16 }}>
-              <div style={{ background:'#2C1810', padding:'10px 16px', display:'flex', gap:8 }}>
+            <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, overflow:'hidden', marginBottom:16 }}>
+              <div style={{ background:'#1A4C48', padding:'10px 16px', display:'flex', gap:8 }}>
                 <div style={{ flex:1, fontSize:11, fontWeight:700, color:'#fff', textTransform:'uppercase' }}>Item</div>
                 <div style={{ width:80, fontSize:11, fontWeight:700, color:'#fff', textTransform:'uppercase' }}>Category</div>
                 <div style={{ width:80, fontSize:11, fontWeight:700, color:'#fff', textTransform:'uppercase', textAlign:'right' }}>Qty on Hand</div>
               </div>
               {seedItems.map((item, idx) => (
-                <div key={item.id} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 16px', borderBottom: idx < seedItems.length-1 ? '1px solid #F5EFE8' : 'none', background: idx%2===0 ? '#fff' : '#FDFAF6' }}>
-                  <div style={{ flex:1, fontSize:13, color:'#2C1810', fontWeight:500 }}>{item.name}</div>
-                  <div style={{ width:80, fontSize:11, color:'#8B7355' }}>{item.category || '—'}</div>
+                <div key={item.id} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 16px', borderBottom: idx < seedItems.length-1 ? '1px solid #EFEBE0' : 'none', background: idx%2===0 ? '#fff' : '#FAF8F3' }}>
+                  <div style={{ flex:1, fontSize:13, color:'#1A4C48', fontWeight:500 }}>{item.name}</div>
+                  <div style={{ width:80, fontSize:11, color:'#6B7F78' }}>{item.category || '—'}</div>
                   <input
                     type="number" min="0" step="0.1"
                     value={item.quantity}
                     onChange={e => setSeedItems(prev => prev.map((s,i) => i===idx ? {...s, quantity: e.target.value} : s))}
-                    style={{ width:80, padding:'4px 8px', border:'1px solid #EDE0CC', borderRadius:6, fontSize:13, textAlign:'right', fontFamily:'inherit', background:'#FDF6EC' }}
+                    style={{ width:80, padding:'4px 8px', border:'1px solid #E3DDD0', borderRadius:6, fontSize:13, textAlign:'right', fontFamily:'inherit', background:'#F6F4ED' }}
                   />
                 </div>
               ))}
@@ -256,7 +256,7 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
               {seeding ? 'Saving...' : 'Confirm & Save Inventory'}
             </button>
             <button onClick={handleSkipSeed}
-              style={{ flex:1, background:'#fff', color:'#8B7355', border:'1px solid #EDE0CC', borderRadius:8, padding:'13px', cursor:'pointer', fontSize:14, fontFamily:'inherit' }}>
+              style={{ flex:1, background:'#fff', color:'#6B7F78', border:'1px solid #E3DDD0', borderRadius:8, padding:'13px', cursor:'pointer', fontSize:14, fontFamily:'inherit' }}>
               Skip for Now
             </button>
           </div>
@@ -267,12 +267,12 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
 
   // ── Step: Create Account ───────────────────────────────────
   return (
-    <div style={{ minHeight:'100vh', background:'#FDF6EC', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'#F6F4ED', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={card}>
         <div style={{ textAlign:'center', marginBottom:24 }}>
-          <div style={{ fontSize:36, fontWeight:700, color:'#2C1810', fontFamily:'serif', marginBottom:8 }}>D</div>
-          <div style={{ fontSize:17, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Welcome to Dumont Inventory</div>
-          <div style={{ fontSize:13, color:'#8B7355' }}>Setting up <strong>{storeName}</strong></div>
+          <div style={{ fontSize:36, fontWeight:700, color:'#1A4C48', fontFamily:'serif', marginBottom:8 }}>D</div>
+          <div style={{ fontSize:17, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Welcome to Dumont Inventory</div>
+          <div style={{ fontSize:13, color:'#6B7F78' }}>Setting up <strong>{storeName}</strong></div>
         </div>
 
         {existingAccount ? (
@@ -280,7 +280,7 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
             This email already has an account. Enter your existing password to accept this invitation and get access to <strong>{storeName}</strong>.
           </div>
         ) : (
-          <div style={{ background:'#FFF3E0', border:'1px solid #FFB74D', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:12, color:'#C8843A' }}>
+          <div style={{ background:'#FFF3E0', border:'1px solid #FFB74D', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:12, color:'#C1683C' }}>
             You've been invited as <strong>{assignedRole.replace(/_/g,' ')}</strong> for <strong>{storeName}</strong>. Create your account below.
           </div>
         )}
@@ -291,24 +291,24 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
           </div>
         ) : (
           <form onSubmit={handleCreateAccount}>
-            <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Email</div>
-            <input value={email} readOnly style={{ ...inp, background:'#F5EFE8', color:'#8B7355', cursor:'not-allowed' }} />
+            <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4, fontWeight:600 }}>Email</div>
+            <input value={email} readOnly style={{ ...inp, background:'#EFEBE0', color:'#6B7F78', cursor:'not-allowed' }} />
 
             {!existingAccount && (
               <>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Your Full Name</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4, fontWeight:600 }}>Your Full Name</div>
                 <input placeholder="e.g. Jane Smith" value={name} onChange={e => setName(e.target.value)} style={inp} required />
               </>
             )}
 
-            <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>
+            <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4, fontWeight:600 }}>
               {existingAccount ? 'Your Existing Password' : 'Create Password'}
             </div>
             <input type="password" placeholder="Enter password" value={password} onChange={e => setPassword(e.target.value)} style={inp} required />
 
             {!existingAccount && (
               <>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Confirm Password</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4, fontWeight:600 }}>Confirm Password</div>
                 <input type="password" placeholder="Re-enter password" value={confirm} onChange={e => setConfirm(e.target.value)} style={inp} required />
               </>
             )}
@@ -327,7 +327,7 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
 
             {existingAccount && (
               <button type="button" onClick={handleForgotPassword}
-                style={{ width:'100%', marginTop:10, background:'none', border:'none', color:'#8B7355', cursor:'pointer', fontSize:12, fontFamily:'inherit', textDecoration:'underline' }}>
+                style={{ width:'100%', marginTop:10, background:'none', border:'none', color:'#6B7F78', cursor:'pointer', fontSize:12, fontFamily:'inherit', textDecoration:'underline' }}>
                 Forgot password? Send reset email
               </button>
             )}

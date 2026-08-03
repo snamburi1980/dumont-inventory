@@ -82,10 +82,10 @@ export default function App() {
 
   if (auth.loading) {
     return (
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#FDF6EC' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#F6F4ED' }}>
         <div style={{ textAlign:'center' }}>
-          <div style={{ fontSize:48, fontWeight:700, color:'#2C1810', fontFamily:'serif' }}>D</div>
-          <div style={{ fontSize:14, color:'#8B7355', marginTop:8 }}>Loading...</div>
+          <div style={{ fontSize:48, fontWeight:700, color:'#1A4C48', fontFamily:'serif' }}>D</div>
+          <div style={{ fontSize:14, color:'#6B7F78', marginTop:8 }}>Loading...</div>
         </div>
       </div>
     )
@@ -95,11 +95,11 @@ export default function App() {
 
   if (auth.pending) {
     return (
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#FDF6EC', padding:20 }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#F6F4ED', padding:20 }}>
         <div style={{ textAlign:'center', maxWidth:360 }}>
-          <div style={{ fontSize:18, fontWeight:700, color:'#2C1810', marginBottom:8 }}>Pending Approval</div>
-          <div style={{ fontSize:13, color:'#8B7355', marginBottom:24 }}>Your account is waiting for approval.</div>
-          <button onClick={auth.logout} style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'12px 24px', cursor:'pointer', fontSize:13 }}>
+          <div style={{ fontSize:18, fontWeight:700, color:'#1A4C48', marginBottom:8 }}>Pending Approval</div>
+          <div style={{ fontSize:13, color:'#6B7F78', marginBottom:24 }}>Your account is waiting for approval.</div>
+          <button onClick={auth.logout} style={{ background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'12px 24px', cursor:'pointer', fontSize:13 }}>
             Sign Out
           </button>
         </div>
@@ -109,11 +109,11 @@ export default function App() {
 
   if (needsPasswordChange) {
     return (
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#FDF6EC', padding:20 }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#F6F4ED', padding:20 }}>
         <div style={{ width:'100%', maxWidth:400 }}>
           <div style={{ textAlign:'center', marginBottom:24 }}>
-            <div style={{ fontSize:18, fontWeight:700, color:'#2C1810', marginBottom:8 }}>Welcome! Please set your password</div>
-            <div style={{ fontSize:13, color:'#8B7355' }}>You must change your temporary password before continuing.</div>
+            <div style={{ fontSize:18, fontWeight:700, color:'#1A4C48', marginBottom:8 }}>Welcome! Please set your password</div>
+            <div style={{ fontSize:13, color:'#6B7F78' }}>You must change your temporary password before continuing.</div>
           </div>
           <ChangePassword
             showToast={showToast}
@@ -125,7 +125,7 @@ export default function App() {
               setNeedsPasswordChange(false)
             }}
           />
-          <button onClick={auth.logout} style={{ width:'100%', marginTop:10, background:'none', border:'none', color:'#8B7355', cursor:'pointer', fontSize:12 }}>
+          <button onClick={auth.logout} style={{ width:'100%', marginTop:10, background:'none', border:'none', color:'#6B7F78', cursor:'pointer', fontSize:12 }}>
             Sign out
           </button>
         </div>
@@ -174,8 +174,8 @@ export default function App() {
           {hqActiveTab === 'hq_analytics' && (
             viewingStore
               ? <Commerce viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />
-              : <div style={{ textAlign:'center', padding:60, color:'#8B7355' }}>
-                  <div style={{ fontSize:16, fontWeight:600, color:'#2C1810', marginBottom:8 }}>Select a store to view analytics</div>
+              : <div style={{ textAlign:'center', padding:60, color:'#6B7F78' }}>
+                  <div style={{ fontSize:16, fontWeight:600, color:'#1A4C48', marginBottom:8 }}>Select a store to view analytics</div>
                   <div style={{ fontSize:13 }}>Use the store dropdown in the header above</div>
                 </div>
           )}
@@ -189,7 +189,7 @@ export default function App() {
           {toast && (
             <div style={{
               position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)',
-              background:'#2C1810', color:'#fff', padding:'12px 24px',
+              background:'#1A4C48', color:'#fff', padding:'12px 24px',
               borderRadius:24, fontSize:13, fontWeight:600,
               boxShadow:'0 4px 16px rgba(0,0,0,0.2)', zIndex:9999, whiteSpace:'nowrap',
             }}>
@@ -254,7 +254,7 @@ export default function App() {
         {toast && (
           <div style={{
             position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)',
-            background:'#2C1810', color:'#fff', padding:'12px 24px',
+            background:'#1A4C48', color:'#fff', padding:'12px 24px',
             borderRadius:24, fontSize:13, fontWeight:600,
             boxShadow:'0 4px 16px rgba(0,0,0,0.2)', zIndex:9999,
             whiteSpace:'nowrap'

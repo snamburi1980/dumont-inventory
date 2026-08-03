@@ -268,7 +268,7 @@ export default function Delivery({ invHook, viewingStore, showToast }) {
     })
     .reduce((sum, d) => sum + (d.totalCost || (d.cost || 0) * (d.qty || 0)), 0)
 
-  const inp = { width:'100%', padding:'8px 10px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#FDF6EC', boxSizing:'border-box', marginBottom:8 }
+  const inp = { width:'100%', padding:'8px 10px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#F6F4ED', boxSizing:'border-box', marginBottom:8 }
 
   return (
     <div>

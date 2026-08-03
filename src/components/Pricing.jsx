@@ -41,14 +41,14 @@ export default function Pricing({ orgItemsHook, viewingStore, viewingOrg, showTo
   })
 
   const input = {
-    padding:'7px 10px', border:'1px solid #EDE0CC', borderRadius:8,
-    fontFamily:'inherit', fontSize:13, background:'#FDF6EC',
+    padding:'7px 10px', border:'1px solid #E3DDD0', borderRadius:8,
+    fontFamily:'inherit', fontSize:13, background:'#F6F4ED',
     width:90, textAlign:'right'
   }
 
   return (
     <div>
-      <div style={{ fontSize:13, color:'#8B7355', marginBottom:12 }}>
+      <div style={{ fontSize:13, color:'#6B7F78', marginBottom:12 }}>
         Set sell prices for each item at this store. Cost prices are set at the org level.
       </div>
 
@@ -56,15 +56,15 @@ export default function Pricing({ orgItemsHook, viewingStore, viewingOrg, showTo
         placeholder="Search items..."
         value={search}
         onChange={e => setSearch(e.target.value)}
-        style={{ width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:10, boxSizing:'border-box', background:'#FDF6EC' }}
+        style={{ width:'100%', padding:'9px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:10, boxSizing:'border-box', background:'#F6F4ED' }}
       />
 
       <div style={{ display:'flex', gap:6, overflowX:'auto', marginBottom:12, paddingBottom:4 }}>
         {categories.map(cat => (
           <button key={cat} onClick={() => setFilterCat(cat)} style={{
-            padding:'5px 12px', borderRadius:20, border:'1px solid #EDE0CC',
-            background: filterCat===cat ? '#2C1810' : '#fff',
-            color: filterCat===cat ? '#fff' : '#8B7355',
+            padding:'5px 12px', borderRadius:20, border:'1px solid #E3DDD0',
+            background: filterCat===cat ? '#1A4C48' : '#fff',
+            color: filterCat===cat ? '#fff' : '#6B7F78',
             fontSize:11, cursor:'pointer', whiteSpace:'nowrap', fontFamily:'inherit'
           }}>
             {cat === 'all' ? 'All' : cat}
@@ -75,7 +75,7 @@ export default function Pricing({ orgItemsHook, viewingStore, viewingOrg, showTo
       {/* Header */}
       <div style={{
         display:'grid', gridTemplateColumns:'1fr 90px 90px 80px 60px',
-        padding:'8px 12px', background:'#2C1810', borderRadius:'10px 10px 0 0',
+        padding:'8px 12px', background:'#1A4C48', borderRadius:'10px 10px 0 0',
         fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)',
         textTransform:'uppercase', gap:8
       }}>
@@ -86,7 +86,7 @@ export default function Pricing({ orgItemsHook, viewingStore, viewingOrg, showTo
         <div></div>
       </div>
 
-      <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:'0 0 10px 10px', overflow:'hidden' }}>
+      <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:'0 0 10px 10px', overflow:'hidden' }}>
         {filtered.map((item, idx) => {
           const sellPrice  = edited[item.id] !== undefined ? edited[item.id] : (sellPrices[item.id] || item.sell_price || 0)
           const costPrice  = item.cost_price || 0
@@ -98,12 +98,12 @@ export default function Pricing({ orgItemsHook, viewingStore, viewingOrg, showTo
             <div key={item.id} style={{
               display:'grid', gridTemplateColumns:'1fr 90px 90px 80px 60px',
               padding:'10px 12px', gap:8, alignItems:'center',
-              borderBottom: idx < filtered.length-1 ? '1px solid #EDE0CC' : 'none',
+              borderBottom: idx < filtered.length-1 ? '1px solid #E3DDD0' : 'none',
               background: idx % 2 === 0 ? '#fff' : '#FAFAFA',
             }}>
               <div>
-                <div style={{ fontSize:12, fontWeight:600, color:'#2C1810' }}>{item.name}</div>
-                <div style={{ fontSize:10, color:'#8B7355' }}>{item.code} · {item.cat}</div>
+                <div style={{ fontSize:12, fontWeight:600, color:'#1A4C48' }}>{item.name}</div>
+                <div style={{ fontSize:10, color:'#6B7F78' }}>{item.code} · {item.cat}</div>
               </div>
               <div style={{ textAlign:'right', fontSize:12, color:'#E74C3C', fontWeight:600 }}>
                 ${costPrice.toFixed(2)}
@@ -114,7 +114,7 @@ export default function Pricing({ orgItemsHook, viewingStore, viewingOrg, showTo
                   value={sellPrice || ''}
                   onChange={e => handlePriceChange(item.id, e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && savePrice(item.id)}
-                  style={{ ...input, borderColor: isEdited ? '#C8843A' : '#EDE0CC' }}
+                  style={{ ...input, borderColor: isEdited ? '#C1683C' : '#E3DDD0' }}
                   step="0.01" min="0"
                   placeholder="0.00"
                 />
@@ -123,7 +123,7 @@ export default function Pricing({ orgItemsHook, viewingStore, viewingOrg, showTo
                 {cogs !== null ? (
                   <span style={{
                     fontSize:12, fontWeight:700,
-                    color: cogs < 25 ? '#27AE60' : cogs < 32 ? '#C8843A' : '#E74C3C'
+                    color: cogs < 25 ? '#27AE60' : cogs < 32 ? '#C1683C' : '#E74C3C'
                   }}>
                     {cogs.toFixed(1)}%
                   </span>
@@ -151,7 +151,7 @@ export default function Pricing({ orgItemsHook, viewingStore, viewingOrg, showTo
       </div>
 
       {filtered.length === 0 && (
-        <div style={{ textAlign:'center', padding:32, color:'#8B7355' }}>No items found</div>
+        <div style={{ textAlign:'center', padding:32, color:'#6B7F78' }}>No items found</div>
       )}
     </div>
   )

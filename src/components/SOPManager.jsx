@@ -107,8 +107,8 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
     URL.revokeObjectURL(url)
   }
 
-  const card  = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:10 }
-  const input = { width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#FDF6EC' }
+  const card  = { background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:'14px 16px', marginBottom:10 }
+  const input = { width:'100%', padding:'9px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#F6F4ED' }
 
   return (
     <div>
@@ -127,8 +127,8 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
         <div>
           {/* Info box */}
           <div style={{ ...card, background:'#FFF3E0', border:'1px solid #FFE0B2' }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#C8843A', marginBottom:6 }}>About SOPs</div>
-            <div style={{ fontSize:12, color:'#8B7355', lineHeight:1.6 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#C1683C', marginBottom:6 }}>About SOPs</div>
+            <div style={{ fontSize:12, color:'#6B7F78', lineHeight:1.6 }}>
               SOPs define how inventory is deducted from Clover sales.
               Upload a CSV with your recipes, or use Manual COGS Entry
               for items where you want to directly specify cost percentages.
@@ -137,17 +137,17 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
 
           {/* Upload zone */}
           <div style={card}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Upload SOP</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>Upload SOP</div>
             <div style={{ display:'flex', gap:8, marginBottom:12, flexWrap:'wrap' }}>
               <button
                 onClick={downloadTemplate}
-                style={{ fontSize:12, color:'#C8843A', background:'#FDF6EC', border:'1px solid #C8843A', borderRadius:6, padding:'6px 12px', cursor:'pointer' }}
+                style={{ fontSize:12, color:'#C1683C', background:'#F6F4ED', border:'1px solid #C1683C', borderRadius:6, padding:'6px 12px', cursor:'pointer' }}
               >
                 Download CSV Template
               </button>
             </div>
-            <label style={{ display:'block', border:'2px dashed #EDE0CC', borderRadius:10, padding:'20px', textAlign:'center', cursor:'pointer' }}>
-              <div style={{ fontSize:13, color:'#8B7355' }}>
+            <label style={{ display:'block', border:'2px dashed #E3DDD0', borderRadius:10, padding:'20px', textAlign:'center', cursor:'pointer' }}>
+              <div style={{ fontSize:13, color:'#6B7F78' }}>
                 {uploading ? 'Uploading...' : 'Upload SOP (CSV or PDF)'}
               </div>
               <div style={{ fontSize:11, color:'#aaa', marginTop:4 }}>Supported: .csv, .pdf</div>
@@ -156,9 +156,9 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
           </div>
 
           {/* SOP list */}
-          {loading && <div style={{textAlign:'center',padding:16,color:'#8B7355'}}>Loading...</div>}
+          {loading && <div style={{textAlign:'center',padding:16,color:'#6B7F78'}}>Loading...</div>}
           {!loading && sops.length === 0 && (
-            <div style={{textAlign:'center',padding:24,color:'#8B7355',fontSize:13}}>
+            <div style={{textAlign:'center',padding:24,color:'#6B7F78',fontSize:13}}>
               No SOPs uploaded yet
             </div>
           )}
@@ -166,15 +166,15 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
             <div key={sop.id} style={card}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div>
-                  <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{sop.fileName}</div>
-                  <div style={{ fontSize:11, color:'#8B7355', marginTop:2 }}>
+                  <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{sop.fileName}</div>
+                  <div style={{ fontSize:11, color:'#6B7F78', marginTop:2 }}>
                     {sop.fileType?.toUpperCase()}
                     {sop.parsed ? ` · ${sop.parsed.count} recipes` : ''}
                     {' · '}{new Date(sop.uploadedAt).toLocaleDateString()}
                     {' · '}{sop.uploadedBy}
                   </div>
                   {sop.parsed?.rows && (
-                    <div style={{ marginTop:6, fontSize:11, color:'#8B7355' }}>
+                    <div style={{ marginTop:6, fontSize:11, color:'#6B7F78' }}>
                       {sop.parsed.rows.slice(0,3).map((r,i) => (
                         <div key={i}>{r.name || r['clover item name'] || 'Item '+(i+1)}</div>
                       ))}
@@ -213,7 +213,7 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
       {view === 'manual' && (
         <div>
           <div style={{ ...card, background:'#FFF3E0', border:'1px solid #FFE0B2', marginBottom:12 }}>
-            <div style={{ fontSize:12, color:'#8B7355', lineHeight:1.6 }}>
+            <div style={{ fontSize:12, color:'#6B7F78', lineHeight:1.6 }}>
               Use Manual COGS Entry when you don't have a CSV SOP or want to override
               a category's cost %. Enter cost and sell price to calculate COGS.
               This will be used in the COGS report for this org.
@@ -221,7 +221,7 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
           </div>
 
           <div style={card}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Add Manual COGS Entry</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>Add Manual COGS Entry</div>
             <input
               placeholder="Category (e.g. Ice Cream, Milk Tea)"
               value={manualCOGS.category}
@@ -230,13 +230,13 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
             />
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
               <div>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Avg Cost Price ($)</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>Avg Cost Price ($)</div>
                 <input type="number" value={manualCOGS.cost}
                   onChange={e => setManualCOGS(m=>({...m,cost:parseFloat(e.target.value)||0}))}
                   style={input} step="0.01" min="0" />
               </div>
               <div>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Avg Sell Price ($)</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>Avg Sell Price ($)</div>
                 <input type="number" value={manualCOGS.sell}
                   onChange={e => setManualCOGS(m=>({...m,sell:parseFloat(e.target.value)||0}))}
                   style={input} step="0.01" min="0" />
@@ -252,7 +252,7 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
               <div style={{ display:'flex', gap:12, padding:'10px 12px', background:'#F0F9F0', borderRadius:8, marginBottom:10, fontSize:12 }}>
                 <span style={{color:'#E74C3C'}}>COGS: {(manualCOGS.cost/manualCOGS.sell*100).toFixed(1)}%</span>
                 <span style={{color:'#27AE60'}}>Margin: {((manualCOGS.sell-manualCOGS.cost)/manualCOGS.sell*100).toFixed(1)}%</span>
-                <span style={{color:'#C8843A'}}>Profit: ${(manualCOGS.sell-manualCOGS.cost).toFixed(2)}</span>
+                <span style={{color:'#C1683C'}}>Profit: ${(manualCOGS.sell-manualCOGS.cost).toFixed(2)}</span>
               </div>
             )}
             <button
@@ -267,7 +267,7 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
                 showToast('COGS entry saved')
                 setManualCOGS({ category:'', cost:0, sell:0, note:'' })
               }}
-              style={{ width:'100%', background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600 }}
+              style={{ width:'100%', background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600 }}
             >
               Save COGS Entry
             </button>

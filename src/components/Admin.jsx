@@ -355,9 +355,9 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     loadAll()
   }
 
-  const card  = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }
-  const input = { width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#FDF6EC' }
-  const btn   = (color='#2C1810') => ({ background:color, color:'#fff', border:'none', borderRadius:8, padding:'11px 16px', cursor:'pointer', fontSize:13, fontWeight:600, width:'100%', fontFamily:'inherit', opacity: saving ? 0.7 : 1 })
+  const card  = { background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:'14px 16px', marginBottom:12 }
+  const input = { width:'100%', padding:'9px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:8, boxSizing:'border-box', background:'#F6F4ED' }
+  const btn   = (color='#1A4C48') => ({ background:color, color:'#fff', border:'none', borderRadius:8, padding:'11px 16px', cursor:'pointer', fontSize:13, fontWeight:600, width:'100%', fontFamily:'inherit', opacity: saving ? 0.7 : 1 })
   const isSuperOwnerUser = auth?.isSuperOwner?.()
   const currentRole      = auth?.userConfig?.role || ''
   const isStoreOwner     = currentRole === 'store_owner'
@@ -396,16 +396,16 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:20 }}>
           {['Create Org','Add Region','Add Store','Add User'].map((s,i) => (
             <div key={i} style={{ display:'flex', alignItems:'center', gap:6 }}>
-              <div style={{ width:24, height:24, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, background: i <= stepIdx+1 ? '#2C1810' : '#EDE0CC', color: i <= stepIdx+1 ? '#fff' : '#8B7355', flexShrink:0 }}>{i+1}</div>
-              <span style={{ fontSize:11, color: i === stepIdx+1 ? '#2C1810' : '#8B7355', fontWeight: i===stepIdx+1?700:400, whiteSpace:'nowrap' }}>{s}</span>
-              {i < 3 && <div style={{ width:16, height:2, background:'#EDE0CC' }}/>}
+              <div style={{ width:24, height:24, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, background: i <= stepIdx+1 ? '#1A4C48' : '#E3DDD0', color: i <= stepIdx+1 ? '#fff' : '#6B7F78', flexShrink:0 }}>{i+1}</div>
+              <span style={{ fontSize:11, color: i === stepIdx+1 ? '#1A4C48' : '#6B7F78', fontWeight: i===stepIdx+1?700:400, whiteSpace:'nowrap' }}>{s}</span>
+              {i < 3 && <div style={{ width:16, height:2, background:'#E3DDD0' }}/>}
             </div>
           ))}
         </div>
         {setupStep === 'region' && (
           <div style={card}>
-            <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Add Region</div>
-            <div style={{ fontSize:12, color:'#8B7355', marginBottom:12 }}>For org: {org?.name}</div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Add Region</div>
+            <div style={{ fontSize:12, color:'#6B7F78', marginBottom:12 }}>For org: {org?.name}</div>
             <input placeholder="Region name (e.g. Texas, NC)" value={newRegion.name}
               onChange={e => setNewRegion(r=>({...r, name:e.target.value, orgId:setupOrgId}))} style={input}/>
             <button style={btn()} onClick={createRegion} disabled={saving}>{saving ? 'Creating...' : 'Add Region and Continue'}</button>
@@ -414,8 +414,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         )}
         {setupStep === 'store' && (
           <div style={card}>
-            <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Add Store</div>
-            <div style={{ fontSize:12, color:'#8B7355', marginBottom:12 }}>Region: {regions.find(r=>r.id===setupRegionId)?.name}</div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Add Store</div>
+            <div style={{ fontSize:12, color:'#6B7F78', marginBottom:12 }}>Region: {regions.find(r=>r.id===setupRegionId)?.name}</div>
             <input placeholder="Store name (e.g. Coppell, Frisco)" value={newStore.name}
               onChange={e => setNewStore(s=>({...s, name:e.target.value, regionId:setupRegionId}))} style={input}/>
             <button style={btn()} onClick={createStore} disabled={saving}>{saving ? 'Creating...' : 'Add Store and Continue'}</button>
@@ -424,8 +424,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         )}
         {setupStep === 'user' && (
           <div style={card}>
-            <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Assign User</div>
-            <div style={{ background:'#FFF3E0', borderRadius:8, padding:'8px 12px', marginBottom:12, fontSize:11, color:'#C8843A' }}>
+            <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Assign User</div>
+            <div style={{ background:'#FFF3E0', borderRadius:8, padding:'8px 12px', marginBottom:12, fontSize:11, color:'#C1683C' }}>
               Firebase Console → Authentication → Add User → enter email + temporary password
             </div>
             <input placeholder="Full Name" value={newUser.name} onChange={e => setNewUser(u=>({...u,name:e.target.value}))} style={input}/>
@@ -453,11 +453,11 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       <div>
         <div style={{ ...card, textAlign:'center', background:'#E8F5E9', border:'1px solid #27AE60' }}>
           <div style={{ fontSize:32, marginBottom:8 }}>✅</div>
-          <div style={{ fontSize:16, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Setup Complete!</div>
-          <div style={{ fontSize:12, color:'#8B7355', marginBottom:16 }}>Share these details with your user</div>
+          <div style={{ fontSize:16, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Setup Complete!</div>
+          <div style={{ fontSize:12, color:'#6B7F78', marginBottom:16 }}>Share these details with your user</div>
         </div>
         <div style={card}>
-          <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:12 }}>Share with {userSaved.email}</div>
+          <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:12 }}>Share with {userSaved.email}</div>
           {[
             { label:'App URL',  value: APP_URL },
             { label:'Email',    value: userSaved.email },
@@ -465,9 +465,9 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             { label:'Role',     value: userSaved.role },
             { label:'Store',    value: userSaved.store || 'Not assigned' },
           ].map(({ label, value }) => (
-            <div key={label} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid #EDE0CC' }}>
-              <span style={{ fontSize:12, color:'#8B7355', fontWeight:600 }}>{label}</span>
-              <span style={{ fontSize:12, color:'#2C1810', fontWeight:500 }}>{value}</span>
+            <div key={label} style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid #E3DDD0' }}>
+              <span style={{ fontSize:12, color:'#6B7F78', fontWeight:600 }}>{label}</span>
+              <span style={{ fontSize:12, color:'#1A4C48', fontWeight:500 }}>{value}</span>
             </div>
           ))}
           <button onClick={() => {
@@ -475,7 +475,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             navigator.clipboard.writeText(text).then(() => showToast('Copied!'))
           }} style={{ ...btn(), marginTop:12 }}>Copy to Share</button>
         </div>
-        <button onClick={() => { setSetupStep(null); setUserSaved(null); setView('overview') }} style={{ ...btn('#2C1810'), marginTop:4 }}>
+        <button onClick={() => { setSetupStep(null); setUserSaved(null); setView('overview') }} style={{ ...btn('#1A4C48'), marginTop:4 }}>
           Done — Back to Overview
         </button>
       </div>
@@ -486,8 +486,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     return (
       <div>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-          <button onClick={() => setShowOrgSetup(false)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}>{'<'} Back</button>
-          <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>New Organisation Setup</div>
+          <button onClick={() => setShowOrgSetup(false)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#6B7F78' }}>{'<'} Back</button>
+          <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48' }}>New Organisation Setup</div>
         </div>
         <OrgSetup showToast={showToast} existingOrgs={orgs} onComplete={(orgId) => {
           setShowOrgSetup(false)
@@ -506,35 +506,35 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       <div style={{ display:'flex', gap:6, marginBottom:16, flexWrap:'wrap' }}>
         {navTabs.map(t => (
           <button key={t.id} onClick={() => setView(t.id)} style={{
-            padding:'6px 14px', borderRadius:20, border:'1px solid #EDE0CC',
-            background: view===t.id ? '#2C1810' : '#fff',
-            color: view===t.id ? '#fff' : '#8B7355',
+            padding:'6px 14px', borderRadius:20, border:'1px solid #E3DDD0',
+            background: view===t.id ? '#1A4C48' : '#fff',
+            color: view===t.id ? '#fff' : '#6B7F78',
             fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap'
           }}>{t.label}</button>
         ))}
       </div>
 
-      {loading && <div style={{textAlign:'center',padding:24,color:'#8B7355'}}>Loading...</div>}
+      {loading && <div style={{textAlign:'center',padding:24,color:'#6B7F78'}}>Loading...</div>}
 
       {/* OVERVIEW */}
       {view === 'overview' && (
         <div>
           {/* Quick nav to Stores */}
           <button onClick={() => setView('stores')}
-            style={{ ...btn('#2C1810'), marginBottom:16 }}>
+            style={{ ...btn('#1A4C48'), marginBottom:16 }}>
             + Create New Store & Send Invitation
           </button>
 
           <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:16 }}>
             {[
-              { label:'Orgs',    value:orgs.length,    color:'#C8843A' },
+              { label:'Orgs',    value:orgs.length,    color:'#C1683C' },
               { label:'Stores',  value:stores.length,  color:'#27AE60' },
               { label:'Users',   value:users.filter(u => u.status !== 'inactive').length, color:'#9B59B6' },
-              { label:'Pending', value:pending.length, color:pending.length>0?'#E74C3C':'#8B7355' },
+              { label:'Pending', value:pending.length, color:pending.length>0?'#E74C3C':'#6B7F78' },
             ].map(({label,value,color}) => (
               <div key={label} style={{...card,textAlign:'center',marginBottom:0}}>
                 <div style={{fontSize:28,fontWeight:700,color}}>{value}</div>
-                <div style={{fontSize:11,color:'#8B7355',textTransform:'uppercase'}}>{label}</div>
+                <div style={{fontSize:11,color:'#6B7F78',textTransform:'uppercase'}}>{label}</div>
               </div>
             ))}
           </div>
@@ -544,10 +544,10 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             return (
               <div key={org.id} style={card}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-                  <div style={{ fontSize:14, fontWeight:700, color:'#2C1810' }}>{org.name}</div>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48' }}>{org.name}</div>
                   <div style={{display:'flex',gap:6}}>
                     <button onClick={() => { if(setViewingOrg) setViewingOrg(org.id); setView('items') }}
-                      style={{ fontSize:11, color:'#C8843A', background:'none', border:'1px solid #C8843A', borderRadius:6, padding:'3px 10px', cursor:'pointer' }}>
+                      style={{ fontSize:11, color:'#C1683C', background:'none', border:'1px solid #C1683C', borderRadius:6, padding:'3px 10px', cursor:'pointer' }}>
                       Items
                     </button>
                     <button onClick={() => deleteOrg(org.id, org.name)}
@@ -568,13 +568,13 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                             if (!name || name === region.name) return
                             await updateDoc(doc(db, 'regions', region.id), { name })
                             showToast('Updated'); loadAll()
-                          }} style={{ fontSize:10, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Edit</button>
+                          }} style={{ fontSize:10, color:'#6B7F78', background:'none', border:'1px solid #E3DDD0', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Edit</button>
                           <button onClick={() => deleteRegion(region.id, region.name, regionStores)}
                             style={{ fontSize:10, color:'#E74C3C', background:'none', border:'1px solid #FFCDD2', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Del</button>
                         </div>
                       </div>
                       {regionStores.map(store => (
-                        <div key={store.id} style={{ marginLeft:16, fontSize:12, color:'#8B7355', padding:'3px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                        <div key={store.id} style={{ marginLeft:16, fontSize:12, color:'#6B7F78', padding:'3px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
                           <div style={{display:'flex',alignItems:'center',gap:6}}>
                             <div style={{width:6,height:6,borderRadius:'50%',background:'#27AE60'}}/>
                             {store.name}
@@ -585,7 +585,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                               if (!name || name === store.name) return
                               await updateDoc(doc(db, 'stores', store.id), { name })
                               showToast('Updated'); loadAll()
-                            }} style={{ fontSize:10, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Edit</button>
+                            }} style={{ fontSize:10, color:'#6B7F78', background:'none', border:'1px solid #E3DDD0', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Edit</button>
                             <button onClick={() => deleteStore(store.id, store.name)}
                               style={{ fontSize:10, color:'#E74C3C', background:'none', border:'1px solid #FFCDD2', borderRadius:4, padding:'2px 6px', cursor:'pointer' }}>Del</button>
                           </div>
@@ -600,7 +600,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
           {isSuperOwnerUser && (
             <button onClick={() => setShowOrgSetup(true)}
-              style={{ width:'100%', background:'#C8843A', color:'#fff', border:'none', borderRadius:10, padding:'13px', cursor:'pointer', fontSize:13, fontWeight:700, marginTop:4, fontFamily:'inherit' }}>
+              style={{ width:'100%', background:'#C1683C', color:'#fff', border:'none', borderRadius:10, padding:'13px', cursor:'pointer', fontSize:13, fontWeight:700, marginTop:4, fontFamily:'inherit' }}>
               + Create New Organisation
             </button>
           )}
@@ -617,16 +617,16 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               <div>
                 <div style={{ background:'#E8F5E9', border:'1px solid #27AE60', borderRadius:10, padding:'16px', marginBottom:4 }}>
                   <div style={{ fontSize:14, fontWeight:700, color:'#27AE60', marginBottom:6 }}>Store created & invitation sent!</div>
-                  <div style={{ fontSize:12, color:'#2C1810', marginBottom:4 }}>Store: <strong>{inviteSent.storeName}</strong></div>
-                  <div style={{ fontSize:12, color:'#2C1810', marginBottom:10 }}>Invitation emailed to: <strong>{inviteSent.email}</strong></div>
-                  <div style={{ fontSize:10, color:'#8B7355', wordBreak:'break-all', marginBottom:12 }}>{inviteSent.link}</div>
+                  <div style={{ fontSize:12, color:'#1A4C48', marginBottom:4 }}>Store: <strong>{inviteSent.storeName}</strong></div>
+                  <div style={{ fontSize:12, color:'#1A4C48', marginBottom:10 }}>Invitation emailed to: <strong>{inviteSent.email}</strong></div>
+                  <div style={{ fontSize:10, color:'#6B7F78', wordBreak:'break-all', marginBottom:12 }}>{inviteSent.link}</div>
                   <div style={{ display:'flex', gap:8 }}>
                     <button onClick={() => { navigator.clipboard.writeText(inviteSent.link); showToast('Link copied!') }}
                       style={{ background:'#27AE60', color:'#fff', border:'none', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'inherit' }}>
                       Copy Invite Link
                     </button>
                     <button onClick={() => setInviteSent(null)}
-                      style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:12, fontFamily:'inherit', color:'#8B7355' }}>
+                      style={{ background:'none', border:'1px solid #E3DDD0', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:12, fontFamily:'inherit', color:'#6B7F78' }}>
                       + Add Another Store
                     </button>
                   </div>
@@ -634,10 +634,10 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               </div>
             ) : (
               <div>
-                <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Create Store & Invite Owner</div>
-                <div style={{ fontSize:12, color:'#8B7355', marginBottom:16 }}>Fills in all details, creates the store, and emails an onboarding link in one step.</div>
+                <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Create Store & Invite Owner</div>
+                <div style={{ fontSize:12, color:'#6B7F78', marginBottom:16 }}>Fills in all details, creates the store, and emails an onboarding link in one step.</div>
 
-                <div style={{ fontSize:11, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>Store Details</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>Store Details</div>
                 <input placeholder="Store Name *  (e.g. Frisco, McKinney)" value={inviteForm.name}
                   onChange={e => setInviteForm(f=>({...f,name:e.target.value}))} style={input}/>
                 <input placeholder="Store Address" value={inviteForm.address}
@@ -645,7 +645,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                 <input placeholder="Store Phone Number" type="tel" value={inviteForm.phone}
                   onChange={e => setInviteForm(f=>({...f,phone:e.target.value}))} style={input}/>
 
-                <div style={{ fontSize:11, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8, marginTop:4 }}>Owner Details</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8, marginTop:4 }}>Owner Details</div>
                 <input placeholder="Owner Name" value={inviteForm.ownerName}
                   onChange={e => setInviteForm(f=>({...f,ownerName:e.target.value}))} style={input}/>
                 <input placeholder="Owner Email *" type="email" value={inviteForm.email}
@@ -657,7 +657,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                 </select>
 
                 <button onClick={inviteNewStore} disabled={inviting}
-                  style={{ ...btn('#2C1810'), marginTop:4, opacity: inviting ? 0.7 : 1 }}>
+                  style={{ ...btn('#1A4C48'), marginTop:4, opacity: inviting ? 0.7 : 1 }}>
                   {inviting ? 'Creating & Sending...' : 'Create Store & Send Invitation'}
                 </button>
               </div>
@@ -665,7 +665,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
           </div>
 
           {/* Store list */}
-          <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>
+          <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>
             All Stores ({stores.length})
           </div>
           {stores.map(store => {
@@ -675,14 +675,14 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               <div key={store.id} style={{ ...card, marginBottom:8 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                   <div>
-                    <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>{store.name}</div>
-                    <div style={{ fontSize:11, color:'#8B7355' }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>{store.name}</div>
+                    <div style={{ fontSize:11, color:'#6B7F78' }}>
                       {org?.name}{region ? ` › ${region.name}` : ''}
                       {store.address ? ` · ${store.address}` : ''}
                     </div>
                     <div style={{ display:'inline-block', marginTop:4, fontSize:10, fontWeight:600, borderRadius:4, padding:'2px 8px',
                       background: store.status==='active' ? '#E8F5E9' : '#FFF3E0',
-                      color:      store.status==='active' ? '#27AE60' : '#C8843A',
+                      color:      store.status==='active' ? '#27AE60' : '#C1683C',
                     }}>
                       {store.status || 'active'}
                     </div>
@@ -693,7 +693,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                       if (!name || name === store.name) return
                       await updateDoc(doc(db, 'stores', store.id), { name })
                       showToast('Updated'); loadAll()
-                    }} style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer' }}>
+                    }} style={{ fontSize:11, color:'#6B7F78', background:'none', border:'1px solid #E3DDD0', borderRadius:6, padding:'4px 10px', cursor:'pointer' }}>
                       Edit
                     </button>
                     <button onClick={() => deleteStore(store.id, store.name)}
@@ -706,7 +706,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
             )
           })}
           {stores.length === 0 && !loading && (
-            <div style={{ ...card, textAlign:'center', color:'#8B7355' }}>No stores yet. Send an invitation above.</div>
+            <div style={{ ...card, textAlign:'center', color:'#6B7F78' }}>No stores yet. Send an invitation above.</div>
           )}
         </div>
       )}
@@ -715,7 +715,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       {view === 'setup' && (
         <div>
           <div style={card}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Add Region</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>Add Region</div>
             <select value={newRegion.orgId} onChange={e => setNewRegion(r=>({...r,orgId:e.target.value}))} style={input}>
               <option value="">Select Org</option>
               {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -726,7 +726,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
           </div>
 
           <div style={card}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Add Store</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>Add Store</div>
             <select value={newStore.regionId} onChange={e => setNewStore(s=>({...s,regionId:e.target.value}))} style={input}>
               <option value="">Select Region</option>
               {regions.map(r => {
@@ -740,8 +740,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
           </div>
 
           <div style={card}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Assign User</div>
-            <div style={{ fontSize:11, color:'#8B7355', marginBottom:10, lineHeight:1.6 }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Assign User</div>
+            <div style={{ fontSize:11, color:'#6B7F78', marginBottom:10, lineHeight:1.6 }}>
               First create the user in Firebase Console → Authentication → Add User, then assign here.
             </div>
             <input placeholder="Full Name" value={newUser.name} onChange={e => setNewUser(u=>({...u,name:e.target.value}))} style={input}/>
@@ -782,8 +782,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                   { label:'Store',   value: userSaved.store || 'See admin' },
                 ].map(({label,value}) => (
                   <div key={label} style={{ display:'flex', justifyContent:'space-between', fontSize:11, padding:'3px 0', borderBottom:'1px solid #C8E6C9' }}>
-                    <span style={{color:'#8B7355',fontWeight:600}}>{label}</span>
-                    <span style={{color:'#2C1810'}}>{value}</span>
+                    <span style={{color:'#6B7F78',fontWeight:600}}>{label}</span>
+                    <span style={{color:'#1A4C48'}}>{value}</span>
                   </div>
                 ))}
                 <button onClick={() => {
@@ -802,11 +802,11 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         <div>
           {/* Store owners/managers cannot manage users — they request HQ */}
           {!isSuperOwnerUser && (
-            <div style={{ ...card, background:'#FDF6EC', borderLeft:'3px solid #C8843A' }}>
-              <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Need to add or change a user?</div>
-              <div style={{ fontSize:12, color:'#8B7355', lineHeight:1.6 }}>
+            <div style={{ ...card, background:'#F6F4ED', borderLeft:'3px solid #C1683C' }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Need to add or change a user?</div>
+              <div style={{ fontSize:12, color:'#6B7F78', lineHeight:1.6 }}>
                 User accounts are managed by Dumont HQ. Email{' '}
-                <a href="mailto:dumonttexas@gmail.com" style={{ color:'#C8843A', fontWeight:600 }}>dumonttexas@gmail.com</a>{' '}
+                <a href="mailto:dumonttexas@gmail.com" style={{ color:'#C1683C', fontWeight:600 }}>dumonttexas@gmail.com</a>{' '}
                 with the person's name, email address, and role (staff or manager) — you'll be notified once their access is ready.
               </div>
             </div>
@@ -814,9 +814,9 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
           {/* Invite User — super_owner only */}
           {isSuperOwnerUser && (
-          <div style={{ ...card, border:'1.5px solid #2C1810' }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Invite User</div>
-            <div style={{ fontSize:11, color:'#8B7355', marginBottom:12 }}>
+          <div style={{ ...card, border:'1.5px solid #1A4C48' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Invite User</div>
+            <div style={{ fontSize:11, color:'#6B7F78', marginBottom:12 }}>
               Sends an email with a sign-up link. They create their own password — no Firebase Console needed.
             </div>
             {inviteUserSent ? (
@@ -824,17 +824,17 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                 <div style={{ fontSize:12, fontWeight:700, color:'#27AE60', marginBottom:4 }}>
                   Invitation sent to {inviteUserSent.email}
                 </div>
-                <div style={{ fontSize:11, color:'#2C1810', marginBottom:6 }}>
+                <div style={{ fontSize:11, color:'#1A4C48', marginBottom:6 }}>
                   Role: {inviteUserSent.role} · Store: {inviteUserSent.storeName}
                 </div>
-                <div style={{ fontSize:10, color:'#8B7355', wordBreak:'break-all', marginBottom:8 }}>{inviteUserSent.link}</div>
+                <div style={{ fontSize:10, color:'#6B7F78', wordBreak:'break-all', marginBottom:8 }}>{inviteUserSent.link}</div>
                 <div style={{ display:'flex', gap:8 }}>
                   <button onClick={() => { navigator.clipboard.writeText(inviteUserSent.link); showToast('Link copied!') }}
                     style={{ background:'#27AE60', color:'#fff', border:'none', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit' }}>
                     Copy Link
                   </button>
                   <button onClick={() => setInviteUserSent(null)}
-                    style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontFamily:'inherit', color:'#8B7355' }}>
+                    style={{ background:'none', border:'1px solid #E3DDD0', borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:11, fontFamily:'inherit', color:'#6B7F78' }}>
                     Invite Another
                   </button>
                 </div>
@@ -857,7 +857,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                   {stores.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
                 <button onClick={inviteUser} disabled={invitingUser}
-                  style={{ ...btn('#2C1810'), opacity: invitingUser ? 0.7 : 1 }}>
+                  style={{ ...btn('#1A4C48'), opacity: invitingUser ? 0.7 : 1 }}>
                   {invitingUser ? 'Sending...' : '📧 Send Invitation'}
                 </button>
               </div>
@@ -867,10 +867,10 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
 
           {/* User list */}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>
               {isStoreOwner ? 'Your Store Users' : `All Users (${users.length})`}
             </div>
-            <button onClick={loadAll} style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Refresh</button>
+            <button onClick={loadAll} style={{ fontSize:11, color:'#6B7F78', background:'none', border:'1px solid #E3DDD0', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Refresh</button>
           </div>
           {(() => {
             const visibleUsers = isManager
@@ -878,30 +878,30 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
               : isStoreOwner
               ? users.filter(u => (u.storeId || u.store) === currentStoreId && u.role !== 'super_owner' && u.role !== 'regional_owner' && u.role !== 'store_owner')
               : users
-            if (visibleUsers.length === 0) return <div style={{textAlign:'center',padding:32,color:'#8B7355'}}>No users found</div>
+            if (visibleUsers.length === 0) return <div style={{textAlign:'center',padding:32,color:'#6B7F78'}}>No users found</div>
             return visibleUsers.map(user => {
               const store = stores.find(s => s.id === (user.storeId || user.store))
               const isEditing = editingUser?.emailKey === user.emailKey
-              const roleColors = { super_owner:'#9B59B6', regional_owner:'#2980B9', store_owner:'#C8843A', manager:'#27AE60', staff:'#8B7355' }
-              const roleColor = roleColors[user.role] || '#8B7355'
+              const roleColors = { super_owner:'#9B59B6', regional_owner:'#2980B9', store_owner:'#C1683C', manager:'#27AE60', staff:'#6B7F78' }
+              const roleColor = roleColors[user.role] || '#6B7F78'
               const isInactive = user.status === 'inactive'
               return (
                 <div key={user.emailKey} style={{ ...card, opacity: isInactive ? 0.65 : 1 }}>
                   {!isEditing ? (
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8 }}>
                       <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.name || user.email}</div>
-                        <div style={{ fontSize:11, color:'#8B7355', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:6 }}>{user.email}</div>
+                        <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{user.name || user.email}</div>
+                        <div style={{ fontSize:11, color:'#6B7F78', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:6 }}>{user.email}</div>
                         <div style={{ display:'flex', gap:5, flexWrap:'wrap', alignItems:'center' }}>
                           <span style={{ fontSize:10, fontWeight:700, color:'#fff', background:roleColor, borderRadius:4, padding:'2px 7px' }}>{(user.role||'').replace(/_/g,' ')}</span>
-                          {store && <span style={{ fontSize:10, color:'#8B7355', background:'#F5EDE0', borderRadius:4, padding:'2px 7px' }}>{store.name}</span>}
+                          {store && <span style={{ fontSize:10, color:'#6B7F78', background:'#EEE3D3', borderRadius:4, padding:'2px 7px' }}>{store.name}</span>}
                           {isInactive && <span style={{ fontSize:10, color:'#E74C3C', background:'#FFEBEE', borderRadius:4, padding:'2px 7px' }}>Inactive</span>}
                         </div>
                       </div>
                       {isSuperOwnerUser && (
                       <div style={{ display:'flex', gap:4, flexShrink:0 }}>
                         <button onClick={() => setEditingUser({ ...user })}
-                          style={{ fontSize:11, color:'#8B7355', background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
+                          style={{ fontSize:11, color:'#6B7F78', background:'none', border:'1px solid #E3DDD0', borderRadius:6, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit' }}>Edit</button>
                         {user.email !== 'dumonttexas@gmail.com' && (
                           <>
                             <button onClick={() => toggleUserActive(user)}
@@ -919,7 +919,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
                     </div>
                   ) : (
                     <div>
-                      <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Edit: {user.name || user.email}</div>
+                      <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>Edit: {user.name || user.email}</div>
                       <select value={editingUser.role || ''} onChange={e => setEditingUser(u => ({...u, role:e.target.value}))} style={input}>
                         <option value="store_owner">Store Owner</option>
                         <option value="manager">Manager</option>
@@ -983,13 +983,13 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       {view === 'pending' && (
         <div>
           {pending.length === 0 ? (
-            <div style={{textAlign:'center',padding:32,color:'#8B7355'}}>No pending signups</div>
+            <div style={{textAlign:'center',padding:32,color:'#6B7F78'}}>No pending signups</div>
           ) : pending.map(req => (
             <div key={req.id} style={card}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
                 <div>
-                  <div style={{fontSize:13,fontWeight:600,color:'#2C1810'}}>{req.email}</div>
-                  <div style={{fontSize:11,color:'#8B7355'}}>{req.store||'No store'} · {new Date(req.createdAt||Date.now()).toLocaleDateString()}</div>
+                  <div style={{fontSize:13,fontWeight:600,color:'#1A4C48'}}>{req.email}</div>
+                  <div style={{fontSize:11,color:'#6B7F78'}}>{req.store||'No store'} · {new Date(req.createdAt||Date.now()).toLocaleDateString()}</div>
                 </div>
                 <div style={{display:'flex',gap:8}}>
                   <button onClick={() => approveSignup(req)} style={{background:'#27AE60',color:'#fff',border:'none',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontSize:13,fontWeight:600,fontFamily:'inherit'}}>Approve</button>

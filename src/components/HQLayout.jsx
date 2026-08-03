@@ -51,13 +51,13 @@ export default function HQLayout({
             {logoData ? (
               <img src={logoData} alt={orgName} style={{ height:40, maxWidth:120, objectFit:'contain' }} />
             ) : (
-              <div style={{ width:40, height:40, borderRadius:8, background:'rgba(255,255,255,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'serif', fontSize:22, fontWeight:700, color:'#fff' }}>
+              <div style={{ width:40, height:40, borderRadius:8, background:'rgba(227,156,116,0.2)', border:'1px solid rgba(227,156,116,0.5)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'"Bebas Neue", sans-serif', fontSize:24, color:'#E39C74' }}>
                 {orgName.charAt(0).toUpperCase()}
               </div>
             )}
             <div>
-              <span style={{ fontSize:13, fontWeight:600, color:'rgba(255,255,255,0.9)' }}>{orgName}</span>
-              <span style={{ marginLeft:6, fontSize:9, fontWeight:700, color:'#C8843A', background:'rgba(200,132,58,0.25)', borderRadius:4, padding:'2px 7px', textTransform:'uppercase', letterSpacing:'0.5px' }}>
+              <span style={{ fontFamily:'"Bebas Neue", sans-serif', fontSize:18, letterSpacing:3, color:'#fff' }}>{orgName}</span>
+              <span style={{ marginLeft:6, fontSize:9, fontWeight:700, color:'#E39C74', background:'rgba(227,156,116,0.2)', borderRadius:4, padding:'2px 7px', textTransform:'uppercase', letterSpacing:'0.5px' }}>
                 HQ
               </span>
             </div>
@@ -77,7 +77,7 @@ export default function HQLayout({
                 </select>
                 {viewingStore && (
                   <button onClick={onViewStoreOps}
-                    style={{ background:'#C8843A', color:'#fff', border:'none', borderRadius:8, padding:'5px 14px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit', whiteSpace:'nowrap' }}>
+                    style={{ background:'#C1683C', color:'#fff', border:'none', borderRadius:8, padding:'5px 14px', cursor:'pointer', fontSize:12, fontWeight:700, fontFamily:'inherit', whiteSpace:'nowrap' }}>
                     View Ops →
                   </button>
                 )}
@@ -104,7 +104,7 @@ export default function HQLayout({
       <div style={{ display:'flex', flex:1, maxWidth:1200, margin:'0 auto', width:'100%' }}>
 
         {/* Sidebar */}
-        <div style={{ width:180, flexShrink:0, padding:'24px 0', borderRight:'1px solid #EDE0CC' }}>
+        <div style={{ width:180, flexShrink:0, padding:'24px 0', borderRight:'1px solid #E3DDD0' }}>
           <div style={{ fontSize:9, fontWeight:700, color:'#bbb', textTransform:'uppercase', letterSpacing:'1px', padding:'0 16px', marginBottom:10 }}>
             Headquarters
           </div>
@@ -112,9 +112,9 @@ export default function HQLayout({
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
               width:'100%', textAlign:'left', padding:'10px 16px',
               background: activeTab === tab.id ? 'rgba(200,132,58,0.12)' : 'transparent',
-              color: activeTab === tab.id ? '#2C1810' : '#8B7355',
+              color: activeTab === tab.id ? '#1A4C48' : '#6B7F78',
               border:'none',
-              borderLeft: activeTab === tab.id ? '3px solid #C8843A' : '3px solid transparent',
+              borderLeft: activeTab === tab.id ? '3px solid #C1683C' : '3px solid transparent',
               fontSize:13, fontWeight: activeTab === tab.id ? 700 : 400,
               cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s',
             }}>

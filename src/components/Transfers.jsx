@@ -122,7 +122,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
     showToast('Exported to CSV ✅')
   }
 
-  const inp = { padding:'10px 12px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#FDF6EC', width:'100%', boxSizing:'border-box' }
+  const inp = { padding:'10px 12px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#F6F4ED', width:'100%', boxSizing:'border-box' }
 
   // Month filter
   const allMonthKeys  = [...new Set(transfers.map(t => t.monthKey).filter(Boolean))].sort().reverse()
@@ -156,7 +156,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
           {/* Row 1: From → To + Date */}
           <div className="transfer-form-row3" style={{ display:'grid', gap:12, marginBottom:12 }}>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>From Store</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>From Store</div>
               {storeOptions.length > 0 ? (
                 <select value={form.fromStore} onChange={e => setForm(f=>({...f,fromStore:e.target.value}))} style={inp}>
                   <option value="">Select store…</option>
@@ -167,7 +167,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
               )}
             </div>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>To Store</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>To Store</div>
               {storeOptions.length > 0 ? (
                 <select value={form.toStore} onChange={e => setForm(f=>({...f,toStore:e.target.value}))} style={inp}>
                   <option value="">Select store…</option>
@@ -178,7 +178,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
               )}
             </div>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Date</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Date</div>
               <input type="date" value={form.date}
                 max={new Date().toISOString().split('T')[0]}
                 onChange={e => setForm(f=>({...f,date:e.target.value}))} style={inp}/>
@@ -188,14 +188,14 @@ export default function Transfers({ auth, showToast, viewingStore }) {
           {/* Row 2: Category + Item */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Category</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Category</div>
               <select value={form.category} onChange={e => setForm(f=>({...f,category:e.target.value}))} style={inp}>
                 <option value="">Select…</option>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Item Name</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Item Name</div>
               <input placeholder="e.g. Vanilla" value={form.item} onChange={e => setForm(f=>({...f,item:e.target.value}))} style={inp}/>
             </div>
           </div>
@@ -203,15 +203,15 @@ export default function Transfers({ auth, showToast, viewingStore }) {
           {/* Row 3: Description + Qty + Cost */}
           <div className="transfer-form-row3" style={{ display:'grid', gap:12, marginBottom:14 }}>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Description (optional)</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Description (optional)</div>
               <input placeholder="Notes" value={form.desc} onChange={e => setForm(f=>({...f,desc:e.target.value}))} style={inp}/>
             </div>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Quantity</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Quantity</div>
               <input type="number" placeholder="0" value={form.quantity} onChange={e => setForm(f=>({...f,quantity:e.target.value}))} style={inp}/>
             </div>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Unit Cost $</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Unit Cost $</div>
               <input type="number" placeholder="0.00" value={form.cost} onChange={e => setForm(f=>({...f,cost:e.target.value}))} style={inp}/>
             </div>
           </div>
@@ -302,7 +302,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
                         <td colSpan={6} style={{ padding:'8px 10px', fontSize:12, fontWeight:700, color:'#fff' }}>
                           {filterMonth ? transfers.find(t => t.monthKey === filterMonth)?.month || 'Month' : 'This Month'} Total
                         </td>
-                        <td style={{ padding:'8px 10px', fontSize:14, fontWeight:700, color:'#C8843A', textAlign:'right' }}>
+                        <td style={{ padding:'8px 10px', fontSize:14, fontWeight:700, color:'#C1683C', textAlign:'right' }}>
                           ${monthTotal.toFixed(2)}
                         </td>
                         <td/>
@@ -324,7 +324,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
                   {/* Transfer arrow */}
                   <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
                     <span style={{ fontSize:13, fontWeight:700, color:'var(--dark)', flex:1 }}>{t.fromStore}</span>
-                    <span style={{ fontSize:16, color:'#C8843A' }}>→</span>
+                    <span style={{ fontSize:16, color:'#C1683C' }}>→</span>
                     <span style={{ fontSize:13, fontWeight:700, color:'var(--dark)', flex:1, textAlign:'right' }}>{t.toStore}</span>
                   </div>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:8 }}>
@@ -353,7 +353,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
               {monthTotal > 0 && (
                 <div style={{ background:'var(--dark)', padding:'12px 14px', display:'flex', justifyContent:'space-between' }}>
                   <div style={{ fontSize:12, fontWeight:700, color:'#fff' }}>Month Total</div>
-                  <div style={{ fontSize:15, fontWeight:800, color:'#C8843A' }}>${monthTotal.toFixed(2)}</div>
+                  <div style={{ fontSize:15, fontWeight:800, color:'#C1683C' }}>${monthTotal.toFixed(2)}</div>
                 </div>
               )}
             </div>

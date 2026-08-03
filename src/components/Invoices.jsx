@@ -40,7 +40,7 @@ export default function Invoices({ auth, showToast }) {
   }, [canManage])
 
   if (!canManage) return (
-    <div style={{ textAlign: 'center', padding: 40, color: '#8B7355', fontSize: 13 }}>
+    <div style={{ textAlign: 'center', padding: 40, color: '#6B7F78', fontSize: 13 }}>
       Invoice log is visible to managers and above.
     </div>
   )
@@ -104,7 +104,7 @@ export default function Invoices({ auth, showToast }) {
 
   const input = { width: '100%', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', background: '#fff' }
 
-  if (loading) return <div style={{ padding: 24, color: '#8B7355', fontSize: 13 }}>Loading…</div>
+  if (loading) return <div style={{ padding: 24, color: '#6B7F78', fontSize: 13 }}>Loading…</div>
 
   return (
     <div>
@@ -128,34 +128,34 @@ export default function Invoices({ auth, showToast }) {
           <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--dark)', marginBottom: 12 }}>New Invoice</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div>
-              <div style={{ fontSize: 12, color: '#8B7355', marginBottom: 4 }}>Vendor *</div>
+              <div style={{ fontSize: 12, color: '#6B7F78', marginBottom: 4 }}>Vendor *</div>
               <select value={form.vendor} onChange={e => setForm(f => ({ ...f, vendor: e.target.value }))} style={input}>
                 <option value="">Select vendor…</option>
                 {VENDORS.map(v => <option key={v} value={v}>{v}</option>)}
               </select>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#8B7355', marginBottom: 4 }}>Total Amount *</div>
+              <div style={{ fontSize: 12, color: '#6B7F78', marginBottom: 4 }}>Total Amount *</div>
               <input type="number" step="0.01" placeholder="0.00" value={form.total}
                 onChange={e => setForm(f => ({ ...f, total: e.target.value }))} style={input} />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#8B7355', marginBottom: 4 }}>Invoice Date</div>
+              <div style={{ fontSize: 12, color: '#6B7F78', marginBottom: 4 }}>Invoice Date</div>
               <input type="date" value={form.invoiceDate}
                 onChange={e => setForm(f => ({ ...f, invoiceDate: e.target.value }))} style={input} />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#8B7355', marginBottom: 4 }}>Invoice #</div>
+              <div style={{ fontSize: 12, color: '#6B7F78', marginBottom: 4 }}>Invoice #</div>
               <input type="text" placeholder="INV-001" value={form.invoiceNumber}
                 onChange={e => setForm(f => ({ ...f, invoiceNumber: e.target.value }))} style={input} />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#8B7355', marginBottom: 4 }}>Store</div>
+              <div style={{ fontSize: 12, color: '#6B7F78', marginBottom: 4 }}>Store</div>
               <input type="text" placeholder="Coppell / Aubrey" value={form.storeName}
                 onChange={e => setForm(f => ({ ...f, storeName: e.target.value }))} style={input} />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#8B7355', marginBottom: 4 }}>Notes</div>
+              <div style={{ fontSize: 12, color: '#6B7F78', marginBottom: 4 }}>Notes</div>
               <input type="text" placeholder="Optional notes" value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} style={input} />
             </div>
@@ -179,7 +179,7 @@ export default function Invoices({ auth, showToast }) {
 
       {/* Empty state */}
       {shown.length === 0 && !adding && (
-        <div style={{ textAlign: 'center', padding: '40px 20px', color: '#8B7355', fontSize: 13 }}>
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6B7F78', fontSize: 13 }}>
           No invoices yet. Tap <strong>+ Add Invoice</strong> to log one.
         </div>
       )}
@@ -195,9 +195,9 @@ export default function Invoices({ auth, showToast }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--dark)', marginBottom: 2 }}>
                   {inv.vendor}
-                  {inv.storeName && <span style={{ fontWeight: 400, color: '#8B7355', marginLeft: 6, fontSize: 12 }}>· {inv.storeName}</span>}
+                  {inv.storeName && <span style={{ fontWeight: 400, color: '#6B7F78', marginLeft: 6, fontSize: 12 }}>· {inv.storeName}</span>}
                 </div>
-                <div style={{ fontSize: 12, color: '#8B7355', display: 'flex', gap: 8 }}>
+                <div style={{ fontSize: 12, color: '#6B7F78', display: 'flex', gap: 8 }}>
                   {inv.invoiceDate && <span>{inv.invoiceDate}</span>}
                   {inv.invoiceNumber && <span>#{inv.invoiceNumber}</span>}
                 </div>
@@ -219,7 +219,7 @@ export default function Invoices({ auth, showToast }) {
             {expanded === inv.id && (
               <div style={{ borderTop: '1px solid var(--border)', padding: '14px 16px', background: '#FAFAF8' }}>
                 {inv.notes && (
-                  <div style={{ fontSize: 13, color: '#8B7355', marginBottom: 12 }}>{inv.notes}</div>
+                  <div style={{ fontSize: 13, color: '#6B7F78', marginBottom: 12 }}>{inv.notes}</div>
                 )}
                 {inv.approved && (
                   <div style={{ fontSize: 12, color: '#276749', marginBottom: 12 }}>

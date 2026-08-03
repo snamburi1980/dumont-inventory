@@ -33,14 +33,14 @@ export default function ChangePassword({ showToast, onClose }) {
   }
 
   const input = {
-    width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC',
+    width:'100%', padding:'9px 10px', border:'1px solid #E3DDD0',
     borderRadius:8, fontFamily:'inherit', fontSize:13,
-    marginBottom:8, boxSizing:'border-box', background:'#FDF6EC'
+    marginBottom:8, boxSizing:'border-box', background:'#F6F4ED'
   }
 
   return (
-    <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:16 }}>
-      <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:14 }}>Change Password</div>
+    <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:16 }}>
+      <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48', marginBottom:14 }}>Change Password</div>
 
       {error && (
         <div style={{ background:'#FFEBEE', border:'1px solid #FFCDD2', borderRadius:8, padding:'8px 12px', fontSize:12, color:'#E74C3C', marginBottom:10 }}>
@@ -48,15 +48,15 @@ export default function ChangePassword({ showToast, onClose }) {
         </div>
       )}
 
-      <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Current Password</div>
+      <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>Current Password</div>
       <input type="password" placeholder="Enter current password" value={currentPwd}
         onChange={e => setCurrentPwd(e.target.value)} style={input} />
 
-      <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>New Password</div>
+      <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>New Password</div>
       <input type="password" placeholder="Min 6 characters" value={newPwd}
         onChange={e => setNewPwd(e.target.value)} style={input} />
 
-      <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Confirm New Password</div>
+      <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>Confirm New Password</div>
       <input type="password" placeholder="Repeat new password" value={confirmPwd}
         onChange={e => setConfirmPwd(e.target.value)} style={{ ...input, marginBottom:14 }} />
 
@@ -64,7 +64,7 @@ export default function ChangePassword({ showToast, onClose }) {
         <button
           onClick={handleChange}
           disabled={saving}
-          style={{ flex:1, background: saving ? '#aaa' : '#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}
+          style={{ flex:1, background: saving ? '#aaa' : '#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}
         >
           {saving ? 'Changing...' : 'Change Password'}
         </button>

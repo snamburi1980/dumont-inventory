@@ -93,7 +93,7 @@ export default function COGS({ viewingStore }) {
   const marginPct   = revenue > 0 ? (margin / revenue * 100)   : 0
   const cogsPct     = revenue > 0 ? (cost   / revenue * 100)   : 0
   const health      = marginPct >= 65 ? 'Excellent' : marginPct >= 50 ? 'Good' : marginPct > 0 ? 'Low' : '—'
-  const healthColor = marginPct >= 65 ? '#276749'   : marginPct >= 50 ? '#C8843A' : marginPct > 0 ? '#E53E3E' : '#8B7355'
+  const healthColor = marginPct >= 65 ? '#276749'   : marginPct >= 50 ? '#C1683C' : marginPct > 0 ? '#E53E3E' : '#6B7F78'
 
   const btn = id => ({
     flex: 1, padding: '10px', borderRadius: 10, cursor: 'pointer',
@@ -107,7 +107,7 @@ export default function COGS({ viewingStore }) {
     <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
       <div style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--dark)', marginTop: 6 }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, color: '#8B7355', marginTop: 2 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11, color: '#6B7F78', marginTop: 2 }}>{sub}</div>}
     </div>
   )
 
@@ -122,7 +122,7 @@ export default function COGS({ viewingStore }) {
       {view === 'report' && (
         <div>
           {!viewingStore && (
-            <div style={{ textAlign: 'center', padding: 32, color: '#8B7355', fontSize: 13 }}>
+            <div style={{ textAlign: 'center', padding: 32, color: '#6B7F78', fontSize: 13 }}>
               Select a store to view the COGS report.
             </div>
           )}
@@ -131,7 +131,7 @@ export default function COGS({ viewingStore }) {
             <>
               {/* Month picker */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <label style={{ fontSize: 13, color: '#8B7355', fontWeight: 600 }}>Month</label>
+                <label style={{ fontSize: 13, color: '#6B7F78', fontWeight: 600 }}>Month</label>
                 <select value={monthKey} onChange={e => setMonthKey(e.target.value)}
                   style={{ padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', background: '#fff', cursor: 'pointer' }}>
                   {MONTHS.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}
@@ -139,7 +139,7 @@ export default function COGS({ viewingStore }) {
               </div>
 
               {loading ? (
-                <div style={{ textAlign: 'center', padding: 32, color: '#8B7355', fontSize: 13 }}>Loading…</div>
+                <div style={{ textAlign: 'center', padding: 32, color: '#6B7F78', fontSize: 13 }}>Loading…</div>
               ) : (
                 <>
                   {/* KPI cards */}
@@ -147,7 +147,7 @@ export default function COGS({ viewingStore }) {
                     {kpi('Revenue',      fmt(revenue), '#276749',   'from Cash Register')}
                     {kpi('Invoice Cost', fmt(cost),    '#C53030',   'approved invoices')}
                     {kpi('Gross Margin', fmt(margin),  healthColor, `${marginPct.toFixed(1)}% margin`)}
-                    {kpi('COGS %',       `${cogsPct.toFixed(1)}%`, cogsPct < 35 ? '#276749' : cogsPct < 50 ? '#C8843A' : '#C53030', health)}
+                    {kpi('COGS %',       `${cogsPct.toFixed(1)}%`, cogsPct < 35 ? '#276749' : cogsPct < 50 ? '#C1683C' : '#C53030', health)}
                   </div>
 
                   {/* Health bar */}
@@ -156,7 +156,7 @@ export default function COGS({ viewingStore }) {
                       <div style={{ width: 10, height: 10, borderRadius: '50%', background: healthColor, flexShrink: 0 }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: healthColor }}>{health}</div>
-                        <div style={{ fontSize: 11, color: '#8B7355' }}>
+                        <div style={{ fontSize: 11, color: '#6B7F78' }}>
                           {marginPct >= 65 ? 'Strong margin — great cost control'
                            : marginPct >= 50 ? 'Healthy margin — within target range'
                            : marginPct > 0  ? 'Below target — review invoice costs vs revenue'
@@ -167,7 +167,7 @@ export default function COGS({ viewingStore }) {
                   )}
 
                   {revenue === 0 && cost === 0 && (
-                    <div style={{ textAlign: 'center', padding: '24px 16px', background: '#FAFAF8', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 14, color: '#8B7355', fontSize: 13 }}>
+                    <div style={{ textAlign: 'center', padding: '24px 16px', background: '#FAFAF8', borderRadius: 12, border: '1px solid var(--border)', marginBottom: 14, color: '#6B7F78', fontSize: 13 }}>
                       No Cash Register or Invoice data for {MONTHS.find(m => m.key === monthKey)?.label}.<br />
                       <span style={{ fontSize: 12 }}>Log daily cash entries in Records → Cash Register and approved invoices in Records → Invoices.</span>
                     </div>
@@ -175,18 +175,18 @@ export default function COGS({ viewingStore }) {
 
                   {/* 6-month trend */}
                   <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-                    <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', fontSize: 12, fontWeight: 700, color: '#8B7355', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', fontSize: 12, fontWeight: 700, color: '#6B7F78', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       6-Month Trend
                     </div>
                     {trendLoading ? (
-                      <div style={{ padding: 16, color: '#8B7355', fontSize: 13 }}>Loading trend…</div>
+                      <div style={{ padding: 16, color: '#6B7F78', fontSize: 13 }}>Loading trend…</div>
                     ) : (
                       <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                           <thead>
                             <tr style={{ background: '#FAFAF8' }}>
                               {['Month', 'Revenue', 'Costs', 'Margin', 'Margin %'].map(h => (
-                                <th key={h} style={{ padding: '10px 14px', textAlign: h === 'Month' ? 'left' : 'right', color: '#8B7355', fontWeight: 600, whiteSpace: 'nowrap', fontSize: 12 }}>{h}</th>
+                                <th key={h} style={{ padding: '10px 14px', textAlign: h === 'Month' ? 'left' : 'right', color: '#6B7F78', fontWeight: 600, whiteSpace: 'nowrap', fontSize: 12 }}>{h}</th>
                               ))}
                             </tr>
                           </thead>
@@ -194,7 +194,7 @@ export default function COGS({ viewingStore }) {
                             {trend.map(row => {
                               const m   = row.revenue - row.cost
                               const pct = row.revenue > 0 ? (m / row.revenue * 100) : 0
-                              const col = pct >= 65 ? '#276749' : pct >= 50 ? '#C8843A' : pct > 0 ? '#C53030' : '#aaa'
+                              const col = pct >= 65 ? '#276749' : pct >= 50 ? '#C1683C' : pct > 0 ? '#C53030' : '#aaa'
                               const isSelected = row.monthKey === monthKey
                               return (
                                 <tr key={row.monthKey}
@@ -247,18 +247,18 @@ export default function COGS({ viewingStore }) {
             {(marginCat === 'all' ? MENU_MARGINS : MENU_MARGINS.filter(i => i.cat === marginCat)).map(item => {
               const margin  = (item.sell - item.cost) / item.sell * 100
               const cogsPct = item.cost / item.sell * 100
-              const color   = cogsPct < 20 ? '#276749' : cogsPct < 30 ? '#C8843A' : '#C53030'
+              const color   = cogsPct < 20 ? '#276749' : cogsPct < 30 ? '#C1683C' : '#C53030'
               return (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', background: '#fff', border: '1px solid var(--border)', borderRadius: 10 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--dark)' }}>{item.name}</div>
-                    <div style={{ fontSize: 11, color: '#8B7355', marginTop: 2 }}>
+                    <div style={{ fontSize: 11, color: '#6B7F78', marginTop: 2 }}>
                       Cost {fmtD(item.cost)} · Sell {fmtD(item.sell)} · COGS {cogsPct.toFixed(0)}%
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 18, fontWeight: 700, color }}>{margin.toFixed(0)}%</div>
-                    <div style={{ fontSize: 10, color: '#8B7355' }}>margin</div>
+                    <div style={{ fontSize: 10, color: '#6B7F78' }}>margin</div>
                   </div>
                 </div>
               )

@@ -289,13 +289,13 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
   }
 
   // ── Styles ─────────────────────────────────────────────────────────────────
-  const card   = { background:'var(--card-bg,#fff)', border:'1px solid var(--border,#EDE0CC)', borderRadius:12, padding:'14px 16px', marginBottom:12 }
-  const inp    = { padding:'8px 10px', border:'1px solid var(--border,#EDE0CC)', borderRadius:8, fontSize:13, fontFamily:'inherit', background:'var(--cream,#FDF6EC)', width:'100%', boxSizing:'border-box' }
-  const btnPri = { background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'9px 18px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }
-  const btnSec = { background:'#fff', color:'#8B7355', border:'1px solid #EDE0CC', borderRadius:8, padding:'9px 18px', cursor:'pointer', fontSize:13, fontFamily:'inherit' }
+  const card   = { background:'var(--card-bg,#fff)', border:'1px solid var(--border,#E3DDD0)', borderRadius:12, padding:'14px 16px', marginBottom:12 }
+  const inp    = { padding:'8px 10px', border:'1px solid var(--border,#E3DDD0)', borderRadius:8, fontSize:13, fontFamily:'inherit', background:'var(--cream,#F6F4ED)', width:'100%', boxSizing:'border-box' }
+  const btnPri = { background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'9px 18px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }
+  const btnSec = { background:'#fff', color:'#6B7F78', border:'1px solid #E3DDD0', borderRadius:8, padding:'9px 18px', cursor:'pointer', fontSize:13, fontFamily:'inherit' }
 
   if (!viewingStore) {
-    return <div style={{padding:32,textAlign:'center',color:'#8B7355'}}>Select a store to view Commerce data.</div>
+    return <div style={{padding:32,textAlign:'center',color:'#6B7F78'}}>Select a store to view Commerce data.</div>
   }
 
   // ────────────────────────────────────────────────────────────────────────────
@@ -305,25 +305,25 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))', gap:10, marginBottom:16 }}>
         <div style={{ ...card, marginBottom:0, textAlign:'center' }}>
           <div style={{ fontSize:20, fontWeight:700, color:'#3B8050' }}>{fmt$(revenue)}</div>
-          <div style={{ fontSize:11, color:'#8B7355', marginTop:2 }}>Net Revenue</div>
+          <div style={{ fontSize:11, color:'#6B7F78', marginTop:2 }}>Net Revenue</div>
           {latest?.period && <div style={{ fontSize:10, color:'#aaa', marginTop:2 }}>{latest.period}</div>}
         </div>
         <div style={{ ...card, marginBottom:0, textAlign:'center' }}>
           <div style={{ fontSize:20, fontWeight:700, color:'#C62828' }}>{fmt$(totalCOGS)}</div>
-          <div style={{ fontSize:11, color:'#8B7355', marginTop:2 }}>Est. COGS</div>
+          <div style={{ fontSize:11, color:'#6B7F78', marginTop:2 }}>Est. COGS</div>
           <div style={{ fontSize:10, color:'#aaa', marginTop:2 }}>{cogsPct.toFixed(1)}%</div>
         </div>
         <div style={{ ...card, marginBottom:0, textAlign:'center' }}>
           <div style={{ fontSize:20, fontWeight:700, color:'#3B8050' }}>{fmt$(grossProfit)}</div>
-          <div style={{ fontSize:11, color:'#8B7355', marginTop:2 }}>Gross Profit</div>
+          <div style={{ fontSize:11, color:'#6B7F78', marginTop:2 }}>Gross Profit</div>
           <div style={{ fontSize:10, color:'#aaa', marginTop:2 }}>{margin.toFixed(1)}%</div>
         </div>
         <div style={{ ...card, marginBottom:0, textAlign:'center' }}>
-          <div style={{ fontSize:20, fontWeight:700, color: cogsPct<25?'#3B8050':cogsPct<32?'#C8843A':'#C62828' }}>
+          <div style={{ fontSize:20, fontWeight:700, color: cogsPct<25?'#3B8050':cogsPct<32?'#C1683C':'#C62828' }}>
             {cogsPct.toFixed(1)}%
           </div>
-          <div style={{ fontSize:11, color:'#8B7355', marginTop:2 }}>COGS %</div>
-          <div style={{ fontSize:10, color: cogsPct<25?'#3B8050':cogsPct<32?'#C8843A':'#C62828', marginTop:2 }}>
+          <div style={{ fontSize:11, color:'#6B7F78', marginTop:2 }}>COGS %</div>
+          <div style={{ fontSize:10, color: cogsPct<25?'#3B8050':cogsPct<32?'#C1683C':'#C62828', marginTop:2 }}>
             {cogsPct<25?'Excellent':cogsPct<32?'Good':'High'}
           </div>
         </div>
@@ -350,8 +350,8 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
       {subTab === 'sales' && (
         <div>
           <div style={card}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Upload Clover Sales Report</div>
-            <div style={{ fontSize:12, color:'#8B7355', marginBottom:12 }}>
+            <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>Upload Clover Sales Report</div>
+            <div style={{ fontSize:12, color:'#6B7F78', marginBottom:12 }}>
               Export from Clover: Reports → Sales Summary → Export to Excel (.xlsx). Upload the file below.
             </div>
             <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv"
@@ -362,8 +362,8 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
               <div style={{ background:'#F5F9F5', border:'1px solid #C8E6C9', borderRadius:8, padding:'12px 14px', marginBottom:12 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
                   <div>
-                    <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>{parsedSales.period}</div>
-                    <div style={{ fontSize:11, color:'#8B7355' }}>{parsedSales.itemsSold} items · {fmt$(parsedSales.revenue)} revenue</div>
+                    <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>{parsedSales.period}</div>
+                    <div style={{ fontSize:11, color:'#6B7F78' }}>{parsedSales.itemsSold} items · {fmt$(parsedSales.revenue)} revenue</div>
                   </div>
                   <div style={{ display:'flex', gap:8 }}>
                     <button onClick={() => { setParsedSales(null); if (fileRef.current) fileRef.current.value='' }} style={btnSec}>Discard</button>
@@ -375,7 +375,7 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
                 <div style={{ maxHeight:200, overflowY:'auto' }}>
                   <table style={{ width:'100%', fontSize:12, borderCollapse:'collapse' }}>
                     <thead>
-                      <tr style={{ background:'#2C1810', color:'#fff' }}>
+                      <tr style={{ background:'#1A4C48', color:'#fff' }}>
                         <th style={{ padding:'6px 8px', textAlign:'left' }}>Item</th>
                         <th style={{ padding:'6px 8px', textAlign:'left' }}>Category</th>
                         <th style={{ padding:'6px 8px', textAlign:'right' }}>Qty</th>
@@ -384,10 +384,10 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
                     </thead>
                     <tbody>
                       {parsedSales.rows.slice(0,30).map((r,i) => (
-                        <tr key={i} style={{ background: i%2===0?'#fff':'#FDFAF6' }}>
-                          <td style={{ padding:'5px 8px', color:'#2C1810' }}>{r.item}</td>
-                          <td style={{ padding:'5px 8px', color:'#8B7355' }}>{r.cat||'—'}</td>
-                          <td style={{ padding:'5px 8px', textAlign:'right', color:'#8B7355' }}>{r.qty}</td>
+                        <tr key={i} style={{ background: i%2===0?'#fff':'#FAF8F3' }}>
+                          <td style={{ padding:'5px 8px', color:'#1A4C48' }}>{r.item}</td>
+                          <td style={{ padding:'5px 8px', color:'#6B7F78' }}>{r.cat||'—'}</td>
+                          <td style={{ padding:'5px 8px', textAlign:'right', color:'#6B7F78' }}>{r.qty}</td>
                           <td style={{ padding:'5px 8px', textAlign:'right', fontWeight:600, color:'#3B8050' }}>{fmt$(r.revenue)}</td>
                         </tr>
                       ))}
@@ -400,21 +400,21 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
 
           {/* Sales history */}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>Upload History</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>Upload History</div>
             {salesHistory.length > 0 && (
               <button onClick={exportSalesToExcel} style={btnSec}>Export Excel</button>
             )}
           </div>
-          {!historyLoaded && <div style={{ color:'#8B7355', fontSize:13, padding:16 }}>Loading...</div>}
+          {!historyLoaded && <div style={{ color:'#6B7F78', fontSize:13, padding:16 }}>Loading...</div>}
           {historyLoaded && salesHistory.length === 0 && (
-            <div style={{ ...card, textAlign:'center', color:'#8B7355' }}>No sales records yet.</div>
+            <div style={{ ...card, textAlign:'center', color:'#6B7F78' }}>No sales records yet.</div>
           )}
           {salesHistory.map(rec => (
             <div key={rec.id} style={card}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div>
-                  <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>{rec.period}</div>
-                  <div style={{ fontSize:11, color:'#8B7355' }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>{rec.period}</div>
+                  <div style={{ fontSize:11, color:'#6B7F78' }}>
                     {rec.itemsSold} items · {new Date(rec.appliedAt).toLocaleDateString()}
                     {rec.uploadedBy ? ` · by ${rec.uploadedBy}` : ''}
                   </div>
@@ -438,30 +438,30 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
         <div>
           {/* Entry form */}
           <div style={card}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:12 }}>Log a Delivery</div>
+            <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48', marginBottom:12 }}>Log a Delivery</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
               <div>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Vendor *</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4, fontWeight:600 }}>Vendor *</div>
                 <input value={dVendor} onChange={e=>setDVendor(e.target.value)}
                   placeholder="e.g. Sysco, Lone Star Dairy" style={inp} />
               </div>
               <div>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Date *</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4, fontWeight:600 }}>Date *</div>
                 <input type="date" value={dDate} onChange={e=>setDDate(e.target.value)} style={inp} />
               </div>
             </div>
 
             {/* Items table */}
-            <div style={{ fontSize:11, color:'#8B7355', marginBottom:6, fontWeight:600 }}>Items Received</div>
-            <div style={{ border:'1px solid #EDE0CC', borderRadius:8, overflow:'hidden', marginBottom:10 }}>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 80px 90px 36px', background:'#2C1810', padding:'6px 10px', gap:8 }}>
+            <div style={{ fontSize:11, color:'#6B7F78', marginBottom:6, fontWeight:600 }}>Items Received</div>
+            <div style={{ border:'1px solid #E3DDD0', borderRadius:8, overflow:'hidden', marginBottom:10 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 80px 90px 36px', background:'#1A4C48', padding:'6px 10px', gap:8 }}>
                 <div style={{ fontSize:10, color:'#fff', fontWeight:700 }}>ITEM NAME</div>
                 <div style={{ fontSize:10, color:'#fff', fontWeight:700 }}>QTY</div>
                 <div style={{ fontSize:10, color:'#fff', fontWeight:700 }}>UNIT COST</div>
                 <div />
               </div>
               {dItems.map((it, idx) => (
-                <div key={idx} style={{ display:'grid', gridTemplateColumns:'1fr 80px 90px 36px', padding:'6px 10px', gap:8, borderBottom:'1px solid #F5EFE8', background: idx%2===0?'#fff':'#FDFAF6', alignItems:'center' }}>
+                <div key={idx} style={{ display:'grid', gridTemplateColumns:'1fr 80px 90px 36px', padding:'6px 10px', gap:8, borderBottom:'1px solid #EFEBE0', background: idx%2===0?'#fff':'#FAF8F3', alignItems:'center' }}>
                   <input value={it.name} onChange={e=>updateDelivItem(idx,'name',e.target.value)}
                     placeholder="Item name" style={{ ...inp, marginBottom:0 }} />
                   <input type="number" min="0" step="0.01" value={it.qty}
@@ -476,16 +476,16 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
                   </button>
                 </div>
               ))}
-              <div style={{ padding:'8px 10px', background:'#FDF6EC' }}>
+              <div style={{ padding:'8px 10px', background:'#F6F4ED' }}>
                 <button onClick={addDelivItem} style={{ ...btnSec, padding:'5px 12px', fontSize:12 }}>+ Add Item</button>
-                <span style={{ float:'right', fontSize:12, color:'#2C1810', fontWeight:700, lineHeight:'28px' }}>
+                <span style={{ float:'right', fontSize:12, color:'#1A4C48', fontWeight:700, lineHeight:'28px' }}>
                   Total: {fmt$(dItems.reduce((s,it)=>s+(parseFloat(it.qty)||0)*(parseFloat(it.cost)||0),0))}
                 </span>
               </div>
             </div>
 
             <div style={{ marginBottom:10 }}>
-              <div style={{ fontSize:11, color:'#8B7355', marginBottom:4, fontWeight:600 }}>Notes (optional)</div>
+              <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4, fontWeight:600 }}>Notes (optional)</div>
               <input value={delivNotes} onChange={e=>setDelivNotes(e.target.value)}
                 placeholder="Invoice #, temp issues, etc." style={inp} />
             </div>
@@ -498,25 +498,25 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
 
           {/* Deliveries history */}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>Delivery History</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>Delivery History</div>
             {deliveries.length > 0 && (
               <button onClick={exportDeliveries} style={btnSec}>Export Excel</button>
             )}
           </div>
-          {!delivLoaded && <div style={{ color:'#8B7355', fontSize:13, padding:16 }}>Loading...</div>}
+          {!delivLoaded && <div style={{ color:'#6B7F78', fontSize:13, padding:16 }}>Loading...</div>}
           {delivLoaded && deliveries.length === 0 && (
-            <div style={{ ...card, textAlign:'center', color:'#8B7355' }}>No deliveries logged yet.</div>
+            <div style={{ ...card, textAlign:'center', color:'#6B7F78' }}>No deliveries logged yet.</div>
           )}
           {deliveries.map(d => (
             <div key={d.id} style={card}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6 }}>
                 <div>
-                  <div style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>{d.vendor}</div>
-                  <div style={{ fontSize:11, color:'#8B7355' }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>{d.vendor}</div>
+                  <div style={{ fontSize:11, color:'#6B7F78' }}>
                     {d.date} · {d.items?.length||0} items
                     {d.createdBy ? ` · by ${d.createdBy}` : ''}
                   </div>
-                  {d.notes && <div style={{ fontSize:11, color:'#8B7355', marginTop:2, fontStyle:'italic' }}>{d.notes}</div>}
+                  {d.notes && <div style={{ fontSize:11, color:'#6B7F78', marginTop:2, fontStyle:'italic' }}>{d.notes}</div>}
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                   <div style={{ fontSize:15, fontWeight:700, color:'#C62828' }}>{fmt$(d.totalCost)}</div>
@@ -528,7 +528,7 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
               </div>
               <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
                 {(d.items||[]).map((it,i) => (
-                  <span key={i} style={{ background:'#F5EFE8', borderRadius:6, padding:'3px 8px', fontSize:11, color:'#2C1810' }}>
+                  <span key={i} style={{ background:'#EFEBE0', borderRadius:6, padding:'3px 8px', fontSize:11, color:'#1A4C48' }}>
                     {it.name} × {it.qty} @ {fmt$(it.cost)}
                   </span>
                 ))}
@@ -542,57 +542,57 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
       {/* COGS REPORT TAB */}
       {subTab === 'cogs' && (
         <div>
-          {!historyLoaded && <div style={{ color:'#8B7355', padding:16 }}>Loading...</div>}
+          {!historyLoaded && <div style={{ color:'#6B7F78', padding:16 }}>Loading...</div>}
           {historyLoaded && !latest && (
             <div style={{ ...card, textAlign:'center' }}>
               <div style={{ fontSize:32, marginBottom:8 }}>📊</div>
-              <div style={{ fontSize:14, fontWeight:600, color:'#2C1810', marginBottom:6 }}>No Sales Data Yet</div>
-              <div style={{ fontSize:12, color:'#8B7355' }}>Upload your Clover Excel in the Sales Upload tab</div>
+              <div style={{ fontSize:14, fontWeight:600, color:'#1A4C48', marginBottom:6 }}>No Sales Data Yet</div>
+              <div style={{ fontSize:12, color:'#6B7F78' }}>Upload your Clover Excel in the Sales Upload tab</div>
             </div>
           )}
           {historyLoaded && latest && (
             <div>
               {/* Benchmark banner */}
               <div style={{ ...card, display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
-                <div style={{ width:12, height:12, borderRadius:'50%', flexShrink:0, background: cogsPct<25?'#3B8050':cogsPct<32?'#C8843A':'#C62828' }} />
+                <div style={{ width:12, height:12, borderRadius:'50%', flexShrink:0, background: cogsPct<25?'#3B8050':cogsPct<32?'#C1683C':'#C62828' }} />
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:700, color: cogsPct<25?'#3B8050':cogsPct<32?'#C8843A':'#C62828' }}>
+                  <div style={{ fontSize:13, fontWeight:700, color: cogsPct<25?'#3B8050':cogsPct<32?'#C1683C':'#C62828' }}>
                     {cogsPct<25?'Excellent food cost control':cogsPct<32?'Within industry benchmark':'Above benchmark — review pricing'}
                   </div>
-                  <div style={{ fontSize:11, color:'#8B7355' }}>
+                  <div style={{ fontSize:11, color:'#6B7F78' }}>
                     {cogsPct<25?'Below 25% — great result':cogsPct<32?'25–32% — industry standard':'Above 32% — review portions or pricing'}
                   </div>
                 </div>
-                <div style={{ fontSize:22, fontWeight:800, color: cogsPct<25?'#3B8050':cogsPct<32?'#C8843A':'#C62828' }}>
+                <div style={{ fontSize:22, fontWeight:800, color: cogsPct<25?'#3B8050':cogsPct<32?'#C1683C':'#C62828' }}>
                   {cogsPct.toFixed(1)}%
                 </div>
               </div>
 
               {/* Category breakdown */}
-              <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>By Category</div>
+              <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>By Category</div>
               <div style={card}>
                 {Object.entries(CAT_REVENUE_PCT).sort((a,b)=>b[1]-a[1]).map(([cat, pct]) => {
                   const rev  = revenue * pct
                   const cost = rev * (CAT_COGS[cat] || 0.20)
                   const cp   = (CAT_COGS[cat]||0.20)*100
                   return (
-                    <div key={cat} style={{ padding:'8px 0', borderBottom:'1px solid #F5EFE8' }}>
+                    <div key={cat} style={{ padding:'8px 0', borderBottom:'1px solid #EFEBE0' }}>
                       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
-                        <span style={{ fontSize:12, fontWeight:600, color:'#2C1810' }}>{cat}</span>
+                        <span style={{ fontSize:12, fontWeight:600, color:'#1A4C48' }}>{cat}</span>
                         <div style={{ display:'flex', gap:14, fontSize:11 }}>
-                          <span style={{ color:'#8B7355' }}>{fmt$(rev)}</span>
-                          <span style={{ color:'#C8843A', fontWeight:700 }}>{cp.toFixed(0)}% COGS</span>
+                          <span style={{ color:'#6B7F78' }}>{fmt$(rev)}</span>
+                          <span style={{ color:'#C1683C', fontWeight:700 }}>{cp.toFixed(0)}% COGS</span>
                           <span style={{ color:'#C62828', fontWeight:600 }}>{fmt$(cost)}</span>
                         </div>
                       </div>
-                      <div style={{ background:'#EDE0CC', borderRadius:4, height:4 }}>
-                        <div style={{ background:'#C8843A', height:4, borderRadius:4, width:`${(pct*100).toFixed(0)}%` }} />
+                      <div style={{ background:'#E3DDD0', borderRadius:4, height:4 }}>
+                        <div style={{ background:'#C1683C', height:4, borderRadius:4, width:`${(pct*100).toFixed(0)}%` }} />
                       </div>
                     </div>
                   )
                 })}
                 <div style={{ display:'flex', justifyContent:'space-between', padding:'10px 0 2px', fontWeight:700, fontSize:13 }}>
-                  <span style={{ color:'#2C1810' }}>Total</span>
+                  <span style={{ color:'#1A4C48' }}>Total</span>
                   <div style={{ display:'flex', gap:14 }}>
                     <span style={{ color:'#3B8050' }}>{fmt$(revenue)}</span>
                     <span style={{ color:'#C62828' }}>{fmt$(totalCOGS)} COGS</span>
@@ -601,19 +601,19 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
               </div>
 
               {/* Upload history */}
-              <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8, marginTop:4 }}>Upload History</div>
+              <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8, marginTop:4 }}>Upload History</div>
               <div style={card}>
                 {salesHistory.map((d,idx) => (
-                  <div key={d.id} style={{ display:'flex', alignItems:'center', padding:'8px 0', borderBottom: idx<salesHistory.length-1?'1px solid #F5EFE8':'none', gap:8 }}>
+                  <div key={d.id} style={{ display:'flex', alignItems:'center', padding:'8px 0', borderBottom: idx<salesHistory.length-1?'1px solid #EFEBE0':'none', gap:8 }}>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:12, fontWeight:600, color:'#2C1810' }}>{d.period || 'Upload'}</div>
-                      <div style={{ fontSize:11, color:'#8B7355' }}>
+                      <div style={{ fontSize:12, fontWeight:600, color:'#1A4C48' }}>{d.period || 'Upload'}</div>
+                      <div style={{ fontSize:11, color:'#6B7F78' }}>
                         {d.itemsSold||0} items · {new Date(d.appliedAt).toLocaleDateString()}
                       </div>
                     </div>
                     <div style={{ textAlign:'right' }}>
                       <div style={{ fontSize:14, fontWeight:700, color:'#3B8050' }}>{fmt$(d.revenue)}</div>
-                      <div style={{ fontSize:11, color:'#C8843A' }}>{cogsPct.toFixed(1)}% COGS</div>
+                      <div style={{ fontSize:11, color:'#C1683C' }}>{cogsPct.toFixed(1)}% COGS</div>
                     </div>
                   </div>
                 ))}
@@ -638,18 +638,18 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
           {(marginCat==='all' ? MENU_MARGINS : MENU_MARGINS.filter(i=>i.cat===marginCat)).map(item => {
             const margin  = ((item.sell - item.cost) / item.sell * 100)
             const cp      = (item.cost / item.sell * 100)
-            const color   = cp<20?'#3B8050':cp<30?'#C8843A':'#C62828'
+            const color   = cp<20?'#3B8050':cp<30?'#C1683C':'#C62828'
             return (
-              <div key={item.name} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'var(--cream,#FDF6EC)', borderRadius:10, marginBottom:6, border:'1px solid var(--border,#EDE0CC)' }}>
+              <div key={item.name} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'var(--cream,#F6F4ED)', borderRadius:10, marginBottom:6, border:'1px solid var(--border,#E3DDD0)' }}>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{item.name}</div>
-                  <div style={{ fontSize:11, color:'#8B7355' }}>
+                  <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{item.name}</div>
+                  <div style={{ fontSize:11, color:'#6B7F78' }}>
                     Cost: {fmt$(item.cost)} · Sell: {fmt$(item.sell)} · {item.cat}
                   </div>
                 </div>
                 <div style={{ textAlign:'right' }}>
                   <div style={{ fontSize:18, fontWeight:700, color }}>{margin.toFixed(0)}%</div>
-                  <div style={{ fontSize:10, color:'#8B7355' }}>margin</div>
+                  <div style={{ fontSize:10, color:'#6B7F78' }}>margin</div>
                 </div>
               </div>
             )

@@ -1,21 +1,40 @@
 /* ── Dumont Inventory App — Global Styles ── */
 
 :root {
-  --dark:       #2C1810;
-  --caramel:    #C8843A;
-  --cream:      #F8F4EF;
+  /* Dumont USA brand palette — from DUMONT USA Brand Guidelines 2025 */
+  --dark:       #1A4C48;   /* primary deep green */
+  --caramel:    #C1683C;   /* terracotta (peach #E39C74 deepened for contrast) */
+  --peach:      #E39C74;   /* brand peach — accents on dark green */
+  --cream:      #F6F4ED;
+  --brand-cream:#EEE3D3;   /* brand secondary cream */
   --card-bg:    #FFFFFF;
-  --border:     #E8DDD0;
+  --border:     #E3DDD0;
   --green-ok:   #27AE60;
-  --red-alert:  #E74C3C;
+  --red-alert:  #C53D18;   /* brand brick red */
   --amber:      #E67E22;
-  --text:       #2C1810;
-  --text-muted: #8B7355;
-  --font:        'DM Sans', sans-serif;
-  --font-serif:  'DM Serif Display', serif;
-  --header-bg:   #3D2B1F;
-  --tab-bg:      #4A3528;
-  --accent-text: #F0C060;
+  --gold:       #FBBC55;   /* brand golden yellow accent */
+  --text:       #1A4C48;
+  --text-muted: #6B7F78;
+  --font:         'Quicksand', 'DM Sans', sans-serif;
+  --font-serif:   'Bebas Neue', sans-serif;   /* wordmark / headings */
+  --font-display: 'Anton', sans-serif;        /* big hero numbers & titles */
+  --font-heading: 'Bebas Neue', sans-serif;
+  --header-bg:   #1A4C48;
+  --tab-bg:      #163F3C;
+  --accent-text: #E39C74;
+}
+
+/* Brand heading helpers — Bebas/Anton with the retro peach offset shadow */
+.brand-display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 3px 3px 0 var(--peach);
+}
+.brand-heading {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }

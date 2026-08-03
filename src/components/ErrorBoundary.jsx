@@ -22,26 +22,26 @@ export class ErrorBoundary extends Component {
       return (
         <div style={{
           display:'flex', alignItems:'center', justifyContent:'center',
-          minHeight:'100vh', background:'#FDF6EC', padding:20
+          minHeight:'100vh', background:'#F6F4ED', padding:20
         }}>
           <div style={{ textAlign:'center', maxWidth:400 }}>
             <div style={{ fontSize:48, marginBottom:16 }}>!</div>
-            <div style={{ fontSize:18, fontWeight:700, color:'#2C1810', marginBottom:8 }}>
+            <div style={{ fontSize:18, fontWeight:700, color:'#1A4C48', marginBottom:8 }}>
               Something went wrong
             </div>
-            <div style={{ fontSize:13, color:'#8B7355', marginBottom:24 }}>
+            <div style={{ fontSize:13, color:'#6B7F78', marginBottom:24 }}>
               {this.state.error?.message || 'An unexpected error occurred'}
             </div>
             <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
               <button
                 onClick={() => this.setState({ hasError:false, error:null, errorInfo:null })}
-                style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'10px 20px', cursor:'pointer', fontSize:13 }}
+                style={{ background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'10px 20px', cursor:'pointer', fontSize:13 }}
               >
                 Try Again
               </button>
               <button
                 onClick={() => window.location.reload()}
-                style={{ background:'#8B7355', color:'#fff', border:'none', borderRadius:8, padding:'10px 20px', cursor:'pointer', fontSize:13 }}
+                style={{ background:'#6B7F78', color:'#fff', border:'none', borderRadius:8, padding:'10px 20px', cursor:'pointer', fontSize:13 }}
               >
                 Reload App
               </button>

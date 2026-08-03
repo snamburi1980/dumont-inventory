@@ -148,10 +148,10 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
     <div>
 
       {/* ── LOG PANEL ─────────────────────────────────────── */}
-      <div style={{ background:'#fff', border:'1px solid var(--border,#EDE0CC)', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
+      <div style={{ background:'#fff', border:'1px solid var(--border,#E3DDD0)', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
 
         {/* Header */}
-        <div style={{ background:'var(--dark,#2C1810)', padding:'12px 16px' }}>
+        <div style={{ background:'var(--dark,#1A4C48)', padding:'12px 16px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
             <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>🍦 Log Scoops Used</div>
             {totalBuckets > 0 && (
@@ -163,21 +163,21 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
         </div>
 
         {/* Date selector — prominent row */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 16px', background:'#FFF8F0', borderBottom:'1px solid #EDE0CC' }}>
-          <div style={{ fontSize:12, fontWeight:700, color:'#8B7355' }}>📅 LOG DATE</div>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 16px', background:'#FFF8F0', borderBottom:'1px solid #E3DDD0' }}>
+          <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78' }}>📅 LOG DATE</div>
           <input type="date" value={logDate}
             max={new Date().toISOString().slice(0,10)}
             onChange={e => setLogDate(e.target.value)}
-            style={{ padding:'7px 12px', border:'1px solid #EDE0CC', borderRadius:8, fontSize:13, fontFamily:'inherit', color:'#2C1810', fontWeight:600, background:'#fff', cursor:'pointer' }} />
+            style={{ padding:'7px 12px', border:'1px solid #E3DDD0', borderRadius:8, fontSize:13, fontFamily:'inherit', color:'#1A4C48', fontWeight:600, background:'#fff', cursor:'pointer' }} />
         </div>
 
         {/* Flavor grid */}
         {iceCreamItems.length === 0 ? (
-          <div style={{ padding:32, textAlign:'center', color:'#8B7355', fontSize:13 }}>
+          <div style={{ padding:32, textAlign:'center', color:'#6B7F78', fontSize:13 }}>
             No ice cream items — add stock in Inventory first
           </div>
         ) : (
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'#EDE0CC' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'#E3DDD0' }}>
             {iceCreamItems.map(item => {
               const qty    = session[item.id] || 0
               const picked = qty > 0
@@ -187,17 +187,17 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
                   onClick={() => tap(item)}>
                   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:6 }}>
                     <div style={{ flex:1, overflow:'hidden' }}>
-                      <div style={{ fontSize:13, fontWeight:600, color:'#2C1810', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                      <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                         {item.name}
                       </div>
-                      <div style={{ fontSize:10, color:'#8B7355', marginTop:1 }}>
+                      <div style={{ fontSize:10, color:'#6B7F78', marginTop:1 }}>
                         {item.stock ?? 0} in freezer
                       </div>
                     </div>
                     {picked ? (
                       <div style={{ display:'flex', alignItems:'center', gap:6, flexShrink:0 }}>
                         <button onClick={e => { e.stopPropagation(); adjust(item.id, -1) }}
-                          style={{ width:32, height:32, borderRadius:8, border:'1px solid #C8843A', background:'#fff', color:'#C8843A', fontSize:16, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', padding:0 }}>
+                          style={{ width:32, height:32, borderRadius:8, border:'1px solid #C1683C', background:'#fff', color:'#C1683C', fontSize:16, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', padding:0 }}>
                           −
                         </button>
                         <span style={{ fontSize:16, fontWeight:800, color:'#E65100', minWidth:20, textAlign:'center' }}>{qty}</span>
@@ -207,7 +207,7 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
                         </button>
                       </div>
                     ) : (
-                      <div style={{ width:34, height:34, borderRadius:9, background:'#F5EFE8', border:'1px solid #EDE0CC', display:'flex', alignItems:'center', justifyContent:'center', color:'#C8843A', fontSize:20, fontWeight:700, flexShrink:0 }}>
+                      <div style={{ width:34, height:34, borderRadius:9, background:'#EFEBE0', border:'1px solid #E3DDD0', display:'flex', alignItems:'center', justifyContent:'center', color:'#C1683C', fontSize:20, fontWeight:700, flexShrink:0 }}>
                         +
                       </div>
                     )}
@@ -223,7 +223,7 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
           <div style={{ padding:'12px 16px', background:'#FFF3E0', borderTop:'1px solid #FFB74D', display:'flex', alignItems:'center', gap:10 }}>
             <div style={{ flex:1, flexWrap:'wrap', display:'flex', gap:4 }}>
               {sessionEntries.map(item => (
-                <span key={item.id} style={{ display:'inline-block', background:'#2C1810', color:'#fff', borderRadius:20, padding:'3px 10px', fontSize:11, fontWeight:600 }}>
+                <span key={item.id} style={{ display:'inline-block', background:'#1A4C48', color:'#fff', borderRadius:20, padding:'3px 10px', fontSize:11, fontWeight:600 }}>
                   {item.name} ×{session[item.id]}
                 </span>
               ))}
@@ -243,8 +243,8 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
       </div>
 
       {/* ── MONTHLY HISTORY ───────────────────────────────── */}
-      <div style={{ background:'#fff', border:'1px solid var(--border,#EDE0CC)', borderRadius:12, overflow:'hidden' }}>
-        <div style={{ background:'var(--dark,#2C1810)', padding:'12px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <div style={{ background:'#fff', border:'1px solid var(--border,#E3DDD0)', borderRadius:12, overflow:'hidden' }}>
+        <div style={{ background:'var(--dark,#1A4C48)', padding:'12px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
           <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>Monthly Usage</div>
           {usageData.length > 0 && !confirmClear && (
             <button onClick={() => setConfirmClear(true)}
@@ -258,14 +258,14 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
         {confirmClear && (
           <div style={{ background:'#FFF3E0', borderBottom:'1px solid #FFB74D', padding:'12px 16px' }}>
             <div style={{ fontSize:13, fontWeight:700, color:'#E65100', marginBottom:4 }}>⚠ Clear all logs for this month?</div>
-            <div style={{ fontSize:12, color:'#8B7355', marginBottom:10 }}>This will delete all {usageDetails.length} log entries and restore inventory counts.</div>
+            <div style={{ fontSize:12, color:'#6B7F78', marginBottom:10 }}>This will delete all {usageDetails.length} log entries and restore inventory counts.</div>
             <div style={{ display:'flex', gap:8 }}>
               <button onClick={executeClearMonth}
                 style={{ background:'#E74C3C', color:'#fff', border:'none', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }}>
                 Yes, Clear
               </button>
               <button onClick={() => setConfirmClear(false)}
-                style={{ background:'#fff', color:'#8B7355', border:'1px solid #EDE0CC', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>
+                style={{ background:'#fff', color:'#6B7F78', border:'1px solid #E3DDD0', borderRadius:8, padding:'8px 16px', cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>
                 Cancel
               </button>
             </div>
@@ -273,12 +273,12 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
         )}
 
         {/* Month selector */}
-        <div style={{ display:'flex', gap:6, padding:'10px 14px', overflowX:'auto', borderBottom:'1px solid #EDE0CC', scrollbarWidth:'none' }}>
+        <div style={{ display:'flex', gap:6, padding:'10px 14px', overflowX:'auto', borderBottom:'1px solid #E3DDD0', scrollbarWidth:'none' }}>
           {monthOptions.map(m => (
             <button key={m.key} onClick={() => setActiveMonth(m.key)}
-              style={{ padding:'6px 14px', borderRadius:20, border:'1px solid #EDE0CC', cursor:'pointer', fontSize:12, fontFamily:'inherit', whiteSpace:'nowrap', flexShrink:0,
-                background: activeMonth===m.key ? '#2C1810' : '#fff',
-                color:      activeMonth===m.key ? '#fff' : '#8B7355',
+              style={{ padding:'6px 14px', borderRadius:20, border:'1px solid #E3DDD0', cursor:'pointer', fontSize:12, fontFamily:'inherit', whiteSpace:'nowrap', flexShrink:0,
+                background: activeMonth===m.key ? '#1A4C48' : '#fff',
+                color:      activeMonth===m.key ? '#fff' : '#6B7F78',
                 fontWeight: activeMonth===m.key ? 700 : 400 }}>
               {m.label}
             </button>
@@ -287,14 +287,14 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
 
         {/* Summary bar */}
         {usageData.length > 0 && (
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'#EDE0CC', borderBottom:'1px solid #EDE0CC' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'#E3DDD0', borderBottom:'1px solid #E3DDD0' }}>
             <div style={{ background:'#FFFBF5', padding:'12px 16px', textAlign:'center' }}>
               <div style={{ fontSize:26, fontWeight:800, color:'#E65100' }}>{totalMonthBuckets}</div>
-              <div style={{ fontSize:10, color:'#8B7355', textTransform:'uppercase' }}>Total Buckets</div>
+              <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Total Buckets</div>
             </div>
             <div style={{ background:'#FFFBF5', padding:'12px 16px', textAlign:'center' }}>
-              <div style={{ fontSize:26, fontWeight:800, color:'#2C1810' }}>{usageData.length}</div>
-              <div style={{ fontSize:10, color:'#8B7355', textTransform:'uppercase' }}>Flavors Used</div>
+              <div style={{ fontSize:26, fontWeight:800, color:'#1A4C48' }}>{usageData.length}</div>
+              <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Flavors Used</div>
             </div>
           </div>
         )}
@@ -302,22 +302,22 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
         {/* Flavor breakdown */}
         <div style={{ padding:'0 0 8px' }}>
           {loadingUsage ? (
-            <div style={{ padding:24, textAlign:'center', color:'#8B7355', fontSize:13 }}>Loading…</div>
+            <div style={{ padding:24, textAlign:'center', color:'#6B7F78', fontSize:13 }}>Loading…</div>
           ) : usageData.length === 0 ? (
-            <div style={{ padding:24, textAlign:'center', color:'#8B7355', fontSize:13 }}>No pickups logged for this month</div>
+            <div style={{ padding:24, textAlign:'center', color:'#6B7F78', fontSize:13 }}>No pickups logged for this month</div>
           ) : (
             <>
               {usageData.map((row, i) => (
-                <div key={row.name} style={{ padding:'10px 16px', borderBottom:'1px solid #F5EFE8', background: i%2===0 ? '#fff' : '#FDFAF6' }}>
+                <div key={row.name} style={{ padding:'10px 16px', borderBottom:'1px solid #EFEBE0', background: i%2===0 ? '#fff' : '#FAF8F3' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:5 }}>
-                    <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{row.name}</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{row.name}</div>
                     <div style={{ display:'flex', gap:14, alignItems:'center' }}>
-                      <span style={{ fontSize:11, color:'#8B7355' }}>{row.sessions} session{row.sessions>1?'s':''}</span>
+                      <span style={{ fontSize:11, color:'#6B7F78' }}>{row.sessions} session{row.sessions>1?'s':''}</span>
                       <span style={{ fontSize:15, fontWeight:800, color:'#E65100' }}>{row.buckets} bucket{row.buckets>1?'s':''}</span>
                     </div>
                   </div>
-                  <div style={{ background:'#F5EFE8', borderRadius:4, height:6 }}>
-                    <div style={{ background:'#C8843A', height:6, borderRadius:4, width:`${(row.buckets/maxBuckets*100).toFixed(0)}%`, transition:'width 0.3s' }} />
+                  <div style={{ background:'#EFEBE0', borderRadius:4, height:6 }}>
+                    <div style={{ background:'#C1683C', height:6, borderRadius:4, width:`${(row.buckets/maxBuckets*100).toFixed(0)}%`, transition:'width 0.3s' }} />
                   </div>
                   {row.lastDate && <div style={{ fontSize:10, color:'#aaa', marginTop:3 }}>Last: {row.lastDate}</div>}
                 </div>
@@ -325,17 +325,17 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
 
               <div style={{ padding:'10px 16px' }}>
                 <button onClick={() => setShowDetails(v => !v)}
-                  style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:11, color:'#8B7355', fontFamily:'inherit' }}>
+                  style={{ background:'none', border:'1px solid #E3DDD0', borderRadius:8, padding:'6px 14px', cursor:'pointer', fontSize:11, color:'#6B7F78', fontFamily:'inherit' }}>
                   {showDetails ? 'Hide' : 'Show'} log entries ({usageDetails.length})
                 </button>
                 {showDetails && (
                   <div style={{ marginTop:10 }}>
                     {usageDetails.map((log, i) => (
-                      <div key={log.id||i} style={{ display:'flex', justifyContent:'space-between', fontSize:11, padding:'5px 0', borderBottom:'1px solid #F5EFE8', color:'#2C1810' }}>
+                      <div key={log.id||i} style={{ display:'flex', justifyContent:'space-between', fontSize:11, padding:'5px 0', borderBottom:'1px solid #EFEBE0', color:'#1A4C48' }}>
                         <span>{log.date}</span>
                         <span style={{ flex:1, marginLeft:12, fontWeight:500 }}>{log.itemName}</span>
                         <span style={{ color:'#E65100', fontWeight:700 }}>{Math.abs(log.delta)} bucket{Math.abs(log.delta)>1?'s':''}</span>
-                        <span style={{ color:'#8B7355', marginLeft:10 }}>{log.userName}</span>
+                        <span style={{ color:'#6B7F78', marginLeft:10 }}>{log.userName}</span>
                       </div>
                     ))}
                   </div>

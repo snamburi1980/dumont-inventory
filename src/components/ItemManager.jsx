@@ -121,11 +121,11 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
   }
 
   const input = {
-    width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC',
+    width:'100%', padding:'9px 10px', border:'1px solid #E3DDD0',
     borderRadius:8, fontFamily:'inherit', fontSize:13,
-    marginBottom:10, boxSizing:'border-box', background:'#FDF6EC'
+    marginBottom:10, boxSizing:'border-box', background:'#F6F4ED'
   }
-  const label = { fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4, display:'block' }
+  const label = { fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4, display:'block' }
 
   // ── FORM (add/edit) ──
   if (view === 'addCat') {
@@ -163,16 +163,16 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
           <button
             onClick={() => setView('list')}
-            style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#8B7355' }}
+            style={{ background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#6B7F78' }}
           >
             {'<'} Back
           </button>
-          <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>
+          <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48' }}>
             {view === 'add' ? 'Add New Item' : `Edit: ${editItem?.name}`}
           </div>
         </div>
 
-        <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:16 }}>
+        <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:16 }}>
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
             <div style={{ gridColumn:'1/-1' }}>
@@ -238,7 +238,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
                 onChange={e => setForm(f=>({...f,active:e.target.checked}))}
                 style={{ width:16, height:16, cursor:'pointer' }}
               />
-              <label style={{ fontSize:13, color:'#2C1810', cursor:'pointer' }}>Active</label>
+              <label style={{ fontSize:13, color:'#1A4C48', cursor:'pointer' }}>Active</label>
             </div>
           </div>
 
@@ -266,7 +266,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
               onClick={handleSave}
               disabled={saving}
               style={{
-                flex:1, background: saving ? '#aaa' : '#2C1810',
+                flex:1, background: saving ? '#aaa' : '#1A4C48',
                 color:'#fff', border:'none', borderRadius:8,
                 padding:'12px', fontSize:13, fontWeight:600, cursor:'pointer'
               }}
@@ -290,7 +290,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
     <div>
       {/* Header */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12, flexWrap:'wrap', gap:8 }}>
-        <div style={{ fontSize:13, color:'#8B7355' }}>
+        <div style={{ fontSize:13, color:'#6B7F78' }}>
           {filtered.length} items
         </div>
         <div style={{ display:'flex', gap:8 }}>
@@ -307,7 +307,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
           <button
             onClick={openAdd}
             style={{
-              background:'#2C1810', color:'#fff', border:'none',
+              background:'#1A4C48', color:'#fff', border:'none',
               borderRadius:8, padding:'8px 14px', cursor:'pointer',
               fontSize:13, fontWeight:600
             }}
@@ -338,9 +338,9 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
             key={cat}
             onClick={() => setFilterCat(cat)}
             style={{
-              padding:'5px 12px', borderRadius:20, border:'1px solid #EDE0CC',
-              background: filterCat===cat ? '#2C1810' : '#fff',
-              color: filterCat===cat ? '#fff' : '#8B7355',
+              padding:'5px 12px', borderRadius:20, border:'1px solid #E3DDD0',
+              background: filterCat===cat ? '#1A4C48' : '#fff',
+              color: filterCat===cat ? '#fff' : '#6B7F78',
               fontSize:11, cursor:'pointer', whiteSpace:'nowrap', fontFamily:'inherit'
             }}
           >
@@ -349,7 +349,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
         ))}
       </div>
 
-      {loading && <div style={{textAlign:'center',padding:24,color:'#8B7355'}}>Loading...</div>}
+      {loading && <div style={{textAlign:'center',padding:24,color:'#6B7F78'}}>Loading...</div>}
 
       {/* Items list */}
       {filtered.map(item => {
@@ -362,15 +362,15 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
 
         return (
           <div key={item.id} style={{
-            background:'#fff', border:'1px solid #EDE0CC',
+            background:'#fff', border:'1px solid #E3DDD0',
             borderRadius:10, padding:'12px 14px', marginBottom:8,
             opacity: item.active === false ? 0.5 : 1
           }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
               <div style={{ flex:1 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}>
-                  <span style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{item.name}</span>
-                  <span style={{ fontSize:10, padding:'2px 6px', borderRadius:4, background:'#EDE0CC', color:'#8B7355' }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{item.name}</span>
+                  <span style={{ fontSize:10, padding:'2px 6px', borderRadius:4, background:'#E3DDD0', color:'#6B7F78' }}>
                     {item.code}
                   </span>
                   {item.active === false && (
@@ -379,20 +379,20 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
                     </span>
                   )}
                 </div>
-                <div style={{ fontSize:11, color:'#8B7355', display:'flex', gap:12, flexWrap:'wrap' }}>
+                <div style={{ fontSize:11, color:'#6B7F78', display:'flex', gap:12, flexWrap:'wrap' }}>
                   <span>{item.cat}</span>
                   <span>{item.vendor}</span>
                   <span>PAR: {item.par} {item.uom}</span>
                   <span style={{ color:'#E74C3C' }}>Cost: ${(item.cost_price||0).toFixed(2)}</span>
                   {item.sell_price > 0 && <span style={{ color:'#27AE60' }}>Sell: ${item.sell_price.toFixed(2)}</span>}
-                  {cogs && <span style={{ color:'#C8843A', fontWeight:600 }}>COGS: {cogs}</span>}
+                  {cogs && <span style={{ color:'#C1683C', fontWeight:600 }}>COGS: {cogs}</span>}
                   {margin && <span style={{ color:'#27AE60', fontWeight:600 }}>Margin: {margin}</span>}
                 </div>
               </div>
               <div style={{ display:'flex', gap:6, marginLeft:8 }}>
                 <button
                   onClick={() => openEdit(item)}
-                  style={{ fontSize:11, padding:'5px 10px', background:'#FDF6EC', border:'1px solid #EDE0CC', borderRadius:6, cursor:'pointer', color:'#2C1810' }}
+                  style={{ fontSize:11, padding:'5px 10px', background:'#F6F4ED', border:'1px solid #E3DDD0', borderRadius:6, cursor:'pointer', color:'#1A4C48' }}
                 >
                   Edit
                 </button>
@@ -409,7 +409,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
       })}
 
       {!loading && filtered.length === 0 && (
-        <div style={{ textAlign:'center', padding:32, color:'#8B7355' }}>
+        <div style={{ textAlign:'center', padding:32, color:'#6B7F78' }}>
           No items found
         </div>
       )}

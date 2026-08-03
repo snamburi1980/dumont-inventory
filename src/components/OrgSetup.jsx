@@ -8,7 +8,7 @@ const STEPS = ['Org Details', 'Inventory Template', 'Review & Create']
 export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
   const [step,       setStep]       = useState(0)
   const [saving,     setSaving]     = useState(false)
-  const [orgForm,    setOrgForm]    = useState({ name:'', brandColor:'#2C1810', currency:'USD' })
+  const [orgForm,    setOrgForm]    = useState({ name:'', brandColor:'#1A4C48', currency:'USD' })
   const [template,   setTemplate]   = useState('dumont') // dumont | blank | upload
   const [customItems,setCustomItems]= useState([])
   const [csvError,   setCsvError]   = useState('')
@@ -104,9 +104,9 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
     setSaving(false)
   }
 
-  const card  = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:16, marginBottom:12 }
-  const input = { width:'100%', padding:'9px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:10, boxSizing:'border-box', background:'#FDF6EC' }
-  const label = { fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4, display:'block' }
+  const card  = { background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:16, marginBottom:12 }
+  const input = { width:'100%', padding:'9px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, marginBottom:10, boxSizing:'border-box', background:'#F6F4ED' }
+  const label = { fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4, display:'block' }
 
   return (
     <div>
@@ -117,16 +117,16 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
             <div style={{
               width:28, height:28, borderRadius:'50%', display:'flex', alignItems:'center',
               justifyContent:'center', fontSize:12, fontWeight:700, flexShrink:0,
-              background: i <= step ? '#2C1810' : '#EDE0CC',
-              color: i <= step ? '#fff' : '#8B7355',
+              background: i <= step ? '#1A4C48' : '#E3DDD0',
+              color: i <= step ? '#fff' : '#6B7F78',
             }}>
               {i + 1}
             </div>
-            <div style={{ fontSize:11, color: i === step ? '#2C1810' : '#8B7355', marginLeft:6, fontWeight: i === step ? 700 : 400, whiteSpace:'nowrap' }}>
+            <div style={{ fontSize:11, color: i === step ? '#1A4C48' : '#6B7F78', marginLeft:6, fontWeight: i === step ? 700 : 400, whiteSpace:'nowrap' }}>
               {s}
             </div>
             {i < STEPS.length-1 && (
-              <div style={{ flex:1, height:2, background: i < step ? '#2C1810' : '#EDE0CC', margin:'0 8px' }} />
+              <div style={{ flex:1, height:2, background: i < step ? '#1A4C48' : '#E3DDD0', margin:'0 8px' }} />
             )}
           </div>
         ))}
@@ -135,7 +135,7 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
       {/* Step 1 — Org Details */}
       {step === 0 && (
         <div style={card}>
-          <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:12 }}>Organisation Details</div>
+          <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48', marginBottom:12 }}>Organisation Details</div>
 
           <label style={label}>Organisation Name *</label>
           <input
@@ -151,9 +151,9 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
               type="color"
               value={orgForm.brandColor}
               onChange={e => setOrgForm(f=>({...f,brandColor:e.target.value}))}
-              style={{ width:48, height:36, borderRadius:6, border:'1px solid #EDE0CC', cursor:'pointer', padding:2 }}
+              style={{ width:48, height:36, borderRadius:6, border:'1px solid #E3DDD0', cursor:'pointer', padding:2 }}
             />
-            <span style={{ fontSize:12, color:'#8B7355' }}>{orgForm.brandColor}</span>
+            <span style={{ fontSize:12, color:'#6B7F78' }}>{orgForm.brandColor}</span>
           </div>
 
           <label style={label}>Currency</label>
@@ -167,11 +167,11 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
 
           <label style={label}>Logo (optional)</label>
           <label style={{ display:'block', cursor:'pointer', marginBottom:10 }}>
-            <div style={{ border:'2px dashed #EDE0CC', borderRadius:8, padding:'12px', textAlign:'center' }}>
+            <div style={{ border:'2px dashed #E3DDD0', borderRadius:8, padding:'12px', textAlign:'center' }}>
               {orgForm.logoData ? (
                 <img src={orgForm.logoData} alt="Logo" style={{ height:48, objectFit:'contain' }} />
               ) : (
-                <div style={{ fontSize:12, color:'#8B7355' }}>Click to upload logo (PNG, JPG)</div>
+                <div style={{ fontSize:12, color:'#6B7F78' }}>Click to upload logo (PNG, JPG)</div>
               )}
             </div>
             <input
@@ -188,7 +188,7 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
 
           <button
             onClick={() => { if (!orgForm.name.trim()) { showToast('Enter org name'); return } setStep(1) }}
-            style={{ width:'100%', background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'12px', cursor:'pointer', fontSize:13, fontWeight:600 }}
+            style={{ width:'100%', background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'12px', cursor:'pointer', fontSize:13, fontWeight:600 }}
           >
             Next: Inventory Template
           </button>
@@ -199,7 +199,7 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
       {step === 1 && (
         <div>
           <div style={card}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:12 }}>Choose Inventory Starting Point</div>
+            <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48', marginBottom:12 }}>Choose Inventory Starting Point</div>
 
             {[
               { id:'dumont', title:'Start from Dumont Template', desc:`Copy all ${DEFAULT_INVENTORY.length} items from Dumont Creamery. Includes boba, tea, syrups, ice cream, coffee, dry stock. Edit after creation.`, badge:`${DEFAULT_INVENTORY.length} items` },
@@ -211,15 +211,15 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
                 onClick={() => setTemplate(opt.id)}
                 style={{
                   padding:'12px 14px', borderRadius:10, marginBottom:8, cursor:'pointer',
-                  border: `2px solid ${template===opt.id ? '#2C1810' : '#EDE0CC'}`,
-                  background: template===opt.id ? '#FDF6EC' : '#fff',
+                  border: `2px solid ${template===opt.id ? '#1A4C48' : '#E3DDD0'}`,
+                  background: template===opt.id ? '#F6F4ED' : '#fff',
                 }}
               >
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
-                  <span style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{opt.title}</span>
-                  <span style={{ fontSize:11, padding:'2px 8px', borderRadius:20, background:'#EDE0CC', color:'#8B7355' }}>{opt.badge}</span>
+                  <span style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{opt.title}</span>
+                  <span style={{ fontSize:11, padding:'2px 8px', borderRadius:20, background:'#E3DDD0', color:'#6B7F78' }}>{opt.badge}</span>
                 </div>
-                <div style={{ fontSize:11, color:'#8B7355' }}>{opt.desc}</div>
+                <div style={{ fontSize:11, color:'#6B7F78' }}>{opt.desc}</div>
               </div>
             ))}
 
@@ -229,12 +229,12 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
                 <a
                   href="data:text/csv;charset=utf-8,name,code,category,vendor,uom,cost_price,sell_price,par,case_size%0AExample Item,CODE1,Boba %26 Tea,KARAT,CASE,45.25,0,2,6"
                   download="inventory_template.csv"
-                  style={{ fontSize:12, color:'#C8843A', fontWeight:600, display:'block', marginBottom:8 }}
+                  style={{ fontSize:12, color:'#C1683C', fontWeight:600, display:'block', marginBottom:8 }}
                 >
                   Download CSV Template
                 </a>
-                <label style={{ display:'block', border:'2px dashed #EDE0CC', borderRadius:8, padding:'16px', textAlign:'center', cursor:'pointer' }}>
-                  <div style={{ fontSize:13, color:'#8B7355' }}>
+                <label style={{ display:'block', border:'2px dashed #E3DDD0', borderRadius:8, padding:'16px', textAlign:'center', cursor:'pointer' }}>
+                  <div style={{ fontSize:13, color:'#6B7F78' }}>
                     {customItems.length > 0 ? `${customItems.length} items loaded` : 'Click to upload CSV'}
                   </div>
                   <input type="file" accept=".csv" onChange={handleCSV} style={{ display:'none' }} />
@@ -253,7 +253,7 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
                 if (template === 'upload' && customItems.length === 0) { showToast('Upload a CSV first'); return }
                 setStep(2)
               }}
-              style={{ flex:2, background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'12px', cursor:'pointer', fontSize:13, fontWeight:600 }}
+              style={{ flex:2, background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'12px', cursor:'pointer', fontSize:13, fontWeight:600 }}
             >
               Next: Review
             </button>
@@ -265,7 +265,7 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
       {step === 2 && (
         <div>
           <div style={card}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810', marginBottom:12 }}>Review & Create</div>
+            <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48', marginBottom:12 }}>Review & Create</div>
 
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:16 }}>
               {[
@@ -274,19 +274,19 @@ export default function OrgSetup({ onComplete, showToast, existingOrgs }) {
                 { label:'Template',   value: template === 'dumont' ? `Dumont (${DEFAULT_INVENTORY.length} items)` : template === 'upload' ? `CSV Upload (${customItems.length} items)` : 'Blank' },
                 { label:'Brand Color', value: (
                   <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <div style={{ width:16, height:16, borderRadius:4, background:orgForm.brandColor, border:'1px solid #EDE0CC' }} />
+                    <div style={{ width:16, height:16, borderRadius:4, background:orgForm.brandColor, border:'1px solid #E3DDD0' }} />
                     {orgForm.brandColor}
                   </div>
                 )},
               ].map(({ label: l, value: v }) => (
-                <div key={l} style={{ background:'#FDF6EC', borderRadius:8, padding:'10px 12px' }}>
-                  <div style={{ fontSize:10, color:'#8B7355', marginBottom:2 }}>{l}</div>
-                  <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{v}</div>
+                <div key={l} style={{ background:'#F6F4ED', borderRadius:8, padding:'10px 12px' }}>
+                  <div style={{ fontSize:10, color:'#6B7F78', marginBottom:2 }}>{l}</div>
+                  <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{v}</div>
                 </div>
               ))}
             </div>
 
-            <div style={{ background:'#FFF3E0', borderRadius:8, padding:'10px 12px', marginBottom:16, fontSize:12, color:'#C8843A' }}>
+            <div style={{ background:'#FFF3E0', borderRadius:8, padding:'10px 12px', marginBottom:16, fontSize:12, color:'#C1683C' }}>
               After creation you can add regions, stores, and users. Items can be edited at any time in Admin → Items.
             </div>
           </div>

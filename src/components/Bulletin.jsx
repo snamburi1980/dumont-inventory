@@ -17,7 +17,7 @@ function SectionHeader({ icon, title, count, onAdd, editMode }) {
       <span style={{ fontSize: 18 }}>{icon}</span>
       <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--dark)' }}>{title}</span>
       {count > 0 && (
-        <span style={{ fontSize: 12, background: '#F5EFE8', color: '#8B7355', borderRadius: 10, padding: '2px 8px', fontWeight: 600 }}>{count}</span>
+        <span style={{ fontSize: 12, background: '#EFEBE0', color: '#6B7F78', borderRadius: 10, padding: '2px 8px', fontWeight: 600 }}>{count}</span>
       )}
       {editMode && (
         <button onClick={onAdd} style={{
@@ -208,15 +208,15 @@ export default function Bulletin({ auth, showToast }) {
     width: '100%', padding: '9px 11px', border: '1px solid var(--border)',
     borderRadius: 8, fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', background: '#fff',
   }
-  const label = (txt) => <div style={{ fontSize: 12, color: '#8B7355', marginBottom: 4, fontWeight: 600 }}>{txt}</div>
+  const label = (txt) => <div style={{ fontSize: 12, color: '#6B7F78', marginBottom: 4, fontWeight: 600 }}>{txt}</div>
   const editBtn = (onClick) => (
-    <button onClick={onClick} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#8B7355', padding: '2px 6px', fontFamily: 'inherit' }}>Edit</button>
+    <button onClick={onClick} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#6B7F78', padding: '2px 6px', fontFamily: 'inherit' }}>Edit</button>
   )
   const delBtn = (onClick) => (
     <button onClick={onClick} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#E53E3E', padding: '2px 6px', fontFamily: 'inherit' }}>Delete</button>
   )
 
-  if (loading) return <div style={{ padding: 24, color: '#8B7355', fontSize: 13 }}>Loading…</div>
+  if (loading) return <div style={{ padding: 24, color: '#6B7F78', fontSize: 13 }}>Loading…</div>
 
   const openIssues     = issues.filter(i => i.status === 'open')
   const resolvedIssues = issues.filter(i => i.status === 'resolved')
@@ -266,7 +266,7 @@ export default function Bulletin({ auth, showToast }) {
         )}
 
         {sortedAnn.length === 0 && !addingAnn && (
-          <div style={{ color: '#8B7355', fontSize: 13, padding: '8px 0' }}>No announcements yet.</div>
+          <div style={{ color: '#6B7F78', fontSize: 13, padding: '8px 0' }}>No announcements yet.</div>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -345,7 +345,7 @@ export default function Bulletin({ auth, showToast }) {
         )}
 
         {links.length === 0 && !addingLink && (
-          <div style={{ color: '#8B7355', fontSize: 13, padding: '8px 0' }}>No links added yet.</div>
+          <div style={{ color: '#6B7F78', fontSize: 13, padding: '8px 0' }}>No links added yet.</div>
         )}
 
         {links.length > 0 && (
@@ -353,9 +353,9 @@ export default function Bulletin({ auth, showToast }) {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '6px 8px 6px 0', color: '#8B7355', fontWeight: 600, whiteSpace: 'nowrap' }}>Name</th>
-                  <th style={{ textAlign: 'left', padding: '6px 8px', color: '#8B7355', fontWeight: 600 }}>Category</th>
-                  <th style={{ textAlign: 'left', padding: '6px 0', color: '#8B7355', fontWeight: 600 }}>Link</th>
+                  <th style={{ textAlign: 'left', padding: '6px 8px 6px 0', color: '#6B7F78', fontWeight: 600, whiteSpace: 'nowrap' }}>Name</th>
+                  <th style={{ textAlign: 'left', padding: '6px 8px', color: '#6B7F78', fontWeight: 600 }}>Category</th>
+                  <th style={{ textAlign: 'left', padding: '6px 0', color: '#6B7F78', fontWeight: 600 }}>Link</th>
                   {editMode && <th />}
                 </tr>
               </thead>
@@ -387,11 +387,11 @@ export default function Bulletin({ auth, showToast }) {
                       <>
                         <td style={{ padding: '10px 8px 10px 0', fontWeight: 600, color: 'var(--dark)' }}>{lnk.name}</td>
                         <td style={{ padding: '10px 8px' }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#F5EFE8', color: '#8B7355' }}>{lnk.category}</span>
+                          <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#EFEBE0', color: '#6B7F78' }}>{lnk.category}</span>
                         </td>
                         <td style={{ padding: '10px 0' }}>
                           <a href={lnk.url} target="_blank" rel="noopener noreferrer"
-                            style={{ color: '#C8843A', fontWeight: 600, textDecoration: 'none', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            style={{ color: '#C1683C', fontWeight: 600, textDecoration: 'none', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
                             Open ↗
                           </a>
                         </td>
@@ -441,7 +441,7 @@ export default function Bulletin({ auth, showToast }) {
         )}
 
         {issues.length === 0 && !addingIssue && (
-          <div style={{ color: '#8B7355', fontSize: 13, padding: '8px 0' }}>No issues logged.</div>
+          <div style={{ color: '#6B7F78', fontSize: 13, padding: '8px 0' }}>No issues logged.</div>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -554,7 +554,7 @@ export default function Bulletin({ auth, showToast }) {
         )}
 
         {contacts.length === 0 && !addingContact && (
-          <div style={{ color: '#8B7355', fontSize: 13, padding: '8px 0' }}>No contacts added yet.</div>
+          <div style={{ color: '#6B7F78', fontSize: 13, padding: '8px 0' }}>No contacts added yet.</div>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -593,24 +593,24 @@ export default function Bulletin({ auth, showToast }) {
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                         <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--dark)' }}>{c.name}</span>
-                        <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#F5EFE8', color: '#8B7355' }}>{c.category}</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: '#EFEBE0', color: '#6B7F78' }}>{c.category}</span>
                       </div>
                       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                         {c.phone && (
                           <a href={`tel:${c.phone.replace(/\D/g,'')}`}
-                            style={{ fontSize: 13, color: '#C8843A', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            style={{ fontSize: 13, color: '#C1683C', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
                             📱 {c.phone}
                           </a>
                         )}
                         {c.email && (
                           <a href={`mailto:${c.email}`}
-                            style={{ fontSize: 13, color: '#C8843A', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            style={{ fontSize: 13, color: '#C1683C', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
                             ✉️ {c.email}
                           </a>
                         )}
                       </div>
                       {c.notes && (
-                        <div style={{ fontSize: 12, color: '#8B7355', marginTop: 4 }}>{c.notes}</div>
+                        <div style={{ fontSize: 12, color: '#6B7F78', marginTop: 4 }}>{c.notes}</div>
                       )}
                     </div>
                     {editMode && (

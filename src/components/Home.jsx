@@ -133,21 +133,21 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
   const hour         = new Date().getHours()
   const greeting     = (hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening') + ' TEST SASI'
 
-  const cardStyle = { background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px', marginBottom:12 }
+  const cardStyle = { background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:'14px 16px', marginBottom:12 }
 
   if (isSuperOwner && !viewingStore) {
     return (
       <div style={{ maxWidth:700, margin:'0 auto', textAlign:'center', padding:'40px 20px' }}>
         <div style={{ fontSize:48, marginBottom:16 }}>D</div>
-        <div style={{ fontSize:20, fontWeight:700, color:'#2C1810', marginBottom:8 }}>{greeting}!</div>
-        <div style={{ fontSize:14, color:'#8B7355', marginBottom:32 }}>
+        <div style={{ fontSize:20, fontWeight:700, color:'#1A4C48', marginBottom:8 }}>{greeting}!</div>
+        <div style={{ fontSize:14, color:'#6B7F78', marginBottom:32 }}>
           No stores set up yet. Go to Admin to create your organisation, regions and stores.
         </div>
         <div style={{ display:'flex', flexDirection:'column', gap:12, maxWidth:300, margin:'0 auto' }}>
           {['Create New Organisation','Add Region','Add Store','Assign Users'].map((s,i) => (
-            <div key={i} style={{ background:'#FDF6EC', border:'1px solid #EDE0CC', borderRadius:12, padding:'16px' }}>
-              <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:4 }}>Step {i+1}</div>
-              <div style={{ fontSize:12, color:'#8B7355' }}>Admin → {s}</div>
+            <div key={i} style={{ background:'#F6F4ED', border:'1px solid #E3DDD0', borderRadius:12, padding:'16px' }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:4 }}>Step {i+1}</div>
+              <div style={{ fontSize:12, color:'#6B7F78' }}>Admin → {s}</div>
             </div>
           ))}
         </div>
@@ -160,12 +160,19 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
 
       <TipBanner message="Your daily dashboard — check stock alerts, read announcements, and log issues for your store." />
 
-      {/* Greeting */}
-      <div style={{ marginBottom:14 }}>
-        <div style={{ fontSize:20, fontWeight:700, color:'#2C1810' }}>
+      {/* Greeting — brand display style with sparkle */}
+      <div style={{ marginBottom:14, position:'relative' }}>
+        <div style={{
+          fontFamily:'"Bebas Neue", sans-serif', fontSize:30, letterSpacing:1.5,
+          color:'#1A4C48', textShadow:'2px 2px 0 #E39C74', lineHeight:1.1,
+        }}>
           {greeting}{storeName ? `, ${storeName}` : ''}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+            style={{ display:'inline-block', marginLeft:8, verticalAlign:'super' }}>
+            <path d="M12 0 C13 7 17 11 24 12 C17 13 13 17 12 24 C11 17 7 13 0 12 C7 11 11 7 12 0 Z" fill="#FBBC55"/>
+          </svg>
         </div>
-        <div style={{ fontSize:12, color:'#8B7355' }}>
+        <div style={{ fontSize:12, color:'#6B7F78', marginTop:4 }}>
           {new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })}
         </div>
       </div>
@@ -173,11 +180,11 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       {/* Today's Checklist Status */}
       <div style={{ ...cardStyle, padding:'12px 16px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>
+          <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px' }}>
             Today's Checklists
           </div>
           <button onClick={() => setActiveTab('checklist')}
-            style={{ fontSize:11, color:'#C8843A', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
+            style={{ fontSize:11, color:'#C1683C', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
             Open →
           </button>
         </div>
@@ -193,7 +200,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
               <div style={{ fontSize:12, fontWeight:700, color: todayChecklist.opening ? '#2E7D32' : '#E65100' }}>
                 Opening
               </div>
-              <div style={{ fontSize:10, color: todayChecklist.opening ? '#27AE60' : '#8B7355' }}>
+              <div style={{ fontSize:10, color: todayChecklist.opening ? '#27AE60' : '#6B7F78' }}>
                 {todayChecklist.opening ? '✓ Submitted' : 'Not yet done'}
               </div>
             </div>
@@ -201,7 +208,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
           <div onClick={() => setActiveTab('checklist')} style={{
             flex:1, display:'flex', alignItems:'center', gap:8, padding:'10px 12px',
             background: todayChecklist.closing ? '#E8F5E9' : '#F5F5F5',
-            border: `1px solid ${todayChecklist.closing ? '#81C784' : '#EDE0CC'}`,
+            border: `1px solid ${todayChecklist.closing ? '#81C784' : '#E3DDD0'}`,
             borderRadius:10, cursor:'pointer',
           }}>
             <span style={{ fontSize:20 }}>🌙</span>
@@ -220,27 +227,27 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       {/* Announcements */}
       <div style={cardStyle}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-          <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>Announcements</div>
+          <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px' }}>Announcements</div>
           {isSuperOwner && (
             <button onClick={() => setShowNewAnnounce(!showNewAnnounce)}
-              style={{ fontSize:11, color:'#C8843A', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
+              style={{ fontSize:11, color:'#C1683C', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
               + Post
             </button>
           )}
         </div>
         {showNewAnnounce && isSuperOwner && (
-          <div style={{ background:'#FDF6EC', borderRadius:10, padding:12, marginBottom:12 }}>
+          <div style={{ background:'#F6F4ED', borderRadius:10, padding:12, marginBottom:12 }}>
             <input placeholder="Heading *" value={newAnnounce.title}
               onChange={e => setNewAnnounce(a=>({...a,title:e.target.value}))}
-              style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, fontWeight:600, boxSizing:'border-box' }}/>
+              style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, fontWeight:600, boxSizing:'border-box' }}/>
             <textarea placeholder="Description" value={newAnnounce.message}
               onChange={e => setNewAnnounce(a=>({...a,message:e.target.value}))}
-              rows={3} style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, resize:'none', boxSizing:'border-box' }}/>
+              rows={3} style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, resize:'none', boxSizing:'border-box' }}/>
             <input placeholder="Link (optional)" value={newAnnounce.link||''}
               onChange={e => setNewAnnounce(a=>({...a,link:e.target.value}))}
-              style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, boxSizing:'border-box' }}/>
+              style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, boxSizing:'border-box' }}/>
             <label style={{ display:'block', marginBottom:8 }}>
-              <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Attach image or PDF (optional)</div>
+              <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>Attach image or PDF (optional)</div>
               <input type="file" accept="image/*,.pdf"
                 onChange={e => setNewAnnounce(a=>({...a,file:e.target.files[0],fileName:e.target.files[0]?.name}))}
                 style={{ fontSize:12 }}/>
@@ -248,7 +255,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
             {newAnnounce.fileName && <div style={{ fontSize:11, color:'#27AE60', marginBottom:8 }}>Selected: {newAnnounce.fileName}</div>}
             <div style={{ display:'flex', gap:8 }}>
               <button onClick={postAnnouncement}
-                style={{ flex:1, background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'8px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
+                style={{ flex:1, background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'8px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
                 {posting ? 'Posting...' : 'Post to All Stores'}
               </button>
               <button onClick={() => setShowNewAnnounce(false)}
@@ -259,21 +266,21 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
           </div>
         )}
         {announcements.length === 0 ? (
-          <div style={{ fontSize:13, color:'#8B7355', textAlign:'center', padding:'12px 0' }}>No announcements</div>
+          <div style={{ fontSize:13, color:'#6B7F78', textAlign:'center', padding:'12px 0' }}>No announcements</div>
         ) : announcements.map(a => (
-          <div key={a.id} style={{ padding:'10px 12px', background:'#FDF6EC', borderRadius:10, marginBottom:8, borderLeft:'3px solid #C8843A' }}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#2C1810' }}>{a.title}</div>
-            {a.message && <div style={{ fontSize:13, color:'#2C1810', marginTop:4, lineHeight:1.5 }}>{a.message}</div>}
+          <div key={a.id} style={{ padding:'10px 12px', background:'#F6F4ED', borderRadius:10, marginBottom:8, borderLeft:'3px solid #C1683C' }}>
+            <div style={{ fontSize:14, fontWeight:700, color:'#1A4C48' }}>{a.title}</div>
+            {a.message && <div style={{ fontSize:13, color:'#1A4C48', marginTop:4, lineHeight:1.5 }}>{a.message}</div>}
             {a.fileData && a.fileType?.startsWith('image') && (
               <img src={a.fileData} alt={a.fileName} style={{ width:'100%', borderRadius:8, marginTop:8, maxHeight:200, objectFit:'cover' }}/>
             )}
             {a.fileData && !a.fileType?.startsWith('image') && (
-              <a href={a.fileData} download={a.fileName} style={{ display:'block', marginTop:8, fontSize:12, color:'#C8843A', fontWeight:600 }}>
+              <a href={a.fileData} download={a.fileName} style={{ display:'block', marginTop:8, fontSize:12, color:'#C1683C', fontWeight:600 }}>
                 Download: {a.fileName}
               </a>
             )}
             {a.link && (
-              <a href={a.link} target="_blank" rel="noreferrer" style={{ display:'block', marginTop:6, fontSize:12, color:'#C8843A', fontWeight:600 }}>View Link</a>
+              <a href={a.link} target="_blank" rel="noreferrer" style={{ display:'block', marginTop:6, fontSize:12, color:'#C1683C', fontWeight:600 }}>View Link</a>
             )}
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:6 }}>
               <div style={{ fontSize:10, color:'#aaa' }}>{a.postedBy} · {new Date(a.postedAt).toLocaleDateString()}</div>
@@ -292,22 +299,22 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       {(critical.length > 0 || low.length > 0) && (
         <div style={cardStyle}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-            <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>
+            <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px' }}>
               Stock Alerts
               <span style={{ marginLeft:6, background:'#FFEBEE', color:'#E74C3C', borderRadius:20, padding:'1px 8px', fontSize:10 }}>
                 {critical.length + low.length}
               </span>
             </div>
             <button onClick={() => setActiveTab('inventory')}
-              style={{ fontSize:11, color:'#C8843A', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
+              style={{ fontSize:11, color:'#C1683C', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
               View Inventory →
             </button>
           </div>
           {[...critical,...low].map(item => (
-            <div key={item.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid #EDE0CC' }}>
+            <div key={item.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid #E3DDD0' }}>
               <div>
-                <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{item.name}</div>
-                <div style={{ fontSize:11, color:'#8B7355' }}>{item.cat}</div>
+                <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{item.name}</div>
+                <div style={{ fontSize:11, color:'#6B7F78' }}>{item.cat}</div>
               </div>
               <div style={{ textAlign:'right' }}>
                 <div style={{ fontSize:13, fontWeight:700, color: getStatus(item)==='critical'?'#E74C3C':'#E67E22' }}>
@@ -323,14 +330,14 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       {/* Quick Stats */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:12 }}>
         <div style={{ ...cardStyle, marginBottom:0, textAlign:'center' }}>
-          <div style={{ fontSize:20, fontWeight:700, color:'#C8843A' }}>
+          <div style={{ fontSize:20, fontWeight:700, color:'#C1683C' }}>
             ${totalValue.toLocaleString('en-US',{maximumFractionDigits:0})}
           </div>
-          <div style={{ fontSize:10, color:'#8B7355', textTransform:'uppercase' }}>Stock Value</div>
+          <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Stock Value</div>
         </div>
         <div style={{ ...cardStyle, marginBottom:0, textAlign:'center' }}>
-          <div style={{ fontSize:20, fontWeight:700, color:'#C8843A' }}>{totalTubs.toFixed(1)}</div>
-          <div style={{ fontSize:10, color:'#8B7355', textTransform:'uppercase' }}>Ice Cream Tubs</div>
+          <div style={{ fontSize:20, fontWeight:700, color:'#C1683C' }}>{totalTubs.toFixed(1)}</div>
+          <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Ice Cream Tubs</div>
         </div>
       </div>
 
@@ -338,7 +345,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       {lowFlavors.length > 0 && (
         <div style={{ ...cardStyle, borderLeft:'3px solid #E74C3C', marginBottom:12 }}>
           <div style={{ fontSize:12, fontWeight:700, color:'#E74C3C', marginBottom:4 }}>⚠ Low Ice Cream Flavors</div>
-          <div style={{ fontSize:12, color:'#8B7355' }}>{lowFlavors.map(i=>i.name).join(', ')}</div>
+          <div style={{ fontSize:12, color:'#6B7F78' }}>{lowFlavors.map(i=>i.name).join(', ')}</div>
         </div>
       )}
 
@@ -346,7 +353,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       <div style={cardStyle}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ fontSize:12, fontWeight:700, color:'#8B7355', textTransform:'uppercase', letterSpacing:'0.5px' }}>Issues</div>
+            <div style={{ fontSize:12, fontWeight:700, color:'#6B7F78', textTransform:'uppercase', letterSpacing:'0.5px' }}>Issues</div>
             {openIssues.length > 0 && (
               <span style={{ background:'#FFF3E0', color:'#E67E22', borderRadius:20, padding:'1px 8px', fontSize:10, fontWeight:700 }}>
                 {openIssues.length} open
@@ -356,27 +363,27 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
           <div style={{ display:'flex', gap:8 }}>
             {resolvedIssues.length > 0 && (
               <button onClick={() => setShowResolved(v => !v)}
-                style={{ fontSize:11, color:'#8B7355', background:'none', border:'none', cursor:'pointer' }}>
+                style={{ fontSize:11, color:'#6B7F78', background:'none', border:'none', cursor:'pointer' }}>
                 {showResolved ? 'Hide resolved' : `+${resolvedIssues.length} resolved`}
               </button>
             )}
             <button onClick={() => setShowNewIssue(!showNewIssue)}
-              style={{ fontSize:11, color:'#C8843A', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
+              style={{ fontSize:11, color:'#C1683C', background:'none', border:'none', cursor:'pointer', fontWeight:600 }}>
               + Log Issue
             </button>
           </div>
         </div>
         {showNewIssue && (
-          <div style={{ background:'#FDF6EC', borderRadius:10, padding:12, marginBottom:12 }}>
+          <div style={{ background:'#F6F4ED', borderRadius:10, padding:12, marginBottom:12 }}>
             <input placeholder="Issue title" value={newIssue.title}
               onChange={e => setNewIssue(i=>({...i,title:e.target.value}))}
-              style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, boxSizing:'border-box' }}/>
+              style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, boxSizing:'border-box' }}/>
             <textarea placeholder="Details (optional)" value={newIssue.description}
               onChange={e => setNewIssue(i=>({...i,description:e.target.value}))}
-              rows={2} style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, resize:'none', boxSizing:'border-box' }}/>
+              rows={2} style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, resize:'none', boxSizing:'border-box' }}/>
             <div style={{ display:'flex', gap:8 }}>
               <button onClick={logIssue}
-                style={{ flex:1, background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'8px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
+                style={{ flex:1, background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'8px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
                 Log Issue
               </button>
               <button onClick={() => setShowNewIssue(false)}
@@ -387,7 +394,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
           </div>
         )}
         {displayIssues.length === 0 ? (
-          <div style={{ fontSize:13, color:'#8B7355', textAlign:'center', padding:'12px 0' }}>
+          <div style={{ fontSize:13, color:'#6B7F78', textAlign:'center', padding:'12px 0' }}>
             {openIssues.length === 0 ? 'No open issues 🎉' : 'No issues logged'}
           </div>
         ) : displayIssues.slice(0, 10).map(issue => (
@@ -396,11 +403,11 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
             borderLeft: `3px solid ${issue.status==='resolved' ? '#ccc' : '#E67E22'}` }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:13, fontWeight:600, color: issue.status==='resolved' ? '#999' : '#2C1810' }}>
+                <div style={{ fontSize:13, fontWeight:600, color: issue.status==='resolved' ? '#999' : '#1A4C48' }}>
                   {issue.status==='resolved' && <span style={{ fontSize:11, marginRight:6 }}>✓</span>}
                   {issue.title}
                 </div>
-                {issue.description && <div style={{ fontSize:11, color:'#8B7355', marginTop:2 }}>{issue.description}</div>}
+                {issue.description && <div style={{ fontSize:11, color:'#6B7F78', marginTop:2 }}>{issue.description}</div>}
                 <div style={{ fontSize:10, color:'#aaa', marginTop:4 }}>
                   {issue.createdBy} · {new Date(issue.createdAt).toLocaleDateString()}
                 </div>
@@ -419,11 +426,11 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       {/* Quick Actions */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:16 }}>
         <button onClick={() => setActiveTab('checklist')}
-          style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:10, padding:'14px 12px', cursor:'pointer', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          style={{ background:'#1A4C48', color:'#fff', border:'none', borderRadius:10, padding:'14px 12px', cursor:'pointer', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
           ✅ Start Checklist
         </button>
         <button onClick={() => setActiveTab('icecreamlog')}
-          style={{ background:'#C8843A', color:'#fff', border:'none', borderRadius:10, padding:'14px 12px', cursor:'pointer', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          style={{ background:'#C1683C', color:'#fff', border:'none', borderRadius:10, padding:'14px 12px', cursor:'pointer', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
           🍦 Log Scoops
         </button>
       </div>

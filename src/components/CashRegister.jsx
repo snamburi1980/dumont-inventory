@@ -116,7 +116,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
   const diff    = (parseFloat(form.closingCash)||0) - (parseFloat(form.openingCash)||0)
   const hasDiff = form.openingCash && form.closingCash
 
-  const inp = { padding:'10px 12px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#FDF6EC', width:'100%', boxSizing:'border-box' }
+  const inp = { padding:'10px 12px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#F6F4ED', width:'100%', boxSizing:'border-box' }
 
   return (
     <div>
@@ -140,19 +140,19 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
           {/* Row 1: Date + Live Diff */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Date</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Date</div>
               <input type="date" value={form.date}
                 onChange={e => setForm(f=>({...f, date:e.target.value}))}
                 style={inp} />
             </div>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Difference</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Difference</div>
               <div style={{
                 padding:'10px 12px', borderRadius:8, textAlign:'center',
                 background: hasDiff ? (diff >= 0 ? '#E8F5E9' : '#FFEBEE') : '#F5F5F5',
                 fontSize:16, fontWeight:800,
                 color: hasDiff ? (diff >= 0 ? '#27AE60' : '#E74C3C') : '#ccc',
-                border:`1px solid ${hasDiff ? (diff >= 0 ? '#81C784' : '#FFCDD2') : '#EDE0CC'}`,
+                border:`1px solid ${hasDiff ? (diff >= 0 ? '#81C784' : '#FFCDD2') : '#E3DDD0'}`,
               }}>
                 {hasDiff ? `${diff >= 0 ? '+' : ''}$${diff.toFixed(2)}` : '—'}
               </div>
@@ -168,7 +168,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
                 style={{ ...inp, fontWeight:700 }} />
             </div>
             <div>
-              <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Closing Cash $</div>
+              <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Closing Cash $</div>
               <input type="number" placeholder="0.00" value={form.closingCash}
                 onChange={e => setForm(f=>({...f, closingCash:e.target.value}))}
                 style={{ ...inp, fontWeight:700 }} />
@@ -177,7 +177,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
 
           {/* Row 3: Notes */}
           <div style={{ marginBottom:14 }}>
-            <div style={{ fontSize:11, fontWeight:600, color:'#8B7355', marginBottom:4 }}>Notes / Comments</div>
+            <div style={{ fontSize:11, fontWeight:600, color:'#6B7F78', marginBottom:4 }}>Notes / Comments</div>
             <input type="text" placeholder="Any notes about cash used, variance, etc."
               value={form.comments}
               onChange={e => setForm(f=>({...f, comments:e.target.value}))}
@@ -309,11 +309,11 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
                   <div style={{ display:'flex', gap:12, marginBottom:log.comments ? 8 : 0 }}>
                     <div style={{ flex:1, background:'#E8F5E9', borderRadius:8, padding:'8px', textAlign:'center' }}>
                       <div style={{ fontSize:14, fontWeight:700, color:'#27AE60' }}>${log.openingCash?.toFixed(2)}</div>
-                      <div style={{ fontSize:9, color:'#8B7355', textTransform:'uppercase' }}>Opening</div>
+                      <div style={{ fontSize:9, color:'#6B7F78', textTransform:'uppercase' }}>Opening</div>
                     </div>
                     <div style={{ flex:1, background:'#F5F5F5', borderRadius:8, padding:'8px', textAlign:'center' }}>
                       <div style={{ fontSize:14, fontWeight:700, color:'var(--dark)' }}>${log.closingCash?.toFixed(2)}</div>
-                      <div style={{ fontSize:9, color:'#8B7355', textTransform:'uppercase' }}>Closing</div>
+                      <div style={{ fontSize:9, color:'#6B7F78', textTransform:'uppercase' }}>Closing</div>
                     </div>
                   </div>
                   {log.comments && (
@@ -339,7 +339,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
               <div style={{ fontSize:11, fontWeight:700, color:'#fff' }}>{activeFilterLabel}</div>
               <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>{monthLogs.length} days</div>
               <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)' }}>Avg ${avgClosing.toFixed(0)}</div>
-              <div style={{ fontSize:14, fontWeight:800, color:'#C8843A' }}>
+              <div style={{ fontSize:14, fontWeight:800, color:'#C1683C' }}>
                 {totalDiff >= 0 ? '+' : ''}${totalDiff.toFixed(2)}
               </div>
               <div/><div/>

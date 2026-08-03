@@ -111,13 +111,13 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
             <div style={{ fontSize:13, fontWeight:700, color: locked ? '#E65100' : '#2E7D32' }}>
               {locked ? 'Inventory Locked' : 'Inventory Unlocked'}
             </div>
-            <div style={{ fontSize:11, color:'#8B7355' }}>
+            <div style={{ fontSize:11, color:'#6B7F78' }}>
               {locked ? 'Tap Unlock to make changes' : 'Auto-locks after 5 mins of inactivity'}
             </div>
           </div>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          {saveStatus === 'saving' && <span style={{ fontSize:11, color:'#8B7355' }}>Saving…</span>}
+          {saveStatus === 'saving' && <span style={{ fontSize:11, color:'#6B7F78' }}>Saving…</span>}
           {saveStatus === 'saved'  && <span style={{ fontSize:11, color:'#27AE60' }}>✓ Saved</span>}
           {saveStatus === 'error'  && <span style={{ fontSize:11, color:'#E74C3C' }}>⚠ Save failed</span>}
           <button onClick={locked ? unlock : () => { setLocked(true); showToast('Inventory locked') }}
@@ -187,7 +187,7 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
       <div style={{ display:'flex', gap:8, marginBottom:12 }}>
         <input className="search-bar" placeholder="🔍 Search items…" value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ flex:1, padding:'9px 12px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#FDF6EC', marginBottom:0 }}/>
+          style={{ flex:1, padding:'9px 12px', border:'1px solid var(--border)', borderRadius:8, fontFamily:'inherit', fontSize:13, background:'#F6F4ED', marginBottom:0 }}/>
         <button onClick={() => setShowInactive(!showInactive)}
           style={{ padding:'9px 14px', border:'1px solid var(--border)', borderRadius:8, background: showInactive ? 'var(--dark)' : '#fff', color: showInactive ? '#fff' : 'var(--text-muted)', cursor:'pointer', fontSize:12, fontFamily:'inherit', whiteSpace:'nowrap' }}>
           {showInactive ? 'Hide Inactive' : 'Show Inactive'}

@@ -273,12 +273,12 @@ export default function Schedule({ viewingStore, showToast }) {
           s.onload=res; s.onerror=rej; document.head.appendChild(s)
         })
       }
-      const canvas = await window.html2canvas(schedRef.current, { scale:2, backgroundColor:'#FDF6EC', useCORS:true })
+      const canvas = await window.html2canvas(schedRef.current, { scale:2, backgroundColor:'#F6F4ED', useCORS:true })
       setSnapshotUrl(canvas.toDataURL('image/png'))
     } catch(e) { showToast('Snapshot failed — try again') }
   }
 
-  const inp        = { padding:'8px 10px', border:'1px solid #EDE0CC', borderRadius:8, fontFamily:'inherit', fontSize:13, width:'100%', boxSizing:'border-box', marginBottom:8, background:'#FDF6EC' }
+  const inp        = { padding:'8px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, width:'100%', boxSizing:'border-box', marginBottom:8, background:'#F6F4ED' }
   const totalHrs   = members.reduce((s,m) => s + getHours(m.id), 0)
   const member     = modal ? members.find(m => m.id===modal.memberId) : null
   const cellShifts = modal ? (shifts[modal.key]||[]) : []
@@ -287,15 +287,15 @@ export default function Schedule({ viewingStore, showToast }) {
   const Header = () => (
     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12, flexWrap:'wrap', gap:8 }}>
       <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-        <button onClick={() => setOffset(o=>o-1)} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:16 }}>‹</button>
-        <span style={{ fontSize:13, fontWeight:600, color:'#2C1810', whiteSpace:'nowrap' }}>{weekLabel}</span>
-        <button onClick={() => setOffset(o=>o+1)} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:16 }}>›</button>
-        {offset !== 0 && <button onClick={() => setOffset(0)} style={{ background:'none', border:'1px solid #EDE0CC', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#8B7355' }}>Today</button>}
+        <button onClick={() => setOffset(o=>o-1)} style={{ background:'none', border:'1px solid #E3DDD0', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:16 }}>‹</button>
+        <span style={{ fontSize:13, fontWeight:600, color:'#1A4C48', whiteSpace:'nowrap' }}>{weekLabel}</span>
+        <button onClick={() => setOffset(o=>o+1)} style={{ background:'none', border:'1px solid #E3DDD0', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:16 }}>›</button>
+        {offset !== 0 && <button onClick={() => setOffset(0)} style={{ background:'none', border:'1px solid #E3DDD0', borderRadius:6, padding:'4px 8px', cursor:'pointer', fontSize:11, color:'#6B7F78' }}>Today</button>}
       </div>
       <div style={{ display:'flex', gap:6 }}>
-       <button onClick={copyLastWeek} style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:8, padding:'6px 10px', cursor:'pointer', fontSize:11, color:'#8B7355' }}>Copy Last Week</button>
+       <button onClick={copyLastWeek} style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:8, padding:'6px 10px', cursor:'pointer', fontSize:11, color:'#6B7F78' }}>Copy Last Week</button>
 <button onClick={clearWeek} style={{ background:'#fff', border:'1px solid #FFCDD2', borderRadius:8, padding:'6px 10px', cursor:'pointer', fontSize:11, color:'#E74C3C' }}>Clear Week</button>
-<button onClick={exportSnapshot} style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:600 }}>Share</button>
+<button onClick={exportSnapshot} style={{ background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:600 }}>Share</button>
       </div>
     </div>
   )
@@ -306,26 +306,26 @@ export default function Schedule({ viewingStore, showToast }) {
       {/* Week/Day toggle */}
       <div style={{ display:'flex', gap:6, marginBottom:10 }}>
         <button onClick={() => setMobileView('week')}
-          style={{ flex:1, padding:'7px', borderRadius:8, border:'1px solid #EDE0CC', cursor:'pointer', fontSize:11, fontFamily:'inherit',
-            background: mobileView==='week' ? '#2C1810' : '#fff', color: mobileView==='week' ? '#fff' : '#8B7355', fontWeight: mobileView==='week' ? 700 : 400 }}>
+          style={{ flex:1, padding:'7px', borderRadius:8, border:'1px solid #E3DDD0', cursor:'pointer', fontSize:11, fontFamily:'inherit',
+            background: mobileView==='week' ? '#1A4C48' : '#fff', color: mobileView==='week' ? '#fff' : '#6B7F78', fontWeight: mobileView==='week' ? 700 : 400 }}>
           Week View
         </button>
         <button onClick={() => setMobileView('day')}
-          style={{ flex:1, padding:'7px', borderRadius:8, border:'1px solid #EDE0CC', cursor:'pointer', fontSize:11, fontFamily:'inherit',
-            background: mobileView==='day' ? '#2C1810' : '#fff', color: mobileView==='day' ? '#fff' : '#8B7355', fontWeight: mobileView==='day' ? 700 : 400 }}>
+          style={{ flex:1, padding:'7px', borderRadius:8, border:'1px solid #E3DDD0', cursor:'pointer', fontSize:11, fontFamily:'inherit',
+            background: mobileView==='day' ? '#1A4C48' : '#fff', color: mobileView==='day' ? '#fff' : '#6B7F78', fontWeight: mobileView==='day' ? 700 : 400 }}>
           Day View
         </button>
       </div>
 
       {/* WEEK VIEW — mini scrollable grid */}
       {mobileView === 'week' && (
-        <div style={{ overflowX:'auto', marginBottom:14, background:'#fff', border:'1px solid #EDE0CC', borderRadius:12 }}>
+        <div style={{ overflowX:'auto', marginBottom:14, background:'#fff', border:'1px solid #E3DDD0', borderRadius:12 }}>
           <table style={{ width:'100%', borderCollapse:'collapse', minWidth:480 }}>
             <thead>
               <tr style={{ background:'#FAF7F2' }}>
-                <th style={{ padding:'8px', textAlign:'left', fontSize:11, color:'#8B7355', fontWeight:600, borderBottom:'1px solid #EDE0CC', width:80 }}>Staff</th>
+                <th style={{ padding:'8px', textAlign:'left', fontSize:11, color:'#6B7F78', fontWeight:600, borderBottom:'1px solid #E3DDD0', width:80 }}>Staff</th>
                 {DAYS.map((d, di) => (
-                  <th key={d} style={{ padding:'8px 3px', textAlign:'center', fontSize:11, color: isToday(di) ? '#C8843A' : '#8B7355', fontWeight: isToday(di) ? 700 : 600, borderBottom:'1px solid #EDE0CC' }}>
+                  <th key={d} style={{ padding:'8px 3px', textAlign:'center', fontSize:11, color: isToday(di) ? '#C1683C' : '#6B7F78', fontWeight: isToday(di) ? 700 : 600, borderBottom:'1px solid #E3DDD0' }}>
                     <div>{d}</div>
                     <div style={{ fontSize:9, fontWeight:400, color:'#aaa' }}>{getDayDate(di).split(' ')[1]}</div>
                   </th>
@@ -334,11 +334,11 @@ export default function Schedule({ viewingStore, showToast }) {
             </thead>
             <tbody>
               {members.map(m => (
-                <tr key={m.id} style={{ borderBottom:'1px solid #F5EFE8' }}>
+                <tr key={m.id} style={{ borderBottom:'1px solid #EFEBE0' }}>
                   <td style={{ padding:'6px 8px', verticalAlign:'middle' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:4 }}>
                       <div style={{ width:6, height:6, borderRadius:'50%', background:m.color, flexShrink:0 }}/>
-                      <span style={{ fontSize:11, fontWeight:600, color:'#2C1810' }}>{m.name}</span>
+                      <span style={{ fontSize:11, fontWeight:600, color:'#1A4C48' }}>{m.name}</span>
                     </div>
                   </td>
                   {DAYS.map((_, di) => {
@@ -354,7 +354,7 @@ export default function Schedule({ viewingStore, showToast }) {
                             </div>
                           ))}
                           {cellData.length === 0 && (
-                            <div style={{ textAlign:'center', fontSize:12, color:'#EDE0CC', paddingTop:4 }}>+</div>
+                            <div style={{ textAlign:'center', fontSize:12, color:'#E3DDD0', paddingTop:4 }}>+</div>
                           )}
                         </div>
                       </td>
@@ -365,7 +365,7 @@ export default function Schedule({ viewingStore, showToast }) {
             </tbody>
           </table>
           {members.length === 0 && (
-            <div style={{ textAlign:'center', padding:20, color:'#8B7355', fontSize:12 }}>No staff yet</div>
+            <div style={{ textAlign:'center', padding:20, color:'#6B7F78', fontSize:12 }}>No staff yet</div>
           )}
         </div>
       )}
@@ -382,44 +382,44 @@ export default function Schedule({ viewingStore, showToast }) {
                 <button key={di} onClick={() => setSelectedDay(di)} style={{
                   flexShrink:0, padding:'8px 10px', borderRadius:10, cursor:'pointer',
                   fontFamily:'inherit', textAlign:'center', minWidth:44,
-                  background: selectedDay===di ? '#2C1810' : todayDay ? '#FFF3E0' : '#fff',
-                  border: todayDay ? '1px solid #FFB74D' : '1px solid #EDE0CC',
-                  color: selectedDay===di ? '#fff' : '#2C1810',
+                  background: selectedDay===di ? '#1A4C48' : todayDay ? '#FFF3E0' : '#fff',
+                  border: todayDay ? '1px solid #FFB74D' : '1px solid #E3DDD0',
+                  color: selectedDay===di ? '#fff' : '#1A4C48',
                 }}>
                   <div style={{ fontSize:11, fontWeight:700 }}>{day}</div>
-                  <div style={{ fontSize:9, color: selectedDay===di ? 'rgba(255,255,255,0.7)' : '#8B7355', marginTop:1 }}>{getDayDate(di).split(' ')[1]}</div>
-                  {hasShifts && <div style={{ width:5, height:5, borderRadius:'50%', background: selectedDay===di ? '#C8843A' : '#27AE60', margin:'3px auto 0' }}/>}
+                  <div style={{ fontSize:9, color: selectedDay===di ? 'rgba(255,255,255,0.7)' : '#6B7F78', marginTop:1 }}>{getDayDate(di).split(' ')[1]}</div>
+                  {hasShifts && <div style={{ width:5, height:5, borderRadius:'50%', background: selectedDay===di ? '#C1683C' : '#27AE60', margin:'3px auto 0' }}/>}
                 </button>
               )
             })}
           </div>
 
-          <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
-            <div style={{ background:'#2C1810', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
+            <div style={{ background:'#1A4C48', padding:'10px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
               <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>{DAYS[selectedDay]} · {getDayDate(selectedDay)}</div>
-              {isToday(selectedDay) && <span style={{ fontSize:10, background:'#C8843A', color:'#fff', borderRadius:20, padding:'2px 8px' }}>Today</span>}
+              {isToday(selectedDay) && <span style={{ fontSize:10, background:'#C1683C', color:'#fff', borderRadius:20, padding:'2px 8px' }}>Today</span>}
             </div>
 
             {members.length === 0 ? (
-              <div style={{ textAlign:'center', padding:24, color:'#8B7355', fontSize:13 }}>No staff added yet</div>
+              <div style={{ textAlign:'center', padding:24, color:'#6B7F78', fontSize:13 }}>No staff added yet</div>
             ) : members.map((m, idx) => {
               const key      = `${m.id}_${selectedDay}`
               const cellData = shifts[key] || []
               const dayHrs   = cellData.reduce((s, sh) => s + Math.max(0, timeToMins(sh.end) - timeToMins(sh.start)), 0)
               return (
-                <div key={m.id} style={{ borderBottom: idx < members.length-1 ? '1px solid #F5EFE8' : 'none', padding:'12px 16px' }}>
+                <div key={m.id} style={{ borderBottom: idx < members.length-1 ? '1px solid #EFEBE0' : 'none', padding:'12px 16px' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:8, flex:1 }}>
                       <div style={{ width:10, height:10, borderRadius:'50%', background:m.color, flexShrink:0 }}/>
                       <div>
-                        <div style={{ fontSize:13, fontWeight:600, color:'#2C1810' }}>{m.name}</div>
-                        {m.role && <div style={{ fontSize:10, color:'#8B7355' }}>{m.role}</div>}
+                        <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{m.name}</div>
+                        {m.role && <div style={{ fontSize:10, color:'#6B7F78' }}>{m.role}</div>}
                       </div>
                     </div>
                     <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                      {dayHrs > 0 && <span style={{ fontSize:12, fontWeight:700, color:'#C8843A' }}>{minsToHrs(dayHrs)}h</span>}
+                      {dayHrs > 0 && <span style={{ fontSize:12, fontWeight:700, color:'#C1683C' }}>{minsToHrs(dayHrs)}h</span>}
                       <button onClick={() => openCell(m.id, selectedDay)}
-                        style={{ background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit' }}>
+                        style={{ background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:600, fontFamily:'inherit' }}>
                         + Shift
                       </button>
                     </div>
@@ -449,25 +449,25 @@ export default function Schedule({ viewingStore, showToast }) {
 
       {/* Add staff */}
       <button onClick={() => setShowAddStaff(true)}
-        style={{ width:'100%', background:'#fff', border:'1.5px dashed #EDE0CC', borderRadius:10, padding:'11px', cursor:'pointer', fontSize:13, color:'#8B7355', fontWeight:500, marginBottom:14 }}>
+        style={{ width:'100%', background:'#fff', border:'1.5px dashed #E3DDD0', borderRadius:10, padding:'11px', cursor:'pointer', fontSize:13, color:'#6B7F78', fontWeight:500, marginBottom:14 }}>
         + Add Staff Member
       </button>
 
       {/* Hours summary */}
-      <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px' }}>
-        <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Week Hours Summary</div>
+      <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:'14px 16px' }}>
+        <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>Week Hours Summary</div>
         {members.map(m => (
-          <div key={m.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0', borderBottom:'1px solid #F5EFE8' }}>
+          <div key={m.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0', borderBottom:'1px solid #EFEBE0' }}>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
               <div style={{ width:8, height:8, borderRadius:'50%', background:m.color }}/>
-              <span style={{ fontSize:13, color:'#2C1810' }}>{m.name}</span>
+              <span style={{ fontSize:13, color:'#1A4C48' }}>{m.name}</span>
             </div>
-            <span style={{ fontSize:13, fontWeight:700, color:'#C8843A' }}>{minsToHrs(getHours(m.id))}h</span>
+            <span style={{ fontSize:13, fontWeight:700, color:'#C1683C' }}>{minsToHrs(getHours(m.id))}h</span>
           </div>
         ))}
         <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0 0' }}>
-          <span style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>Total</span>
-          <span style={{ fontSize:14, fontWeight:700, color:'#2C1810' }}>{minsToHrs(totalHrs)}h</span>
+          <span style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>Total</span>
+          <span style={{ fontSize:14, fontWeight:700, color:'#1A4C48' }}>{minsToHrs(totalHrs)}h</span>
         </div>
       </div>
     </div>
@@ -477,8 +477,8 @@ export default function Schedule({ viewingStore, showToast }) {
   const DesktopView = () => (
     <div>
       {/* Shift Presets bar */}
-      <div style={{ background:'#FAF7F2', border:'1px solid #EDE0CC', borderRadius:10, padding:'10px 12px', marginBottom:12 }}>
-        <div style={{ fontSize:11, color:'#8B7355', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>Standard Shifts — tap a cell then pick a shift</div>
+      <div style={{ background:'#FAF7F2', border:'1px solid #E3DDD0', borderRadius:10, padding:'10px 12px', marginBottom:12 }}>
+        <div style={{ fontSize:11, color:'#6B7F78', fontWeight:600, textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:8 }}>Standard Shifts — tap a cell then pick a shift</div>
         <div style={{ display:'flex', gap:6, flexWrap:'wrap', alignItems:'center' }}>
           {presets.map(p => (
             <div key={p.id} style={{ display:'flex', alignItems:'center', gap:1 }}>
@@ -490,30 +490,30 @@ export default function Schedule({ viewingStore, showToast }) {
             </div>
           ))}
           <button onClick={() => setShowAddPreset(true)}
-            style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:16, padding:'5px 12px', fontSize:11, color:'#8B7355', cursor:'pointer' }}>
+            style={{ background:'none', border:'1.5px dashed #E3DDD0', borderRadius:16, padding:'5px 12px', fontSize:11, color:'#6B7F78', cursor:'pointer' }}>
             + Add Standard Shift
           </button>
         </div>
       </div>
 
       {/* Grid */}
-      <div ref={schedRef} style={{ overflowX:'auto', marginBottom:16, background:'#fff', border:'1px solid #EDE0CC', borderRadius:12 }}>
+      <div ref={schedRef} style={{ overflowX:'auto', marginBottom:16, background:'#fff', border:'1px solid #E3DDD0', borderRadius:12 }}>
         <table style={{ width:'100%', borderCollapse:'collapse', minWidth:520 }}>
           <thead>
             <tr style={{ background:'#FAF7F2' }}>
-              <th style={{ padding:'10px 12px', textAlign:'left', fontSize:12, color:'#8B7355', fontWeight:600, borderBottom:'1px solid #EDE0CC', width:110 }}>Staff</th>
+              <th style={{ padding:'10px 12px', textAlign:'left', fontSize:12, color:'#6B7F78', fontWeight:600, borderBottom:'1px solid #E3DDD0', width:110 }}>Staff</th>
               {DAYS.map((d, di) => (
-                <th key={d} style={{ padding:'10px 6px', textAlign:'center', fontSize:12, color: isToday(di) ? '#C8843A' : '#8B7355', fontWeight: isToday(di) ? 700 : 600, borderBottom:'1px solid #EDE0CC' }}>
+                <th key={d} style={{ padding:'10px 6px', textAlign:'center', fontSize:12, color: isToday(di) ? '#C1683C' : '#6B7F78', fontWeight: isToday(di) ? 700 : 600, borderBottom:'1px solid #E3DDD0' }}>
                   {d}
                   <div style={{ fontSize:9, fontWeight:400, color:'#aaa' }}>{getDayDate(di)}</div>
                 </th>
               ))}
-              <th style={{ padding:'10px 6px', textAlign:'center', fontSize:12, color:'#8B7355', fontWeight:600, borderBottom:'1px solid #EDE0CC', width:48 }}>Hrs</th>
+              <th style={{ padding:'10px 6px', textAlign:'center', fontSize:12, color:'#6B7F78', fontWeight:600, borderBottom:'1px solid #E3DDD0', width:48 }}>Hrs</th>
             </tr>
           </thead>
           <tbody>
             {members.map(m => (
-              <tr key={m.id} style={{ borderBottom:'1px solid #F5EFE8' }}>
+              <tr key={m.id} style={{ borderBottom:'1px solid #EFEBE0' }}>
                 <td style={{ padding:'8px 12px', verticalAlign:'middle' }}>
                   <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                     <div style={{ width:8, height:8, borderRadius:'50%', background:m.color, flexShrink:0 }}/>
@@ -524,14 +524,14 @@ export default function Schedule({ viewingStore, showToast }) {
                         autoFocus style={{ ...inp, marginBottom:0, padding:'2px 6px', width:72, fontSize:12 }}/>
                     ) : (
                       <span onClick={() => { setEditStaffId(m.id); setEditName(m.name) }}
-                        style={{ fontSize:12, fontWeight:600, color:'#2C1810', cursor:'pointer' }}>
+                        style={{ fontSize:12, fontWeight:600, color:'#1A4C48', cursor:'pointer' }}>
                         {m.name}
                       </span>
                     )}
                     <button onClick={() => removeStaff(m.id)}
                       style={{ background:'none', border:'none', color:'#E74C3C', cursor:'pointer', fontSize:13, padding:0, opacity:0.4 }}>×</button>
                   </div>
-                  {m.role && <div style={{ fontSize:10, color:'#8B7355', marginLeft:14, marginTop:1 }}>{m.role}</div>}
+                  {m.role && <div style={{ fontSize:10, color:'#6B7F78', marginLeft:14, marginTop:1 }}>{m.role}</div>}
                 </td>
                 {DAYS.map((_, di) => {
                   const key      = `${m.id}_${di}`
@@ -554,13 +554,13 @@ export default function Schedule({ viewingStore, showToast }) {
                           </div>
                         ))}
                         {cellData.length === 0 && (
-                          <div style={{ textAlign:'center', fontSize:16, color:'#EDE0CC', paddingTop:6 }}>+</div>
+                          <div style={{ textAlign:'center', fontSize:16, color:'#E3DDD0', paddingTop:6 }}>+</div>
                         )}
                       </div>
                     </td>
                   )
                 })}
-                <td style={{ padding:'8px 6px', textAlign:'center', fontSize:12, fontWeight:700, color:'#C8843A', verticalAlign:'middle' }}>
+                <td style={{ padding:'8px 6px', textAlign:'center', fontSize:12, fontWeight:700, color:'#C1683C', verticalAlign:'middle' }}>
                   {minsToHrs(getHours(m.id))}
                 </td>
               </tr>
@@ -568,31 +568,31 @@ export default function Schedule({ viewingStore, showToast }) {
           </tbody>
         </table>
         {members.length === 0 && (
-          <div style={{ textAlign:'center', padding:'32px', color:'#8B7355', fontSize:13 }}>No staff yet — tap below to add</div>
+          <div style={{ textAlign:'center', padding:'32px', color:'#6B7F78', fontSize:13 }}>No staff yet — tap below to add</div>
         )}
       </div>
 
       <button onClick={() => setShowAddStaff(true)}
-        style={{ width:'100%', background:'#fff', border:'1.5px dashed #EDE0CC', borderRadius:10, padding:'11px', cursor:'pointer', fontSize:13, color:'#8B7355', fontWeight:500, marginBottom:16 }}>
+        style={{ width:'100%', background:'#fff', border:'1.5px dashed #E3DDD0', borderRadius:10, padding:'11px', cursor:'pointer', fontSize:13, color:'#6B7F78', fontWeight:500, marginBottom:16 }}>
         + Add Staff Member
       </button>
 
       {/* Hours Summary */}
-      <div style={{ background:'#fff', border:'1px solid #EDE0CC', borderRadius:12, padding:'14px 16px' }}>
-        <div style={{ fontSize:13, fontWeight:700, color:'#2C1810', marginBottom:10 }}>Hours Summary</div>
+      <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:'14px 16px' }}>
+        <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:10 }}>Hours Summary</div>
         {members.map(m => (
-          <div key={m.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0', borderBottom:'1px solid #F5EFE8' }}>
+          <div key={m.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0', borderBottom:'1px solid #EFEBE0' }}>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
               <div style={{ width:8, height:8, borderRadius:'50%', background:m.color }}/>
-              <span style={{ fontSize:13, color:'#2C1810' }}>{m.name}</span>
-              {m.role && <span style={{ fontSize:11, color:'#8B7355' }}>· {m.role}</span>}
+              <span style={{ fontSize:13, color:'#1A4C48' }}>{m.name}</span>
+              {m.role && <span style={{ fontSize:11, color:'#6B7F78' }}>· {m.role}</span>}
             </div>
-            <span style={{ fontSize:13, fontWeight:700, color:'#C8843A' }}>{minsToHrs(getHours(m.id))}h</span>
+            <span style={{ fontSize:13, fontWeight:700, color:'#C1683C' }}>{minsToHrs(getHours(m.id))}h</span>
           </div>
         ))}
         <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0 0' }}>
-          <span style={{ fontSize:13, fontWeight:700, color:'#2C1810' }}>Total</span>
-          <span style={{ fontSize:14, fontWeight:700, color:'#2C1810' }}>{minsToHrs(totalHrs)}h</span>
+          <span style={{ fontSize:13, fontWeight:700, color:'#1A4C48' }}>Total</span>
+          <span style={{ fontSize:14, fontWeight:700, color:'#1A4C48' }}>{minsToHrs(totalHrs)}h</span>
         </div>
       </div>
     </div>
@@ -614,14 +614,14 @@ export default function Schedule({ viewingStore, showToast }) {
             </div>
           ))}
           <button onClick={() => setShowAddPreset(true)}
-            style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:16, padding:'4px 10px', fontSize:11, color:'#8B7355', cursor:'pointer' }}>
+            style={{ background:'none', border:'1.5px dashed #E3DDD0', borderRadius:16, padding:'4px 10px', fontSize:11, color:'#6B7F78', cursor:'pointer' }}>
             + Add Shift
           </button>
         </div>
       )}
 
       {loadingData ? (
-    <div style={{ textAlign:'center', padding:40, color:'#8B7355', fontSize:13 }}>Loading schedule…</div>
+    <div style={{ textAlign:'center', padding:40, color:'#6B7F78', fontSize:13 }}>Loading schedule…</div>
   ) : loadError === 'permission' ? (
     <div style={{ background:'#FFF3E0', border:'1px solid #FFB74D', borderRadius:12, padding:20, marginBottom:14 }}>
       <div style={{ fontSize:15, fontWeight:700, color:'#E65100', marginBottom:6 }}>⚠️ Schedule access denied</div>
@@ -650,10 +650,10 @@ export default function Schedule({ viewingStore, showToast }) {
           <div style={{ background:'#fff', borderRadius:16, padding:20, width:'100%', maxWidth:400, maxHeight:'85vh', overflowY:'auto' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
               <div>
-                <div style={{ fontSize:15, fontWeight:700, color:'#2C1810' }}>{member.name} — {DAYS[modal.dayIdx]}</div>
-                <div style={{ fontSize:12, color:'#8B7355' }}>{cellShifts.length} shift{cellShifts.length!==1?'s':''} assigned</div>
+                <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48' }}>{member.name} — {DAYS[modal.dayIdx]}</div>
+                <div style={{ fontSize:12, color:'#6B7F78' }}>{cellShifts.length} shift{cellShifts.length!==1?'s':''} assigned</div>
               </div>
-              <button onClick={() => setModal(null)} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'#8B7355' }}>×</button>
+              <button onClick={() => setModal(null)} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:'#6B7F78' }}>×</button>
             </div>
             {cellShifts.length > 0 && (
               <div style={{ marginBottom:16 }}>
@@ -664,9 +664,9 @@ export default function Schedule({ viewingStore, showToast }) {
                       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                         <div style={{ width:8, height:8, borderRadius:'50%', background: sh.color || member.color }}/>
                         <div>
-                          {sh.name && <span style={{ fontSize:12, fontWeight:700, color:'#2C1810' }}>{sh.name} · </span>}
-                          <span style={{ fontSize:12, color:'#2C1810' }}>{to12(sh.start)} – {to12(sh.end)}</span>
-                          <span style={{ fontSize:11, color:'#8B7355', marginLeft:6 }}>{minsToHrs(mins)}h</span>
+                          {sh.name && <span style={{ fontSize:12, fontWeight:700, color:'#1A4C48' }}>{sh.name} · </span>}
+                          <span style={{ fontSize:12, color:'#1A4C48' }}>{to12(sh.start)} – {to12(sh.end)}</span>
+                          <span style={{ fontSize:11, color:'#6B7F78', marginLeft:6 }}>{minsToHrs(mins)}h</span>
                         </div>
                       </div>
                       <button onClick={() => removeShift(modal.key, si)}
@@ -680,7 +680,7 @@ export default function Schedule({ viewingStore, showToast }) {
             )}
             {presets.length > 0 && (
               <div style={{ marginBottom:14 }}>
-                <div style={{ fontSize:11, color:'#8B7355', fontWeight:600, textTransform:'uppercase', marginBottom:8 }}>Standard Shifts</div>
+                <div style={{ fontSize:11, color:'#6B7F78', fontWeight:600, textTransform:'uppercase', marginBottom:8 }}>Standard Shifts</div>
                 <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
                   {presets.map(p => (
                     <button key={p.id} onClick={() => addPresetToCell(p)}
@@ -691,23 +691,23 @@ export default function Schedule({ viewingStore, showToast }) {
                 </div>
               </div>
             )}
-            <div style={{ borderTop:'1px solid #EDE0CC', paddingTop:14 }}>
+            <div style={{ borderTop:'1px solid #E3DDD0', paddingTop:14 }}>
               <button onClick={() => setShowCustom(c=>!c)}
-                style={{ background:'none', border:'1.5px dashed #EDE0CC', borderRadius:8, padding:'8px 14px', cursor:'pointer', fontSize:12, color:'#8B7355', width:'100%', fontFamily:'inherit', marginBottom: showCustom?10:0 }}>
+                style={{ background:'none', border:'1.5px dashed #E3DDD0', borderRadius:8, padding:'8px 14px', cursor:'pointer', fontSize:12, color:'#6B7F78', width:'100%', fontFamily:'inherit', marginBottom: showCustom?10:0 }}>
                 {showCustom ? '▲ Hide Custom Time' : '+ Custom Time'}
               </button>
               {showCustom && (
                 <div>
                   <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
                     <div>
-                      <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Start</div>
+                      <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>Start</div>
                       <input type="time" value={shiftForm.start} onChange={e => setShiftForm(f=>({...f,start:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
-                      <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(shiftForm.start)}</div>
+                      <div style={{ fontSize:11, color:'#6B7F78', marginTop:3 }}>{to12(shiftForm.start)}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>End</div>
+                      <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>End</div>
                       <input type="time" value={shiftForm.end} onChange={e => setShiftForm(f=>({...f,end:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
-                      <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(shiftForm.end)}</div>
+                      <div style={{ fontSize:11, color:'#6B7F78', marginTop:3 }}>{to12(shiftForm.end)}</div>
                     </div>
                   </div>
                   <button onClick={addCustomShift}
@@ -725,19 +725,19 @@ export default function Schedule({ viewingStore, showToast }) {
       {showAddStaff && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
           <div style={{ background:'#fff', borderRadius:16, padding:20, width:'100%', maxWidth:360 }}>
-            <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:14 }}>Add Staff Member</div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48', marginBottom:14 }}>Add Staff Member</div>
             <input placeholder="Full name" value={newStaff.name} onChange={e=>setNewStaff(s=>({...s,name:e.target.value}))} style={inp}/>
             <input placeholder="Role (e.g. Barista, Lead)" value={newStaff.role} onChange={e=>setNewStaff(s=>({...s,role:e.target.value}))} style={inp}/>
-            <div style={{ fontSize:12, color:'#8B7355', marginBottom:6 }}>Colour</div>
+            <div style={{ fontSize:12, color:'#6B7F78', marginBottom:6 }}>Colour</div>
             <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:14 }}>
               {COLORS.map(c => (
                 <div key={c} onClick={() => setNewStaff(s=>({...s,color:c}))}
                   style={{ width:26, height:26, borderRadius:'50%', background:c, cursor:'pointer',
-                    border: newStaff.color===c ? '3px solid #2C1810' : '2px solid transparent' }}/>
+                    border: newStaff.color===c ? '3px solid #1A4C48' : '2px solid transparent' }}/>
               ))}
             </div>
             <div style={{ display:'flex', gap:8 }}>
-              <button onClick={addStaff} style={{ flex:1, background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}>Add</button>
+              <button onClick={addStaff} style={{ flex:1, background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}>Add</button>
               <button onClick={() => setShowAddStaff(false)} style={{ padding:'11px 16px', background:'#888', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>Cancel</button>
             </div>
           </div>
@@ -750,7 +750,7 @@ export default function Schedule({ viewingStore, showToast }) {
           <div style={{ fontSize:13, color:'#fff', marginBottom:12, fontWeight:600 }}>{weekLabel} — Press and hold to save</div>
           <img src={snapshotUrl} alt="Schedule snapshot" style={{ maxWidth:'100%', maxHeight:'70vh', borderRadius:8, boxShadow:'0 4px 24px rgba(0,0,0,0.4)' }}/>
           <button onClick={() => setSnapshotUrl(null)}
-            style={{ marginTop:16, background:'#fff', color:'#2C1810', border:'none', borderRadius:8, padding:'10px 28px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
+            style={{ marginTop:16, background:'#fff', color:'#1A4C48', border:'none', borderRadius:8, padding:'10px 28px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
             Close
           </button>
         </div>
@@ -760,31 +760,31 @@ export default function Schedule({ viewingStore, showToast }) {
       {showAddPreset && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
           <div style={{ background:'#fff', borderRadius:16, padding:20, width:'100%', maxWidth:360 }}>
-            <div style={{ fontSize:15, fontWeight:700, color:'#2C1810', marginBottom:14 }}>Add Standard Shift</div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#1A4C48', marginBottom:14 }}>Add Standard Shift</div>
             <input placeholder="Shift name (e.g. Morning, Close, Mid)" value={newPreset.name}
               onChange={e=>setNewPreset(p=>({...p,name:e.target.value}))} style={inp}/>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:4 }}>
               <div>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>Start</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>Start</div>
                 <input type="time" value={newPreset.start} onChange={e=>setNewPreset(p=>({...p,start:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
-                <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(newPreset.start)}</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginTop:3 }}>{to12(newPreset.start)}</div>
               </div>
               <div>
-                <div style={{ fontSize:11, color:'#8B7355', marginBottom:4 }}>End</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginBottom:4 }}>End</div>
                 <input type="time" value={newPreset.end} onChange={e=>setNewPreset(p=>({...p,end:e.target.value}))} style={{ ...inp, marginBottom:0 }}/>
-                <div style={{ fontSize:11, color:'#8B7355', marginTop:3 }}>{to12(newPreset.end)}</div>
+                <div style={{ fontSize:11, color:'#6B7F78', marginTop:3 }}>{to12(newPreset.end)}</div>
               </div>
             </div>
-            <div style={{ fontSize:12, color:'#8B7355', margin:'10px 0 6px' }}>Colour</div>
+            <div style={{ fontSize:12, color:'#6B7F78', margin:'10px 0 6px' }}>Colour</div>
             <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:14 }}>
               {COLORS.map(c => (
                 <div key={c} onClick={() => setNewPreset(p=>({...p,color:c}))}
                   style={{ width:26, height:26, borderRadius:'50%', background:c, cursor:'pointer',
-                    border: newPreset.color===c ? '3px solid #2C1810' : '2px solid transparent' }}/>
+                    border: newPreset.color===c ? '3px solid #1A4C48' : '2px solid transparent' }}/>
               ))}
             </div>
             <div style={{ display:'flex', gap:8 }}>
-              <button onClick={addPreset} style={{ flex:1, background:'#2C1810', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}>Add Shift</button>
+              <button onClick={addPreset} style={{ flex:1, background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600, fontFamily:'inherit' }}>Add Shift</button>
               <button onClick={() => setShowAddPreset(false)} style={{ padding:'11px 16px', background:'#888', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontSize:13, fontFamily:'inherit' }}>Cancel</button>
             </div>
           </div>
