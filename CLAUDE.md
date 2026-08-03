@@ -338,3 +338,14 @@ https://github.com/snamburi1980/dumont-inventory/actions
 4. **Mobile first** — test on iPhone and Android, not just desktop
 5. **Firestore rules** — always check rules when adding new collections
 6. **No breaking changes** — existing data in Firestore must remain compatible
+
+---
+
+## Auto Deploy Rule
+After every code change:
+1. Run `npm run build`
+2. If the build succeeds, run `git add . && git commit -m "fix: <short description>" && git push origin main`
+3. Report the live URL so I can test: https://snamburi1980.github.io/dumont-inventory/
+4. If the build fails, fix the errors and retry — do not push a broken build.
+
+Never ask me to run build, commit, or push manually.
