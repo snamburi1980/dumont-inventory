@@ -198,6 +198,7 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
 ---
 
 ## Critical Architecture Decisions (DO NOT CHANGE)
+0. **No time clock / attendance feature** — staff clock in/out happens in Clover POS; never rebuild it here
 1. **Transfers are log-only** — no automatic inventory deduction
 2. **Stripe billing deferred** — offline invoicing until adoption grows
 3. **Photos as base64 in Firestore** — compressed aggressively, ~80 KB max per photo
@@ -229,7 +230,8 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
 - [ ] Dead code: Delivery/Sales/Orders/Dashboard components, stockAlert util, hooks/inventory.js
 
 ### Next phase
-- [ ] Staff attendance (clock in/out vs scheduled)
+- [ ] Waste log (melted/dropped/expired product with reason + monthly report)
+- [ ] Missed-checklist alert (scheduled Cloud Function emails owner if opening checklist not done by set time)
 - [ ] Expiry date tracker
 - [ ] Clover API integration (replace XLSX upload)
 - [ ] Multi-store comparison dashboard
