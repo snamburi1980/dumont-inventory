@@ -59,15 +59,17 @@ function parseCloverWorkbook(wb) {
   let totalRevenue = 0
   let totalQty     = 0
   const byItem     = {}
+  const byCategory = {}
 
   rows.forEach(r => {
     const rev = parseFloat(String(r[revKey]).replace(/[$,]/g,'')) || 0
     const qty = parseFloat(String(r[qtyKey]).replace(/,/g,''))    || 1
     const item = String(r[itemKey] || '').trim()
-    const cat  = String(r[catKey]  || '').trim()
+    const cat  = String(r[catKey]  || '').trim() || 'Uncategorized'
     if (rev <= 0 && !item) return
     totalRevenue += rev
     totalQty     += qty
+    byCategory[cat] = (byCategory[cat] || 0) + rev
     if (item) {
       if (!byItem[item]) byItem[item] = { item, cat, revenue:0, qty:0 }
       byItem[item].revenue += rev
@@ -77,11 +79,12 @@ function parseCloverWorkbook(wb) {
 
   // Determine period from date column
   const dates = rows.map(r => r[dateKey]).filter(Boolean)
-  let periodStr = ''
+  let periodStr = '', firstDate = null
   if (dates.length) {
     const d0 = new Date(dates[0])
     const d1 = new Date(dates[dates.length-1])
     if (!isNaN(d0) && !isNaN(d1)) {
+      firstDate = d0
       const fmt = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
       periodStr = fmt(d0) === fmt(d1) ? fmt(d0) : `${fmt(d0)} – ${fmt(d1)}`
     }
@@ -92,6 +95,8 @@ function parseCloverWorkbook(wb) {
     itemsSold:  Math.round(totalQty),
     period:     periodStr || 'Uploaded ' + new Date().toLocaleDateString(),
     rows:       Object.values(byItem).sort((a,b) => b.revenue - a.revenue),
+    byCategory,
+    firstDate,
   }
 }
 
@@ -179,8 +184,13 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
     if (!parsedSales || !viewingStore) return
     setSavingSales(true)
     try {
+      const base = parsedSales.firstDate || new Date()
+      const monthKey = `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}`
+      const { firstDate, ...toSave } = parsedSales
       await addDoc(collection(db,'stores',viewingStore,'salesLedger'), {
-        ...parsedSales,
+        ...toSave,
+        monthKey,
+        month: base.toLocaleDateString('en-US', { month:'long', year:'numeric' }),
         appliedAt: Date.now(),
         uploadedBy: auth?.userConfig?.name || auth?.user?.email || '',
       })

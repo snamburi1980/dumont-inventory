@@ -25,12 +25,12 @@ export default function Records({ viewingStore, auth, showToast, viewingOrg }) {
         <button onClick={() => setView('cash')}      style={btn('cash')}     >💵 Cash</button>
         <button onClick={() => setView('transfers')} style={btn('transfers')} >↔️ Transfers</button>
         {canManage && <button onClick={() => setView('invoices')} style={btn('invoices')}>🧾 Invoices</button>}
-        {canManage && <button onClick={() => setView('cogs')}     style={btn('cogs')}    >📊 COGS</button>}
+        {canManage && <button onClick={() => setView('cogs')}     style={btn('cogs')}    >📊 Sales & COGS</button>}
       </div>
       {view === 'cash'      && <CashRegister viewingStore={viewingStore} auth={auth} showToast={showToast} />}
       {view === 'transfers' && <Transfers    viewingStore={viewingStore} auth={auth} showToast={showToast} />}
-      {view === 'invoices'  && <Invoices     auth={auth} showToast={showToast} viewingOrg={viewingOrg} />}
-      {view === 'cogs'      && <COGS         viewingStore={viewingStore} />}
+      {view === 'invoices'  && <Invoices     auth={auth} showToast={showToast} viewingOrg={viewingOrg} viewingStore={viewingStore} />}
+      {view === 'cogs'      && <COGS         viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
     </div>
   )
 }

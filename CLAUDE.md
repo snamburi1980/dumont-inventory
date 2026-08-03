@@ -79,7 +79,7 @@ Org: **Dumont Creamery & Cafe** (`dumont_creamery__cafe`), region **Texas**, 126
 | Test store | TEST DATA | owner nvs.prakash@hotmail.com — candidate for Clear Store |
 | Aubret Dumont | TEST DATA | owner nsknamburi@gmail.com (Sasi's alt email) — candidate for Clear Store |
 
-Note: some code paths hardcode orgId `'dumont'` as fallback (Bulletin, Invoices filter on `orgId=='dumont'`) while the real org doc id is `dumont_creamery__cafe`. Bulletin/Invoices data is therefore keyed to literal 'dumont'.
+Note: orgId now resolves dynamically (see Roles section) — Bulletin/Invoices/COGS all key off the real org id.
 
 ---
 
@@ -94,7 +94,7 @@ checklist    Checklist.jsx   — opening (30 items) / closing (22 items), photos
 icecreamlog  Picks.jsx       — "Scoops": tap-to-log ice cream buckets used, monthly usage report
 inventory    Inventory.jsx   — lock/unlock table, category pills, inline stock/PAR edit
 schedule     Schedule.jsx    — week grid (desktop) / week+day toggle (mobile), presets, hours summary
-records      Records.jsx     — wrapper with subtabs: 💵 Cash | ↔️ Transfers | 🧾 Invoices | 📊 COGS (invoices/cogs manager+)
+records      Records.jsx     — wrapper with subtabs: 💵 Cash | ↔️ Transfers | 🧾 Invoices | 📊 Sales & COGS (manager+)
 pnl          PLSimulator.jsx — P&L simulator, pure localStorage (no Firestore)
 admin        Admin.jsx       — role-scoped admin
 ```
@@ -160,7 +160,9 @@ stores/{storeId}/salesLedger/{id}     — Clover upload summaries {revenue, item
 stores/{storeId}/deliveries/{id}      — delivery log entries (Commerce → Deliveries)
 stores/{storeId}/issues/{id}          — Home tab issues {title, description, status open|resolved}
 transfers/{id}                        — GLOBAL inter-store transfers (all stores see all)
-invoices/{id}                         — GLOBAL invoice log, orgId=='dumont', approval flow (manager+ read)
+invoices/{id}                         — invoice log tagged with storeId+orgId+category (COGS vs opex);
+                                        approval flow; managers see own store only, super/regional see all;
+                                        optional fileData (photo/PDF attachment, ~250KB max)
 announcements/{id}                    — Home (postedAt) + Bulletin (createdAt, orgId=='dumont') both use this
 bulletinLinks|bulletinIssues|bulletinContacts/{id} — Bulletin sections, orgId=='dumont'
 users/{emailKey}                      — user config + role (see Roles)
@@ -188,14 +190,26 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
   unchecked-items warning before submit; 30-day history with expand.
 - **Schedule:** single doc, shifts keyed by week offset; `save()` re-reads doc and only overwrites current
   week (offsetRef avoids stale-closure writes); mobile week/day toggle; html2canvas snapshot (fails on Safari).
-- **Records → Cash:** monthly summary (days logged, avg closing, total diff). **Records → COGS:** static
-  MENU_MARGINS table + revenue-split estimates; needs salesLedger data for real numbers.
-- **Commerce (HQ Analytics):** upload Clover .xlsx → parseCloverWorkbook (header auto-detect) → save
-  summary to salesLedger; deliveries logging; margins table. No inventory mutation.
+- **Records → Cash:** monthly summary (days logged, avg closing, total diff). Cash Movements sub-tab
+  logs every cash-out/cash-in from the Clover drawer (bank deposit, supplies, tips, etc. — see reasons
+  in CashRegister.jsx) with daily/monthly totals, separate from the daily open/close register.
+- **Records → Invoices:** log purchases with photo/PDF attachment (compressed client-side, ~250KB cap)
+  OR manual entry; each invoice tagged to a store + COGS category (Ice Cream/Dairy, Boba & Drinks,
+  Coffee, Bakery, Packaging, Operating Expense, Other). Operating Expense is excluded from COGS math
+  but still tracked for total spend visibility. store_owner+ approves; manager can log but not approve.
+- **Records → Sales & COGS** (COGS.jsx, formerly just "COGS"): three sub-views.
+  - **Upload Sales:** managers upload the Clover "Sales by Item" Excel export monthly; parsed into
+    revenue, item rows, and byCategory breakdown; saved to `salesLedger` keyed by monthKey. Re-uploading
+    a month prompts to replace. (Commerce.jsx's HQ upload writes the same schema — both stay compatible.)
+  - **COGS Report:** revenue by category (from upload) + COGS by category (approved invoice purchases
+    ÷ matching revenue category, via `revGroup()` keyword-matching in COGS.jsx) + vendor spend +
+    month-over-month trend table. Formula: **COGS % = approved COGS-tagged invoices ÷ uploaded revenue**
+    for the selected month (simple purchases/revenue model — no beginning/ending inventory count, by
+    design/user choice). Benchmark shown: ≤30% excellent, 30–40% watch, >40% high (ice cream shop norms).
+  - **Menu Margins:** unchanged — static MENU_MARGINS table, theoretical cost vs sell price per item.
 - **Bulletin:** four real-time sections; super_owner edit mode; pinned announcements sort first.
 - **PLSimulator:** all state in localStorage keys `pls5_*`; products/opex/mix editable; no backend.
-- **HQDashboard:** per-store metrics; NOTE its lowStock calc reads the flat stock doc as if values were
-  objects (`i.qty`, `i.par`) — metric is wrong/always 0 (known bug, harmless).
+- **HQDashboard:** per-store metrics; lowStock calc fixed to parse the flat stock doc correctly.
 
 ---
 
@@ -232,6 +246,10 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
 - [ ] Dead code: Delivery/Sales/Orders/Dashboard components, stockAlert util, hooks/inventory.js
 
 ### Next phase
+- [x] Sales & COGS module — DONE Aug 2026: Invoices now take photo/PDF upload OR manual entry, tagged
+      by store + COGS category; Records → Sales & COGS has Clover sales upload (revenue by category +
+      MoM trend) and a COGS report (purchases ÷ revenue, by category, vendor spend). Clover API
+      integration is still manual-upload only (see below) — that's the acknowledged interim step.
 - [x] Waste log — DONE: Scoops has Used/Waste toggle; waste entries carry entryType+reason
       (Melted/Dropped/Expired/Freezer issue/Other); monthly report splits Used vs Wasted
 - [x] Missed-checklist alert — DONE: `checkOpeningChecklists` scheduled function, daily 12:30 PM

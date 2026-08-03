@@ -177,10 +177,11 @@ service cloud.firestore {
       allow update, delete: if isSuperOwner();
     }
 
-    // Invoice inbox — written by Cloud Function (admin SDK bypasses rules)
-    // Managers+ can read; store_owner+ can update (approve); super_owner can delete
+    // Invoice inbox — managers+ can log invoices (photo/PDF or manual entry);
+    // store_owner+ approves; super_owner deletes. Cloud Function also writes via admin SDK.
     match /invoices/{id} {
       allow read:             if isManagerOrAbove();
+      allow create:           if isManagerOrAbove();
       allow update:           if isStoreOwnerOrAbove();
       allow delete:           if isSuperOwner();
     }
