@@ -1,5 +1,6 @@
 const { onDocumentWritten } = require('firebase-functions/v2/firestore')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
+const { onSchedule }         = require('firebase-functions/v2/scheduler')
 const { initializeApp }      = require('firebase-admin/app')
 const { getAuth }            = require('firebase-admin/auth')
 const { getFirestore }       = require('firebase-admin/firestore')
@@ -200,4 +201,61 @@ exports.clearStoreData = onCall({ cors: true, timeoutSeconds: 300 }, async (requ
     throw new HttpsError('internal', e.message)
   }
 })
+
+// ── Missed opening-checklist alert ───────────────────────────────────────────
+// Runs daily at 12:30 PM Central. Emails the owner if any active store has not
+// submitted an opening checklist yet today.
+// NOTE: sends via the EmailJS REST API — "Allow EmailJS API for non-browser
+// applications" must be enabled in the EmailJS dashboard (Account → Security).
+exports.checkOpeningChecklists = onSchedule(
+  { schedule: '30 12 * * *', timeZone: 'America/Chicago' },
+  async () => {
+    const db = getFirestore()
+
+    // Start of today in Central time
+    const now      = new Date()
+    const central  = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
+    const midnight = new Date(central); midnight.setHours(0, 0, 0, 0)
+    const startTs  = now.getTime() - (central.getTime() - midnight.getTime())
+
+    const storesSnap = await db.collection('stores').get()
+    const missing = []
+    for (const s of storesSnap.docs) {
+      const st = s.data()
+      if (st.status && st.status !== 'active') continue
+      const snap = await db.collection('stores').doc(s.id)
+        .collection('checklists').where('submittedAt', '>=', startTs).get()
+      const hasOpening = snap.docs.some(d => d.data().type === 'opening')
+      if (!hasOpening) missing.push(st.name || s.id)
+    }
+
+    if (!missing.length) {
+      console.log('All active stores submitted opening checklists today')
+      return
+    }
+
+    const timeStr = central.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    const message =
+      `Opening checklist NOT submitted today for:\n\n` +
+      missing.map(n => `• ${n}`).join('\n') +
+      `\n\nChecked at ${timeStr} Central.\n\nDumont Inventory App`
+
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id:  'service_hrmh6gj',
+        template_id: 'template_qz6w4dk',
+        user_id:     'J6H5AoKpjqurMWiVd',
+        template_params: {
+          to_email:  'dumonttexas@gmail.com',
+          subject:   `⚠ Opening checklist missing — ${missing.join(', ')}`,
+          message,
+          from_name: 'Dumont Inventory',
+        },
+      }),
+    })
+    console.log('Missed-checklist alert:', missing.join(', '), '| email status:', res.status, await res.text())
+  }
+)
 

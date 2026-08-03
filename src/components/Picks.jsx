@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react'
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
+const WASTE_REASONS = ['Melted', 'Dropped', 'Expired', 'Freezer issue', 'Other']
+
 export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToast }) {
   const { inventory, saveInventory, loadInventory } = invHook
 
   const [session,      setSession]      = useState({})
   const [saving,       setSaving]       = useState(false)
+  const [mode,         setMode]         = useState('use')     // 'use' | 'waste'
+  const [wasteReason,  setWasteReason]  = useState('Melted')
   const [logDate,      setLogDate]      = useState(() => new Date().toISOString().slice(0,10))
   const [activeMonth,  setActiveMonth]  = useState(() => {
     const d = new Date()
@@ -61,6 +65,8 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
           userName, timestamp: Date.now(),
           date: now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }),
           month, monthKey,
+          entryType: mode,                                      // 'use' | 'waste'
+          reason: mode === 'waste' ? wasteReason : null,
         })
       }
       const updated = inventory.map(item => {
@@ -69,7 +75,9 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
       })
       await saveInventory(viewingStore, updated)
       await loadInventory(viewingStore, viewingOrg || 'dumont')
-      showToast(`${totalBuckets} bucket${totalBuckets > 1 ? 's' : ''} logged`)
+      showToast(mode === 'waste'
+        ? `${totalBuckets} bucket${totalBuckets > 1 ? 's' : ''} logged as waste (${wasteReason})`
+        : `${totalBuckets} bucket${totalBuckets > 1 ? 's' : ''} logged`)
       setSession({})
       await loadUsage(activeMonth)
     } catch(e) {
@@ -93,8 +101,12 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
       const byItem = {}
       logs.forEach(log => {
         const name = log.itemName
-        if (!byItem[name]) byItem[name] = { name, buckets: 0, sessions: 0, lastDate: '' }
-        byItem[name].buckets  += Math.abs(log.delta)
+        if (!byItem[name]) byItem[name] = { name, buckets: 0, used: 0, wasted: 0, sessions: 0, lastDate: '' }
+        const qty = Math.abs(log.delta)
+        byItem[name].buckets  += qty
+        // Entries without entryType predate the waste log — count them as used
+        if (log.entryType === 'waste') byItem[name].wasted += qty
+        else                           byItem[name].used   += qty
         byItem[name].sessions += 1
         if (!byItem[name].lastDate) byItem[name].lastDate = log.date || ''
       })
@@ -142,6 +154,8 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
   })
 
   const totalMonthBuckets = usageData.reduce((s, r) => s + r.buckets, 0)
+  const totalMonthUsed    = usageData.reduce((s, r) => s + (r.used ?? r.buckets), 0)
+  const totalMonthWasted  = usageData.reduce((s, r) => s + (r.wasted || 0), 0)
   const maxBuckets        = usageData[0]?.buckets || 1
 
   return (
@@ -150,16 +164,28 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
       {/* ── LOG PANEL ─────────────────────────────────────── */}
       <div style={{ background:'#fff', border:'1px solid var(--border,#E3DDD0)', borderRadius:12, overflow:'hidden', marginBottom:14 }}>
 
-        {/* Header */}
-        <div style={{ background:'var(--dark,#1A4C48)', padding:'12px 16px' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>🍦 Log Scoops Used</div>
-            {totalBuckets > 0 && (
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.65)' }}>
-                {totalBuckets} bucket{totalBuckets>1?'s':''} pending
-              </div>
-            )}
+        {/* Header with Used / Waste toggle */}
+        <div style={{ background: mode==='waste' ? '#8E2F14' : 'var(--dark,#1A4C48)', padding:'12px 16px', transition:'background 0.2s' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:8 }}>
+            <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>
+              {mode==='waste' ? '🗑 Log Waste' : '🍦 Log Scoops Used'}
+            </div>
+            <div style={{ display:'flex', gap:0, background:'rgba(255,255,255,0.15)', borderRadius:8, padding:2 }}>
+              {[['use','🍦 Used'],['waste','🗑 Waste']].map(([m, label]) => (
+                <button key={m} onClick={() => setMode(m)}
+                  style={{ border:'none', borderRadius:6, padding:'5px 12px', cursor:'pointer', fontSize:11, fontWeight:700, fontFamily:'inherit',
+                    background: mode===m ? '#fff' : 'transparent',
+                    color: mode===m ? (m==='waste' ? '#C53D18' : '#1A4C48') : 'rgba(255,255,255,0.75)' }}>
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
+          {totalBuckets > 0 && (
+            <div style={{ fontSize:11, color:'rgba(255,255,255,0.65)', marginTop:4 }}>
+              {totalBuckets} bucket{totalBuckets>1?'s':''} pending {mode==='waste' ? 'as waste' : ''}
+            </div>
+          )}
         </div>
 
         {/* Date selector — prominent row */}
@@ -220,23 +246,31 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
 
         {/* Save bar */}
         {totalBuckets > 0 && (
-          <div style={{ padding:'12px 16px', background:'#FFF3E0', borderTop:'1px solid #FFB74D', display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ flex:1, flexWrap:'wrap', display:'flex', gap:4 }}>
-              {sessionEntries.map(item => (
-                <span key={item.id} style={{ display:'inline-block', background:'#1A4C48', color:'#fff', borderRadius:20, padding:'3px 10px', fontSize:11, fontWeight:600 }}>
-                  {item.name} ×{session[item.id]}
-                </span>
-              ))}
-            </div>
-            <div style={{ display:'flex', gap:8, flexShrink:0 }}>
-              <button onClick={() => setSession({})}
-                style={{ background:'#888', color:'#fff', border:'none', borderRadius:8, padding:'9px 14px', cursor:'pointer', fontSize:12, fontFamily:'inherit' }}>
-                Reset
-              </button>
-              <button onClick={savePicks} disabled={saving}
-                style={{ background: saving ? '#aaa' : '#E65100', color:'#fff', border:'none', borderRadius:8, padding:'9px 18px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }}>
-                {saving ? 'Saving…' : `Save ${totalBuckets} Bucket${totalBuckets>1?'s':''}`}
-              </button>
+          <div style={{ padding:'12px 16px', background: mode==='waste' ? '#FFEBEE' : '#FFF3E0', borderTop:`1px solid ${mode==='waste' ? '#EF9A9A' : '#FFB74D'}` }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
+              <div style={{ flex:1, flexWrap:'wrap', display:'flex', gap:4, minWidth:120 }}>
+                {sessionEntries.map(item => (
+                  <span key={item.id} style={{ display:'inline-block', background: mode==='waste' ? '#C53D18' : '#1A4C48', color:'#fff', borderRadius:20, padding:'3px 10px', fontSize:11, fontWeight:600 }}>
+                    {item.name} ×{session[item.id]}
+                  </span>
+                ))}
+              </div>
+              {mode==='waste' && (
+                <select value={wasteReason} onChange={e => setWasteReason(e.target.value)}
+                  style={{ padding:'8px 10px', border:'1px solid #EF9A9A', borderRadius:8, fontSize:12, fontFamily:'inherit', background:'#fff', color:'#C53D18', fontWeight:600, cursor:'pointer' }}>
+                  {WASTE_REASONS.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              )}
+              <div style={{ display:'flex', gap:8, flexShrink:0 }}>
+                <button onClick={() => setSession({})}
+                  style={{ background:'#888', color:'#fff', border:'none', borderRadius:8, padding:'9px 14px', cursor:'pointer', fontSize:12, fontFamily:'inherit' }}>
+                  Reset
+                </button>
+                <button onClick={savePicks} disabled={saving}
+                  style={{ background: saving ? '#aaa' : mode==='waste' ? '#C53D18' : '#E65100', color:'#fff', border:'none', borderRadius:8, padding:'9px 18px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit' }}>
+                  {saving ? 'Saving…' : mode==='waste' ? `Log ${totalBuckets} as Waste` : `Save ${totalBuckets} Bucket${totalBuckets>1?'s':''}`}
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -287,14 +321,18 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
 
         {/* Summary bar */}
         {usageData.length > 0 && (
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'#E3DDD0', borderBottom:'1px solid #E3DDD0' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:1, background:'#E3DDD0', borderBottom:'1px solid #E3DDD0' }}>
             <div style={{ background:'#FFFBF5', padding:'12px 16px', textAlign:'center' }}>
-              <div style={{ fontSize:26, fontWeight:800, color:'#E65100' }}>{totalMonthBuckets}</div>
-              <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Total Buckets</div>
+              <div style={{ fontSize:26, fontWeight:800, color:'#E65100' }}>{totalMonthUsed}</div>
+              <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Buckets Used</div>
+            </div>
+            <div style={{ background:'#FFFBF5', padding:'12px 16px', textAlign:'center' }}>
+              <div style={{ fontSize:26, fontWeight:800, color: totalMonthWasted > 0 ? '#C53D18' : '#27AE60' }}>{totalMonthWasted}</div>
+              <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Wasted</div>
             </div>
             <div style={{ background:'#FFFBF5', padding:'12px 16px', textAlign:'center' }}>
               <div style={{ fontSize:26, fontWeight:800, color:'#1A4C48' }}>{usageData.length}</div>
-              <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Flavors Used</div>
+              <div style={{ fontSize:10, color:'#6B7F78', textTransform:'uppercase' }}>Flavors</div>
             </div>
           </div>
         )}
@@ -313,7 +351,10 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
                     <div style={{ fontSize:13, fontWeight:600, color:'#1A4C48' }}>{row.name}</div>
                     <div style={{ display:'flex', gap:14, alignItems:'center' }}>
                       <span style={{ fontSize:11, color:'#6B7F78' }}>{row.sessions} session{row.sessions>1?'s':''}</span>
-                      <span style={{ fontSize:15, fontWeight:800, color:'#E65100' }}>{row.buckets} bucket{row.buckets>1?'s':''}</span>
+                      {(row.wasted || 0) > 0 && (
+                        <span style={{ fontSize:11, fontWeight:700, color:'#C53D18' }}>🗑 {row.wasted}</span>
+                      )}
+                      <span style={{ fontSize:15, fontWeight:800, color:'#E65100' }}>{row.used ?? row.buckets} bucket{(row.used ?? row.buckets)>1?'s':''}</span>
                     </div>
                   </div>
                   <div style={{ background:'#EFEBE0', borderRadius:4, height:6 }}>
@@ -333,8 +374,15 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
                     {usageDetails.map((log, i) => (
                       <div key={log.id||i} style={{ display:'flex', justifyContent:'space-between', fontSize:11, padding:'5px 0', borderBottom:'1px solid #EFEBE0', color:'#1A4C48' }}>
                         <span>{log.date}</span>
-                        <span style={{ flex:1, marginLeft:12, fontWeight:500 }}>{log.itemName}</span>
-                        <span style={{ color:'#E65100', fontWeight:700 }}>{Math.abs(log.delta)} bucket{Math.abs(log.delta)>1?'s':''}</span>
+                        <span style={{ flex:1, marginLeft:12, fontWeight:500 }}>
+                          {log.itemName}
+                          {log.entryType === 'waste' && (
+                            <span style={{ marginLeft:6, fontSize:9, fontWeight:700, color:'#fff', background:'#C53D18', borderRadius:4, padding:'1px 6px' }}>
+                              🗑 {log.reason || 'Waste'}
+                            </span>
+                          )}
+                        </span>
+                        <span style={{ color: log.entryType==='waste' ? '#C53D18' : '#E65100', fontWeight:700 }}>{Math.abs(log.delta)} bucket{Math.abs(log.delta)>1?'s':''}</span>
                         <span style={{ color:'#6B7F78', marginLeft:10 }}>{log.userName}</span>
                       </div>
                     ))}

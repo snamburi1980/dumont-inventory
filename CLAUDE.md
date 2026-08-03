@@ -230,8 +230,13 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
 - [ ] Dead code: Delivery/Sales/Orders/Dashboard components, stockAlert util, hooks/inventory.js
 
 ### Next phase
-- [ ] Waste log (melted/dropped/expired product with reason + monthly report)
-- [ ] Missed-checklist alert (scheduled Cloud Function emails owner if opening checklist not done by set time)
+- [x] Waste log — DONE: Scoops has Used/Waste toggle; waste entries carry entryType+reason
+      (Melted/Dropped/Expired/Freezer issue/Other); monthly report splits Used vs Wasted
+- [x] Missed-checklist alert — DONE: `checkOpeningChecklists` scheduled function, daily 12:30 PM
+      Central, emails dumonttexas@gmail.com if an active store has no opening checklist that day.
+      Requires EmailJS "Allow API for non-browser applications" enabled (Account → Security).
+- [x] Temperature logs — DONE: checklist records walk-in/dipping/cake temps (°F), flags out-of-range
+- [x] Order list — DONE: Inventory → Order List button, below-PAR items w/ suggested qty, copy-to-share
 - [ ] Expiry date tracker
 - [ ] Clover API integration (replace XLSX upload)
 - [ ] Multi-store comparison dashboard
