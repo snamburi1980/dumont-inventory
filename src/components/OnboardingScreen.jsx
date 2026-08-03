@@ -19,6 +19,7 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
   const [seedItems,   setSeedItems]   = useState([])
   const [seeding,     setSeeding]     = useState(false)
   const [tokenValid,  setTokenValid]  = useState(null)  // null=checking, true, false
+  const [seedStoreId, setSeedStoreId] = useState(null)  // storeId from the validated invitation
 
   // Validate token on mount (without auth — just check URL params are complete)
   useEffect(() => {
@@ -29,11 +30,16 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
     }
   }, [token, email, storeId])
 
-  // Load base items for seed step
-  async function loadBaseItems() {
+  // Load base items for seed step — the org catalog is the pre-filled order-form template
+  async function loadBaseItems(realOrgId) {
     try {
-      const snap = await getDocs(collection(db, 'orgs', orgId || 'dumont', 'items'))
-      const items = snap.docs.map(d => ({ id: d.id, ...d.data(), quantity: 0 }))
+      const snap = await getDocs(collection(db, 'orgs', realOrgId || orgId || 'dumont', 'items'))
+      const items = snap.docs
+        .map(d => ({ id: d.id, ...d.data(), quantity: 0 }))
+        .filter(i => i.active !== false)
+        .sort((a, b) =>
+          (a.cat || a.category || '').localeCompare(b.cat || b.category || '') ||
+          (a.name || '').localeCompare(b.name || ''))
       setBaseItems(items)
       setSeedItems(items.map(i => ({ ...i })))
     } catch(e) {
@@ -86,8 +92,18 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
       console.warn('Could not update invitation/store status', e)
     }
     const finalRole = inv.role || assignedRole
-    if (finalRole === 'staff' || finalRole === 'manager') { setStep('done'); return }
-    await loadBaseItems()
+    if (finalRole === 'staff') { setStep('done'); return }
+    // Store owners AND managers get the inventory setup option — but only when the
+    // store has no stock yet. Never overwrite an existing store's inventory.
+    try {
+      const stockSnap = await getDoc(doc(db, 'stores', invStoreId, 'inventory', 'stock'))
+      if (stockSnap.exists() && Object.keys(stockSnap.data() || {}).length > 0) {
+        setStep('done')
+        return
+      }
+    } catch(e) {}
+    setSeedStoreId(invStoreId)
+    await loadBaseItems(inv.orgId)
     setStep('seeding')
   }
 
@@ -139,20 +155,16 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
   async function handleSeedInventory() {
     setSeeding(true)
     try {
-      // Build stock object matching existing inventory format
+      // FLAT stock format — must match useInventory.saveInventory exactly:
+      // {itemId}: number, plus par_{id} / par_override_{id} / active_{id} keys
       const stockData = {}
       seedItems.forEach(item => {
-        stockData[item.id] = {
-          id:       item.id,
-          name:     item.name,
-          category: item.category || '',
-          unit:     item.unit || item.uom || 'unit',
-          cost:     item.cost || item.defaultCost || 0,
-          par:      item.par || 0,
-          stock:    Number(item.quantity) || 0,
-        }
+        stockData[item.id]                    = Number(item.quantity) || 0
+        stockData[`par_${item.id}`]           = Number(item.par) || 0
+        stockData[`par_override_${item.id}`]  = Number(item.par) || 0
+        stockData[`active_${item.id}`]        = item.active !== false
       })
-      await setDoc(doc(db, 'stores', storeId, 'inventory', 'stock'), stockData)
+      await setDoc(doc(db, 'stores', seedStoreId || storeId, 'inventory', 'stock'), stockData)
       setStep('done')
     } catch(e) {
       console.error('Seed failed', e)
@@ -232,21 +244,30 @@ export default function OnboardingScreen({ token, email, storeName, storeId, org
             <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, overflow:'hidden', marginBottom:16 }}>
               <div style={{ background:'#1A4C48', padding:'10px 16px', display:'flex', gap:8 }}>
                 <div style={{ flex:1, fontSize:11, fontWeight:700, color:'#fff', textTransform:'uppercase' }}>Item</div>
-                <div style={{ width:80, fontSize:11, fontWeight:700, color:'#fff', textTransform:'uppercase' }}>Category</div>
                 <div style={{ width:80, fontSize:11, fontWeight:700, color:'#fff', textTransform:'uppercase', textAlign:'right' }}>Qty on Hand</div>
               </div>
-              {seedItems.map((item, idx) => (
-                <div key={item.id} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 16px', borderBottom: idx < seedItems.length-1 ? '1px solid #EFEBE0' : 'none', background: idx%2===0 ? '#fff' : '#FAF8F3' }}>
-                  <div style={{ flex:1, fontSize:13, color:'#1A4C48', fontWeight:500 }}>{item.name}</div>
-                  <div style={{ width:80, fontSize:11, color:'#6B7F78' }}>{item.category || '—'}</div>
-                  <input
-                    type="number" min="0" step="0.1"
-                    value={item.quantity}
-                    onChange={e => setSeedItems(prev => prev.map((s,i) => i===idx ? {...s, quantity: e.target.value} : s))}
-                    style={{ width:80, padding:'4px 8px', border:'1px solid #E3DDD0', borderRadius:6, fontSize:13, textAlign:'right', fontFamily:'inherit', background:'#F6F4ED' }}
-                  />
-                </div>
-              ))}
+              {seedItems.map((item, idx) => {
+                const cat     = item.cat || item.category || 'Other'
+                const prevCat = idx > 0 ? (seedItems[idx-1].cat || seedItems[idx-1].category || 'Other') : null
+                return (
+                  <div key={item.id}>
+                    {cat !== prevCat && (
+                      <div style={{ background:'#EEE3D3', padding:'6px 16px', fontSize:11, fontWeight:700, color:'#C1683C', textTransform:'uppercase', letterSpacing:'0.5px' }}>
+                        {cat}
+                      </div>
+                    )}
+                    <div style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 16px', borderBottom: idx < seedItems.length-1 ? '1px solid #EFEBE0' : 'none', background: idx%2===0 ? '#fff' : '#FAF8F3' }}>
+                      <div style={{ flex:1, fontSize:13, color:'#1A4C48', fontWeight:500 }}>{item.name}</div>
+                      <input
+                        type="number" min="0" step="0.1"
+                        value={item.quantity}
+                        onChange={e => setSeedItems(prev => prev.map((s,i) => i===idx ? {...s, quantity: e.target.value} : s))}
+                        style={{ width:80, padding:'4px 8px', border:'1px solid #E3DDD0', borderRadius:6, fontSize:13, textAlign:'right', fontFamily:'inherit', background:'#F6F4ED' }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
 
