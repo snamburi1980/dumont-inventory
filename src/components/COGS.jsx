@@ -150,7 +150,8 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
   }
 
   async function saveUpload() {
-    if (!parsed || !viewingStore) return
+    if (!parsed) return
+    if (!viewingStore) { showToast('No store selected — pick a store in the header first'); return }
     const existing = sales.filter(s => s.monthKey === uploadMonth)
     if (existing.length && !window.confirm(
       `${MONTHS.find(m=>m.key===uploadMonth)?.label} already has an upload ($${existing.reduce((s,x)=>s+(x.revenue||0),0).toFixed(0)}). Replace it with this one?`)) return
@@ -177,8 +178,14 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
       await loadAll()
       setView('report')
     } catch(e) {
-      console.error(e)
-      showToast('Save failed — try again')
+      console.error('saveUpload failed:', e)
+      // Surface the real cause — a generic message makes this impossible to diagnose
+      const why = e?.code === 'permission-denied'
+        ? 'permission denied (Firestore rules / your role)'
+        : e?.code === 'invalid-argument'
+          ? 'invalid data for Firestore'
+          : (e?.code || e?.message || 'unknown error')
+      showToast(`Save failed: ${why}`)
     }
     setSavingUp(false)
   }
