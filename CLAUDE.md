@@ -172,6 +172,21 @@ auditLog/{id}                         — audit trail (utils/auditLogger.js), su
 _invoiceMeta/{id}                     — invoice pipeline metadata (Cloud Function only)
 ```
 
+### Clover Item Sales export format (IMPORTANT — src/utils/cloverParser.js)
+Verified against a real Jul 2026 export. The file is NOT a flat table:
+- ~15 rows of **preamble** (title, date range, filters, and a summary block that contains a literal
+  "Net Sales" label cell) sit above the real header row. Header detection therefore requires ≥3
+  recognised column names on the same row — matching one keyword alone hits the summary block.
+- **Categories are section rows**, not a column: `Ice Cream` alone in col 0, then item rows with a
+  blank col 0, then `Total (Ice Cream)`, ending with a `TOTAL` grand-total row.
+- **Modifier rows** (Sprinkles, Waffle Cone, Oat Milk…) are sub-rows with a blank item name. Their
+  amounts are ALREADY included in the parent item's Net Sales — counting them double-counts revenue.
+- Money cells arrive as `"$24,051.07"`, `-$5.75`, `-`, or `" "` (xlsx may pre-convert to numbers).
+Parser reconciles: item rows sum to each category total, categories sum to the grand total, and
+`reconciled`/`grandTotal`/`catSum` are returned so the UI can warn on mismatch. Real-file check:
+revenue $23,643.56, 3,925 items, 150 products, 11 categories — all exact.
+`revGroup()` in COGS.jsx maps Clover categories → COGS groups (Specialty Beverages → drinks, Sides → other).
+
 ### Inventory data-model quirk (IMPORTANT)
 `useInventory.loadInventory(storeId, orgId)` merges **org item master** (orgs/{orgId}/items; falls back to
 DEFAULT_INVENTORY in src/data/inventory.js if empty — 54 ice cream items, fallback ONLY) with the flat
@@ -198,9 +213,10 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
   Coffee, Bakery, Packaging, Operating Expense, Other). Operating Expense is excluded from COGS math
   but still tracked for total spend visibility. store_owner+ approves; manager can log but not approve.
 - **Records → Sales & COGS** (COGS.jsx, formerly just "COGS"): three sub-views.
-  - **Upload Sales:** managers upload the Clover "Sales by Item" Excel export monthly; parsed into
-    revenue, item rows, and byCategory breakdown; saved to `salesLedger` keyed by monthKey. Re-uploading
-    a month prompts to replace. (Commerce.jsx's HQ upload writes the same schema — both stay compatible.)
+  - **Upload Sales:** managers upload the Clover **Reporting → Revenue → Item Sales** export (CSV or
+    Excel) monthly; parsed into revenue, item rows, and byCategory breakdown; saved to `salesLedger`
+    keyed by monthKey. Month auto-detects from the report's date-range line. Re-uploading a month
+    prompts to replace. (Commerce.jsx's HQ upload uses the same parser + schema.)
   - **COGS Report:** revenue by category (from upload) + COGS by category (approved invoice purchases
     ÷ matching revenue category, via `revGroup()` keyword-matching in COGS.jsx) + vendor spend +
     month-over-month trend table. Formula: **COGS % = approved COGS-tagged invoices ÷ uploaded revenue**

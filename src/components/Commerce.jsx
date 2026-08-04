@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import * as XLSX from 'xlsx'
+import { parseCloverReport } from '../utils/cloverParser'
 import {
   collection, getDocs, addDoc, deleteDoc, doc, getDoc, setDoc, query, orderBy, limit
 } from 'firebase/firestore'
@@ -38,66 +39,6 @@ function today() {
 
 function fmt$(n) {
   return '$' + (n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})
-}
-
-// ── Clover Excel parser ───────────────────────────────────────────────────────
-function parseCloverWorkbook(wb) {
-  const sheetName = wb.SheetNames[0]
-  const ws        = wb.Sheets[sheetName]
-  const rows      = XLSX.utils.sheet_to_json(ws, { defval: '' })
-  if (!rows.length) return null
-
-  // Detect revenue column (Clover uses "Net Sales" or "Revenue")
-  const sample    = rows[0]
-  const revKey    = ['Net Sales','Net sales','Revenue','revenue','Total','total']
-    .find(k => k in sample) || ''
-  const qtyKey    = ['Qty','qty','Quantity','quantity'].find(k => k in sample) || ''
-  const itemKey   = ['Item','item','Name','name','Product'].find(k => k in sample) || ''
-  const dateKey   = ['Date','date','Payment Date','Order Date'].find(k => k in sample) || ''
-  const catKey    = ['Category','category','Item Category'].find(k => k in sample) || ''
-
-  let totalRevenue = 0
-  let totalQty     = 0
-  const byItem     = {}
-  const byCategory = {}
-
-  rows.forEach(r => {
-    const rev = parseFloat(String(r[revKey]).replace(/[$,]/g,'')) || 0
-    const qty = parseFloat(String(r[qtyKey]).replace(/,/g,''))    || 1
-    const item = String(r[itemKey] || '').trim()
-    const cat  = String(r[catKey]  || '').trim() || 'Uncategorized'
-    if (rev <= 0 && !item) return
-    totalRevenue += rev
-    totalQty     += qty
-    byCategory[cat] = (byCategory[cat] || 0) + rev
-    if (item) {
-      if (!byItem[item]) byItem[item] = { item, cat, revenue:0, qty:0 }
-      byItem[item].revenue += rev
-      byItem[item].qty     += qty
-    }
-  })
-
-  // Determine period from date column
-  const dates = rows.map(r => r[dateKey]).filter(Boolean)
-  let periodStr = '', firstDate = null
-  if (dates.length) {
-    const d0 = new Date(dates[0])
-    const d1 = new Date(dates[dates.length-1])
-    if (!isNaN(d0) && !isNaN(d1)) {
-      firstDate = d0
-      const fmt = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
-      periodStr = fmt(d0) === fmt(d1) ? fmt(d0) : `${fmt(d0)} – ${fmt(d1)}`
-    }
-  }
-
-  return {
-    revenue:    totalRevenue,
-    itemsSold:  Math.round(totalQty),
-    period:     periodStr || 'Uploaded ' + new Date().toLocaleDateString(),
-    rows:       Object.values(byItem).sort((a,b) => b.revenue - a.revenue),
-    byCategory,
-    firstDate,
-  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -168,8 +109,7 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
     const reader = new FileReader()
     reader.onload = ev => {
       try {
-        const wb     = XLSX.read(ev.target.result, { type:'array' })
-        const parsed = parseCloverWorkbook(wb)
+        const parsed = parseCloverReport(new Uint8Array(ev.target.result))
         if (!parsed) { showToast('Could not parse file — check format'); return }
         setParsedSales(parsed)
       } catch(err) {

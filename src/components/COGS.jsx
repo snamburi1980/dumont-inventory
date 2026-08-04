@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import * as XLSX from 'xlsx'
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, orderBy, limit } from 'firebase/firestore'
 import { db } from '../firebase/config'
-import { INVOICE_CATEGORIES } from './Invoices'
+import { parseCloverReport } from '../utils/cloverParser'
 
 // ── Static theoretical margins (per-product view) ────────────────────────────
 const MENU_MARGINS = [
@@ -23,13 +22,15 @@ const MENU_MARGINS = [
   { name:'Specialty Coffee', cat:'Coffee',    cost:1.84, sell:6.10 },
 ]
 
-// Map a Clover sales category name → COGS group (matches invoice categories)
+// Map a Clover sales category name → COGS group (matches invoice categories).
+// Tuned against the real Dumont Clover categories: Ice Cream, Coffee, Milk Tea,
+// Bakery, Falooda, Fruit Tea, Slush, Smoothie, Specialty Beverages, Sides, Uncategorized.
 function revGroup(catName = '') {
   const c = String(catName).toLowerCase()
-  if (/ice ?cream|scoop|dessert|sundae|shake|gelato|cone/.test(c)) return 'icecream'
-  if (/tea|boba|slush|smoothie|falooda|drink|juice|soda/.test(c))  return 'drinks'
-  if (/coffee|espresso|latte|affogato/.test(c))                    return 'coffee'
-  if (/bakery|cake|pastry|waffle|croissant|cookie/.test(c))        return 'bakery'
+  if (/ice ?cream|scoop|dessert|sundae|shake|gelato|cone/.test(c))            return 'icecream'
+  if (/tea|boba|slush|smoothie|falooda|drink|beverage|juice|soda/.test(c))    return 'drinks'
+  if (/coffee|espresso|latte|affogato/.test(c))                              return 'coffee'
+  if (/bakery|cake|pastry|waffle|croissant|cookie/.test(c))                   return 'bakery'
   return 'other'
 }
 const GROUPS = [
@@ -39,58 +40,6 @@ const GROUPS = [
   { id:'bakery',   label:'Bakery',        color:'#9B59B6' },
   { id:'other',    label:'Other',         color:'#95A5A6' },
 ]
-
-// ── Clover "Sales by Item" / "Sales by Category" export parser ───────────────
-// Column names auto-detected, so either export works.
-function parseCloverWorkbook(wb) {
-  const ws   = wb.Sheets[wb.SheetNames[0]]
-  const rows = XLSX.utils.sheet_to_json(ws, { defval: '' })
-  if (!rows.length) return null
-  const sample  = rows[0]
-  const revKey  = ['Net Sales','Net sales','Revenue','revenue','Amount','Total','total'].find(k => k in sample) || ''
-  const qtyKey  = ['Qty','qty','Quantity','quantity','Items Sold'].find(k => k in sample) || ''
-  const itemKey = ['Item','item','Name','name','Product'].find(k => k in sample) || ''
-  const dateKey = ['Date','date','Payment Date','Order Date'].find(k => k in sample) || ''
-  const catKey  = ['Category','category','Item Category','Reporting Category'].find(k => k in sample) || ''
-  if (!revKey) return null
-
-  let totalRevenue = 0, totalQty = 0
-  const byItem = {}, byCategory = {}
-  rows.forEach(r => {
-    const rev  = parseFloat(String(r[revKey]).replace(/[$,()]/g,'')) || 0
-    const qty  = parseFloat(String(r[qtyKey]).replace(/,/g,'')) || 1
-    const item = String(r[itemKey] || '').trim()
-    const cat  = String(r[catKey]  || '').trim() || 'Uncategorized'
-    if (rev <= 0 && !item) return
-    totalRevenue += rev
-    totalQty     += qty
-    byCategory[cat] = (byCategory[cat] || 0) + rev
-    if (item) {
-      if (!byItem[item]) byItem[item] = { item, cat, revenue:0, qty:0 }
-      byItem[item].revenue += rev
-      byItem[item].qty     += qty
-    }
-  })
-
-  const dates = rows.map(r => r[dateKey]).filter(Boolean)
-  let periodStr = '', firstDate = null
-  if (dates.length) {
-    const d0 = new Date(dates[0]), d1 = new Date(dates[dates.length-1])
-    if (!isNaN(d0) && !isNaN(d1)) {
-      firstDate = d0
-      const f = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
-      periodStr = f(d0) === f(d1) ? f(d0) : `${f(d0)} – ${f(d1)}`
-    }
-  }
-  return {
-    revenue:   totalRevenue,
-    itemsSold: Math.round(totalQty),
-    period:    periodStr || 'Uploaded ' + new Date().toLocaleDateString(),
-    firstDate,
-    rows:      Object.values(byItem).sort((a,b) => b.revenue - a.revenue).slice(0, 200),
-    byCategory,
-  }
-}
 
 function monthOptions(n = 12) {
   const opts = []
@@ -185,16 +134,15 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
     const reader = new FileReader()
     reader.onload = ev => {
       try {
-        const wb = XLSX.read(ev.target.result, { type: 'array' })
-        const p  = parseCloverWorkbook(wb)
-        if (!p) { showToast('Could not read this file — export "Sales by Item" from Clover as Excel'); return }
+        const p = parseCloverReport(new Uint8Array(ev.target.result))
+        if (!p) { showToast('Could not read this file — export "Item Sales" from Clover Reporting → Revenue'); return }
         setParsed(p)
         if (p.firstDate) {
           setUploadMonth(`${p.firstDate.getFullYear()}-${String(p.firstDate.getMonth()+1).padStart(2,'0')}`)
         }
       } catch(err) {
         console.error(err)
-        showToast('Error reading file — is it the Clover Excel export?')
+        showToast('Error reading file — is it the Clover export?')
       }
     }
     reader.readAsArrayBuffer(f)
@@ -281,20 +229,29 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
             <div style={{ padding:16 }}>
               <div style={{ fontSize:14, fontWeight:700, color:'var(--dark)', marginBottom:4 }}>Upload Clover Sales Report</div>
               <div style={{ fontSize:12, color:'#6B7F78', marginBottom:12, lineHeight:1.6 }}>
-                In Clover: Reporting → Sales → <strong>Sales by Item</strong> → set the month → Export to Excel.
-                Then upload that file here.
+                In Clover: <strong>Reporting → Revenue → Item Sales</strong> → set the date range to the
+                month → Export. Upload that CSV or Excel file here.
               </div>
               <input type="file" accept=".xlsx,.xls,.csv" ref={fileRef} onChange={handleFile} style={{ display:'none' }} />
               <button onClick={() => fileRef.current?.click()}
                 style={{ width:'100%', background:'#FDF9F3', border:'1.5px dashed #C1683C', borderRadius:10, padding:'16px', cursor:'pointer', fontSize:14, color:'#C1683C', fontWeight:700, fontFamily:'inherit' }}>
-                📈 Choose Clover Excel File
+                📈 Choose Clover Report File
               </button>
 
               {parsed && (
                 <div style={{ marginTop:14, background:'#F0FFF4', border:'1px solid #81C784', borderRadius:10, padding:14 }}>
-                  <div style={{ fontSize:13, fontWeight:700, color:'#276749', marginBottom:8 }}>
-                    ✓ Parsed: {fmt(parsed.revenue)} revenue · {parsed.itemsSold} items · {parsed.period}
+                  <div style={{ fontSize:15, fontWeight:800, color:'#276749' }}>
+                    {fmt(parsed.revenue)} <span style={{ fontSize:12, fontWeight:600 }}>net sales</span>
                   </div>
+                  <div style={{ fontSize:12, color:'#276749', marginBottom:8 }}>
+                    {parsed.itemsSold.toLocaleString()} items sold · {parsed.rows.length} products · {parsed.period}
+                  </div>
+                  {!parsed.reconciled && (
+                    <div style={{ fontSize:11, color:'#8B5A00', background:'#FFF8EC', border:'1px solid #FFB74D', borderRadius:6, padding:'6px 10px', marginBottom:8 }}>
+                      ⚠ Category totals ({fmt(parsed.catSum)}) don't match the report total ({fmt(parsed.grandTotal)}).
+                      Check the file before saving.
+                    </div>
+                  )}
                   <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:12 }}>
                     {Object.entries(parsed.byCategory).sort((a,b) => b[1]-a[1]).map(([c, v]) => (
                       <span key={c} style={{ fontSize:11, background:'#fff', border:'1px solid #C8E6C9', borderRadius:6, padding:'3px 8px', color:'#276749' }}>
