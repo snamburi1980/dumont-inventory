@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { SkeletonStats, SkeletonRows } from './Skeleton'
+import { confirm } from './ConfirmDialog'
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, orderBy, limit } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { parseCloverReport } from '../utils/cloverParser'
@@ -153,8 +155,15 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
     if (!parsed) return
     if (!viewingStore) { showToast('No store selected — pick a store in the header first'); return }
     const existing = sales.filter(s => s.monthKey === uploadMonth)
-    if (existing.length && !window.confirm(
-      `${MONTHS.find(m=>m.key===uploadMonth)?.label} already has an upload ($${existing.reduce((s,x)=>s+(x.revenue||0),0).toFixed(0)}). Replace it with this one?`)) return
+    if (existing.length) {
+      const prev = existing.reduce((s,x)=>s+(x.revenue||0),0)
+      const ok = await confirm({
+        title: `Replace ${MONTHS.find(m=>m.key===uploadMonth)?.label}?`,
+        message: `This month already has ${fmt(prev)} of revenue uploaded. Saving will replace it with ${fmt(parsed.revenue)}.`,
+        confirmLabel: 'Replace',
+      })
+      if (!ok) return
+    }
     setSavingUp(true)
     try {
       for (const ex of existing) {
@@ -191,7 +200,7 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
   }
 
   async function deleteUpload(s) {
-    if (!window.confirm(`Delete the ${s.month} sales upload?`)) return
+    if (!await confirm({ title:`Delete ${s.month} sales?`, message:'The uploaded revenue for this month will be removed.', danger:true })) return
     await deleteDoc(doc(db, 'stores', viewingStore, 'salesLedger', s.id))
     showToast('Deleted')
     loadAll()
@@ -325,7 +334,7 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
           </div>
 
           {loading ? (
-            <div style={{ textAlign:'center', padding:32, color:'#6B7F78', fontSize:13 }}>Loading…</div>
+            <><SkeletonStats count={4} columns={2} /><SkeletonRows count={4} /></>
           ) : (
             <>
               {d.revenue === 0 && (

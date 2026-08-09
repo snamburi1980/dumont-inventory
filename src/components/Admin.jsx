@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { SkeletonList } from './Skeleton'
+import { confirm } from './ConfirmDialog'
 import {
   collection, getDocs, addDoc, updateDoc,
   deleteDoc, doc, setDoc
@@ -174,8 +176,8 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   // every subcollection under it (inventory, checklists, schedule, stockLog,
   // cashRegister...), its invitations, and optionally its users + logins.
   async function deleteStore(storeId, storeName) {
-    if (!window.confirm(`Delete store "${storeName}" and ALL its data (inventory, checklists, schedules, cash register, logs)? This cannot be undone.`)) return
-    const alsoUsers = window.confirm(`Also delete the user accounts and logins assigned to "${storeName}"?\n\nOK = delete users too · Cancel = keep users`)
+    if (!await confirm({ title:`Delete ${storeName}?`, message:'ALL of this store\u2019s data will be permanently deleted \u2014 inventory, checklists, schedules, cash register and logs.\n\nThis cannot be undone.', confirmLabel:'Delete Store', danger:true })) return
+    const alsoUsers = await confirm({ title:'Also delete its users?', message:`Remove the user accounts and logins assigned to ${storeName}?`, confirmLabel:'Delete Users Too', cancelLabel:'Keep Users', danger:true })
     setLoading(true)
     try {
       const clearStoreData = httpsCallable(getFunctions(app), 'clearStoreData')
@@ -192,7 +194,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   }
 
   async function deleteRegion(regionId, regionName, regionStores) {
-    if (!window.confirm(`Delete region "${regionName}" and its ${regionStores.length} store(s), including ALL their data and users? This cannot be undone.`)) return
+    if (!await confirm({ title:`Delete region ${regionName}?`, message:`Its ${regionStores.length} store(s), all their data and all their users will be permanently deleted.\n\nThis cannot be undone.`, confirmLabel:'Delete Region', danger:true })) return
     setLoading(true)
     try {
       const clearStoreData = httpsCallable(getFunctions(app), 'clearStoreData')
@@ -210,7 +212,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   }
 
   async function deleteOrg(orgId, orgName) {
-    if (!window.confirm(`Delete org "${orgName}" and ALL its regions, stores, data and users? This cannot be undone.`)) return
+    if (!await confirm({ title:`Delete ${orgName}?`, message:'Every region, store, data record and user in this organisation will be permanently deleted.\n\nThis cannot be undone.', confirmLabel:'Delete Organisation', danger:true })) return
     setLoading(true)
     try {
       const orgRegions = regions.filter(r => r.orgId === orgId)
@@ -343,7 +345,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
   }
 
   async function deleteUser(user) {
-    if (!window.confirm(`Delete "${user.name || user.email}" permanently? This removes them from the app and their login account. This cannot be undone.`)) return
+    if (!await confirm({ title:`Delete ${user.name || user.email}?`, message:'They will lose access and their login account will be removed.\n\nThis cannot be undone.', confirmLabel:'Delete User', danger:true })) return
     try {
       const deleteAuthUser = httpsCallable(getFunctions(app), 'deleteAuthUser')
       await deleteAuthUser({ email: user.email })
@@ -514,7 +516,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         ))}
       </div>
 
-      {loading && <div style={{textAlign:'center',padding:24,color:'#6B7F78'}}>Loading...</div>}
+      {loading && <SkeletonList count={4} lines={2} />}
 
       {/* OVERVIEW */}
       {view === 'overview' && (

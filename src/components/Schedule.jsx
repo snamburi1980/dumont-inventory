@@ -1,5 +1,6 @@
 import TipBanner from './TipBanner'
 import { useState, useEffect, useRef } from 'react'
+import { confirm } from './ConfirmDialog'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
@@ -201,8 +202,8 @@ export default function Schedule({ viewingStore, showToast }) {
     showToast(`${newStaff.name} added`)
   }
 
-  function removeStaff(id) {
-    if (!window.confirm('Remove this staff member?')) return
+  async function removeStaff(id) {
+    if (!await confirm({ title:'Remove staff member?', message:'Their shifts on this schedule will also be cleared.', confirmLabel:'Remove', danger:true })) return
     const updated = members.filter(m => m.id !== id)
     const newShifts = { ...shifts }
     DAYS.forEach((_,di) => delete newShifts[`${id}_${di}`])
@@ -257,7 +258,7 @@ export default function Schedule({ viewingStore, showToast }) {
   }
 
   async function clearWeek() {
-    if (!window.confirm(`Clear all shifts for ${weekLabel}?`)) return
+    if (!await confirm({ title:'Clear this week?', message:`All shifts for ${weekLabel} will be removed.`, confirmLabel:'Clear Week', danger:true })) return
     setShifts({})
     await save(members, presets, {})
     showToast('Week cleared ✅')

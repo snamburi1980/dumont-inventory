@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { SkeletonList } from './Skeleton'
+import { confirm } from './ConfirmDialog'
 import { collection, addDoc, getDocs, deleteDoc, doc, orderBy, query } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
@@ -85,7 +87,7 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
   }
 
   async function deleteSOP(sop) {
-    if (!window.confirm(`Delete SOP: ${sop.fileName}?`)) return
+    if (!await confirm({ title:'Delete SOP?', message:sop.fileName, danger:true })) return
     await deleteDoc(doc(db, 'orgs', viewingOrg, 'sops', sop.id))
     await logAudit({
       action:    AUDIT_ACTIONS.SOP_DELETED,
@@ -156,7 +158,7 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
           </div>
 
           {/* SOP list */}
-          {loading && <div style={{textAlign:'center',padding:16,color:'#6B7F78'}}>Loading...</div>}
+          {loading && <SkeletonList count={3} lines={1} />}
           {!loading && sops.length === 0 && (
             <div style={{textAlign:'center',padding:24,color:'#6B7F78',fontSize:13}}>
               No SOPs uploaded yet

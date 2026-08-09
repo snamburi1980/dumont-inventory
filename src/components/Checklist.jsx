@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { SkeletonList } from './Skeleton'
 import { collection, addDoc, getDocs, query, orderBy, limit, where } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import TipBanner from './TipBanner'
@@ -389,7 +390,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
           ))}
         </div>
         {loadingHist ? (
-          <div style={{ textAlign:'center', padding:32, color:'#6B7F78' }}>Loading...</div>
+          <SkeletonList count={4} lines={1} />
         ) : history.length === 0 ? (
           <div style={{ textAlign:'center', padding:32, color:'#6B7F78', fontSize:13 }}>No submissions in last 30 days</div>
         ) : history.map(h => (

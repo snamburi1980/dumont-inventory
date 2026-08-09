@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { SkeletonRows } from './Skeleton'
+import { confirm } from './ConfirmDialog'
 import { exportInventoryToCSV } from '../utils/exportInventory'
 
 // Categories derived dynamically from org items
@@ -115,7 +117,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
   }
 
   async function handleDelete(item) {
-    if (!window.confirm(`Delete "${item.name}"?`)) return
+    if (!await confirm({ title:`Delete ${item.name}?`, message:'This removes the item from the catalog.', danger:true })) return
     await deleteItem(orgId, item.id)
     showToast(`${item.name} deleted`)
   }
@@ -349,7 +351,7 @@ export default function ItemManager({ orgId, orgItemsHook, showToast }) {
         ))}
       </div>
 
-      {loading && <div style={{textAlign:'center',padding:24,color:'#6B7F78'}}>Loading...</div>}
+      {loading && <SkeletonRows count={6} />}
 
       {/* Items list */}
       {filtered.map(item => {

@@ -1,10 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useAuth }      from './hooks/useAuth'
 import { useInventory } from './hooks/useInventory'
 import { useToast }     from './hooks/useToast'
 import { useOrgItems }  from './hooks/useOrgItems'
 import { applyTheme }   from './utils/themes'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { SkeletonList } from './components/Skeleton'
+
+// Heavy screens are split into their own chunks so the first paint only
+// downloads what the user actually opens (xlsx + P&L were ~40% of the bundle).
+const Commerce    = lazy(() => import('./components/Commerce'))
+const Schedule    = lazy(() => import('./components/Schedule'))
+const Admin       = lazy(() => import('./components/Admin'))
+const Records     = lazy(() => import('./components/Records'))
+const PLSimulator = lazy(() => import('./components/PLSimulator'))
+const Bulletin    = lazy(() => import('./components/Bulletin'))
 
 import LoginScreen      from './components/LoginScreen'
 import OnboardingScreen from './components/OnboardingScreen'
@@ -13,15 +23,9 @@ import HQDashboard    from './components/HQDashboard'
 import Layout         from './components/Layout'
 import Home           from './components/Home'
 import Inventory      from './components/Inventory'
-import Commerce       from './components/Commerce'
-import Schedule       from './components/Schedule'
-import Admin          from './components/Admin'
 import ChangePassword from './components/ChangePassword'
 import Checklist      from './components/Checklist'
 import Picks          from './components/Picks'
-import Records        from './components/Records'
-import Bulletin       from './components/Bulletin'
-import PLSimulator   from './components/PLSimulator'
 
 export default function App() {
   // All hooks must be called before any conditional returns
@@ -176,6 +180,7 @@ export default function App() {
           setViewingStore={s => { setViewingStore(s); if (s) invHook.loadInventory(s, viewingOrg) }}
           onViewStoreOps={() => enterOpsMode(viewingStore)}>
 
+          <Suspense fallback={<SkeletonList count={4} lines={2} />}>
           {hqActiveTab === 'hq_dashboard' && (
             <HQDashboard onViewStore={enterOpsMode} />
           )}
@@ -196,6 +201,7 @@ export default function App() {
           {hqActiveTab === 'hq_settings' && (
             <Admin {...hqTabProps} defaultView="settings" />
           )}
+          </Suspense>
 
           {toast && (
             <div style={{
@@ -251,6 +257,7 @@ export default function App() {
         currentTheme={currentTheme} onThemeChange={setCurrentTheme} showToast={showToast}
         onBackToHQ={isSuperOwner ? () => setHqMode(true) : null}>
 
+        <Suspense fallback={<SkeletonList count={4} lines={2} />}>
         {activeTab === 'home'         && <Home      {...tabProps} />}
         {activeTab === 'inventory'    && <Inventory {...tabProps} />}
         {activeTab === 'icecreamlog'  && <Picks invHook={invHook} viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
@@ -261,6 +268,7 @@ export default function App() {
         {activeTab === 'pnl'          && <PLSimulator />}
         {activeTab === 'commerce'     && <Commerce viewingStore={viewingStore} viewingOrg={viewingOrg} auth={auth} showToast={showToast} />}
         {activeTab === 'admin'        && <Admin     {...tabProps} />}
+        </Suspense>
 
         {toast && (
           <div style={{

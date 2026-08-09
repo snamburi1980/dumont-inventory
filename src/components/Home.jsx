@@ -1,5 +1,6 @@
 import TipBanner from './TipBanner'
 import { useState, useEffect } from 'react'
+import { confirm } from './ConfirmDialog'
 import {
   collection, getDocs, addDoc, updateDoc, deleteDoc, doc,
   query, orderBy, limit, where, getDoc
@@ -105,7 +106,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
   }
 
   async function deleteAnnouncement(id) {
-    if (!window.confirm('Delete this announcement?')) return
+    if (!await confirm({ title:'Delete announcement?', message:'This removes it for every store.', danger:true })) return
     try {
       await deleteDoc(doc(db, 'announcements', String(id)))
       setAnnouncements(prev => prev.filter(a => a.id !== id))

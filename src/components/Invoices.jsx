@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { SkeletonList } from './Skeleton'
+import { confirm } from './ConfirmDialog'
 import { collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
@@ -192,7 +194,7 @@ export default function Invoices({ auth, showToast, viewingOrg, viewingStore }) 
   }
 
   async function handleDelete(inv) {
-    if (!window.confirm(`Delete invoice from ${inv.vendor}?`)) return
+    if (!await confirm({ title:'Delete invoice?', message:`${inv.vendor} · ${fmt(inv.total)}`, danger:true })) return
     try {
       await deleteDoc(doc(db, 'invoices', inv.id))
       if (expanded === inv.id) setExpanded(null)
@@ -211,7 +213,7 @@ export default function Invoices({ auth, showToast, viewingOrg, viewingStore }) 
   const input = { width: '100%', padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', background: '#fff' }
   const catOf = id => INVOICE_CATEGORIES.find(c => c.id === id) || INVOICE_CATEGORIES[INVOICE_CATEGORIES.length - 1]
 
-  if (loading) return <div style={{ padding: 24, color: '#6B7F78', fontSize: 13 }}>Loading…</div>
+  if (loading) return <SkeletonList count={4} lines={2} />
 
   return (
     <div>

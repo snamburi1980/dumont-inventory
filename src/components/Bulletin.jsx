@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { SkeletonList } from './Skeleton'
+import { confirm } from './ConfirmDialog'
 import { collection, query, where, orderBy, onSnapshot,
          addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../firebase/config'
@@ -114,7 +116,7 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
   }
 
   async function deleteAnn(id) {
-    if (!window.confirm('Delete this announcement?')) return
+    if (!await confirm({ title:'Delete announcement?', message:'This removes it for every store.', danger:true })) return
     await deleteDoc(doc(db, 'announcements', id))
     showToast('Deleted')
   }
@@ -142,7 +144,7 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
   }
 
   async function deleteLink(id) {
-    if (!window.confirm('Delete this link?')) return
+    if (!await confirm({ title:'Delete link?', danger:true })) return
     await deleteDoc(doc(db, 'bulletinLinks', id))
     showToast('Deleted')
   }
@@ -173,7 +175,7 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
   }
 
   async function deleteIssue(id) {
-    if (!window.confirm('Delete this issue?')) return
+    if (!await confirm({ title:'Delete issue?', danger:true })) return
     await deleteDoc(doc(db, 'bulletinIssues', id))
     showToast('Deleted')
   }
@@ -199,7 +201,7 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
   }
 
   async function deleteContact(id) {
-    if (!window.confirm('Delete this contact?')) return
+    if (!await confirm({ title:'Delete contact?', danger:true })) return
     await deleteDoc(doc(db, 'bulletinContacts', id))
     showToast('Deleted')
   }
@@ -217,7 +219,7 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
     <button onClick={onClick} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#E53E3E', padding: '2px 6px', fontFamily: 'inherit' }}>Delete</button>
   )
 
-  if (loading) return <div style={{ padding: 24, color: '#6B7F78', fontSize: 13 }}>Loading…</div>
+  if (loading) return <SkeletonList count={5} lines={2} />
 
   const openIssues     = issues.filter(i => i.status === 'open')
   const resolvedIssues = issues.filter(i => i.status === 'resolved')

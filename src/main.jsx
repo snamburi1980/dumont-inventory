@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/react'
 import './styles/global.css'
 import App from './App'
 import OfflineBanner from './components/OfflineBanner'
+import { ConfirmHost } from './components/ConfirmDialog'
 
 Sentry.init({
   dsn: 'https://4ec55a8eb23a22f5ee08daccd6e24018@o4511152029827072.ingest.us.sentry.io/4511152039395328',
@@ -22,5 +23,6 @@ createRoot(document.getElementById('root')).render(
     {/* Global so it shows on the login screen too — signing in needs a network */}
     <OfflineBanner />
     <App />
+    <ConfirmHost />
   </StrictMode>
 )

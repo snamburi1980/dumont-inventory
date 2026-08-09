@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { SkeletonRows } from './Skeleton'
+import { confirm } from './ConfirmDialog'
 import { collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import TipBanner from './TipBanner'
@@ -85,7 +87,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
   }
 
   async function deleteTransfer(id) {
-    if (!window.confirm('Delete this transfer?')) return
+    if (!await confirm({ title:'Delete transfer?', message:'The transfer log entry will be removed.', danger:true })) return
     await deleteDoc(doc(db, 'transfers', id))
     setTransfers(prev => prev.filter(t => t.id !== id))
     showToast('Deleted')
@@ -254,7 +256,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
         </div>
 
         {loading ? (
-          <div style={{ textAlign:'center', padding:24, color:'var(--text-muted)' }}>Loading…</div>
+          <SkeletonRows count={4} />
         ) : visibleLog.length === 0 ? (
           <div style={{ textAlign:'center', padding:24, color:'var(--text-muted)', fontSize:13 }}>No transfers logged yet</div>
         ) : (

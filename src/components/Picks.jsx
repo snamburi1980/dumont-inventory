@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { SkeletonList } from './Skeleton'
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
@@ -340,7 +341,7 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
         {/* Flavor breakdown */}
         <div style={{ padding:'0 0 8px' }}>
           {loadingUsage ? (
-            <div style={{ padding:24, textAlign:'center', color:'#6B7F78', fontSize:13 }}>Loading…</div>
+            <div style={{ padding:'12px 16px' }}><SkeletonList count={3} lines={1} /></div>
           ) : usageData.length === 0 ? (
             <div style={{ padding:24, textAlign:'center', color:'#6B7F78', fontSize:13 }}>No pickups logged for this month</div>
           ) : (

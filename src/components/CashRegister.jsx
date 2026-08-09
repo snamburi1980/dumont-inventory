@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import { SkeletonRows } from './Skeleton'
+import { confirm } from './ConfirmDialog'
 import { collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import TipBanner from './TipBanner'
@@ -93,7 +95,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
   }
 
   async function deleteMovement(id) {
-    if (!window.confirm('Delete this cash movement?')) return
+    if (!await confirm({ title:'Delete this cash entry?', danger:true })) return
     try {
       await deleteDoc(doc(db, 'stores', viewingStore, 'cashMovements', id))
       setMovements(prev => prev.filter(m => m.id !== id))
@@ -160,7 +162,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
   }
 
   async function deleteLog(id) {
-    if (!window.confirm('Delete this entry?')) return
+    if (!await confirm({ title:'Delete register entry?', message:'The day\u2019s opening/closing cash record will be removed.', danger:true })) return
     try {
       await deleteDoc(doc(db, 'stores', viewingStore, 'cashRegister', id))
       setLogs(prev => prev.filter(l => l.id !== id))
@@ -348,7 +350,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
         </div>
 
         {loading ? (
-          <div style={{ textAlign:'center', padding:24, color:'var(--text-muted)' }}>Loading…</div>
+          <SkeletonRows count={5} />
         ) : monthLogs.length === 0 ? (
           <div style={{ textAlign:'center', padding:24, color:'var(--text-muted)', fontSize:13 }}>No entries yet</div>
         ) : (
