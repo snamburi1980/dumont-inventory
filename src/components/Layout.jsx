@@ -4,6 +4,7 @@ import { db } from '../firebase/config'
 import { THEMES, applyTheme } from '../utils/themes'
 import ThemeSwitcher from './ThemeSwitcher'
 import ChangePassword from './ChangePassword'
+import PullToRefresh from './PullToRefresh'
 
 export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingStore, setViewingStore, children, currentTheme, onThemeChange, showToast, onBackToHQ }) {
   const [orgConfig,     setOrgConfig]     = useState(null)
@@ -12,6 +13,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
   const [showChangePwd, setShowChangePwd] = useState(false)
   const [selectedRegion,setSelectedRegion]= useState('')
   const [showUserMenu,  setShowUserMenu]  = useState(false)
+  const [refreshKey,    setRefreshKey]   = useState(0)
   const userMenuRef = useRef(null)
   const userConfig = auth?.userConfig
 
@@ -290,7 +292,15 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
 
         {/* Main content */}
         <div className="main-content" style={{ flex:1, padding:'16px', minWidth:0 }}>
-          {children}
+          <PullToRefresh onRefresh={async () => {
+            await loadStores()
+            await loadOrgConfig()
+            // Let the active screen refetch by remounting it
+            setRefreshKey(k => k + 1)
+            await new Promise(r => setTimeout(r, 250))
+          }}>
+            <div key={refreshKey}>{children}</div>
+          </PullToRefresh>
         </div>
       </div>
 
