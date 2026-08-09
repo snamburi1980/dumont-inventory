@@ -187,7 +187,7 @@ export default function LoginScreen({ auth }) {
         }}/>
 
         <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'rgba(255,255,255,0.3)' }}>
-          v18 · Dumont Creamery &amp; Café
+          v18 · build {typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'}
         </div>
       </div>
     </div>

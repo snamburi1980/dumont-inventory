@@ -4,6 +4,16 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   css: { postcss: {} },
+  // Stamped into the bundle at build time so the running app can prove which
+  // version it is — the only reliable way to tell a stale PWA cache from a fresh one.
+  define: {
+    __BUILD_ID__: JSON.stringify(
+      new Date().toLocaleString('en-US', {
+        timeZone: 'America/Chicago',
+        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true,
+      })
+    ),
+  },
   plugins: [
     react(),
     VitePWA({

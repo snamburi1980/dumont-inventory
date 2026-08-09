@@ -5,6 +5,7 @@ import './styles/global.css'
 import App from './App'
 import OfflineBanner from './components/OfflineBanner'
 import { ConfirmHost } from './components/ConfirmDialog'
+import UpdatePrompt from './components/UpdatePrompt'
 
 Sentry.init({
   dsn: 'https://4ec55a8eb23a22f5ee08daccd6e24018@o4511152029827072.ingest.us.sentry.io/4511152039395328',
@@ -24,5 +25,6 @@ createRoot(document.getElementById('root')).render(
     <OfflineBanner />
     <App />
     <ConfirmHost />
+    <UpdatePrompt />
   </StrictMode>
 )
