@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Fragment } from 'react'
 
 const INIT_PRODUCTS = [
   { id:1,  cat:'Ice Cream', name:'Kids Scoop',              price:4.95,  cost:1.20, unitsDay:40 },
@@ -217,7 +217,7 @@ export default function PLSimulator() {
             </div>
 
             {/* KPI row — same numbers as P&L tab */}
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginTop:16 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))', gap:10, marginTop:16 }}>
               {[
                 ['Annual Revenue',  fmt(totRev),  '#276749'],
                 ['EBITDA',          fmt(ebitda),   ebitda>0?'#276749':'#C53030'],
@@ -300,7 +300,7 @@ export default function PLSimulator() {
                     </div>
                   </div>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    <input type="range" min={0} max={1} step={0.01} value={mixPct[cat]||0}
+                    <input className="pl-slider" type="range" min={0} max={1} step={0.01} value={mixPct[cat]||0}
                       onChange={e => setMix(cat, e.target.value)}
                       style={{ flex:1 }} />
                     <div style={{ display:'flex', alignItems:'center', gap:4 }}>
@@ -526,7 +526,7 @@ export default function PLSimulator() {
           {/* Business settings */}
           <div style={{ background:'#fff', border:'1px solid #E3DDD0', borderRadius:12, padding:16, marginBottom:16 }}>
             <div style={{ fontSize:13, fontWeight:700, color:'#1A4C48', marginBottom:12 }}>Business Settings</div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
+            <div className="pl-settings" style={{ display:'grid', gap:12 }}>
               <div>
                 <div style={{ fontSize:12, color:'#6B7F78', marginBottom:4 }}>Days Open / Year</div>
                 <input type="number" min={1} max={365} value={settings.daysPerYear} style={{ ...inp, width:'100%' }}
@@ -563,7 +563,8 @@ export default function PLSimulator() {
                 (total: {sum(products.map(p=>p.unitsDay))}/day)
               </span>
             </div>
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+            <div className="pl-scroll">
+            <table style={{ width:'100%', minWidth:560, borderCollapse:'collapse' }}>
               <thead>
                 <tr>
                   <th style={{ ...th, textAlign:'left' }}>Item</th>
@@ -576,9 +577,9 @@ export default function PLSimulator() {
               </thead>
               <tbody>
                 {CATS.map(cat => (
-                  <>
-                    <tr key={`h-${cat}`} style={{ background:'#FAFAF8' }}>
-                      <td colSpan={5} style={{ ...td, fontWeight:700, fontSize:11, textTransform:'uppercase', letterSpacing:'0.05em', color:'#6B7F78', padding:'7px 14px' }}>{cat}</td>
+                  <Fragment key={cat}>
+                    <tr style={{ background:'#FAFAF8' }}>
+                      <td colSpan={6} style={{ ...td, fontWeight:700, fontSize:11, textTransform:'uppercase', letterSpacing:'0.05em', color:'#6B7F78', padding:'7px 14px' }}>{cat}</td>
                     </tr>
                     {prods.filter(p=>p.cat===cat).map(p=>(
                       <tr key={p.id}>
@@ -605,10 +606,11 @@ export default function PLSimulator() {
                         </td>
                       </tr>
                     ))}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* OPEX */}
@@ -616,7 +618,8 @@ export default function PLSimulator() {
             <div style={{ padding:'12px 16px', borderBottom:'1px solid #E3DDD0', fontSize:13, fontWeight:700, color:'#1A4C48' }}>
               Monthly Operating Expenses
             </div>
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+            <div className="pl-scroll">
+            <table style={{ width:'100%', minWidth:380, borderCollapse:'collapse' }}>
               <thead>
                 <tr>
                   <th style={{ ...th, textAlign:'left' }}>Expense</th>
@@ -642,8 +645,9 @@ export default function PLSimulator() {
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:12 }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:10, marginTop:12, flexWrap:'wrap' }}>
             <div style={{ fontSize:11, color:'#aaa' }}>All inputs auto-save to this device.</div>
             <button onClick={()=>setTab('pl')} style={{
               background:'#1A4C48', color:'#fff', border:'none', borderRadius:8,
@@ -654,6 +658,39 @@ export default function PLSimulator() {
           </div>
         </div>
       )}
+
+      <style>{`
+        /* Business settings: three inputs side by side is too tight on a phone */
+        .pl-settings { grid-template-columns: 1fr 1fr 1fr; }
+        @media (max-width: 560px) {
+          .pl-settings { grid-template-columns: 1fr 1fr; }
+        }
+        /* Wide input tables scroll horizontally instead of clipping the last columns */
+        .pl-scroll {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .pl-scroll::-webkit-scrollbar { height: 6px; }
+        .pl-scroll::-webkit-scrollbar-thumb { background: #DCD5C7; border-radius: 3px; }
+        /* Native range inputs render inconsistently — style the track and thumb */
+        .pl-slider {
+          -webkit-appearance: none; appearance: none;
+          width: 100%; height: 6px; padding: 0; min-height: 0;
+          border: none; border-radius: 3px;
+          background: #EEE3D3; cursor: pointer;
+        }
+        .pl-slider::-webkit-slider-thumb {
+          -webkit-appearance: none; appearance: none;
+          width: 24px; height: 24px; border-radius: 50%;
+          background: #C1683C; border: 3px solid #fff;
+          box-shadow: 0 1px 5px rgba(0,0,0,0.28); cursor: grab;
+        }
+        .pl-slider::-moz-range-thumb {
+          width: 22px; height: 22px; border-radius: 50%;
+          background: #C1683C; border: 3px solid #fff;
+          box-shadow: 0 1px 5px rgba(0,0,0,0.28); cursor: grab;
+        }
+      `}</style>
     </div>
   )
 }
