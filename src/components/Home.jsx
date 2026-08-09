@@ -18,6 +18,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
   const [storeName,       setStoreName]       = useState('')
   const [todayChecklist,  setTodayChecklist]  = useState({ opening: false, closing: false })
   const [showResolved,    setShowResolved]    = useState(false)
+  const [loadError,       setLoadError]       = useState(null)
   const isSuperOwner = auth.isSuperOwner()
 
   useEffect(() => {
@@ -40,7 +41,13 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       const q = query(collection(db, 'announcements'), orderBy('postedAt', 'desc'), limit(5))
       const snap = await getDocs(q)
       setAnnouncements(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch(e) {}
+      setLoadError(null)
+    } catch(e) {
+      console.error('loadAnnouncements:', e)
+      setLoadError(e?.code === 'permission-denied'
+        ? "You don't have access to some of this store's data."
+        : 'Could not load the latest data. Pull to refresh or check your connection.')
+    }
   }
 
   async function loadIssues() {
@@ -49,7 +56,9 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       const q = query(collection(db, 'stores', viewingStore, 'issues'), orderBy('createdAt', 'desc'), limit(20))
       const snap = await getDocs(q)
       setIssues(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch(e) {}
+    } catch(e) {
+      console.error('loadIssues:', e)
+    }
   }
 
   async function checkTodayChecklist() {
@@ -65,7 +74,9 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
         opening: subs.some(s => s.type === 'opening'),
         closing: subs.some(s => s.type === 'closing'),
       })
-    } catch(e) {}
+    } catch(e) {
+      console.error('checkTodayChecklist:', e)
+    }
   }
 
   async function postAnnouncement() {
@@ -159,6 +170,17 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
     <div style={{ maxWidth:700, margin:'0 auto' }}>
 
       <TipBanner message="Your daily dashboard — check stock alerts, read announcements, and log issues for your store." />
+
+      {loadError && (
+        <div style={{ background:'#FFF8EC', border:'1px solid #FFB74D', borderRadius:10, padding:'10px 14px', marginBottom:12, display:'flex', alignItems:'center', gap:10 }}>
+          <span style={{ fontSize:16 }}>⚠</span>
+          <span style={{ flex:1, fontSize:12, color:'#8B5A00', lineHeight:1.5 }}>{loadError}</span>
+          <button onClick={() => { loadAnnouncements(); loadIssues(); checkTodayChecklist() }}
+            style={{ background:'#8B5A00', color:'#fff', border:'none', borderRadius:6, padding:'6px 12px', cursor:'pointer', fontSize:11, fontWeight:700, fontFamily:'inherit', flexShrink:0 }}>
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Greeting — brand display style with sparkle */}
       <div style={{ marginBottom:14, position:'relative' }}>

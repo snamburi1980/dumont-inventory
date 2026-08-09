@@ -93,10 +93,10 @@ export default function App() {
 
   if (auth.loading) {
     return (
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#F6F4ED' }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#1A4C48' }}>
         <div style={{ textAlign:'center' }}>
-          <div style={{ fontSize:48, fontWeight:700, color:'#1A4C48', fontFamily:'serif' }}>D</div>
-          <div style={{ fontSize:14, color:'#6B7F78', marginTop:8 }}>Loading...</div>
+          <div style={{ fontFamily:'"Bebas Neue", sans-serif', fontSize:40, color:'#fff', letterSpacing:10, textIndent:10 }}>DUMONT</div>
+          <div style={{ fontSize:12, color:'#E39C74', marginTop:10, letterSpacing:2 }}>LOADING…</div>
         </div>
       </div>
     )

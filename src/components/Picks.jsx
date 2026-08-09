@@ -112,7 +112,7 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
       })
       setUsageData(Object.values(byItem).sort((a,b) => b.buckets - a.buckets))
       setUsageDetails(logs)
-    } catch(e) {}
+    } catch(e) { console.error('Picks.loadUsage:', e) }
     setLoadingUsage(false)
   }
 

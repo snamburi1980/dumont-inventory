@@ -77,7 +77,7 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
       const q    = query(collection(db,'stores',viewingStore,'salesLedger'), orderBy('appliedAt','desc'))
       const snap = await getDocs(q)
       setSalesHistory(snap.docs.map(d => ({ id:d.id, ...d.data() })))
-    } catch(e) {}
+    } catch(e) { console.error('Commerce.loadSalesHistory:', e) }
     setHistoryLoaded(true)
   }
 
@@ -86,7 +86,7 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
       const q    = query(collection(db,'stores',viewingStore,'deliveries'), orderBy('createdAt','desc'), limit(50))
       const snap = await getDocs(q)
       setDeliveries(snap.docs.map(d => ({ id:d.id, ...d.data() })))
-    } catch(e) {}
+    } catch(e) { console.error('Commerce.loadDeliveries:', e) }
     setDelivLoaded(true)
   }
 

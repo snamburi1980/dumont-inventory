@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import * as Sentry from '@sentry/react'
 
 export class ErrorBoundary extends Component {
   constructor(props) {
@@ -12,48 +13,53 @@ export class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     this.setState({ errorInfo })
-    // Log to console for debugging
     console.error('App Error:', error, errorInfo)
-    // Could log to Firebase here too
+    // Report to Sentry so crashes in the field are visible without the user reporting them
+    try {
+      Sentry.captureException(error, { extra: { componentStack: errorInfo?.componentStack } })
+    } catch (_) {}
   }
 
   render() {
     if (this.state.hasError) {
+      // NOTE: must not reference `process.env` here — Vite does not define `process`
+      // in the browser, and a ReferenceError inside this fallback turns a recoverable
+      // error into a permanent white screen.
+      const isDev = import.meta.env?.DEV
       return (
         <div style={{
           display:'flex', alignItems:'center', justifyContent:'center',
           minHeight:'100vh', background:'#F6F4ED', padding:20
         }}>
           <div style={{ textAlign:'center', maxWidth:400 }}>
-            <div style={{ fontSize:48, marginBottom:16 }}>!</div>
+            <div style={{ fontSize:44, marginBottom:12 }}>🍦</div>
             <div style={{ fontSize:18, fontWeight:700, color:'#1A4C48', marginBottom:8 }}>
               Something went wrong
             </div>
-            <div style={{ fontSize:13, color:'#6B7F78', marginBottom:24 }}>
-              {this.state.error?.message || 'An unexpected error occurred'}
+            <div style={{ fontSize:13, color:'#6B7F78', marginBottom:22, lineHeight:1.6 }}>
+              Your saved data is safe. Try again, or reload the app.
             </div>
-            <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
+            <div style={{ display:'flex', gap:10, justifyContent:'center', flexWrap:'wrap' }}>
               <button
                 onClick={() => this.setState({ hasError:false, error:null, errorInfo:null })}
-                style={{ background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'10px 20px', cursor:'pointer', fontSize:13 }}
+                style={{ background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'12px 22px', cursor:'pointer', fontSize:14, fontWeight:600, fontFamily:'inherit' }}
               >
                 Try Again
               </button>
               <button
                 onClick={() => window.location.reload()}
-                style={{ background:'#6B7F78', color:'#fff', border:'none', borderRadius:8, padding:'10px 20px', cursor:'pointer', fontSize:13 }}
+                style={{ background:'#fff', color:'#1A4C48', border:'1px solid #E3DDD0', borderRadius:8, padding:'12px 22px', cursor:'pointer', fontSize:14, fontWeight:600, fontFamily:'inherit' }}
               >
                 Reload App
               </button>
             </div>
-            {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
-              <details style={{ marginTop:20, textAlign:'left', fontSize:11, color:'#aaa' }}>
-                <summary style={{ cursor:'pointer', marginBottom:8 }}>Error Details (Dev Only)</summary>
-                <pre style={{ overflow:'auto', maxHeight:200, background:'#f5f5f5', padding:10, borderRadius:6 }}>
-                  {this.state.errorInfo.componentStack}
-                </pre>
-              </details>
-            )}
+            <details style={{ marginTop:22, textAlign:'left', fontSize:11, color:'#aaa' }}>
+              <summary style={{ cursor:'pointer', marginBottom:8 }}>Technical details</summary>
+              <pre style={{ overflow:'auto', maxHeight:200, background:'#f5f5f5', padding:10, borderRadius:6, whiteSpace:'pre-wrap' }}>
+                {String(this.state.error?.message || this.state.error || 'Unknown error')}
+                {isDev && this.state.errorInfo ? '\n\n' + this.state.errorInfo.componentStack : ''}
+              </pre>
+            </details>
           </div>
         </div>
       )

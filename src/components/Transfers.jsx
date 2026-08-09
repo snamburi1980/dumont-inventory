@@ -24,7 +24,7 @@ export default function Transfers({ auth, showToast, viewingStore }) {
     try {
       const snap = await getDocs(collection(db, 'stores'))
       setAllStores(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch(e) {}
+    } catch(e) { console.error('Transfers load:', e) }
   }
 
   async function loadTransfers() {

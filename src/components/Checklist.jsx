@@ -153,7 +153,7 @@ export default function Checklist({ viewingStore, auth, showToast }) {
         opening: subs.some(s => s.type === 'opening'),
         closing: subs.some(s => s.type === 'closing'),
       })
-    } catch(e) {}
+    } catch(e) { console.error('checkTodayStatus:', e) }
   }
 
   function startForm(t) {

@@ -41,7 +41,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
       ])
       setAllStores(storeSnap.docs.map(d => ({ id: d.id, ...d.data() })))
       setAllRegions(regionSnap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch(e) {}
+    } catch(e) { console.error('Layout.loadStores:', e) }
   }
 
   async function loadOrgConfig() {
@@ -49,7 +49,7 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
     try {
       const snap = await getDoc(doc(db, 'orgs', orgId))
       if (snap.exists()) setOrgConfig(snap.data())
-    } catch(e) {}
+    } catch(e) { console.error('Layout.loadOrgConfig:', e) }
   }
 
   const isSuperOwner = auth?.isSuperOwner?.()
@@ -302,6 +302,8 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
         display:'flex', overflowX:'auto',
         scrollbarWidth:'none', msOverflowStyle:'none',
         borderTop:'1px solid rgba(255,255,255,0.1)',
+        // Sit above the iPhone home indicator instead of underneath it
+        paddingBottom:'env(safe-area-inset-bottom)',
       }}>
         {tabs.filter(t => t.id !== 'admin').map(tab => {
           const group      = tabGroups.find(g => g.ids.includes(tab.id))
@@ -349,9 +351,11 @@ export default function Layout({ auth, tabs, activeTab, setActiveTab, viewingSto
           .mobile-bottom-nav { display: flex !important; }
           .mobile-only       { display: block !important; }
           .desktop-only      { display: none !important; }
-          .main-content      { padding: 16px 16px 80px !important; }
+          /* bottom padding clears the fixed nav AND the iPhone home indicator */
+          .main-content      { padding: 16px 16px calc(88px + env(safe-area-inset-bottom)) !important; }
         }
         .mobile-bottom-nav::-webkit-scrollbar { display: none; }
+        .mobile-bottom-nav button:active { background: rgba(255,255,255,0.08); }
       `}</style>
     </div>
   )

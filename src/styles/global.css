@@ -39,11 +39,29 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  /* Stop iOS from re-flowing text when the phone is rotated */
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font);
   background: #F5F0EB;
   color: var(--text);
   min-height: 100vh;
+  /* Crisper type on retina screens — a big part of why native apps look sharper */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Kill the grey flash box iOS paints over every tapped element */
+  -webkit-tap-highlight-color: transparent;
+  /* No rubber-band bounce past the top/bottom of the page */
+  overscroll-behavior-y: none;
+}
+
+/* Respect the iPhone notch and home indicator */
+body {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 input, select, textarea, button {
@@ -55,15 +73,71 @@ input, select, textarea {
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 15px;
-  min-height: 44px;
+  /* MUST be >=16px: iOS Safari force-zooms the page on focus below this,
+     which is the single most common "feels broken" bug on mobile web apps */
+  font-size: 16px;
+  min-height: 46px;
   background: #FDF6EC;
   color: var(--text);
   outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+select {
+  /* restore the dropdown arrow that appearance:none removes */
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236B7F78' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 34px;
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--caramel);
+  box-shadow: 0 0 0 3px rgba(193,104,60,0.15);
+}
+
+/* Visible keyboard focus ring, without showing it on mouse clicks */
+:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: 2px;
+}
+
+/* Every button should physically respond to a tap — the missing press
+   feedback is why the app reads as "a website" rather than an app */
+button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;   /* removes the 300ms double-tap-zoom delay */
+  transition: transform 0.08s ease, opacity 0.15s ease, filter 0.15s ease;
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+  filter: brightness(0.94);
+}
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Smooth momentum scrolling inside horizontal pill rows / tables */
+.filter-bar, .tab-bar, [style*="overflow-x"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Skeleton shimmer for loading states */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+.skeleton {
+  background: #E7E2D8;
+  border-radius: 8px;
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Layout ── */
