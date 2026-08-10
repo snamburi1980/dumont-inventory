@@ -195,6 +195,31 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
 
 ---
 
+## Reliability Conventions (established Aug 2026 reliability pass)
+- **`src/utils/withRetry.js`** — wraps a write in up to 2 retries with backoff (skips retry on
+  permission-denied/invalid-argument/unauthenticated, since retrying those just delays the same failure).
+  Used on essentially every addDoc/updateDoc/setDoc/deleteDoc in the app now — store wifi drops
+  constantly, and a single blip used to mean silently redoing the work. `setDoc`/`updateDoc` with a
+  fixed doc id are always safe to retry (idempotent); `addDoc` (auto-generated id) has a theoretical
+  tiny duplicate risk on a true false-negative ack, accepted app-wide as the right tradeoff.
+- **Every `saving`/`uploading`-flag write path MUST have try/catch around the write**, with the flag
+  reset in both success and catch branches (or a `finally`). Several places didn't (Setup Wizard's Add
+  Region/Assign User, Users tab edit-save, Home's announcement/issue post, SOP upload) — a failed write
+  left the button permanently disabled until reload. Fixed, but watch for this pattern in new code.
+- **Debounced saves must read state via a ref, not the closure.** Inventory's auto-save (`scheduleSave`
+  in Inventory.jsx) used to close over `inventory` from the render where the timer was scheduled — since
+  React re-renders AFTER an event handler returns, that closure predates the very tap that triggered it.
+  Result: the LAST stock adjustment in every editing session silently never reached Firestore, even
+  though the UI showed "✓ Saved". Fixed via `invRef` kept current by a `useEffect`. Same trap applies to
+  any future debounced/delayed save — never close over component state directly inside a `setTimeout`.
+- **Sequential replace-then-delete writes must save the NEW record before deleting the OLD one**, not
+  the reverse — a mid-sequence failure should never leave a store with zero data for a period. Applied to
+  monthly sales upload replacement (COGS.jsx, Commerce.jsx).
+- **Unbounded onSnapshot listeners get a `limit()`** once a collection has no natural per-store scope
+  (Bulletin's 4 org-wide collections, the Invoices browse list) — otherwise months of multi-store use
+  turn a live listener into an ever-growing download. Collections used for financial totals (COGS's
+  invoice query) stay uncapped on purpose — correctness there matters more than a growth ceiling.
+
 ## Key Component Behaviors
 - **Inventory:** lock/unlock with 5-min auto-lock; debounced save (1.2 s) with Saving…/✓ Saved status;
   tap stock or PAR to edit inline; deactivate needs confirm; staff cannot deactivate.
@@ -255,8 +280,13 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
 - [ ] Ghost catalog `orgs/dumont/items` (108 stale items, accidentally seeded when super_owner's
       viewingOrg defaulted to 'dumont') still exists in Firestore — nothing references it after the
       orgId fix; superseded by orgs/dumont_creamery__cafe/items (126, actively used). Safe to purge.
-- [ ] Inventory sync conflict — last write wins when 2 devices edit simultaneously
-- [ ] Firebase offline queue — changes lost if connection drops mid-save
+- [x] Inventory debounced-save data loss — FIXED Aug 2026 (stale closure bug; see Reliability
+      Conventions above). This was likely the #1 cause of the app "feeling unreliable."
+- [x] Firebase offline queue — Firestore's `persistentLocalCache` already queues writes made while
+      offline and flushes on reconnect (see firebase/config.js); `OfflineBanner.jsx` surfaces status.
+      Every write across the app now also retries on transient failure (see Reliability Conventions).
+- [ ] Inventory sync conflict — last write wins when 2 devices edit simultaneously (unrelated to the
+      debounce bug above; this is true concurrent-edit conflict resolution, not yet built)
 - [ ] Schedule snapshot fails on Safari (html2canvas)
 - [ ] Two test stores + owners in prod data (use Admin → Delete store to clear)
 - [ ] Dead code: Delivery/Sales/Orders/Dashboard components, stockAlert util, hooks/inventory.js
