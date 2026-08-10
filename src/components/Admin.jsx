@@ -15,6 +15,7 @@ import SOPManager   from './SOPManager'
 import OrgSettings  from './OrgSettings'
 import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
 import { sendInvitationEmail } from '../utils/emailNotify'
+import { withRetry } from '../utils/withRetry'
 
 const APP_URL = 'https://snamburi1980.github.io/dumont-inventory/'
 
@@ -82,7 +83,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       const org = orgs.find(o => o.id === viewingOrg) || orgs[0]
       const region = regions.find(r => r.orgId === (org?.id || viewingOrg))
       // Create store doc with pending status
-      const storeRef = await addDoc(collection(db, 'stores'), {
+      const storeRef = await withRetry(() => addDoc(collection(db, 'stores'), {
         name:       inviteForm.name.trim(),
         address:    inviteForm.address.trim(),
         phone:      inviteForm.phone.trim(),
@@ -94,13 +95,13 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         status:     'active',
         createdAt:  Date.now(),
         createdBy:  auth.userConfig?.email,
-      })
+      }))
       // Generate token
       const token = crypto.randomUUID()
       const expiresAt = Date.now() + 72 * 60 * 60 * 1000
-      // Write invitation doc
+      // Write invitation doc — setDoc with a fixed id, safe to retry (idempotent)
       const inviteRole = inviteForm.ownerRole || 'store_owner'
-      await setDoc(doc(db, 'invitations', token), {
+      await withRetry(() => setDoc(doc(db, 'invitations', token), {
         token,
         email:     inviteForm.email.trim().toLowerCase(),
         name:      inviteForm.ownerName.trim(),
@@ -112,19 +113,25 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         expiresAt,
         createdAt: Date.now(),
         createdBy: auth.userConfig?.email,
-      })
+      }))
       // Build invite link
       const link = `${APP_URL}?token=${token}&email=${encodeURIComponent(inviteForm.email.trim().toLowerCase())}&store=${encodeURIComponent(inviteForm.name.trim())}&storeId=${storeRef.id}&orgId=${org?.id || 'dumont'}&role=${inviteRole}`
-      // Send email
-      await sendInvitationEmail({ toEmail: inviteForm.email.trim(), storeName: inviteForm.name.trim(), inviteLink: link, role: inviteRole })
-      await logAudit({ action: 'STORE_INVITED', userEmail: auth.userConfig?.email, details: { store: inviteForm.name, email: inviteForm.email } })
+      // Send email — store + invitation are already saved at this point, so an
+      // email hiccup surfaces the shareable link instead of losing the invite
+      try {
+        await sendInvitationEmail({ toEmail: inviteForm.email.trim(), storeName: inviteForm.name.trim(), inviteLink: link, role: inviteRole })
+      } catch(emailErr) {
+        console.warn('Invitation email failed to send:', emailErr)
+        showToast('Store created, but the email failed to send — copy the link below and share it manually')
+      }
+      try { await logAudit({ action: 'STORE_INVITED', userEmail: auth.userConfig?.email, details: { store: inviteForm.name, email: inviteForm.email } }) } catch(_) {}
       await loadAll()
       setInviteSent({ email: inviteForm.email.trim(), link, storeName: inviteForm.name.trim() })
       setInviteForm({ name:'', address:'', phone:'', ownerName:'', email:'', ownerRole:'store_owner' })
       showToast(`Invitation sent to ${inviteForm.email}`)
     } catch(e) {
       console.error(e)
-      showToast('Failed to send invitation')
+      showToast(`Failed: ${e?.code || e?.message || 'check your connection'}`)
     }
     setInviting(false)
   }
@@ -140,7 +147,7 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
       const org    = orgs.find(o => o.id === (store?.orgId || viewingOrg))
       const token  = crypto.randomUUID()
       const expiresAt = Date.now() + 72 * 60 * 60 * 1000
-      await setDoc(doc(db, 'invitations', token), {
+      await withRetry(() => setDoc(doc(db, 'invitations', token), {
         token,
         email:     inviteUserForm.email.trim().toLowerCase(),
         name:      inviteUserForm.name.trim(),
@@ -152,20 +159,25 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
         expiresAt,
         createdAt: Date.now(),
         createdBy: auth.userConfig?.email,
-      })
+      }))
       const link = `${APP_URL}?token=${token}&email=${encodeURIComponent(inviteUserForm.email.trim().toLowerCase())}&store=${encodeURIComponent(store?.name || '')}&storeId=${targetStoreId}&orgId=${org?.id || 'dumont'}&role=${inviteUserForm.role}`
-      await sendInvitationEmail({
-        toEmail:   inviteUserForm.email.trim(),
-        storeName: store?.name || '',
-        inviteLink: link,
-        role:      inviteUserForm.role,
-      })
+      try {
+        await sendInvitationEmail({
+          toEmail:   inviteUserForm.email.trim(),
+          storeName: store?.name || '',
+          inviteLink: link,
+          role:      inviteUserForm.role,
+        })
+      } catch(emailErr) {
+        console.warn('Invitation email failed to send:', emailErr)
+        showToast('Invitation created, but the email failed — copy the link below and share it manually')
+      }
       setInviteUserSent({ email: inviteUserForm.email.trim(), link, role: inviteUserForm.role, storeName: store?.name || '' })
       setInviteUserForm({ email:'', name:'', role:'staff' })
       showToast(`Invitation sent to ${inviteUserForm.email}`)
     } catch(e) {
       console.error(e)
-      showToast('Failed to send invitation')
+      showToast(`Failed: ${e?.code || e?.message || 'check your connection'}`)
     }
     setInvitingUser(false)
   }
@@ -240,19 +252,24 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     const exists = regions.find(r => r.name.toLowerCase() === newRegion.name.toLowerCase() && r.orgId === newRegion.orgId)
     if (exists) { showToast(`Region "${newRegion.name}" already exists`); return }
     setSaving(true)
-    const ref = await addDoc(collection(db, 'regions'), {
-      name: newRegion.name, orgId: newRegion.orgId, active: true, createdAt: Date.now()
-    })
-    await logAudit({ action: AUDIT_ACTIONS.REGION_CREATED, orgId: newRegion.orgId, userEmail: auth.userConfig?.email, details: { name: newRegion.name } })
-    await loadAll()
-    setSaving(false)
-    showToast(`Region "${newRegion.name}" created`)
-    if (setupStep === 'region') {
-      setSetupRegionId(ref.id)
-      setSetupStep('store')
-      setNewStore(s => ({ ...s, regionId: ref.id }))
+    try {
+      const ref = await withRetry(() => addDoc(collection(db, 'regions'), {
+        name: newRegion.name, orgId: newRegion.orgId, active: true, createdAt: Date.now()
+      }))
+      try { await logAudit({ action: AUDIT_ACTIONS.REGION_CREATED, orgId: newRegion.orgId, userEmail: auth.userConfig?.email, details: { name: newRegion.name } }) } catch(_) {}
+      await loadAll()
+      showToast(`Region "${newRegion.name}" created`)
+      if (setupStep === 'region') {
+        setSetupRegionId(ref.id)
+        setSetupStep('store')
+        setNewStore(s => ({ ...s, regionId: ref.id }))
+      }
+      setNewRegion({ name:'', orgId:'' })
+    } catch(e) {
+      console.error('createRegion failed:', e)
+      showToast(`Failed: ${e?.code || e?.message || 'check your connection'}`)
     }
-    setNewRegion({ name:'', orgId:'' })
+    setSaving(false)
   }
 
   async function createStore() {
@@ -261,14 +278,14 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     setSaving(true)
     try {
       const region = regions.find(r => r.id === resolvedRegionId)
-      const ref = await addDoc(collection(db, 'stores'), {
+      const ref = await withRetry(() => addDoc(collection(db, 'stores'), {
         name:      newStore.name.trim(),
         regionId:  resolvedRegionId,
         orgId:     region?.orgId || viewingOrg || 'dumont',
         status:    'active',
         active:    true,
         createdAt: Date.now()
-      })
+      }))
       try { await logAudit({ action: AUDIT_ACTIONS.STORE_CREATED, orgId: region?.orgId, userEmail: auth.userConfig?.email, details: { name: newStore.name } }) } catch(_) {}
       await loadAll()
       showToast(`Store "${newStore.name}" created`)
@@ -288,60 +305,76 @@ export default function Admin({ showToast, auth, orgItemsHook, viewingOrg, setVi
     if (!newUser.email.trim()) { showToast('Enter email'); return }
     if (!newUser.tempPassword?.trim()) { showToast('Enter a temporary password'); return }
     setSaving(true)
-    const resolvedStoreId = overrideStoreId || newUser.storeId
-    const emailKey = newUser.email.toLowerCase().replace(/\./g,'_').replace(/@/g,'_at_')
-    const store    = stores.find(s => s.id === resolvedStoreId)
-    const region   = regions.find(r => r.id === (newUser.regionId || store?.regionId))
-    const org      = orgs.find(o => o.id === (newUser.orgId || region?.orgId))
-    await setDoc(doc(db, 'users', emailKey), {
-      email:               newUser.email.toLowerCase(),
-      name:                newUser.name || newUser.email,
-      role:                newUser.role,
-      orgId:               org?.id    || viewingOrg || '',
-      regionId:            region?.id || '',
-      storeId:             store?.id  || resolvedStoreId || '',
-      store:               store?.id  || resolvedStoreId || '',
-      status:              'active',
-      forcePasswordChange: true,
-      createdAt:           Date.now()
-    })
-    await logAudit({ action: AUDIT_ACTIONS.USER_ASSIGNED, userEmail: auth.userConfig?.email, details: { assignedEmail: newUser.email, role: newUser.role } })
+    try {
+      const resolvedStoreId = overrideStoreId || newUser.storeId
+      const emailKey = newUser.email.toLowerCase().replace(/\./g,'_').replace(/@/g,'_at_')
+      const store    = stores.find(s => s.id === resolvedStoreId)
+      const region   = regions.find(r => r.id === (newUser.regionId || store?.regionId))
+      const org      = orgs.find(o => o.id === (newUser.orgId || region?.orgId))
+      await withRetry(() => setDoc(doc(db, 'users', emailKey), {
+        email:               newUser.email.toLowerCase(),
+        name:                newUser.name || newUser.email,
+        role:                newUser.role,
+        orgId:               org?.id    || viewingOrg || '',
+        regionId:            region?.id || '',
+        storeId:             store?.id  || resolvedStoreId || '',
+        store:               store?.id  || resolvedStoreId || '',
+        status:              'active',
+        forcePasswordChange: true,
+        createdAt:           Date.now()
+      }))
+      try { await logAudit({ action: AUDIT_ACTIONS.USER_ASSIGNED, userEmail: auth.userConfig?.email, details: { assignedEmail: newUser.email, role: newUser.role } }) } catch(_) {}
+      setUserSaved({ email: newUser.email, name: newUser.name, password: newUser.tempPassword || '', role: newUser.role, store: store?.name || '' })
+      if (setupStep === 'user') setSetupStep('done')
+      setNewUser({ email:'', name:'', role:'store_owner', orgId:'', regionId:'', storeId:'', tempPassword:'' })
+    } catch(e) {
+      console.error('assignUser failed:', e)
+      showToast(`Failed: ${e?.code || e?.message || 'check your connection'}`)
+    }
     setSaving(false)
-    setUserSaved({ email: newUser.email, name: newUser.name, password: newUser.tempPassword || '', role: newUser.role, store: store?.name || '' })
-    if (setupStep === 'user') setSetupStep('done')
-    setNewUser({ email:'', name:'', role:'store_owner', orgId:'', regionId:'', storeId:'', tempPassword:'' })
   }
 
   async function approveSignup(req) {
     try {
       const emailKey = req.email.replace(/\./g,'_').replace(/@/g,'_at_')
-      await updateDoc(doc(db, 'users', emailKey), { status:'active', role: req.role||'store_owner', storeId: req.store||'', store: req.store||'' })
+      await withRetry(() => updateDoc(doc(db, 'users', emailKey), { status:'active', role: req.role||'store_owner', storeId: req.store||'', store: req.store||'' }))
       await deleteDoc(doc(db, 'signupRequests', req.id))
       setPending(prev => prev.filter(p => p.id !== req.id))
       showToast(`${req.email} approved`)
-    } catch(e) { showToast('Error approving') }
+    } catch(e) { showToast(`Error approving: ${e?.code || e?.message || 'check your connection'}`) }
   }
 
   async function rejectSignup(req) {
-    await deleteDoc(doc(db, 'signupRequests', req.id))
-    setPending(prev => prev.filter(p => p.id !== req.id))
-    showToast(`${req.email} rejected`)
+    try {
+      await deleteDoc(doc(db, 'signupRequests', req.id))
+      setPending(prev => prev.filter(p => p.id !== req.id))
+      showToast(`${req.email} rejected`)
+    } catch(e) { showToast(`Error: ${e?.code || e?.message || 'check your connection'}`) }
   }
 
   async function saveUserEdit(emailKey, updates) {
     setSaving(true)
-    await updateDoc(doc(db, 'users', emailKey), updates)
+    try {
+      await withRetry(() => updateDoc(doc(db, 'users', emailKey), updates))
+      showToast('User updated')
+      setEditingUser(null)
+      await loadAll()
+    } catch(e) {
+      console.error('saveUserEdit failed:', e)
+      showToast(`Failed: ${e?.code || e?.message || 'check your connection'}`)
+    }
     setSaving(false)
-    showToast('User updated')
-    setEditingUser(null)
-    loadAll()
   }
 
   async function toggleUserActive(user) {
     const newStatus = user.status === 'inactive' ? 'active' : 'inactive'
-    await updateDoc(doc(db, 'users', user.emailKey), { status: newStatus })
-    showToast(newStatus === 'active' ? `${user.name || user.email} activated` : `${user.name || user.email} deactivated`)
-    loadAll()
+    try {
+      await withRetry(() => updateDoc(doc(db, 'users', user.emailKey), { status: newStatus }))
+      showToast(newStatus === 'active' ? `${user.name || user.email} activated` : `${user.name || user.email} deactivated`)
+      await loadAll()
+    } catch(e) {
+      showToast(`Failed: ${e?.code || e?.message || 'check your connection'}`)
+    }
   }
 
   async function deleteUser(user) {

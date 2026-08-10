@@ -4,6 +4,7 @@ import { confirm } from './ConfirmDialog'
 import { collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import TipBanner from './TipBanner'
+import { withRetry } from '../utils/withRetry'
 
 const CATEGORIES = ['Ice Cream', 'Boba', 'Coffee', 'Dry Stock', 'Packaging', 'Condiments', 'Other']
 const EMPTY = { fromStore:'', toStore:'', date: new Date().toISOString().split('T')[0], category:'', item:'', desc:'', quantity:'', cost:'' }
@@ -70,18 +71,18 @@ export default function Transfers({ auth, showToast, viewingStore }) {
       }
 
       if (editId) {
-        await updateDoc(doc(db, 'transfers', editId), data)
+        await withRetry(() => updateDoc(doc(db, 'transfers', editId), data))
         showToast('Transfer updated ✅')
         setEditId(null)
       } else {
-        await addDoc(collection(db, 'transfers'), data)
+        await withRetry(() => addDoc(collection(db, 'transfers'), data))
         showToast('Transfer saved ✅')
       }
       await loadTransfers()
       setForm({ ...EMPTY, date: new Date().toISOString().split('T')[0] })
     } catch(e) {
       console.error(e)
-      showToast('Save failed — try again')
+      showToast(`Save failed: ${e?.code || e?.message || 'check your connection'}`)
     }
     setSaving(false)
   }

@@ -1,8 +1,18 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import TipBanner from './TipBanner'
 
 export default function Inventory({ invHook, viewingStore, showToast, auth }) {
   const { inventory, getStatus, adjustStock, setStock, toggleActive, setPar, saveInventory } = invHook
+
+  // The debounced save below fires up to 1.2s after the LAST tap in a burst.
+  // Reading `inventory` directly in that timeout would use a stale closure from
+  // BEFORE that final tap's state update commits — React re-renders after the
+  // event handler returns, not during it — so the very last adjustment a user
+  // makes would silently never reach Firestore, even though the UI shows it as
+  // saved. A ref that tracks the latest committed value sidesteps that: it's
+  // updated by the effect below on every render, well within the debounce window.
+  const invRef = useRef(inventory)
+  useEffect(() => { invRef.current = inventory }, [inventory])
 
   const [activeCategory, setActiveCategory] = useState('all')
   const [search,         setSearch]         = useState('')
@@ -81,12 +91,13 @@ export default function Inventory({ invHook, viewingStore, showToast, auth }) {
     clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(async () => {
       try {
-        await saveInventory(viewingStore, inventory)
+        // invRef.current, not `inventory` — see comment above on why
+        await saveInventory(viewingStore, invRef.current)
         setSaveStatus('saved')
         setTimeout(() => setSaveStatus(null), 2000)
       } catch(e) {
         setSaveStatus('error')
-        showToast('Save failed — check your connection')
+        showToast(`Save failed: ${e?.code || e?.message || 'check your connection'} — tap again to retry`)
       }
     }, 1200)
   }

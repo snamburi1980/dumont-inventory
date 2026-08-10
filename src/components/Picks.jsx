@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { SkeletonList } from './Skeleton'
 import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { withRetry } from '../utils/withRetry'
 
 const WASTE_REASONS = ['Melted', 'Dropped', 'Expired', 'Freezer issue', 'Other']
 
@@ -58,32 +59,50 @@ export default function Picks({ invHook, viewingStore, viewingOrg, auth, showToa
       const now      = new Date(logDate + 'T12:00:00')
       const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
       const month    = now.toLocaleDateString('en-US', { month:'long', year:'numeric' })
-      for (const item of sessionEntries) {
-        const qty = session[item.id]
-        await addDoc(collection(db, 'stores', viewingStore, 'stockLog'), {
-          itemId: item.id, itemName: item.name, category: 'Ice Cream',
-          delta: -qty, stockAfter: Math.max(0, (item.stock || 0) - qty),
-          userName, timestamp: Date.now(),
-          date: now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }),
-          month, monthKey,
-          entryType: mode,                                      // 'use' | 'waste'
-          reason: mode === 'waste' ? wasteReason : null,
-        })
-      }
+
+      // Deduct stock FIRST (single retried write). If this fails, nothing is
+      // logged and the whole tap can be retried cleanly with no duplicates.
       const updated = inventory.map(item => {
         if (!session[item.id]) return item
         return { ...item, stock: Math.max(0, (item.stock || 0) - session[item.id]) }
       })
       await saveInventory(viewingStore, updated)
+
+      // Log each flavor separately. A single item's log entry failing after
+      // retries must not undo the stock deduction that already succeeded —
+      // the count staying accurate matters more than one history row.
+      const failed = []
+      for (const item of sessionEntries) {
+        const qty = session[item.id]
+        try {
+          await withRetry(() => addDoc(collection(db, 'stores', viewingStore, 'stockLog'), {
+            itemId: item.id, itemName: item.name, category: 'Ice Cream',
+            delta: -qty, stockAfter: Math.max(0, (item.stock || 0) - qty),
+            userName, timestamp: Date.now(),
+            date: now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }),
+            month, monthKey,
+            entryType: mode,                                      // 'use' | 'waste'
+            reason: mode === 'waste' ? wasteReason : null,
+          }))
+        } catch(e) {
+          console.error(`stockLog write failed for ${item.name}:`, e)
+          failed.push(item.name)
+        }
+      }
+
       await loadInventory(viewingStore, viewingOrg || 'dumont')
-      showToast(mode === 'waste'
-        ? `${totalBuckets} bucket${totalBuckets > 1 ? 's' : ''} logged as waste (${wasteReason})`
-        : `${totalBuckets} bucket${totalBuckets > 1 ? 's' : ''} logged`)
+      if (failed.length) {
+        showToast(`Stock updated, but ${failed.length} item(s) missing from history: ${failed.join(', ')}`)
+      } else {
+        showToast(mode === 'waste'
+          ? `${totalBuckets} bucket${totalBuckets > 1 ? 's' : ''} logged as waste (${wasteReason})`
+          : `${totalBuckets} bucket${totalBuckets > 1 ? 's' : ''} logged`)
+      }
       setSession({})
       await loadUsage(activeMonth)
     } catch(e) {
       console.error(e)
-      showToast('Save failed — try again')
+      showToast(`Save failed: ${e?.code || e?.message || 'check your connection'} — stock was not changed`)
     }
     setSaving(false)
   }

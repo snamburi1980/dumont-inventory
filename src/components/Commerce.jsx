@@ -5,6 +5,8 @@ import {
   collection, getDocs, addDoc, deleteDoc, doc, getDoc, setDoc, query, orderBy, limit
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { withRetry } from '../utils/withRetry'
+import { confirm } from './ConfirmDialog'
 
 // ── Static data (from COGS) ───────────────────────────────────────────────────
 const MENU_MARGINS = [
@@ -122,25 +124,43 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
 
   async function saveSalesUpload() {
     if (!parsedSales || !viewingStore) return
+    const base = parsedSales.firstDate || new Date()
+    const monthKey = `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}`
+    // Same collision guard as Records → Sales & COGS: without this, uploading the
+    // same month twice silently doubles that month's revenue in every report.
+    const existing = salesHistory.filter(s => s.monthKey === monthKey)
+    if (existing.length) {
+      const prevRev = existing.reduce((s,x) => s + (x.revenue||0), 0)
+      const ok = await confirm({
+        title: `Replace ${base.toLocaleDateString('en-US',{month:'long',year:'numeric'})}?`,
+        message: `This month already has $${prevRev.toFixed(0)} of revenue uploaded. Saving will replace it with $${parsedSales.revenue.toFixed(0)}.`,
+        confirmLabel: 'Replace',
+      })
+      if (!ok) return
+    }
     setSavingSales(true)
     try {
-      const base = parsedSales.firstDate || new Date()
-      const monthKey = `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}`
       const { firstDate, ...toSave } = parsedSales
-      await addDoc(collection(db,'stores',viewingStore,'salesLedger'), {
+      // Save the new upload before deleting the old one — a failed save should
+      // never leave the store with zero revenue for the month.
+      await withRetry(() => addDoc(collection(db,'stores',viewingStore,'salesLedger'), {
         ...toSave,
         monthKey,
         month: base.toLocaleDateString('en-US', { month:'long', year:'numeric' }),
         appliedAt: Date.now(),
         uploadedBy: auth?.userConfig?.name || auth?.user?.email || '',
-      })
+      }))
+      for (const ex of existing) {
+        try { await deleteDoc(doc(db,'stores',viewingStore,'salesLedger',ex.id)) }
+        catch(e) { console.warn('Could not remove replaced upload:', e) }
+      }
       showToast('Sales data saved')
       setParsedSales(null)
       if (fileRef.current) fileRef.current.value = ''
       await loadSalesHistory()
     } catch(e) {
-      showToast('Save failed')
       console.error(e)
+      showToast(`Save failed: ${e?.code || e?.message || 'check your connection'}`)
     }
     setSavingSales(false)
   }
@@ -193,7 +213,7 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
         cost: parseFloat(it.cost) || 0,
       }))
       const totalCost = items.reduce((s,it) => s + (it.qty * it.cost), 0)
-      await addDoc(collection(db,'stores',viewingStore,'deliveries'), {
+      await withRetry(() => addDoc(collection(db,'stores',viewingStore,'deliveries'), {
         vendor:    dVendor.trim(),
         date:      dDate,
         items,
@@ -201,13 +221,13 @@ export default function Commerce({ viewingStore, viewingOrg, auth, showToast }) 
         notes:     delivNotes.trim(),
         createdAt: Date.now(),
         createdBy: auth?.userConfig?.name || auth?.user?.email || '',
-      })
+      }))
       showToast('Delivery saved')
       setDVendor(''); setDDate(today()); setDItems([{name:'',qty:'',cost:''}]); setDelivNotes('')
       await loadDeliveries()
     } catch(e) {
-      showToast('Save failed')
       console.error(e)
+      showToast(`Save failed: ${e?.code || e?.message || 'check your connection'}`)
     }
     setSavingDeliv(false)
   }

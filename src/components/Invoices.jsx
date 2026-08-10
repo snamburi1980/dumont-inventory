@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { SkeletonList } from './Skeleton'
 import { confirm } from './ConfirmDialog'
-import { collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore'
+import { collection, query, where, orderBy, limit, onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { withRetry } from '../utils/withRetry'
 
 const fmt = n => `$${Number(n || 0).toFixed(2)}`
 
@@ -84,10 +85,14 @@ export default function Invoices({ auth, showToast, viewingOrg, viewingStore }) 
     getDocs(collection(db, 'stores')).then(snap =>
       setStores(snap.docs.map(d => ({ id: d.id, ...d.data() })))
     ).catch(() => {})
+    // Capped to the most recent 300 — this is the browse/approve list, not the
+    // financial totals (COGS.jsx runs its own separate, uncapped query for that,
+    // since a month's spend must never silently exclude older approved invoices).
     const q = query(
       collection(db, 'invoices'),
       where('orgId', '==', orgId),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc'),
+      limit(300)
     )
     return onSnapshot(q, snap => {
       setInvoices(snap.docs.map(d => ({ id: d.id, ...d.data() })))
@@ -156,7 +161,7 @@ export default function Invoices({ auth, showToast, viewingOrg, viewingStore }) 
     setSaving(true)
     try {
       const store = stores.find(s => s.id === form.storeId)
-      await addDoc(collection(db, 'invoices'), {
+      await withRetry(() => addDoc(collection(db, 'invoices'), {
         vendor:        form.vendor.trim(),
         invoiceNumber: form.invoiceNumber.trim(),
         invoiceDate:   form.invoiceDate,
@@ -174,7 +179,7 @@ export default function Invoices({ auth, showToast, viewingOrg, viewingStore }) 
         approvedAt: null,
         createdBy:  auth.user.email,
         createdAt:  Date.now(),
-      })
+      }))
       setForm(empty(viewingStore || ''))
       setAdding(false)
       showToast('Invoice added')

@@ -6,6 +6,7 @@ import {
   query, orderBy, limit, where, getDoc
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
+import { withRetry } from '../utils/withRetry'
 
 export default function Home({ invHook, viewingStore, setActiveTab, auth, showToast }) {
   const { inventory, getStatus } = invHook
@@ -14,6 +15,7 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
   const [newAnnounce,     setNewAnnounce]     = useState({ title:'', message:'', link:'', file:null, fileName:null })
   const [newIssue,        setNewIssue]        = useState({ title:'', description:'' })
   const [showNewIssue,    setShowNewIssue]    = useState(false)
+  const [loggingIssue,    setLoggingIssue]    = useState(false)
   const [showNewAnnounce, setShowNewAnnounce] = useState(false)
   const [posting,         setPosting]         = useState(false)
   const [storeName,       setStoreName]       = useState('')
@@ -98,10 +100,18 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
       link: newAnnounce.link || null, fileData, fileType, fileName,
       postedAt: Date.now(), postedBy: auth.userConfig?.name || 'HQ', active: true,
     }
-    const docRef = await addDoc(collection(db, 'announcements'), entry)
-    setAnnouncements(prev => [{ id: docRef.id, ...entry }, ...prev])
-    setNewAnnounce({ title:'', message:'', link:'', file:null, fileName:null })
-    setShowNewAnnounce(false)
+    try {
+      const docRef = await withRetry(() => addDoc(collection(db, 'announcements'), entry))
+      setAnnouncements(prev => [{ id: docRef.id, ...entry }, ...prev])
+      setNewAnnounce({ title:'', message:'', link:'', file:null, fileName:null })
+      setShowNewAnnounce(false)
+      if (showToast) showToast('Announcement posted')
+    } catch(e) {
+      console.error(e)
+      if (showToast) showToast(`Could not post: ${e?.code || e?.message || 'check your connection'}`)
+    }
+    // Always clear posting — a stuck "Posting…" button with no way to retry
+    // is worse than the failed post itself.
     setPosting(false)
   }
 
@@ -115,16 +125,24 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
   }
 
   async function logIssue() {
-    if (!newIssue.title.trim()) return
+    if (!newIssue.title.trim() || loggingIssue) return
+    setLoggingIssue(true)
     const entry = {
       title: newIssue.title, description: newIssue.description,
       status: 'open', createdAt: Date.now(),
       createdBy: auth.userConfig?.name || 'Manager', store: viewingStore,
     }
-    const ref = await addDoc(collection(db, 'stores', viewingStore, 'issues'), entry)
-    setIssues(prev => [{ id: ref.id, ...entry }, ...prev])
-    setNewIssue({ title:'', description:'' })
-    setShowNewIssue(false)
+    try {
+      const ref = await withRetry(() => addDoc(collection(db, 'stores', viewingStore, 'issues'), entry))
+      setIssues(prev => [{ id: ref.id, ...entry }, ...prev])
+      setNewIssue({ title:'', description:'' })
+      setShowNewIssue(false)
+      if (showToast) showToast('Issue logged')
+    } catch(e) {
+      console.error(e)
+      if (showToast) showToast(`Could not log issue: ${e?.code || e?.message || 'check your connection'}`)
+    }
+    setLoggingIssue(false)
   }
 
   async function resolveIssue(id) {
@@ -405,9 +423,9 @@ export default function Home({ invHook, viewingStore, setActiveTab, auth, showTo
               onChange={e => setNewIssue(i=>({...i,description:e.target.value}))}
               rows={2} style={{ marginBottom:8, width:'100%', padding:'8px 10px', border:'1px solid #E3DDD0', borderRadius:8, fontFamily:'inherit', fontSize:13, resize:'none', boxSizing:'border-box' }}/>
             <div style={{ display:'flex', gap:8 }}>
-              <button onClick={logIssue}
-                style={{ flex:1, background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'8px', cursor:'pointer', fontSize:13, fontWeight:600 }}>
-                Log Issue
+              <button onClick={logIssue} disabled={loggingIssue}
+                style={{ flex:1, background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'8px', cursor:'pointer', fontSize:13, fontWeight:600, opacity: loggingIssue ? 0.7 : 1 }}>
+                {loggingIssue ? 'Logging…' : 'Log Issue'}
               </button>
               <button onClick={() => setShowNewIssue(false)}
                 style={{ padding:'8px 14px', background:'#888', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontSize:13 }}>

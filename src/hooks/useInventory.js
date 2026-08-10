@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { doc, getDoc, setDoc, collection, getDocs, addDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { DEFAULT_INVENTORY } from '../data/inventory'
+import { withRetry } from '../utils/withRetry'
 
 export function useInventory() {
   const [inventory, setInventory] = useState([])
@@ -54,7 +55,9 @@ export function useInventory() {
         data[`par_override_${item.id}`] = item.par || 0
         data[`active_${item.id}`]       = item.active !== false
       })
-      await setDoc(doc(db, 'stores', storeId, 'inventory', 'stock'), data, { merge: true })
+      // Retried: this is the single most important write in the app (stock counts) —
+      // a blip on store wifi should not silently drop a shift's worth of updates.
+      await withRetry(() => setDoc(doc(db, 'stores', storeId, 'inventory', 'stock'), data, { merge: true }))
     } catch(e) {
       console.error('saveInventory error:', e)
       throw new Error('Failed to save inventory: ' + e.message)

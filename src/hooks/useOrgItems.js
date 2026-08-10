@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { DEFAULT_INVENTORY } from '../data/inventory'
+import { withRetry } from '../utils/withRetry'
 
 // Converts hardcoded item to Firestore format
 function toFirestoreItem(item) {
@@ -59,7 +60,8 @@ export function useOrgItems(orgId) {
     if (!item.name?.trim()) throw new Error('Item name is required')
     const id = String(Date.now())
     const newItem = { ...toFirestoreItem(item), id, updatedAt: Date.now() }
-    await setDoc(doc(db, 'orgs', oid, 'items', id), newItem)
+    // setDoc with a fixed id is idempotent, so retry is safe here
+    await withRetry(() => setDoc(doc(db, 'orgs', oid, 'items', id), newItem))
     setItems(prev => [...prev, newItem])
     return newItem
   }, [])
@@ -73,12 +75,12 @@ export function useOrgItems(orgId) {
       case_size:  parseInt(changes.case_size) || 1,
       updatedAt:  Date.now()
     }
-    await setDoc(doc(db, 'orgs', oid, 'items', String(id)), updated, { merge: true })
+    await withRetry(() => setDoc(doc(db, 'orgs', oid, 'items', String(id)), updated, { merge: true }))
     setItems(prev => prev.map(i => i.id === String(id) ? { ...i, ...updated } : i))
   }, [])
 
   const deleteItem = useCallback(async (oid, id) => {
-    await deleteDoc(doc(db, 'orgs', oid, 'items', String(id)))
+    await withRetry(() => deleteDoc(doc(db, 'orgs', oid, 'items', String(id))))
     setItems(prev => prev.filter(i => i.id !== String(id)))
   }, [])
 

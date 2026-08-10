@@ -4,6 +4,7 @@ import { confirm } from './ConfirmDialog'
 import { collection, addDoc, getDocs, deleteDoc, doc, orderBy, query } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { logAudit, AUDIT_ACTIONS } from '../utils/auditLogger'
+import { withRetry } from '../utils/withRetry'
 
 const SOP_TEMPLATE = `Name,Clover Item Name,Category,Ingredients,Qty Per Serving,Unit,Notes
 Kids Scoop,{Flavor} kids,Ice Cream,{Flavor} Ice Cream,1,scoop,60 scoops per tub
@@ -38,37 +39,45 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
     if (!file) return
     setUploading(true)
     try {
-      const reader = new FileReader()
-      reader.onload = async (ev) => {
-        const content   = ev.target.result
-        const fileType  = file.name.endsWith('.pdf') ? 'pdf' : 'csv'
-        const entry = {
-          fileName:   file.name,
-          fileType,
-          fileData:   fileType === 'csv' ? content : btoa(content), // base64 for PDF
-          size:       file.size,
-          uploadedAt: Date.now(),
-          uploadedBy: auth.userConfig?.email || 'unknown',
-          orgId:      viewingOrg,
-          parsed:     fileType === 'csv' ? parseSOPCSV(content) : null,
-        }
-        await addDoc(collection(db, 'orgs', viewingOrg, 'sops'), entry)
+      // Promisify the read so its failure lands in THIS try/catch — the old
+      // code ran addDoc inside reader.onload, an async callback the outer
+      // try/catch never sees; a failure there left "Uploading…" stuck forever
+      // and threw an unhandled promise rejection.
+      const content = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload  = ev => resolve(ev.target.result)
+        reader.onerror = () => reject(reader.error || new Error('Could not read file'))
+        if (file.name.endsWith('.pdf')) reader.readAsBinaryString(file)
+        else reader.readAsText(file)
+      })
+
+      const fileType = file.name.endsWith('.pdf') ? 'pdf' : 'csv'
+      const entry = {
+        fileName:   file.name,
+        fileType,
+        fileData:   fileType === 'csv' ? content : btoa(content), // base64 for PDF
+        size:       file.size,
+        uploadedAt: Date.now(),
+        uploadedBy: auth.userConfig?.email || 'unknown',
+        orgId:      viewingOrg,
+        parsed:     fileType === 'csv' ? parseSOPCSV(content) : null,
+      }
+      await withRetry(() => addDoc(collection(db, 'orgs', viewingOrg, 'sops'), entry))
+      try {
         await logAudit({
           action: AUDIT_ACTIONS.SOP_UPLOADED,
           orgId:  viewingOrg,
           userEmail: auth.userConfig?.email,
           details: { fileName: file.name, fileType }
         })
-        showToast(`SOP uploaded: ${file.name}`)
-        loadSOPs()
-        setUploading(false)
-      }
-      if (file.name.endsWith('.pdf')) reader.readAsBinaryString(file)
-      else reader.readAsText(file)
+      } catch(_) {}
+      showToast(`SOP uploaded: ${file.name}`)
+      await loadSOPs()
     } catch(err) {
-      showToast('Error uploading SOP')
-      setUploading(false)
+      console.error('SOP upload failed:', err)
+      showToast(`Error uploading SOP: ${err?.code || err?.message || 'check your connection'}`)
     }
+    setUploading(false)
     e.target.value = ''
   }
 
@@ -260,14 +269,19 @@ export default function SOPManager({ viewingOrg, viewingStore, auth, showToast }
             <button
               onClick={async () => {
                 if (!manualCOGS.category) { showToast('Enter category'); return }
-                await addDoc(collection(db, 'orgs', viewingOrg, 'manualCOGS'), {
-                  ...manualCOGS,
-                  cogsPercent: manualCOGS.sell > 0 ? (manualCOGS.cost/manualCOGS.sell*100) : 0,
-                  createdAt:  Date.now(),
-                  createdBy:  auth.userConfig?.email
-                })
-                showToast('COGS entry saved')
-                setManualCOGS({ category:'', cost:0, sell:0, note:'' })
+                try {
+                  await withRetry(() => addDoc(collection(db, 'orgs', viewingOrg, 'manualCOGS'), {
+                    ...manualCOGS,
+                    cogsPercent: manualCOGS.sell > 0 ? (manualCOGS.cost/manualCOGS.sell*100) : 0,
+                    createdAt:  Date.now(),
+                    createdBy:  auth.userConfig?.email
+                  }))
+                  showToast('COGS entry saved')
+                  setManualCOGS({ category:'', cost:0, sell:0, note:'' })
+                } catch(err) {
+                  console.error('manualCOGS save failed:', err)
+                  showToast(`Save failed: ${err?.code || err?.message || 'check your connection'}`)
+                }
               }}
               style={{ width:'100%', background:'#1A4C48', color:'#fff', border:'none', borderRadius:8, padding:'11px', cursor:'pointer', fontSize:13, fontWeight:600 }}
             >

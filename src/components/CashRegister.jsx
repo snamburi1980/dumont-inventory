@@ -4,6 +4,7 @@ import { confirm } from './ConfirmDialog'
 import { collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import TipBanner from './TipBanner'
+import { withRetry } from '../utils/withRetry'
 
 const REASONS_OUT = ['Bank Deposit', 'Supplies Purchase', 'Vendor Payment', 'Tips Paid Out', 'Owner Withdrawal', 'Other']
 const REASONS_IN  = ['Change / Float Added', 'Bank Change Order', 'Correction', 'Other']
@@ -71,7 +72,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
       const isToday   = mvForm.date === todayStr
       const entryDate = new Date(mvForm.date + 'T12:00:00')
       const ts        = isToday ? Date.now() : entryDate.getTime()
-      await addDoc(collection(db, 'stores', viewingStore, 'cashMovements'), {
+      await withRetry(() => addDoc(collection(db, 'stores', viewingStore, 'cashMovements'), {
         type:      mvForm.type,                       // 'out' | 'in'
         amount,
         reason:    mvForm.reason,
@@ -83,13 +84,13 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
         dateRaw:   mvForm.date,
         month:     entryDate.toLocaleDateString('en-US', { month:'long', year:'numeric' }),
         monthKey:  `${entryDate.getFullYear()}-${String(entryDate.getMonth()+1).padStart(2,'0')}`,
-      })
+      }))
       showToast(mvForm.type === 'out' ? `−$${amount.toFixed(2)} cash out logged` : `+$${amount.toFixed(2)} cash in logged`)
       setMvForm(f => ({ ...f, amount:'', note:'' }))
       await loadMovements()
     } catch(e) {
       console.error(e)
-      showToast('Save failed — try again')
+      showToast(`Save failed: ${e?.code || e?.message || 'check your connection'}`)
     }
     setSavingMv(false)
   }
@@ -128,11 +129,11 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
       }
 
       if (editId) {
-        await updateDoc(doc(db, 'stores', viewingStore, 'cashRegister', editId), data)
+        await withRetry(() => updateDoc(doc(db, 'stores', viewingStore, 'cashRegister', editId), data))
         showToast('Entry updated ✅')
         setEditId(null)
       } else {
-        await addDoc(collection(db, 'stores', viewingStore, 'cashRegister'), data)
+        await withRetry(() => addDoc(collection(db, 'stores', viewingStore, 'cashRegister'), data))
         showToast('Cash register saved ✅')
       }
 
@@ -140,7 +141,7 @@ export default function CashRegister({ viewingStore, auth, showToast }) {
       setForm({ date: todayStr, openingCash:'', closingCash:'', comments:'' })
     } catch(e) {
       console.error(e)
-      showToast('Save failed — try again')
+      showToast(`Save failed: ${e?.code || e?.message || 'check your connection'}`)
     }
     setSaving(false)
   }

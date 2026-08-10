@@ -4,6 +4,7 @@ import { confirm } from './ConfirmDialog'
 import { collection, query, where, getDocs, addDoc, deleteDoc, doc, orderBy, limit } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { parseCloverReport } from '../utils/cloverParser'
+import { withRetry } from '../utils/withRetry'
 
 // ── Static theoretical margins (per-product view) ────────────────────────────
 const MENU_MARGINS = [
@@ -166,11 +167,10 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
     }
     setSavingUp(true)
     try {
-      for (const ex of existing) {
-        await deleteDoc(doc(db, 'stores', viewingStore, 'salesLedger', ex.id))
-      }
       const mDate = new Date(uploadMonth + '-15T12:00:00')
-      await addDoc(collection(db, 'stores', viewingStore, 'salesLedger'), {
+      // Save the NEW upload before deleting the old one — if the save fails after
+      // retries, the store still has last month's revenue instead of nothing.
+      await withRetry(() => addDoc(collection(db, 'stores', viewingStore, 'salesLedger'), {
         revenue:    parsed.revenue,
         itemsSold:  parsed.itemsSold,
         period:     parsed.period,
@@ -180,7 +180,11 @@ export default function COGS({ viewingStore, viewingOrg, auth, showToast }) {
         month:      mDate.toLocaleDateString('en-US', { month:'long', year:'numeric' }),
         appliedAt:  Date.now(),
         uploadedBy: auth?.userConfig?.name || auth?.user?.email || '',
-      })
+      }))
+      for (const ex of existing) {
+        try { await deleteDoc(doc(db, 'stores', viewingStore, 'salesLedger', ex.id)) }
+        catch(e) { console.warn('Could not remove replaced upload:', e) }
+      }
       showToast('Sales uploaded ✓')
       setParsed(null)
       setMonthKey(uploadMonth)

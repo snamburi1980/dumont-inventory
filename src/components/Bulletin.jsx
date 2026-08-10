@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { SkeletonList } from './Skeleton'
 import { confirm } from './ConfirmDialog'
-import { collection, query, where, orderBy, onSnapshot,
+import { withRetry } from '../utils/withRetry'
+import { collection, query, where, orderBy, limit, onSnapshot,
          addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../firebase/config'
 
@@ -78,10 +79,13 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
   useEffect(() => {
     let n = 0
     const done = () => { if (++n >= 4) setLoading(false) }
-    const q1 = query(collection(db, 'announcements'),    where('orgId', '==', orgId), orderBy('createdAt', 'desc'))
-    const q2 = query(collection(db, 'bulletinLinks'),    where('orgId', '==', orgId), orderBy('createdAt', 'desc'))
-    const q3 = query(collection(db, 'bulletinIssues'),   where('orgId', '==', orgId), orderBy('createdAt', 'desc'))
-    const q4 = query(collection(db, 'bulletinContacts'), where('orgId', '==', orgId), orderBy('category',  'asc'))
+    // Capped so a couple years of multi-store use doesn't turn this into an
+    // ever-growing real-time listener — vendor contacts rarely exceed a few dozen,
+    // and nobody needs to scroll back through hundreds of resolved issues live.
+    const q1 = query(collection(db, 'announcements'),    where('orgId', '==', orgId), orderBy('createdAt', 'desc'), limit(50))
+    const q2 = query(collection(db, 'bulletinLinks'),    where('orgId', '==', orgId), orderBy('createdAt', 'desc'), limit(100))
+    const q3 = query(collection(db, 'bulletinIssues'),   where('orgId', '==', orgId), orderBy('createdAt', 'desc'), limit(150))
+    const q4 = query(collection(db, 'bulletinContacts'), where('orgId', '==', orgId), orderBy('category',  'asc'),  limit(100))
     const u1 = onSnapshot(q1, s => { setAnnouncements(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
     const u2 = onSnapshot(q2, s => { setLinks(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
     const u3 = onSnapshot(q3, s => { setIssues(s.docs.map(d => ({ id: d.id, ...d.data() }))); done() }, done)
@@ -101,24 +105,26 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
     setSaving(true)
     try {
       if (editingItem?.type === 'ann') {
-        await updateDoc(doc(db, 'announcements', editingItem.id), { ...annForm, updatedAt: Date.now() })
+        await withRetry(() => updateDoc(doc(db, 'announcements', editingItem.id), { ...annForm, updatedAt: Date.now() }))
         setEditingItem(null)
       } else {
-        await addDoc(collection(db, 'announcements'), {
+        await withRetry(() => addDoc(collection(db, 'announcements'), {
           ...annForm, orgId, createdBy: auth.user.email, createdAt: Date.now(),
-        })
+        }))
         setAddingAnn(false)
       }
       setAnnForm(emptyAnn())
       showToast(editingItem ? 'Announcement updated' : 'Announcement posted')
-    } catch (e) { showToast('Error: ' + e.message) }
+    } catch (e) { showToast(`Error: ${e?.code || e?.message || 'check your connection'}`) }
     setSaving(false)
   }
 
   async function deleteAnn(id) {
     if (!await confirm({ title:'Delete announcement?', message:'This removes it for every store.', danger:true })) return
-    await deleteDoc(doc(db, 'announcements', id))
-    showToast('Deleted')
+    try {
+      await deleteDoc(doc(db, 'announcements', id))
+      showToast('Deleted')
+    } catch(e) { showToast(`Delete failed: ${e?.code || e?.message || 'check your connection'}`) }
   }
 
   // ── Links ──────────────────────────────────────────────────────────────────
@@ -129,24 +135,26 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
     setSaving(true)
     try {
       if (editingItem?.type === 'link') {
-        await updateDoc(doc(db, 'bulletinLinks', editingItem.id), { ...linkForm, url, updatedAt: Date.now() })
+        await withRetry(() => updateDoc(doc(db, 'bulletinLinks', editingItem.id), { ...linkForm, url, updatedAt: Date.now() }))
         setEditingItem(null)
       } else {
-        await addDoc(collection(db, 'bulletinLinks'), {
+        await withRetry(() => addDoc(collection(db, 'bulletinLinks'), {
           ...linkForm, url, orgId, createdBy: auth.user.email, createdAt: Date.now(),
-        })
+        }))
         setAddingLink(false)
       }
       setLinkForm(emptyLink())
       showToast(editingItem ? 'Link updated' : 'Link added')
-    } catch (e) { showToast('Error: ' + e.message) }
+    } catch (e) { showToast(`Error: ${e?.code || e?.message || 'check your connection'}`) }
     setSaving(false)
   }
 
   async function deleteLink(id) {
     if (!await confirm({ title:'Delete link?', danger:true })) return
-    await deleteDoc(doc(db, 'bulletinLinks', id))
-    showToast('Deleted')
+    try {
+      await deleteDoc(doc(db, 'bulletinLinks', id))
+      showToast('Deleted')
+    } catch(e) { showToast(`Delete failed: ${e?.code || e?.message || 'check your connection'}`) }
   }
 
   // ── Issues ─────────────────────────────────────────────────────────────────
@@ -155,29 +163,33 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
     setSaving(true)
     try {
       if (editingItem?.type === 'issue') {
-        await updateDoc(doc(db, 'bulletinIssues', editingItem.id), { ...issueForm, updatedAt: Date.now() })
+        await withRetry(() => updateDoc(doc(db, 'bulletinIssues', editingItem.id), { ...issueForm, updatedAt: Date.now() }))
         setEditingItem(null)
       } else {
-        await addDoc(collection(db, 'bulletinIssues'), {
+        await withRetry(() => addDoc(collection(db, 'bulletinIssues'), {
           ...issueForm, orgId, createdBy: auth.user.email, createdAt: Date.now(),
-        })
+        }))
         setAddingIssue(false)
       }
       setIssueForm(emptyIssue())
       showToast(editingItem ? 'Issue updated' : 'Issue added')
-    } catch (e) { showToast('Error: ' + e.message) }
+    } catch (e) { showToast(`Error: ${e?.code || e?.message || 'check your connection'}`) }
     setSaving(false)
   }
 
   async function toggleStatus(issue) {
     const newStatus = issue.status === 'open' ? 'resolved' : 'open'
-    await updateDoc(doc(db, 'bulletinIssues', issue.id), { status: newStatus, updatedAt: Date.now() })
+    try {
+      await withRetry(() => updateDoc(doc(db, 'bulletinIssues', issue.id), { status: newStatus, updatedAt: Date.now() }))
+    } catch(e) { showToast(`Failed: ${e?.code || e?.message || 'check your connection'}`) }
   }
 
   async function deleteIssue(id) {
     if (!await confirm({ title:'Delete issue?', danger:true })) return
-    await deleteDoc(doc(db, 'bulletinIssues', id))
-    showToast('Deleted')
+    try {
+      await deleteDoc(doc(db, 'bulletinIssues', id))
+      showToast('Deleted')
+    } catch(e) { showToast(`Delete failed: ${e?.code || e?.message || 'check your connection'}`) }
   }
 
   // ── Contacts ───────────────────────────────────────────────────────────────
@@ -186,24 +198,26 @@ export default function Bulletin({ auth, showToast, viewingOrg }) {
     setSaving(true)
     try {
       if (editingItem?.type === 'contact') {
-        await updateDoc(doc(db, 'bulletinContacts', editingItem.id), { ...contactForm, updatedAt: Date.now() })
+        await withRetry(() => updateDoc(doc(db, 'bulletinContacts', editingItem.id), { ...contactForm, updatedAt: Date.now() }))
         setEditingItem(null)
       } else {
-        await addDoc(collection(db, 'bulletinContacts'), {
+        await withRetry(() => addDoc(collection(db, 'bulletinContacts'), {
           ...contactForm, orgId, createdBy: auth.user.email, createdAt: Date.now(),
-        })
+        }))
         setAddingContact(false)
       }
       setContactForm(emptyContact())
       showToast(editingItem ? 'Contact updated' : 'Contact added')
-    } catch (e) { showToast('Error: ' + e.message) }
+    } catch (e) { showToast(`Error: ${e?.code || e?.message || 'check your connection'}`) }
     setSaving(false)
   }
 
   async function deleteContact(id) {
     if (!await confirm({ title:'Delete contact?', danger:true })) return
-    await deleteDoc(doc(db, 'bulletinContacts', id))
-    showToast('Deleted')
+    try {
+      await deleteDoc(doc(db, 'bulletinContacts', id))
+      showToast('Deleted')
+    } catch(e) { showToast(`Delete failed: ${e?.code || e?.message || 'check your connection'}`) }
   }
 
   // ── Shared style helpers ───────────────────────────────────────────────────
