@@ -322,9 +322,73 @@ Always pass orgId; without it components show fallback data. Picks re-loads inve
 ## Auto Deploy Rule
 After every code change:
 1. Run `npm run build`
-2. If the build succeeds, run `git add . && git commit -m "fix: <short description>" && git push origin main`
-3. Report the live URL so I can test: https://snamburi1980.github.io/dumont-inventory/
-4. If the build fails, fix the errors and retry — do not push a broken build.
-5. If firestore.rules or functions/ changed, also run the matching `firebase deploy --only …`.
+2. If firestore.rules changed, run `npm run test:rules` (needs Java on PATH — see Testing section)
+3. If the build/tests succeed, run `git add . && git commit -m "fix: <short description>" && git push origin main`
+4. Report the live URL so I can test: https://snamburi1980.github.io/dumont-inventory/
+5. If the build or tests fail, fix the errors and retry — do not push broken code.
+6. If firestore.rules or functions/ changed, also run the matching `firebase deploy --only …`.
 
 Never ask me to run build, commit, or push manually.
+
+GitHub Actions now also runs the full test suite (unit + Firestore rules) on every push to
+`main` and every PR — `deploy` only fires if `test` passes (`.github/workflows/deploy.yml`).
+This is a real gate, not just a local courtesy: a push that breaks a test will build fine
+here, get committed, get pushed, and then **not** reach production — check the Actions tab
+if a deploy doesn't show up after a push.
+
+---
+
+## Testing (added Aug 2026, Phase 1 of the SaaS roadmap — see below)
+- **`npm test`** — Vitest unit tests (`tests/unit/`). Currently covers `cloverParser.js` (the
+  Clover export parser, using a fixture that mirrors the real file's preamble/category-section/
+  modifier-row structure) and `withRetry.js` (retry count, backoff, no-retry-on-permission-denied).
+- **`npm run test:rules`** — runs the REAL `firestore.rules` against a local Firestore emulator
+  (`tests/rules/`) via `@firebase/rules-unit-testing@2.0.7` (pinned — the current version needs
+  firebase SDK v12, this app is still on v9). Spins the emulator up and down automatically
+  (`firebase emulators:exec`), no login, no real GCP project touched, zero cost.
+  - **Needs Java on PATH** (the emulator is a JVM process). Installed via `brew install openjdk`
+    (keg-only, not symlinked system-wide — deliberately skipped the `sudo` step since it's not
+    needed). Run tests with: `export PATH="/opt/homebrew/opt/openjdk/bin:$PATH" && npm run test:rules`.
+    GitHub Actions installs its own Java via `actions/setup-java`, no local setup needed there.
+  - Covers: store-level data isolation (Store A can never read/write Store B), store-doc update
+    scoping (store_owner can only edit their own store), role permission boundaries (staff can't
+    approve invoices, manager can't delete a store, only super_owner creates regions), and
+    privilege-escalation attempts on `/users` (can't grant yourself a role, can't forge an
+    invitation, can't reuse an expired one).
+  - **`npm run test:all`** runs both suites.
+
+### KNOWN GAP surfaced by the rules tests — read before starting Phase 2
+Two tests in `Cross-org isolation (Phase 2 readiness check)` are written against the behavior a
+multi-tenant SaaS needs and **pass today only because the current behavior matches a single-tenant
+app**, not because isolation is enforced:
+- `isSuperOwner()` and `isRegionalOwner()` in firestore.rules are **platform-wide, not scoped to
+  one org** — any user with `role: 'super_owner'` (or `role: 'regional_owner'`) can read/write
+  every store in the database, regardless of which org owns it. Fine when there's one tenant
+  (Dumont). Breaks completely the moment a second paying org exists, because their top admin would
+  get the same unscoped role and could read Dumont's data (and vice versa).
+- Fix requires adding org-scoping to these two helper functions (e.g. compare the store's `orgId`
+  against an `orgId` custom claim) and deciding whether "super_owner" stays a single platform-wide
+  role (with a NEW org-scoped role for tenant admins) or becomes org-scoped itself with a separate
+  platform-operator concept layered on top. This is a real design decision, not a one-line fix —
+  it touches onboarding, Cloud Functions claim-stamping, and Admin.jsx's role assumptions. **This
+  is the first item of Phase 2.**
+
+---
+
+## SaaS Roadmap (multi-tenant platform — "Option B", decided Aug 2026)
+Sasi is building toward selling this to other franchise/creamery operators, not just running
+Dumont's own stores. Four phases, in order — don't skip ahead to billing/self-serve signup before
+the foundation is trustworthy:
+- **Phase 1 — Trust the foundation:** automated tests + CI gate (DONE, this section) + a staging
+  Firebase project separate from production (NOT done — no new cloud project created yet, needs
+  Sasi's explicit go-ahead since it's a real cloud resource with billing implications).
+- **Phase 2 — True multi-tenancy audit:** fix the cross-org isolation gap above; separate
+  "platform operator" (Sasi) from "tenant admin" (a customer's own top user) — today they're the
+  same `super_owner` role.
+- **Phase 3 — Self-serve:** tenant signup/provisioning flow, Stripe billing (explicitly deferred
+  until now — see Critical Architecture Decisions), white-labeling (orgs already have
+  logo/brandColor fields; UI doesn't consistently use them yet, still has hardcoded Dumont
+  branding/Monty in places).
+- **Phase 4 — Enterprise trust features:** SSO/SAML, granular permissions beyond the 5 fixed
+  roles, formal audit/compliance posture, SLA monitoring. Only matters once selling to larger
+  operators, not the first few franchise customers.
